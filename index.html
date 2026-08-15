@@ -988,8 +988,8 @@
 
     const { text: translated } = await translateToEnglish(raw);
     const final = referenceImage
-      ? "Using the attached reference image as the base, keep its main subject, " +
-        "character, and pose recognizable. Apply this edit: " + translated;
+    ? "Using the attached reference image as the base, keep its main subject, character, and pose recognizable. Apply this edit: " + translated
+    : translated;
 
     navigator.clipboard.writeText(final).then(() => {
       btn.textContent = "Copied ✓";
@@ -1130,10 +1130,8 @@
     // image as the base, instead of a full scene description that
     // competes with (and often overrides) the reference photo.
     const finalPrompt = referenceImage
-      ? "Using the attached reference image as the base, keep its main subject, " +
-        "character, and pose recognizable. Apply this edit: " + translated + ". " +
-        "Render it in this style: " + ROBLOX_BOOST_EDIT
-      : translated + ", " + ROBLOX_BOOST;
+    ? "Using the attached reference image as the base, keep its main subject, character, and pose recognizable. Apply this edit: " + translated
+    : translated;
 
     status.textContent = referenceImage ? "Editing your reference image…" : "Generating icon…";
 
