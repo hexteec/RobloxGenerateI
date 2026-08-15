@@ -989,9 +989,7 @@
     const { text: translated } = await translateToEnglish(raw);
     const final = referenceImage
       ? "Using the attached reference image as the base, keep its main subject, " +
-        "character, and pose recognizable. Apply this edit: " + translated + ". " +
-        "Render it in this style: " + ROBLOX_BOOST_EDIT
-      : translated + ", " + ROBLOX_BOOST;
+        "character, and pose recognizable. Apply this edit: " + translated"
 
     navigator.clipboard.writeText(final).then(() => {
       btn.textContent = "Copied ✓";
