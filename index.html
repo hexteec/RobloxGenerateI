@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>AI Image Generator</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #111827, #0f172a);
+            color: white;
+            font-family: Arial, sans-serif;
+
+            display: flex;
+            justify-content: center;
+
+            padding: 50px 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1000px;
+        }
+
+        h1 {
+            font-size: 36px;
+            margin-bottom: 30px;
+        }
+
+        .box {
+            background: #1e293b;
+            padding: 25px;
+            border-radius: 15px;
+        }
+
+        #prompt {
+            width: 100%;
+            padding: 15px;
+
+            border-radius: 10px;
+            border: none;
+            outline: none;
+
+            font-size: 17px;
+
+            margin-bottom: 15px;
+        }
+
+        #imageInput {
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        #preview {
+            max-width: 200px;
+            max-height: 200px;
+
+            margin-top: 5px;
+            margin-bottom: 20px;
+
+            border-radius: 10px;
+
+            display: none;
+        }
+
+        button {
+            border: none;
+
+            background: #6366f1;
+            color: white;
+
+            padding: 13px 25px;
+
+            border-radius: 10px;
+
+            font-size: 16px;
+
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #4f46e5;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        #status {
+            margin-top: 20px;
+
+            min-height: 24px;
+
+            color: #cbd5e1;
+        }
+
+        #result {
+            width: 100%;
+            max-width: 900px;
+
+            margin-top: 25px;
+
+            border-radius: 15px;
+
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>🌻 AI Image Generator</h1>
+
+    <div class="box">
+
+        <input
+            id="prompt"
+            type="text"
+            placeholder="Wpisz prompt..."
+        >
+
+        <input
+            id="imageInput"
+            type="file"
+            accept="image/png,image/jpeg,image/webp"
+        >
+
+        <img
+            id="preview"
+            alt="Preview"
+        >
+
+        <br>
+
+        <button
+            id="generateButton"
+            onclick="generateImage()"
+        >
+            Generate
+        </button>
+
+        <div id="status"></div>
+
+        <img
+            id="result"
+            alt="Generated image"
+        >
+
+    </div>
+
+</div>
+
+
+<script>
+
+    // ==================================================
+    // WAŻNE:
+    // WSTAW TUTAJ ADRES SWOJEGO CLOUDFLARE WORKERA
+    // ==================================================
+
+const WORKER_URL =
+    "https://robloxgenerate.hexteec.workers.dev";
+
+    // ==================================================
+    // GENEROWANIE
+    // ==================================================
+
+    async function generateImage() {
+
+        const prompt =
+            document
+                .getElementById("prompt")
+                .value
+                .trim();
+
+        const imageInput =
+            document
+                .getElementById("imageInput");
+
+        const result =
+            document
+                .getElementById("result");
+
+        const status =
+            document
+                .getElementById("status");
+
+        const button =
+            document
+                .getElementById("generateButton");
+
+
+        if (!prompt) {
+
+            alert("Wpisz prompt!");
+
+            return;
+        }
+
+
+        button.disabled = true;
+
+        result.style.display = "none";
+
+        status.innerText =
+            "⏳ Przygotowywanie...";
+
+
+        let image = null;
+
+
+        // ==================================================
+        // JEŚLI UŻYTKOWNIK WYBRAŁ OBRAZ
+        // ==================================================
+
+        if (imageInput.files.length > 0) {
+
+            status.innerText =
+                "📤 Wczytywanie obrazu...";
+
+            image =
+                await fileToBase64(
+                    imageInput.files[0]
+                );
+        }
+
+
+        try {
+
+            status.innerText =
+                image
+                    ? "🎨 Edycja obrazu..."
+                    : "🎨 Generowanie obrazu...";
+
+
+            // ==================================================
+            // REQUEST DO CLOUDFLARE WORKER
+            // ==================================================
+
+            const response =
+                await fetch(
+                    WORKER_URL + "/generate",
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body:
+                            JSON.stringify({
+                                prompt: prompt,
+                                image: image
+                            })
+                    }
+                );
+
+
+            // ==================================================
+            // BŁĄD
+            // ==================================================
+
+            if (!response.ok) {
+
+                let errorText;
+
+                try {
+
+                    const data =
+                        await response.json();
+
+                    errorText =
+                        data.error ||
+                        JSON.stringify(data);
+
+                }
+
+                catch {
+
+                    errorText =
+                        await response.text();
+                }
+
+                throw new Error(
+                    errorText
+                );
+            }
+
+
+            // ==================================================
+            // OBRAZ
+            // ==================================================
+
+            const blob =
+                await response.blob();
+
+
+            const imageUrl =
+                URL.createObjectURL(blob);
+
+
+            result.src =
+                imageUrl;
+
+
+            result.style.display =
+                "block";
+
+
+            status.innerText =
+                "✅ Gotowe!";
+
+        }
+
+        catch (error) {
+
+            console.error(error);
+
+            status.innerText =
+                "❌ Błąd: " +
+                error.message;
+        }
+
+        finally {
+
+            button.disabled = false;
+        }
+    }
+
+
+    // ==================================================
+    // FILE → BASE64
+    // ==================================================
+
+    function fileToBase64(file) {
+
+        return new Promise(
+            (resolve, reject) => {
+
+                const reader =
+                    new FileReader();
+
+                reader.onload =
+                    () => {
+
+                        resolve(
+                            reader.result
+                        );
+
+                    };
+
+                reader.onerror =
+                    () => {
+
+                        reject(
+                            new Error(
+                                "Nie można odczytać obrazu."
+                            )
+                        );
+
+                    };
+
+                reader.readAsDataURL(file);
+            }
+        );
+    }
+
+
+    // ==================================================
+    // PREVIEW OBRAZU
+    // ==================================================
+
+    document
+        .getElementById("imageInput")
+        .addEventListener(
+            "change",
+            function () {
+
+                const file =
+                    this.files[0];
+
+                const preview =
+                    document
+                        .getElementById(
+                            "preview"
+                        );
+
+
+                if (!file) {
+
+                    preview.style.display =
+                        "none";
+
+                    return;
+                }
+
+
+                preview.src =
+                    URL.createObjectURL(file);
+
+                preview.style.display =
+                    "block";
+            }
+        );
+
+
+    // ==================================================
+    // ENTER
+    // ==================================================
+
+    document
+        .getElementById("prompt")
+        .addEventListener(
+            "keydown",
+            function(event) {
+
+                if (
+                    event.key === "Enter"
+                ) {
+
+                    generateImage();
+
+                }
+
+            }
+        );
+
+</script>
+
+</body>
+</html>
