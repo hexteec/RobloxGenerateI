@@ -52,6 +52,7 @@
     color: var(--ink);
     font-family: var(--font-body);
     -webkit-font-smoothing: antialiased;
+    position: relative;
   }
 
   ::selection{ background: var(--amber); color: var(--ink); }
@@ -115,17 +116,57 @@
     100%{ background-position: 200% 0; }
   }
 
+  /* Bigger, slower wander used by the floating background glass blocks */
+  @keyframes driftBig{
+    0%{ transform: translate(0,0) rotate(0deg); }
+    25%{ transform: translate(16px,-22px) rotate(9deg); }
+    50%{ transform: translate(-12px,-6px) rotate(-7deg); }
+    75%{ transform: translate(10px,16px) rotate(5deg); }
+    100%{ transform: translate(0,0) rotate(0deg); }
+  }
+
   @media (prefers-reduced-motion: reduce){
     *{ animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
   }
+
+  /* ---------- Floating background glass blocks (whole page) ---------- */
+
+  .bg-blocks{
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .bg-block{
+    position: absolute;
+    border-radius: 30%;
+    background: linear-gradient(135deg, rgba(255,255,255,0.6), rgba(255,255,255,0.08));
+    backdrop-filter: blur(7px) saturate(160%);
+    -webkit-backdrop-filter: blur(7px) saturate(160%);
+    border: 1px solid rgba(255,255,255,0.55);
+    box-shadow: 0 6px 18px rgba(52,87,255,0.10), inset 0 1px 1px rgba(255,255,255,0.75);
+    animation: driftBig 14s ease-in-out infinite;
+  }
+
+  .bg-block.round{ border-radius: 50%; }
 
   /* ---------- Hero ---------- */
 
   .hero{
     position:relative;
-    overflow:hidden;
     border-bottom: 1px solid var(--border);
     background: linear-gradient(180deg, #FBFCFF 0%, var(--bg) 100%);
+    z-index: 1;
+  }
+
+  .hero-decor{
+    position:absolute;
+    inset:0;
+    overflow:hidden;
+    pointer-events:none;
+    z-index:0;
   }
 
   .hero-blob{
@@ -153,6 +194,7 @@
 
   .hero-inner{
     position:relative;
+    z-index:1;
     max-width:1180px;
     margin:0 auto;
     padding: 40px 28px 56px;
@@ -225,9 +267,61 @@
     animation: floatUp 0.6s ease 0.16s both;
   }
 
+  /* ---------- Hero banner (liquid-glass TEXT, no background panel) ----------
+     Sits on the right, straddling the hero's bottom border line.
+     Wider than tall. The uploaded image is used purely as a SHAPE MASK:
+     its alpha silhouette (the text/logo) is cut out of a blurred, refractive
+     "glass" layer, so what you see is the text itself rendered as frosted
+     glass with the page showing through it — not a colored box behind it. */
+
+  .hero-badge{
+    position:absolute;
+    right:28px;
+    bottom:-34px;
+    z-index:3;
+    width:196px;
+    height:68px;
+    animation: floatUp 0.6s ease 0.2s both, bob 5.2s ease-in-out infinite 0.6s;
+  }
+
+  .hero-badge-glass{
+    position:absolute;
+    inset:0;
+    display:none; /* toggled on by JS once a real image is set */
+    background: linear-gradient(135deg, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.2) 100%);
+    backdrop-filter: blur(16px) saturate(200%);
+    -webkit-backdrop-filter: blur(16px) saturate(200%);
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-position: center;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+    filter: drop-shadow(0 6px 14px rgba(20,23,42,0.16));
+  }
+
+  .hero-badge img{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    object-fit:contain;
+    opacity:0; /* invisible — only used as the mask source + alt text for a11y */
+    pointer-events:none;
+  }
+
+  @media (max-width: 900px){
+    .hero-badge{
+      position:static;
+      margin: 18px auto 0;
+    }
+  }
+
   /* ---------- Layout ---------- */
 
   .workshop{
+    position:relative;
+    z-index:1;
     max-width:1180px;
     margin:0 auto;
     padding: 40px 28px 90px;
@@ -304,15 +398,18 @@
   #prompt::placeholder{ color: var(--ink-faint); }
   #prompt:focus{ outline:none; border-color: var(--cobalt); background: var(--card); }
 
+  /* Prompt tools row — the Enhance button now sits on the SAME row as the
+     character counter, tops aligned via align-items:flex-start. */
   .prompt-tools{
     display:flex;
-    justify-content:flex-end;
-    align-items:center;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:12px;
     margin-top:9px;
-    margin-bottom:14px;
+    margin-bottom:22px;
   }
 
-  #charCount{ font-family: var(--font-mono); font-size:12px; color: var(--ink-faint); }
+  #charCount{ font-family: var(--font-mono); font-size:12px; color: var(--ink-faint); white-space:nowrap; }
 
   /* ---------- Enhance with AI button (replaces boost toggle) ---------- */
 
@@ -334,7 +431,6 @@
     border: 1px solid #D7DEFF;
     padding:9px 16px;
     border-radius:999px;
-    margin-bottom:22px;
     cursor:pointer;
     transition: border-color .15s ease, transform .12s ease, box-shadow .15s ease;
   }
@@ -671,6 +767,8 @@
   }
 
   footer{
+    position:relative;
+    z-index:1;
     text-align:center;
     padding: 26px 20px 44px;
     color: var(--ink-faint);
@@ -682,12 +780,42 @@
 
 <body>
 
+<!-- Small liquid-glass blocks floating in the background across the whole page -->
+<div class="bg-blocks" aria-hidden="true">
+  <div class="bg-block" style="top:6vh; left:8%; width:22px; height:22px; animation-duration:13s; animation-delay:0s; background:linear-gradient(135deg, rgba(52,87,255,0.30), rgba(255,255,255,0.06));"></div>
+  <div class="bg-block round" style="top:14vh; left:22%; width:14px; height:14px; animation-duration:10s; animation-delay:1.2s; background:linear-gradient(135deg, rgba(31,185,131,0.30), rgba(255,255,255,0.06));"></div>
+  <div class="bg-block" style="top:3vh; left:46%; width:18px; height:18px; animation-duration:15s; animation-delay:0.5s; background:linear-gradient(135deg, rgba(255,176,32,0.32), rgba(255,255,255,0.06));"></div>
+  <div class="bg-block round" style="top:20vh; left:64%; width:26px; height:26px; animation-duration:16s; animation-delay:2s; background:linear-gradient(135deg, rgba(255,111,89,0.28), rgba(255,255,255,0.06));"></div>
+  <div class="bg-block" style="top:9vh; left:82%; width:16px; height:16px; animation-duration:11s; animation-delay:0.8s; background:linear-gradient(135deg, rgba(52,87,255,0.28), rgba(255,255,255,0.06));"></div>
+  <div class="bg-block round" style="top:26vh; left:92%; width:20px; height:20px; animation-duration:14s; animation-delay:1.6s; background:linear-gradient(135deg, rgba(255,255,255,0.6), rgba(255,255,255,0.06));"></div>
+
+  <div class="bg-block" style="top:34vh; left:4%; width:24px; height:24px; animation-duration:12s; animation-delay:0.3s; background:linear-gradient(135deg, rgba(255,176,32,0.30), rgba(255,255,255,0.06));"></div>
+  <div class="bg-block round" style="top:40vh; left:16%; width:16px; height:16px; animation-duration:17s; animation-delay:2.4s; background:linear-gradient(135deg, rgba(52,87,255,0.30), rgba(255,255,255,0.06));"></div>
+  <div class="bg-block" style="top:46vh; left:34%; width:14px; height:14px; animation-duration:10s; animation-delay:1s; background:linear-gradient(135deg, rgba(31,185,131,0.28), rgba(255,255,255,0.06));"></div>
+  <div class="bg-block round" style="top:38vh; left:58%; width:22px; height:22px; animation-duration:13.5s; animation-delay:0.6s; background:linear-gradient(135deg, rgba(255,111,89,0.26), rgba(255,255,255,0.06));"></div>
+  <div class="bg-block" style="top:50vh; left:76%; width:18px; height:18px; animation-duration:15.5s; animation-delay:1.9s; background:linear-gradient(135deg, rgba(255,255,255,0.6), rgba(255,255,255,0.06));"></div>
+  <div class="bg-block round" style="top:32vh; left:90%; width:15px; height:15px; animation-duration:11.5s; animation-delay:0.2s; background:linear-gradient(135deg, rgba(52,87,255,0.28), rgba(255,255,255,0.06));"></div>
+
+  <div class="bg-block" style="top:62vh; left:10%; width:20px; height:20px; animation-duration:14.5s; animation-delay:1.4s; background:linear-gradient(135deg, rgba(255,176,32,0.28), rgba(255,255,255,0.06));"></div>
+  <div class="bg-block round" style="top:70vh; left:26%; width:26px; height:26px; animation-duration:12.5s; animation-delay:0.9s; background:linear-gradient(135deg, rgba(31,185,131,0.28), rgba(255,255,255,0.06));"></div>
+  <div class="bg-block" style="top:64vh; left:48%; width:14px; height:14px; animation-duration:16.5s; animation-delay:2.2s; background:linear-gradient(135deg, rgba(52,87,255,0.28), rgba(255,255,255,0.06));"></div>
+  <div class="bg-block round" style="top:76vh; left:66%; width:18px; height:18px; animation-duration:10.5s; animation-delay:0.4s; background:linear-gradient(135deg, rgba(255,111,89,0.26), rgba(255,255,255,0.06));"></div>
+  <div class="bg-block" style="top:58vh; left:84%; width:22px; height:22px; animation-duration:13s; animation-delay:1.7s; background:linear-gradient(135deg, rgba(255,255,255,0.6), rgba(255,255,255,0.06));"></div>
+
+  <div class="bg-block round" style="top:86vh; left:14%; width:16px; height:16px; animation-duration:15s; animation-delay:0.7s; background:linear-gradient(135deg, rgba(255,176,32,0.28), rgba(255,255,255,0.06));"></div>
+  <div class="bg-block" style="top:92vh; left:38%; width:24px; height:24px; animation-duration:11s; animation-delay:2.1s; background:linear-gradient(135deg, rgba(52,87,255,0.28), rgba(255,255,255,0.06));"></div>
+  <div class="bg-block round" style="top:88vh; left:60%; width:14px; height:14px; animation-duration:14s; animation-delay:0.1s; background:linear-gradient(135deg, rgba(31,185,131,0.28), rgba(255,255,255,0.06));"></div>
+  <div class="bg-block" style="top:94vh; left:78%; width:20px; height:20px; animation-duration:16s; animation-delay:1.3s; background:linear-gradient(135deg, rgba(255,111,89,0.26), rgba(255,255,255,0.06));"></div>
+</div>
+
 <div class="hero">
-  <div class="hero-blob" aria-hidden="true"></div>
-  <div class="hero-shape s1" aria-hidden="true"></div>
-  <div class="hero-shape s2" aria-hidden="true"></div>
-  <div class="hero-shape s3" aria-hidden="true"></div>
-  <div class="hero-shape s4" aria-hidden="true"></div>
+  <div class="hero-decor" aria-hidden="true">
+    <div class="hero-blob"></div>
+    <div class="hero-shape s1"></div>
+    <div class="hero-shape s2"></div>
+    <div class="hero-shape s3"></div>
+    <div class="hero-shape s4"></div>
+  </div>
 
   <div class="hero-inner">
     <div class="hero-top">
@@ -697,6 +825,16 @@
     </div>
     <h1>Build icons that <span class="accent">pop</span> in the game list.</h1>
     <p class="lede">Describe your idea in any language, or drop a reference image — it's translated to English and tuned for Roblox before it's generated, and you'll see it live in a game, badge, group, or gamepass frame.</p>
+
+    <!-- Liquid-glass banner. The image itself becomes frosted glass —
+         no colored panel behind it. Use a PNG with a transparent
+         background and solid-shape text/logo (the alpha silhouette is
+         what gets cut out of the glass layer). -->
+    <div class="hero-badge">
+      <div class="hero-badge-glass" id="bannerGlass"></div>
+      <!-- Podmień src na własny obrazek zawierający tekst/logo baneru (transparentne tło) -->
+      <img id="bannerImage" src="textlogo.png" alt="Banner">
+    </div>
   </div>
 </div>
 
@@ -710,15 +848,15 @@
 
       <label class="field-label" for="prompt">Describe the icon <span class="field-hint">— any language works</span></label>
       <textarea id="prompt" placeholder="e.g. a red dragon coiled around a gold coin, simulator game style, dramatic lighting"></textarea>
+
       <div class="prompt-tools">
+        <button type="button" class="enhance-btn" id="enhanceBtn" onclick="enhancePrompt()">
+          <span class="spark">₪</span>
+          <span id="enhanceLabel">Enhance prompt with AI</span>
+          <span class="mini-loader" id="enhanceLoader"><span></span><span></span><span></span></span>
+        </button>
         <span id="charCount">0 characters</span>
       </div>
-
-      <button type="button" class="enhance-btn" id="enhanceBtn" onclick="enhancePrompt()">
-        <span class="spark">₪</span>
-        <span id="enhanceLabel">Enhance prompt with AI</span>
-        <span class="mini-loader" id="enhanceLoader"><span></span><span></span><span></span></span>
-      </button>
 
       <label class="field-label">Style</label>
       <div class="chip-row" id="chipRow"></div>
@@ -862,6 +1000,7 @@
     renderChips();
     bindTemplatePicker();
     bindDropzone();
+    bindBannerMask();
 
     const promptEl = document.getElementById("prompt");
     promptEl.addEventListener("input", updateCharCount);
@@ -908,6 +1047,33 @@
   function updateCharCount() {
     const len = document.getElementById("prompt").value.length;
     document.getElementById("charCount").textContent = len + " characters";
+  }
+
+  // ==================================================
+  // HERO BANNER — liquid-glass text mask
+  // Uses the banner <img>'s own src as a CSS mask-image on the glass
+  // layer, so the frosted/refractive effect is clipped exactly to the
+  // shape of the text/logo instead of showing a rectangular panel.
+  // ==================================================
+
+  function bindBannerMask() {
+    const img = document.getElementById("bannerImage");
+    const glass = document.getElementById("bannerGlass");
+
+    function sync() {
+      const src = img.getAttribute("src");
+      if (!src) {
+        glass.style.display = "none";
+        return;
+      }
+      glass.style.webkitMaskImage = `url("${src}")`;
+      glass.style.maskImage = `url("${src}")`;
+      glass.style.display = "block";
+    }
+
+    img.addEventListener("load", sync);
+    img.addEventListener("error", () => { glass.style.display = "none"; });
+    sync();
   }
 
   // ==================================================
