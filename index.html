@@ -735,6 +735,9 @@
           <button class="remove-ref" onclick="clearReference()">Remove</button>
         </div>
       </div>
+      <div class="field-hint" id="refHint" style="display:none; margin-top:8px; line-height:1.5;">
+        With a reference image attached, your prompt is treated as an edit instruction — describe what to change, and the original subject stays intact.
+      </div>
 
       <button class="generate-btn" id="generateButton" onclick="generateImage()">
         <span class="block-loader" id="spinner"><span></span><span></span><span></span></span>
@@ -823,6 +826,19 @@
     "thick clean outlines, single subject centered and filling the frame, " +
     "dramatic rim lighting, high contrast, simple uncluttered background, " +
     "sharp and instantly readable at a small thumbnail size, square composition, " +
+    "no text, no watermark, no logos, no UI elements";
+
+  // ==================================================
+  // Lighter style suffix used when a reference image is present.
+  // Deliberately avoids "single subject centered / filling the frame"
+  // and other full-composition language, since that competes with the
+  // reference image for control over the layout and tends to make
+  // Kontext ignore the uploaded photo. Only touches rendering style.
+  // ==================================================
+  const ROBLOX_BOOST_EDIT =
+    "Roblox game icon style, vibrant saturated colors, glossy 3D toy-like render, " +
+    "thick clean outlines, dramatic rim lighting, high contrast, " +
+    "sharp and instantly readable at a small thumbnail size, " +
     "no text, no watermark, no logos, no UI elements";
 
   // ==================================================
@@ -926,7 +942,7 @@
       const response = await fetch(WORKER_URL + "/enhance", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: raw })
+        body: JSON.stringify({ prompt: raw, hasReference: !!referenceImage })
       });
 
       if (!response.ok) {
@@ -971,7 +987,11 @@
     btn.textContent = "Translating…";
 
     const { text: translated } = await translateToEnglish(raw);
-    const final = translated + ", " + ROBLOX_BOOST;
+    const final = referenceImage
+      ? "Using the attached reference image as the base, keep its main subject, " +
+        "character, and pose recognizable. Apply this edit: " + translated + ". " +
+        "Render it in this style: " + ROBLOX_BOOST_EDIT
+      : translated + ", " + ROBLOX_BOOST;
 
     navigator.clipboard.writeText(final).then(() => {
       btn.textContent = "Copied ✓";
@@ -1060,12 +1080,14 @@
     document.getElementById("refPreview").src = URL.createObjectURL(file);
     document.getElementById("refFileName").textContent = file.name;
     document.getElementById("previewRow").classList.add("show");
+    document.getElementById("refHint").style.display = "block";
   }
 
   function clearReference() {
     referenceImage = null;
     document.getElementById("imageInput").value = "";
     document.getElementById("previewRow").classList.remove("show");
+    document.getElementById("refHint").style.display = "none";
   }
 
   function fileToBase64(file) {
@@ -1104,7 +1126,16 @@
 
     // Always translate fresh right before sending.
     const { text: translated } = await translateToEnglish(raw);
-    const finalPrompt = translated + ", " + ROBLOX_BOOST;
+
+    // When a reference image is attached, phrase the prompt as an edit
+    // instruction that explicitly tells the model to keep the uploaded
+    // image as the base, instead of a full scene description that
+    // competes with (and often overrides) the reference photo.
+    const finalPrompt = referenceImage
+      ? "Using the attached reference image as the base, keep its main subject, " +
+        "character, and pose recognizable. Apply this edit: " + translated + ". " +
+        "Render it in this style: " + ROBLOX_BOOST_EDIT
+      : translated + ", " + ROBLOX_BOOST;
 
     status.textContent = referenceImage ? "Editing your reference image…" : "Generating icon…";
 
