@@ -715,7 +715,7 @@
       </div>
 
       <button type="button" class="enhance-btn" id="enhanceBtn" onclick="enhancePrompt()">
-        <span class="spark"></span>
+        <span class="spark">₪</span>
         <span id="enhanceLabel">Enhance prompt with AI</span>
         <span class="mini-loader" id="enhanceLoader"><span></span><span></span><span></span></span>
       </button>
@@ -989,7 +989,7 @@
     const { text: translated } = await translateToEnglish(raw);
     const final = referenceImage
       ? "Using the attached reference image as the base, keep its main subject, " +
-        "character, and pose recognizable. Apply this edit: " + translated"
+        "character, and pose recognizable. Apply this edit: " + translated;
 
     navigator.clipboard.writeText(final).then(() => {
       btn.textContent = "Copied ✓";
