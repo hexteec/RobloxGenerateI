@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="pl">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Warsztat Ikon — generator ikon Roblox</title>
+<title>Icon Workshop — Roblox icon generator</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -31,7 +31,6 @@
   }
 
   *{ box-sizing:border-box; }
-
   html{ color-scheme: dark; }
 
   body{
@@ -47,13 +46,12 @@
   }
 
   ::selection{ background: var(--volt); color:#0B0E13; }
-
   a{ color: inherit; }
-
   button{ font-family: inherit; }
 
   button:focus-visible,
   input:focus-visible,
+  textarea:focus-visible,
   [tabindex]:focus-visible{
     outline: 2px solid var(--volt);
     outline-offset: 2px;
@@ -127,7 +125,7 @@
     color: var(--text-muted);
     font-size:16px;
     line-height:1.55;
-    max-width: 560px;
+    max-width: 580px;
     margin:0;
   }
 
@@ -138,7 +136,7 @@
     margin:0 auto;
     padding: 34px 28px 80px;
     display:grid;
-    grid-template-columns: minmax(0, 420px) 1fr;
+    grid-template-columns: minmax(0, 440px) 1fr;
     gap:22px;
     align-items:start;
   }
@@ -180,6 +178,12 @@
     margin-bottom:8px;
   }
 
+  .field-hint{
+    font-size:12px;
+    color: var(--text-faint);
+    font-weight:400;
+  }
+
   .prompt-wrap{ position:relative; margin-bottom:6px; }
 
   #prompt{
@@ -198,18 +202,14 @@
   }
 
   #prompt::placeholder{ color: var(--text-faint); }
-
-  #prompt:focus{
-    outline:none;
-    border-color: var(--volt-dim);
-  }
+  #prompt:focus{ outline:none; border-color: var(--volt-dim); }
 
   .prompt-tools{
     display:flex;
     justify-content:space-between;
     align-items:center;
     margin-top:8px;
-    margin-bottom:16px;
+    margin-bottom:18px;
   }
 
   .ghost-btn{
@@ -237,7 +237,7 @@
     display:flex;
     flex-wrap:wrap;
     gap:8px;
-    margin-bottom:18px;
+    margin-bottom:20px;
   }
 
   .chip{
@@ -259,6 +259,116 @@
     color: var(--volt);
   }
 
+  /* ---------- Translate module ---------- */
+
+  .translate-panel{
+    background: var(--bg-raised);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:14px 16px;
+    margin-bottom:20px;
+  }
+
+  .translate-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:10px;
+  }
+
+  .translate-title{
+    font-family: var(--font-mono);
+    font-size:11.5px;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    color: var(--cyan);
+    display:flex;
+    align-items:center;
+    gap:7px;
+  }
+
+  .lang-badge{
+    font-family: var(--font-mono);
+    font-size:11px;
+    color: var(--text-faint);
+    background: var(--bg-raised-2);
+    border:1px solid var(--line);
+    padding:3px 8px;
+    border-radius:6px;
+  }
+
+  #translatedPreview{
+    font-size:13.5px;
+    line-height:1.5;
+    color: var(--text-muted);
+    min-height:20px;
+  }
+
+  #translatedPreview.pending{ color: var(--text-faint); font-style:italic; }
+  #translatedPreview .en-text{ color: var(--text); }
+
+  .boost-toggle{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-top:12px;
+    padding-top:12px;
+    border-top:1px solid var(--line);
+  }
+
+  .boost-toggle-label{
+    font-size:12.5px;
+    color: var(--text-muted);
+    display:flex;
+    flex-direction:column;
+    gap:2px;
+  }
+
+  .boost-toggle-label strong{ color: var(--text); font-size:13px; }
+
+  .switch{
+    position:relative;
+    width:40px; height:22px;
+    flex-shrink:0;
+  }
+
+  .switch input{
+    opacity:0;
+    width:100%; height:100%;
+    position:absolute;
+    margin:0;
+    cursor:pointer;
+    z-index:1;
+  }
+
+  .switch-track{
+    position:absolute;
+    inset:0;
+    background: var(--bg-raised-2);
+    border:1px solid var(--line);
+    border-radius:999px;
+    transition: background .15s ease, border-color .15s ease;
+  }
+
+  .switch-thumb{
+    position:absolute;
+    top:2px; left:2px;
+    width:16px; height:16px;
+    background: var(--text-faint);
+    border-radius:50%;
+    transition: transform .15s ease, background .15s ease;
+  }
+
+  .switch input:checked ~ .switch-track{
+    background: rgba(212,255,61,0.18);
+    border-color: var(--volt);
+  }
+
+  .switch input:checked ~ .switch-thumb{
+    transform: translateX(18px);
+    background: var(--volt);
+  }
+
   /* ---------- Upload dropzone ---------- */
 
   .dropzone{
@@ -272,10 +382,7 @@
     position:relative;
   }
 
-  .dropzone.drag{
-    border-color: var(--volt);
-    background: rgba(212,255,61,0.06);
-  }
+  .dropzone.drag{ border-color: var(--volt); background: rgba(212,255,61,0.06); }
 
   .dropzone input[type=file]{
     position:absolute;
@@ -284,11 +391,7 @@
     cursor:pointer;
   }
 
-  .dropzone-label{
-    font-size:13px;
-    color: var(--text-muted);
-  }
-
+  .dropzone-label{ font-size:13px; color: var(--text-muted); }
   .dropzone-label strong{ color: var(--volt); font-weight:600; }
 
   .preview-row{
@@ -342,11 +445,7 @@
 
   .generate-btn:hover:not(:disabled){ background:#e2ff6e; }
   .generate-btn:active:not(:disabled){ transform: scale(0.98); }
-
-  .generate-btn:disabled{
-    opacity:0.45;
-    cursor:not-allowed;
-  }
+  .generate-btn:disabled{ opacity:0.45; cursor:not-allowed; }
 
   .status-line{
     margin-top:14px;
@@ -372,7 +471,6 @@
   }
 
   .spinner.show{ display:inline-block; }
-
   @keyframes spin{ to{ transform: rotate(360deg); } }
 
   /* ---------- Template picker ---------- */
@@ -415,10 +513,7 @@
     border-radius:0;
     clip-path: polygon(50% 0%, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%);
   }
-  .t-pass .template-shape{
-    border-radius:8px;
-    position:relative;
-  }
+  .t-pass .template-shape{ border-radius:8px; position:relative; }
   .t-pass .template-shape::after{
     content:"";
     position:absolute;
@@ -473,17 +568,8 @@
     min-height:380px;
   }
 
-  .empty-state{
-    text-align:center;
-    color: var(--text-faint);
-  }
-
-  .empty-state .glyph{
-    font-size:38px;
-    margin-bottom:10px;
-    opacity:0.6;
-  }
-
+  .empty-state{ text-align:center; color: var(--text-faint); }
+  .empty-state .glyph{ font-size:38px; margin-bottom:10px; opacity:0.6; }
   .empty-state p{
     font-family: var(--font-mono);
     font-size:12.5px;
@@ -492,13 +578,7 @@
     line-height:1.6;
   }
 
-  .frame-wrap{
-    display:none;
-    flex-direction:column;
-    align-items:center;
-    gap:16px;
-  }
-
+  .frame-wrap{ display:none; flex-direction:column; align-items:center; gap:16px; }
   .frame-wrap.show{ display:flex; }
 
   .icon-frame{
@@ -517,11 +597,7 @@
   }
   .icon-frame.t-pass{ border-radius:20px; }
 
-  #result{
-    width:100%; height:100%;
-    object-fit:cover;
-    display:block;
-  }
+  #result{ width:100%; height:100%; object-fit:cover; display:block; }
 
   .frame-caption{
     font-family: var(--font-mono);
@@ -530,11 +606,7 @@
     letter-spacing:0.04em;
   }
 
-  .canvas-actions{
-    display:flex;
-    gap:10px;
-    margin-top:18px;
-  }
+  .canvas-actions{ display:flex; gap:10px; margin-top:18px; }
 
   .action-btn{
     flex:1;
@@ -550,11 +622,8 @@
   }
 
   .action-btn:hover{ border-color: var(--cyan); }
-
-  .action-btn.primary{
-    border-color: var(--cyan);
-    color: var(--cyan);
-  }
+  .action-btn.primary{ border-color: var(--cyan); color: var(--cyan); }
+  .action-btn:disabled{ opacity:0.4; cursor:not-allowed; }
 
   /* ---------- History strip ---------- */
 
@@ -566,19 +635,9 @@
     color: var(--text-faint);
   }
 
-  .history-strip{
-    display:flex;
-    gap:10px;
-    overflow-x:auto;
-    padding-bottom:4px;
-  }
+  .history-strip{ display:flex; gap:10px; overflow-x:auto; padding-bottom:4px; }
 
-  .history-item{
-    flex:0 0 auto;
-    width:64px;
-    cursor:pointer;
-    text-align:center;
-  }
+  .history-item{ flex:0 0 auto; width:64px; cursor:pointer; text-align:center; }
 
   .history-item img{
     width:64px; height:64px;
@@ -616,9 +675,9 @@
 
 <div class="blueprint">
   <div class="blueprint-inner">
-    <span class="eyebrow">Warsztat ikon · Roblox</span>
-    <h1>Buduj ikony, które <span class="accent">wybijają się</span> na liście gier.</h1>
-    <p class="lede">Opisz pomysł albo wgraj referencję — wygenerujesz gotową ikonę i od razu zobaczysz, jak wygląda w ramce gry, odznaki, grupy lub gamepassu.</p>
+    <span class="eyebrow">Icon Workshop · Roblox</span>
+    <h1>Build icons that <span class="accent">pop</span> in the game list.</h1>
+    <p class="lede">Describe your idea in any language, or drop a reference image — it's auto-translated to English and tuned for Roblox before it's generated, and you'll see it live in a game, badge, group, or gamepass frame.</p>
   </div>
 </div>
 
@@ -630,42 +689,62 @@
     <div class="panel">
       <p class="panel-title"><span>01 · Prompt</span><span class="idx">req</span></p>
 
-      <label class="field-label" for="prompt">Opisz ikonę</label>
+      <label class="field-label" for="prompt">Describe the icon <span class="field-hint">— any language works</span></label>
       <div class="prompt-wrap">
-        <textarea id="prompt" placeholder="np. czerwony smok owinięty wokół złotej monety, styl gry symulator, dramatyczne oświetlenie"></textarea>
+        <textarea id="prompt" placeholder="e.g. a red dragon coiled around a gold coin, simulator game style, dramatic lighting"></textarea>
       </div>
       <div class="prompt-tools">
-        <button class="ghost-btn" type="button" onclick="randomizePrompt()">🎲 Losuj pomysł</button>
-        <span id="charCount">0 znaków</span>
+        <button class="ghost-btn" type="button" onclick="randomizePrompt()">🎲 Surprise me</button>
+        <span id="charCount">0 characters</span>
+      </div>
+
+      <div class="translate-panel">
+        <div class="translate-head">
+          <span class="translate-title">🌐 Sent to the AI as</span>
+          <span class="lang-badge" id="langBadge">detecting…</span>
+        </div>
+        <div id="translatedPreview" class="pending">Start typing to see the English + Roblox-ready version.</div>
+
+        <div class="boost-toggle">
+          <div class="boost-toggle-label">
+            <strong>Roblox Icon Boost</strong>
+            <span>Auto-adds thumbnail-readable style, centered subject, no text/watermarks</span>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="boostToggle" checked onchange="scheduleTranslate(true)">
+            <span class="switch-track"></span>
+            <span class="switch-thumb"></span>
+          </label>
+        </div>
       </div>
 
       <label class="field-label">Style</label>
       <div class="chip-row" id="chipRow"></div>
 
-      <label class="field-label">Obraz referencyjny (opcjonalnie)</label>
+      <label class="field-label">Reference image <span class="field-hint">(optional)</span></label>
       <div class="dropzone" id="dropzone">
         <input id="imageInput" type="file" accept="image/png,image/jpeg,image/webp">
-        <div class="dropzone-label"><strong>Kliknij</strong> lub przeciągnij obraz tutaj</div>
+        <div class="dropzone-label"><strong>Click</strong> or drag an image here</div>
       </div>
       <div class="preview-row" id="previewRow">
-        <img id="refPreview" alt="Podgląd referencji">
+        <img id="refPreview" alt="Reference preview">
         <div>
           <div style="font-size:12.5px; color:var(--text-muted);" id="refFileName"></div>
-          <button class="remove-ref" onclick="clearReference()">Usuń</button>
+          <button class="remove-ref" onclick="clearReference()">Remove</button>
         </div>
       </div>
 
       <button class="generate-btn" id="generateButton" onclick="generateImage()">
         <span class="spinner" id="spinner"></span>
-        <span id="genLabel">Generuj ikonę</span>
+        <span id="genLabel">Generate icon</span>
       </button>
 
       <div class="status-line" id="status"></div>
     </div>
 
     <div class="panel history-panel">
-      <p class="panel-title"><span>02 · Historia sesji</span><span class="idx" id="histCount">0</span></p>
-      <div id="historyEmpty" class="history-empty">Twoje wygenerowane ikony pojawią się tutaj.</div>
+      <p class="panel-title"><span>02 · Session history</span><span class="idx" id="histCount">0</span></p>
+      <div id="historyEmpty" class="history-empty">Your generated icons will show up here.</div>
       <div class="history-strip" id="historyStrip"></div>
     </div>
 
@@ -673,85 +752,110 @@
 
   <!-- RIGHT: canvas -->
   <div class="canvas-panel">
-    <p class="panel-title"><span>03 · Podgląd w kontekście</span><span class="idx" id="templateLabel">Ikona gry</span></p>
+    <p class="panel-title"><span>03 · Preview in context</span><span class="idx" id="templateLabel">Game icon</span></p>
 
     <div class="template-grid" id="templateGrid">
-      <div class="template-opt t-square active" data-template="square" data-label="Ikona gry">
+      <div class="template-opt t-square active" data-template="square" data-label="Game icon">
         <div class="template-shape"></div>
-        <div class="template-name">Gra</div>
+        <div class="template-name">Game</div>
       </div>
       <div class="template-opt t-pass" data-template="pass" data-label="Gamepass">
         <div class="template-shape"></div>
         <div class="template-name">Gamepass</div>
       </div>
-      <div class="template-opt t-hex" data-template="hex" data-label="Odznaka">
+      <div class="template-opt t-hex" data-template="hex" data-label="Badge">
         <div class="template-shape"></div>
-        <div class="template-name">Odznaka</div>
+        <div class="template-name">Badge</div>
       </div>
-      <div class="template-opt t-circle" data-template="circle" data-label="Ikona grupy">
+      <div class="template-opt t-circle" data-template="circle" data-label="Group icon">
         <div class="template-shape"></div>
-        <div class="template-name">Grupa</div>
+        <div class="template-name">Group</div>
       </div>
     </div>
 
-    <div class="template-hint" id="templateHint">512×512 · zaokrąglony kwadrat, tak jak na liście gier w Roblox.</div>
+    <div class="template-hint" id="templateHint">512×512 · rounded square, just like on the Roblox game list.</div>
 
     <div class="canvas-stage">
       <div class="empty-state" id="emptyState">
         <div class="glyph">▦</div>
-        <p>Wygenerowana ikona pojawi się tutaj, osadzona w wybranej ramce.</p>
+        <p>Your generated icon will show up here, framed the way it'll actually appear in Roblox.</p>
       </div>
 
       <div class="frame-wrap" id="frameWrap">
         <div class="icon-frame t-square" id="iconFrame">
-          <img id="result" alt="Wygenerowana ikona">
+          <img id="result" alt="Generated icon">
         </div>
-        <div class="frame-caption" id="frameCaption">Podgląd — ikona gry, 512×512</div>
+        <div class="frame-caption" id="frameCaption">Preview — game icon, 512×512</div>
       </div>
     </div>
 
     <div class="canvas-actions">
-      <button class="action-btn" id="copyPromptBtn" onclick="copyPrompt()">Kopiuj prompt</button>
-      <button class="action-btn primary" id="downloadBtn" onclick="downloadResult()" disabled>Pobierz PNG</button>
+      <button class="action-btn" id="copyPromptBtn" onclick="copyPrompt()">Copy final prompt</button>
+      <button class="action-btn primary" id="downloadBtn" onclick="downloadResult()" disabled>Download PNG</button>
     </div>
   </div>
 
 </div>
 
-<footer>Warsztat ikon — generuje obrazy przez Twojego Cloudflare Workera</footer>
+<footer>Icon Workshop — generates images through your Cloudflare Worker · translation via a free public API</footer>
 
 <script>
 
   // ==================================================
-  // WAŻNE: ADRES CLOUDFLARE WORKERA
+  // IMPORTANT: YOUR CLOUDFLARE WORKER ADDRESS
   // ==================================================
   const WORKER_URL = "https://robloxgenerate.hexteec.workers.dev";
 
   // ==================================================
-  // STAN
+  // ROBLOX ICON BOOST — appended to every prompt when enabled.
+  // Tuned so the result stays readable at small thumbnail sizes,
+  // matches the "toy render" look that reads well as a Roblox icon,
+  // and avoids the things that usually ruin an icon (text, watermarks,
+  // cluttered background, subject cropped at the edge).
+  // ==================================================
+  const ROBLOX_BOOST =
+    "Roblox game icon, vibrant saturated colors, glossy 3D toy-like render, " +
+    "thick clean outlines, single subject centered and filling the frame, " +
+    "dramatic rim lighting, high contrast, simple uncluttered background, " +
+    "sharp and instantly readable at a small thumbnail size, square composition, " +
+    "no text, no watermark, no logos, no UI elements";
+
+  // ==================================================
+  // STATE
   // ==================================================
   let referenceImage = null;
   let currentTemplate = "square";
   let history = []; // { url, prompt, template }
   let lastBlobUrl = null;
+  let translateTimer = null;
+  let translateSeq = 0; // guards against out-of-order responses
 
   const STYLE_CHIPS = [
-    "Symulator", "Tycoon", "Obby", "Horror", "Anime",
-    "Realistyczny render 3D", "Kreskówka", "Pixel art", "Neon / cyberpunk"
+    "Simulator", "Tycoon", "Obby", "Horror", "Anime",
+    "Realistic 3D render", "Cartoon", "Pixel art", "Neon / cyberpunk"
   ];
 
   const RANDOM_PROMPTS = [
-    "złota skrzynia skarbów z magicznym blaskiem, otoczona monetami",
-    "robot wojownik z neonowym mieczem, dramatyczne cienie",
-    "śliczny smoczek strzegący kryształowego jajka",
-    "opuszczony wagonik górniczy na torach w jaskini",
-    "kot ninja w czarnym stroju, skacząc między dachami",
-    "gigantyczna fala tsunami nad wyspą tropikalną",
-    "zamek z lodu z zorzą polarną w tle",
-    "kosmiczny statek pirat lecący przez pole asteroid",
-    "zombie w laboratorium z zielonym dymem",
-    "supersamochód drifting z iskrami spod kół"
+    "a golden treasure chest glowing with magic, surrounded by coins",
+    "a robot warrior with a neon sword, dramatic shadows",
+    "a cute baby dragon guarding a crystal egg",
+    "an abandoned mine cart on rails inside a glowing cave",
+    "a ninja cat in a black outfit leaping between rooftops",
+    "a giant tsunami wave over a tropical island",
+    "an ice castle with the northern lights behind it",
+    "a space pirate ship flying through an asteroid field",
+    "a zombie in a laboratory surrounded by green smoke",
+    "a supercar drifting with sparks flying off the wheels"
   ];
+
+  const LANG_NAMES = {
+    en: "English", pl: "Polish", es: "Spanish", fr: "French", de: "German",
+    it: "Italian", pt: "Portuguese", ru: "Russian", uk: "Ukrainian", nl: "Dutch",
+    tr: "Turkish", ar: "Arabic", ja: "Japanese", ko: "Korean", zh: "Chinese",
+    "zh-CN": "Chinese", cs: "Czech", sv: "Swedish", ro: "Romanian", hu: "Hungarian",
+    fi: "Finnish", da: "Danish", el: "Greek", he: "Hebrew", hi: "Hindi",
+    id: "Indonesian", vi: "Vietnamese", th: "Thai", no: "Norwegian", sk: "Slovak"
+  };
 
   // ==================================================
   // INIT
@@ -763,7 +867,10 @@
     bindDropzone();
 
     const promptEl = document.getElementById("prompt");
-    promptEl.addEventListener("input", updateCharCount);
+    promptEl.addEventListener("input", () => {
+      updateCharCount();
+      scheduleTranslate();
+    });
     promptEl.addEventListener("keydown", (e) => {
       if (e.key === "Enter" && !e.shiftKey) {
         e.preventDefault();
@@ -802,6 +909,7 @@
       promptEl.value = current ? current + ", " + label.toLowerCase() : label.toLowerCase();
     }
     updateCharCount();
+    scheduleTranslate();
   }
 
   function randomizePrompt() {
@@ -810,22 +918,91 @@
     promptEl.value = pick;
     document.querySelectorAll(".chip.active").forEach(c => c.classList.remove("active"));
     updateCharCount();
+    scheduleTranslate();
   }
 
   function updateCharCount() {
     const len = document.getElementById("prompt").value.length;
-    document.getElementById("charCount").textContent = len + " znaków";
+    document.getElementById("charCount").textContent = len + " characters";
   }
 
   function copyPrompt() {
-    const text = document.getElementById("prompt").value;
+    const preview = document.getElementById("translatedPreview");
+    const text = preview.dataset.finalText || document.getElementById("prompt").value;
     if (!text) return;
     navigator.clipboard.writeText(text).then(() => {
       const btn = document.getElementById("copyPromptBtn");
       const original = btn.textContent;
-      btn.textContent = "Skopiowano ✓";
+      btn.textContent = "Copied ✓";
       setTimeout(() => { btn.textContent = original; }, 1400);
     });
+  }
+
+  // ==================================================
+  // TRANSLATION LAYER
+  // Whatever the user types, in any language, gets translated to
+  // English (via a free public endpoint) before it's sent to the
+  // image model, then boosted with Roblox-icon styling.
+  // ==================================================
+
+  function scheduleTranslate(immediate) {
+    clearTimeout(translateTimer);
+    const delay = immediate ? 0 : 550;
+    translateTimer = setTimeout(runTranslatePreview, delay);
+  }
+
+  async function runTranslatePreview() {
+    const raw = document.getElementById("prompt").value.trim();
+    const preview = document.getElementById("translatedPreview");
+    const badge = document.getElementById("langBadge");
+
+    if (!raw) {
+      preview.className = "pending";
+      preview.textContent = "Start typing to see the English + Roblox-ready version.";
+      preview.dataset.finalText = "";
+      badge.textContent = "detecting…";
+      return;
+    }
+
+    const seq = ++translateSeq;
+    preview.className = "pending";
+    preview.textContent = "Translating…";
+    badge.textContent = "detecting…";
+
+    const { text: translated, sourceLang } = await translateToEnglish(raw);
+    if (seq !== translateSeq) return; // a newer request already landed
+
+    const boostOn = document.getElementById("boostToggle").checked;
+    const final = boostOn ? translated + ", " + ROBLOX_BOOST : translated;
+
+    preview.className = "";
+    preview.innerHTML = '<span class="en-text"></span>';
+    preview.querySelector(".en-text").textContent = final;
+    preview.dataset.finalText = final;
+
+    if (sourceLang && sourceLang !== "en") {
+      const name = LANG_NAMES[sourceLang] || sourceLang.toUpperCase();
+      badge.textContent = name + " → EN";
+    } else if (sourceLang === "en") {
+      badge.textContent = "English";
+    } else {
+      badge.textContent = "EN";
+    }
+  }
+
+  async function translateToEnglish(text) {
+    try {
+      const url = "https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=en&dt=t&q=" + encodeURIComponent(text);
+      const res = await fetch(url);
+      if (!res.ok) throw new Error("translation service unavailable");
+      const data = await res.json();
+      const translated = data[0].map(chunk => chunk[0]).join("");
+      const sourceLang = data[2] || null;
+      return { text: translated, sourceLang };
+    } catch (err) {
+      console.warn("Translation failed, falling back to original text:", err);
+      return { text: text, sourceLang: null };
+    }
   }
 
   // ==================================================
@@ -833,10 +1010,10 @@
   // ==================================================
 
   const TEMPLATE_INFO = {
-    square: { hint: "512×512 · zaokrąglony kwadrat, tak jak na liście gier w Roblox.", caption: "Podgląd — ikona gry, 512×512" },
-    pass:   { hint: "Kwadrat z akcentem w rogu — tak prezentują się ikony gamepassów.", caption: "Podgląd — ikona gamepassu" },
-    hex:    { hint: "Sześciokąt — kształt używany przy odznakach (badges).", caption: "Podgląd — odznaka" },
-    circle: { hint: "Okrąg — tak wygląda ikona grupy lub avatara.", caption: "Podgląd — ikona grupy" }
+    square: { hint: "512×512 · rounded square, just like on the Roblox game list.", caption: "Preview — game icon, 512×512" },
+    pass:   { hint: "Square with a corner accent — how gamepass icons show up.", caption: "Preview — gamepass icon" },
+    hex:    { hint: "Hexagon — the shape used for badges.", caption: "Preview — badge" },
+    circle: { hint: "Circle — how a group or avatar icon appears.", caption: "Preview — group icon" }
   };
 
   function bindTemplatePicker() {
@@ -898,26 +1075,26 @@
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = () => resolve(reader.result);
-      reader.onerror = () => reject(new Error("Nie można odczytać obrazu."));
+      reader.onerror = () => reject(new Error("Couldn't read the image."));
       reader.readAsDataURL(file);
     });
   }
 
   // ==================================================
-  // GENEROWANIE
+  // GENERATE
   // ==================================================
 
   async function generateImage() {
-    const prompt = document.getElementById("prompt").value.trim();
+    const raw = document.getElementById("prompt").value.trim();
     const button = document.getElementById("generateButton");
     const status = document.getElementById("status");
     const spinner = document.getElementById("spinner");
     const genLabel = document.getElementById("genLabel");
     const downloadBtn = document.getElementById("downloadBtn");
 
-    if (!prompt) {
+    if (!raw) {
       status.className = "status-line error";
-      status.textContent = "Wpisz prompt, zanim wygenerujesz ikonę.";
+      status.textContent = "Type a prompt before generating an icon.";
       return;
     }
 
@@ -925,14 +1102,22 @@
     spinner.classList.add("show");
     downloadBtn.disabled = true;
     status.className = "status-line";
-    status.textContent = referenceImage ? "Edytowanie obrazu referencyjnego…" : "Generowanie ikony…";
-    genLabel.textContent = "Generuję…";
+    status.textContent = "Translating prompt to English…";
+    genLabel.textContent = "Working…";
+
+    // Always translate fresh right before sending, so the live preview
+    // being mid-debounce never causes a stale prompt to go out.
+    const { text: translated } = await translateToEnglish(raw);
+    const boostOn = document.getElementById("boostToggle").checked;
+    const finalPrompt = boostOn ? translated + ", " + ROBLOX_BOOST : translated;
+
+    status.textContent = referenceImage ? "Editing your reference image…" : "Generating icon…";
 
     try {
       const response = await fetch(WORKER_URL + "/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: prompt, image: referenceImage })
+        body: JSON.stringify({ prompt: finalPrompt, image: referenceImage })
       });
 
       if (!response.ok) {
@@ -950,20 +1135,20 @@
       const imageUrl = URL.createObjectURL(blob);
 
       showResult(imageUrl);
-      addToHistory(imageUrl, prompt);
+      addToHistory(imageUrl, raw, finalPrompt);
 
       status.className = "status-line ok";
-      status.textContent = "Gotowe — ikona wygenerowana.";
+      status.textContent = "Done — icon generated.";
       downloadBtn.disabled = false;
 
     } catch (error) {
       console.error(error);
       status.className = "status-line error";
-      status.textContent = "Błąd: " + error.message;
+      status.textContent = "Error: " + error.message;
     } finally {
       button.disabled = false;
       spinner.classList.remove("show");
-      genLabel.textContent = "Generuj ikonę";
+      genLabel.textContent = "Generate icon";
     }
   }
 
@@ -980,7 +1165,7 @@
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/(^-|-$)/g, "")
-      .slice(0, 40) || "ikona";
+      .slice(0, 40) || "icon";
     const a = document.createElement("a");
     a.href = lastBlobUrl;
     a.download = "roblox-" + promptSlug + ".png";
@@ -990,11 +1175,11 @@
   }
 
   // ==================================================
-  // HISTORIA SESJI
+  // SESSION HISTORY
   // ==================================================
 
-  function addToHistory(url, prompt) {
-    history.unshift({ url, prompt, template: currentTemplate });
+  function addToHistory(url, originalPrompt, finalPrompt) {
+    history.unshift({ url, originalPrompt, finalPrompt, template: currentTemplate });
     if (history.length > 8) history = history.slice(0, 8);
     renderHistory();
   }
@@ -1016,14 +1201,14 @@
     history.forEach((item) => {
       const wrap = document.createElement("div");
       wrap.className = "history-item";
-      wrap.title = item.prompt;
+      wrap.title = item.originalPrompt;
 
       const img = document.createElement("img");
       img.src = item.url;
-      img.alt = item.prompt;
+      img.alt = item.originalPrompt;
 
       const label = document.createElement("span");
-      label.textContent = item.prompt.slice(0, 10) + (item.prompt.length > 10 ? "…" : "");
+      label.textContent = item.originalPrompt.slice(0, 10) + (item.originalPrompt.length > 10 ? "…" : "");
 
       wrap.appendChild(img);
       wrap.appendChild(label);
@@ -1031,8 +1216,9 @@
       wrap.addEventListener("click", () => {
         showResult(item.url);
         document.getElementById("downloadBtn").disabled = false;
-        document.getElementById("prompt").value = item.prompt;
+        document.getElementById("prompt").value = item.originalPrompt;
         updateCharCount();
+        scheduleTranslate(true);
 
         document.querySelectorAll(".template-opt").forEach(o => o.classList.remove("active"));
         const match = document.querySelector('.template-opt[data-template="' + item.template + '"]');
