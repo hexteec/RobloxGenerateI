@@ -583,6 +583,42 @@
 
   .remove-ref{ background:none; border:none; color: var(--coral); font-size:12px; font-family: var(--font-mono); cursor:pointer; text-decoration:underline; }
 
+  /* ---------- Gemini image analysis box ---------- */
+
+  .analysis-box{
+    display:none;
+    margin-top:14px;
+    margin-bottom:22px;
+    background: var(--cobalt-wash);
+    border:1px solid #D7DEFF;
+    border-radius: var(--radius-sm);
+    padding:14px 16px;
+    animation: floatUp 0.3s ease both;
+  }
+
+  .analysis-box.show{ display:block; }
+
+  .analysis-box-title{
+    display:flex;
+    align-items:center;
+    gap:7px;
+    font-family: var(--font-mono);
+    font-size:11px;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    color: var(--cobalt-deep);
+    font-weight:600;
+    margin-bottom:8px;
+  }
+
+  .analysis-box-title .dot{ width:6px; height:6px; border-radius:50%; background: var(--cobalt); flex-shrink:0; }
+
+  .analysis-box p{ margin:0; font-size:13px; line-height:1.55; color: var(--ink-muted); }
+
+  .analysis-box p + p{ margin-top:10px; }
+
+  .analysis-box .a-label{ font-weight:600; color: var(--ink); }
+
   .generate-btn{
     width:100%;
     margin-top:22px;
@@ -825,6 +861,13 @@
         <span id="charCount">0 characters</span>
       </div>
 
+      <!-- Wynik analizy obrazu przez Gemini: opis zdjęcia + finalny enhanced prompt -->
+      <div class="analysis-box" id="analysisBox">
+        <div class="analysis-box-title"><span class="dot"></span>Analiza obrazu (Gemini)</div>
+        <p><span class="a-label">Opis zdjęcia:</span> <span id="imageDescriptionText"></span></p>
+        <p><span class="a-label">Enhanced prompt:</span> <span id="imageEnhancedText"></span></p>
+      </div>
+
       <label class="field-label">Style</label>
       <div class="chip-row" id="chipRow"></div>
 
@@ -841,7 +884,7 @@
         </div>
       </div>
       <div class="field-hint" id="refHint" style="display:none; margin-top:8px; line-height:1.5;">
-        With a reference image attached, your prompt is treated as an edit instruction — describe what to change, and the original subject stays intact.
+        With a reference image attached, "Enhance prompt" first asks Gemini to look at your photo, then builds an edit instruction that keeps the original subject intact.
       </div>
 
       <button class="generate-btn" id="generateButton" onclick="generateImage()">
@@ -1254,8 +1297,19 @@
   }
 
   // ==================================================
-  // ENHANCE PROMPT WITH AI
+  // ENHANCE PROMPT WITH AI (tekst) / ANALYZE IMAGE WITH GEMINI (zdjęcie)
   // ==================================================
+
+  function hideAnalysisBox() {
+    document.getElementById("analysisBox").classList.remove("show");
+  }
+
+  function showAnalysisBox(description, enhanced) {
+    const box = document.getElementById("analysisBox");
+    document.getElementById("imageDescriptionText").textContent = description || "—";
+    document.getElementById("imageEnhancedText").textContent = enhanced || "—";
+    box.classList.add("show");
+  }
 
   async function enhancePrompt() {
     const promptEl = document.getElementById("prompt");
@@ -1268,9 +1322,9 @@
       return;
     }
 
-    if (!raw) {
+    if (!raw && !referenceImage) {
       status.className = "status-line error";
-      status.textContent = "Type something first, then enhance it.";
+      status.textContent = "Type something first (or attach a reference image), then enhance it.";
       return;
     }
 
@@ -1280,39 +1334,80 @@
 
     btn.disabled = true;
     loader.classList.add("show");
-    label.textContent = "Enhancing…";
     status.className = "status-line";
-    status.textContent = "Asking AI to enhance your prompt…";
 
     try {
-      const idToken = await getIdToken();
-      const response = await fetch(WORKER_URL + "/enhance", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "Authorization": "Bearer " + idToken },
-        body: JSON.stringify({ prompt: raw, hasReference: !!referenceImage })
-      });
+      if (referenceImage) {
+        // Ścieżka ze zdjęciem: Gemini najpierw ANALIZUJE obraz, opisuje go,
+        // i dopiero na tej podstawie + pomysłu usera buduje enhanced prompt.
+        // Dopiero ten prompt trafia potem do modelu generującego (/generate).
+        label.textContent = "Analyzing image…";
+        status.textContent = "Gemini analizuje zdjęcie referencyjne…";
+        hideAnalysisBox();
 
-      if (!response.ok) {
-        let errorText;
-        try {
-          const data = await response.json();
-          errorText = data.error || JSON.stringify(data);
-        } catch {
-          errorText = await response.text();
+        const idToken = await getIdToken();
+        const response = await fetch(WORKER_URL + "/analyze-image", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "Authorization": "Bearer " + idToken },
+          body: JSON.stringify({ prompt: raw, image: referenceImage })
+        });
+
+        if (!response.ok) {
+          let errorText;
+          try {
+            const data = await response.json();
+            errorText = data.error || JSON.stringify(data);
+          } catch {
+            errorText = await response.text();
+          }
+          throw new Error(errorText);
         }
-        throw new Error(errorText);
+
+        const data = await response.json();
+        const enhanced = (data.enhanced || "").trim();
+        if (!enhanced) throw new Error("Gemini nie zwróciło promptu.");
+
+        showAnalysisBox(data.description, enhanced);
+
+        promptEl.value = enhanced;
+        updateCharCount();
+
+        status.className = "status-line ok";
+        status.textContent = "Obraz przeanalizowany, prompt gotowy.";
+
+      } else {
+        // Ścieżka bez zdjęcia: jak dotychczas, tekstowy enhance.
+        label.textContent = "Enhancing…";
+        status.textContent = "Asking AI to enhance your prompt…";
+
+        const idToken = await getIdToken();
+        const response = await fetch(WORKER_URL + "/enhance", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "Authorization": "Bearer " + idToken },
+          body: JSON.stringify({ prompt: raw, hasReference: false })
+        });
+
+        if (!response.ok) {
+          let errorText;
+          try {
+            const data = await response.json();
+            errorText = data.error || JSON.stringify(data);
+          } catch {
+            errorText = await response.text();
+          }
+          throw new Error(errorText);
+        }
+
+        const data = await response.json();
+        const enhanced = (data.enhanced || "").trim();
+        if (!enhanced) throw new Error("AI didn't return anything usable.");
+
+        promptEl.value = enhanced;
+        updateCharCount();
+
+        status.className = "status-line ok";
+        status.textContent = "Prompt enhanced.";
       }
-
-      const data = await response.json();
-      const enhanced = (data.enhanced || "").trim();
-
-      if (!enhanced) throw new Error("AI didn't return anything usable.");
-
-      promptEl.value = enhanced;
-      updateCharCount();
-
-      status.className = "status-line ok";
-      status.textContent = "Prompt enhanced.";
 
     } catch (error) {
       console.error(error);
@@ -1321,8 +1416,13 @@
     } finally {
       btn.disabled = false;
       loader.classList.remove("show");
-      label.textContent = "Enhance prompt with AI";
+      updateEnhanceButtonLabel();
     }
+  }
+
+  function updateEnhanceButtonLabel() {
+    document.getElementById("enhanceLabel").textContent =
+      referenceImage ? "Analyze image & enhance" : "Enhance prompt";
   }
 
   async function copyPrompt() {
@@ -1422,6 +1522,8 @@
     document.getElementById("refFileName").textContent = file.name;
     document.getElementById("previewRow").classList.add("show");
     document.getElementById("refHint").style.display = "block";
+    hideAnalysisBox();
+    updateEnhanceButtonLabel();
   }
 
   function clearReference() {
@@ -1429,6 +1531,8 @@
     document.getElementById("imageInput").value = "";
     document.getElementById("previewRow").classList.remove("show");
     document.getElementById("refHint").style.display = "none";
+    hideAnalysisBox();
+    updateEnhanceButtonLabel();
   }
 
   function fileToBase64(file) {
