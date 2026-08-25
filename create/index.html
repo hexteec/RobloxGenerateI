@@ -11,6 +11,8 @@
 
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+<!-- <model-viewer> — do podglądu wygenerowanych modeli 3D (.glb) bezpośrednio w czacie -->
+<script type="module" src="https://unpkg.com/@google/model-viewer@3.5.0/dist/model-viewer.min.js"></script>
 
 <style>
 :root{
@@ -109,7 +111,8 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 .chat-item.active::before{ content:""; position:absolute; left:0; top:9px; bottom:9px; width:3px; background: var(--cobalt); border-radius:2px; }
 .chat-item .ci-text{ flex:1; min-width:0; }
 .chat-item .ci-title{ font-size:13px; font-weight:500; color: var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.chat-item .ci-time{ font-size:11px; color: var(--ink-faint); margin-top:2px; }
+.chat-item .ci-time{ font-size:11px; color: var(--ink-faint); margin-top:2px; display:flex; align-items:center; gap:5px; }
+.chat-item .ci-badge{ font-size:9.5px; font-weight:700; text-transform:uppercase; letter-spacing:.03em; color: var(--cobalt); }
 .chat-item .ci-del{ opacity:0; background:none; border:none; color: var(--ink-faint); cursor:pointer; font-size:13px; padding:4px; border-radius:5px; flex-shrink:0; }
 .chat-item:hover .ci-del{ opacity:1; }
 .chat-item .ci-del:hover{ color: var(--coral); background: rgba(242,107,94,0.1); }
@@ -138,7 +141,6 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 .user-row .u-tokens.low{ color: var(--coral); }
 .user-row .u-signout{ background:none; border:none; color: var(--ink-faint); font-size:14px; cursor:pointer; padding:4px; }
 
-/* mobile sidebar toggle button (add this button in your topbar markup) */
 .sb-toggle{
   display:none; align-items:center; justify-content:center; width:36px; height:36px;
   border-radius: var(--radius-sm); border:1px solid var(--border); background: var(--card);
@@ -156,7 +158,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 }
 .topbar-title{ font-family: var(--font-display); font-weight:600; font-size:16px; display:flex; align-items:center; gap:10px; min-width:0; }
 .topbar-title .tt-text{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:360px; }
-.tt-badge{ font-size:11.5px; font-weight:600; color: var(--cobalt); background: var(--cobalt-wash); padding:5px 11px; border-radius:999px; flex-shrink:0; }
+.tt-badge{ font-size:11.5px; font-weight:600; color: var(--cobalt); background: var(--cobalt-wash); padding:5px 11px; border-radius:999px; flex-shrink:0; display:flex; align-items:center; gap:5px; }
 
 /* ---------- feed ---------- */
 .feed{ flex:1; overflow-y:auto; padding: 28px 0 12px; background: var(--bg); }
@@ -164,7 +166,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 .feed::-webkit-scrollbar-thumb{ background: var(--soft-2); border-radius:4px; }
 .feed-inner{ max-width:760px; margin:0 auto; padding: 0 30px; display:flex; flex-direction:column; gap:22px; }
 
-.welcome{ max-width:480px; margin: 8vh auto 0; text-align:center; padding: 0 20px; position:relative; }
+.welcome{ max-width:520px; margin: 8vh auto 0; text-align:center; padding: 0 20px; position:relative; }
 .welcome .w-mark{
   width:52px; height:52px; border-radius: 16px; margin: 0 auto 20px;
   background: linear-gradient(135deg, var(--cobalt), var(--mint)); box-shadow: var(--shadow-lg);
@@ -173,7 +175,9 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 .welcome .w-dot.d1{ background: var(--amber); top:8px; left:38%; animation: drift 6s ease-in-out infinite; }
 .welcome .w-dot.d2{ background: var(--coral); top:34px; right:34%; animation: drift 7s ease-in-out infinite 1s; }
 .welcome h2{ font-family: var(--font-display); font-size:22px; margin:0 0 8px; font-weight:600; letter-spacing:-0.01em; }
-.welcome p{ color: var(--ink-muted); font-size:14px; line-height:1.6; margin: 0; }
+.welcome p{ color: var(--ink-muted); font-size:14px; line-height:1.6; margin: 0 0 18px; }
+.welcome .w-hints{ display:flex; gap:8px; flex-wrap:wrap; justify-content:center; }
+.welcome .w-hint{ font-size:11.8px; font-weight:600; color: var(--ink-muted); background: var(--soft); border:1px solid var(--border); padding:7px 12px; border-radius:999px; }
 
 .msg{ display:flex; gap:12px; animation: floatUp 0.3s ease both; }
 .msg-user{ flex-direction:row-reverse; }
@@ -185,49 +189,86 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 .msg-bubble{ max-width:78%; }
 .msg-user .msg-bubble{ background: var(--cobalt); color:#fff; border-radius: 16px 16px 4px 16px; padding: 11px 16px; font-size:14px; line-height:1.55; box-shadow: var(--shadow-sm); }
 .msg-user .msg-meta{ font-size:10.5px; color: rgba(255,255,255,0.75); margin-top:6px; display:flex; gap:8px; justify-content:flex-end; }
+.chat-image-chip{ display:flex; align-items:center; gap:8px; background: rgba(255,255,255,0.18); border-radius:10px; padding:5px 6px; margin-bottom:8px; }
+.chat-image-chip img{ width:30px; height:30px; border-radius:6px; object-fit:cover; display:block; }
+.chat-image-chip span{ font-size:11.5px; opacity:.9; }
 
 .msg-bot .msg-bubble{ background: var(--card); border:1px solid var(--border); border-radius: 16px 16px 16px 4px; padding: 16px; box-shadow: var(--shadow-sm); }
+.bot-text{ font-size:14px; line-height:1.6; color: var(--ink); white-space:pre-wrap; }
 .bot-status{ font-size:13px; color: var(--ink-muted); display:flex; align-items:center; gap:9px; }
 .bot-status.error{ color: var(--coral); }
 .bot-status.ok{ color: var(--mint); }
 
-.mini-loader{ display:flex; gap:3px; align-items:flex-end; }
+.mini-loader{ display:flex; gap:3px; align-items:flex-end; flex-shrink:0; }
 .mini-loader span{ width:5px; height:5px; background: var(--cobalt); border-radius:2px; animation: blockPulse 0.9s ease-in-out infinite; }
 .mini-loader span:nth-child(2){ animation-delay:0.12s; background: var(--amber); }
 .mini-loader span:nth-child(3){ animation-delay:0.24s; background: var(--mint); }
 
-.result-frame-wrap{ display:flex; align-items:flex-start; gap:16px; flex-wrap:wrap; }
-.result-frame{
-  width:120px; height:120px; overflow:hidden; border:1px solid var(--border); box-shadow: var(--shadow-sm);
-  background: var(--soft); flex-shrink:0; animation: popIn 0.3s ease both; transition: width .25s ease, height .25s ease;
-}
+.progress-track{ width:100%; height:6px; background: var(--soft-2); border-radius:4px; overflow:hidden; margin-top:9px; }
+.progress-fill{ height:100%; background: linear-gradient(90deg, var(--cobalt), var(--mint)); transition: width .35s ease; border-radius:4px; }
+
+.result-frame-wrap{ display:flex; align-items:flex-start; gap:16px; flex-wrap:wrap; margin-top:10px; }
+.result-frame-wrap:first-child{ margin-top:0; }
+.result-frame{ width:120px; height:120px; overflow:hidden; border:1px solid var(--border); box-shadow: var(--shadow-sm); background: var(--soft); flex-shrink:0; animation: popIn 0.3s ease both; transition: width .25s ease, height .25s ease; }
 .result-frame.t-square, .result-frame.t-pass{ border-radius:16px; }
 .result-frame.t-circle{ border-radius:50%; }
 .result-frame.t-hex{ clip-path: polygon(50% 0%, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%); }
+.result-frame.t-wide{ border-radius:14px; }
 .result-frame img{ width:100%; height:100%; object-fit:cover; display:block; }
 
 .result-frame.latest{ width:320px; height:320px; max-width:100%; box-shadow: var(--shadow-lg); border:1px solid var(--soft-2); }
+.result-frame.t-wide.latest{ width:min(420px,100%); height:calc(min(420px,100%) * 0.667); }
 .result-frame-wrap:has(.result-frame.latest){ flex-direction:column; gap:12px; }
+
+.model-frame{ width:280px; max-width:100%; aspect-ratio:1/1; border-radius:16px; overflow:hidden; border:1px solid var(--soft-2); box-shadow: var(--shadow-lg); background: var(--soft-2); }
+.model-frame model-viewer{ width:100%; height:100%; }
+.result-frame-wrap:has(.model-frame){ flex-direction:column; gap:12px; }
 
 .result-meta{ padding-top:2px; }
 .result-meta .r-tag{ font-size:11.5px; font-weight:600; color: var(--cobalt); background: var(--cobalt-wash); margin-bottom:10px; display:inline-block; padding:4px 10px; border-radius:999px; }
 .result-actions{ display:flex; gap:8px; margin-top:4px; flex-wrap:wrap; }
-.result-actions button{
+.result-actions button, .result-actions a{
   background: var(--soft); border:1px solid var(--border); color: var(--ink); font-size:12.5px; font-weight:600;
-  padding:8px 14px; border-radius: var(--radius-sm); cursor:pointer; transition: border-color .15s ease, background .15s ease;
+  padding:8px 14px; border-radius: var(--radius-sm); cursor:pointer; transition: border-color .15s ease, background .15s ease; display:inline-flex; align-items:center; gap:6px;
 }
-.result-actions button:hover{ border-color: var(--cobalt); background: var(--cobalt-wash); color: var(--cobalt-deep); }
+.result-actions button:hover, .result-actions a:hover{ border-color: var(--cobalt); background: var(--cobalt-wash); color: var(--cobalt-deep); }
+.result-actions button.primary{ background: var(--cobalt); border-color: var(--cobalt); color:#fff; }
+.result-actions button.primary:hover{ background: var(--cobalt-deep); color:#fff; }
 
 .analysis-box{ background: var(--cobalt-wash); border:1px solid var(--soft-2); border-radius: var(--radius-sm); padding:12px 14px; margin-top:12px; font-size:12.8px; line-height:1.55; color: var(--ink-muted); }
 .analysis-box .a-label{ font-weight:600; color: var(--ink); }
 .analysis-box p{ margin: 0 0 6px; }
 .analysis-box p:last-child{ margin-bottom:0; }
 
+/* ---------- 3D method chooser (inline w wiadomości bota) ---------- */
+.chooser-3d{ display:flex; flex-direction:column; gap:8px; margin-top:12px; }
+.chooser-3d button{
+  display:flex; align-items:center; gap:11px; text-align:left; background: var(--soft); border:1.5px solid var(--border);
+  border-radius: var(--radius-sm); padding:12px 14px; font-size:13px; font-weight:600; color: var(--ink); cursor:pointer;
+  transition: border-color .15s ease, background .15s ease;
+}
+.chooser-3d button .c3-emoji{ font-size:18px; flex-shrink:0; }
+.chooser-3d button .c3-sub{ display:block; font-size:11.5px; font-weight:500; color: var(--ink-muted); margin-top:1px; }
+.chooser-3d button:hover:not(:disabled){ border-color: var(--cobalt); background: var(--cobalt-wash); }
+.chooser-3d button:disabled{ opacity:.45; cursor:default; }
+.chooser-3d button.chosen{ border-color: var(--mint); background: var(--mint-wash); opacity:1; }
+
 /* ---------- composer ---------- */
 .composer-wrap{ border-top:1px solid var(--border); background: var(--card); flex-shrink:0; padding: 16px 30px 20px; }
 .composer{ max-width:760px; margin:0 auto; }
 
-.mode-picker{ display:flex; gap:10px; margin-bottom:12px; }
+/* pasek trybów wymuszonych: Czat / Icon / Thumbnail / Model 3D */
+.force-mode-bar{ display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap; }
+.fm-pill{
+  display:flex; align-items:center; gap:7px; padding:9px 15px; border-radius:999px; border:1.5px solid var(--border);
+  background: var(--soft); cursor:pointer; font-size:12.8px; font-weight:600; color: var(--ink-muted);
+  transition: border-color .15s ease, background .15s ease, color .15s ease, transform .12s ease;
+}
+.fm-pill:hover{ border-color: var(--cobalt); transform: translateY(-1px); }
+.fm-pill.active{ border-color: var(--cobalt); background: var(--cobalt-wash); color: var(--cobalt-deep); }
+.fm-pill .fm-icon{ font-size:15px; line-height:1; }
+
+.method-picker{ display:flex; gap:10px; margin-bottom:12px; }
 .mode-card{
   flex:1; display:flex; flex-direction:column; align-items:center; gap:7px; background: var(--soft);
   border:1.5px solid transparent; border-radius: var(--radius-md); padding:10px 8px 11px; cursor:pointer;
@@ -235,7 +276,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 }
 .mode-card:hover{ transform: translateY(-1px); }
 .mode-card.active{ border-color: var(--cobalt); background: var(--cobalt-wash); }
-.mode-card .mc-art{ width:60%; aspect-ratio: 1.5 / 1; overflow:hidden; border-radius: 8px; }
+.mode-card .mc-art{ width:60%; aspect-ratio: 1.5 / 1; overflow:hidden; border-radius: 8px; background:var(--soft-2); display:flex; align-items:center; justify-content:center; font-size:20px; }
 .mode-card .mc-art img{ width:100%; height:100%; object-fit:cover; display:block; }
 .mode-card .mc-caption{ font-size:11.8px; font-weight:600; color: var(--ink-muted); text-align:center; }
 .mode-card.active .mc-caption{ color: var(--cobalt-deep); }
@@ -257,6 +298,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 
 .prompt-box{ background: var(--soft); border:1.5px solid var(--border); border-radius: var(--radius-md); padding:6px 6px 6px 16px; display:flex; align-items:flex-end; gap:8px; transition: border-color .15s ease, background .15s ease; }
 .prompt-box:focus-within{ border-color: var(--cobalt); background: var(--card); }
+.prompt-box.disabled{ opacity:.55; pointer-events:none; }
 #prompt{ flex:1; background:none; border:none; color: var(--ink); font-size:14.5px; font-family: var(--font-body); resize:none; min-height:44px; max-height:160px; padding:10px 0; line-height:1.5; }
 #prompt:focus{ outline:none; }
 #prompt::placeholder{ color: var(--ink-faint); }
@@ -310,12 +352,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 .modal-status{ margin-top:13px; font-size:12px; color: var(--ink-muted); min-height:16px; }
 .modal-status.error{ color: var(--coral); }
 
-/* =========================================================
-   RESPONSYWNOŚĆ MOBILNA
-   Sidebar zamienia się w wysuwaną szufladę (drawer).
-   Dodaj w topbarze przycisk: <button class="sb-toggle" onclick="toggleSidebar()">☰</button>
-   i overlay: <div class="sb-overlay" id="sbOverlay" onclick="toggleSidebar()"></div>
-   ========================================================= */
+/* ========================= RESPONSYWNOŚĆ MOBILNA ========================= */
 @media (max-width: 900px){
   .feed-inner{ max-width: 100%; }
   .result-frame.latest{ width: min(320px, 70vw); height: min(320px, 70vw); }
@@ -323,35 +360,26 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 
 @media (max-width: 768px){
   .sb-toggle{ display:flex; }
-
-  .sidebar{
-    position: fixed; top:0; left:0; z-index:70; width: min(280px, 82vw);
-    transform: translateX(-100%); box-shadow: var(--shadow-lg);
-  }
+  .sidebar{ position: fixed; top:0; left:0; z-index:70; width: min(280px, 82vw); transform: translateX(-100%); box-shadow: var(--shadow-lg); }
   .sidebar.open{ transform: translateX(0); }
-
   .topbar{ padding: 12px 16px; }
   .topbar-title .tt-text{ max-width: 46vw; }
-
   .feed-inner{ padding: 0 16px; gap: 18px; }
   .welcome{ margin-top: 6vh; }
   .welcome h2{ font-size:19px; }
-
   .msg-bubble{ max-width: 88%; }
-
   .composer-wrap{ padding: 12px 16px 16px; }
-  .mode-picker{ gap:8px; }
+  .force-mode-bar{ gap:6px; }
+  .fm-pill{ padding:8px 12px; font-size:12px; }
+  .method-picker{ gap:8px; }
   .mode-card{ padding:8px 6px 9px; }
   .mode-card .mc-caption{ font-size:11px; }
-
   .dropzone-row{ flex-direction: column; }
-
   .composer-footrow{ justify-content: flex-start; }
-
   .result-frame-wrap{ gap:12px; }
   .result-frame{ width:96px; height:96px; }
-  .result-frame.latest{ width: 100%; height: auto; aspect-ratio: 1 / 1; }
-
+  .result-frame.latest{ width:100%; height:auto; aspect-ratio:1/1; }
+  .model-frame{ width:100%; }
   .modal-card{ padding:20px; }
 }
 
@@ -362,10 +390,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
   .msg-bubble{ max-width: 92%; }
 }
 
-/* touch devices: no hover, so keep delete button visible without it */
-@media (hover: none){
-  .chat-item .ci-del{ opacity: 1; }
-}
+@media (hover: none){ .chat-item .ci-del{ opacity: 1; } }
 </style>
 </head>
 <body>
@@ -413,7 +438,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
         <button class="sb-toggle" onclick="toggleSidebar(true)" aria-label="Otwórz menu czatów">☰</button>
         <span class="tt-text" id="chatTitle">Nowy czat</span>
       </div>
-      <span class="tt-badge" id="modeBadge">Od zera</span>
+      <span class="tt-badge" id="modeBadge"><span id="modeBadgeIcon">💬</span><span id="modeBadgeText">Czat</span></span>
     </div>
 
     <div class="feed" id="feed">
@@ -422,7 +447,12 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
           <span class="w-dot d1"></span><span class="w-dot d2"></span>
           <div class="w-mark"></div>
           <h2>Nad czym pracujemy?</h2>
-          <p>Wybierz sposób generowania poniżej i opisz pomysł. Każda ikona zapisze się w tym czacie.</p>
+          <p>Napisz, czego potrzebujesz — sam rozpoznam, o co prosisz. Możesz też wymusić konkretny tryb poniżej.</p>
+          <div class="w-hints">
+            <span class="w-hint">🎮 „zrób mi ikonę smoka”</span>
+            <span class="w-hint">🖼️ „potrzebuję thumbnaila do gry o zombie”</span>
+            <span class="w-hint">🧊 „chcę model 3D miecza”</span>
+          </div>
         </div>
       </div>
     </div>
@@ -430,18 +460,26 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
     <div class="composer-wrap">
       <div class="composer">
 
-        <!-- mode picker: image + short caption, no mode names spelled out -->
-        <div class="mode-picker" id="modePicker">
-          <div class="mode-card active" data-mode="text" onclick="setMode('text')">
-            <div class="mc-art"><img src="mode-text.png" alt="Od zera, z samego opisu"></div>
+        <!-- Pasek trybów wymuszonych -->
+        <div class="force-mode-bar" id="forceModeBar">
+          <div class="fm-pill active" data-force="chat" onclick="setForceMode('chat')"><span class="fm-icon">💬</span>Czat</div>
+          <div class="fm-pill" data-force="icon" onclick="setForceMode('icon')"><span class="fm-icon">🎮</span>Icon</div>
+          <div class="fm-pill" data-force="thumbnail" onclick="setForceMode('thumbnail')"><span class="fm-icon">🖼️</span>Thumbnail</div>
+          <div class="fm-pill" data-force="model3d" onclick="setForceMode('model3d')"><span class="fm-icon">🧊</span>Model 3D</div>
+        </div>
+
+        <!-- Metoda tworzenia (tylko dla Icon / Thumbnail) -->
+        <div class="method-picker" id="methodPicker" style="display:none;">
+          <div class="mode-card active" data-method="text" onclick="setMethod('text')">
+            <div class="mc-art">✨</div>
             <span class="mc-caption">Od zera</span>
           </div>
-          <div class="mode-card" data-mode="image" onclick="setMode('image')">
-            <div class="mc-art"><img src="mode-image.png" alt="Edycja wgranego zdjęcia"></div>
+          <div class="mode-card" data-method="image" onclick="setMethod('image')">
+            <div class="mc-art">🖌️</div>
             <span class="mc-caption">Edytuj zdjęcie</span>
           </div>
-          <div class="mode-card" data-mode="style" onclick="setMode('style')">
-            <div class="mc-art"><img src="mode-style.png" alt="Styl z drugiego obrazu"></div>
+          <div class="mode-card" data-method="style" onclick="setMethod('style')">
+            <div class="mc-art">🎨</div>
             <span class="mc-caption">Przenieś styl</span>
           </div>
         </div>
@@ -449,7 +487,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
         <div class="dropzone-row" id="dropzoneRow" style="display:none;">
           <div class="dropzone" id="dzMain">
             <input type="file" id="mainImageInput" accept="image/png,image/jpeg,image/webp">
-            <div class="dz-empty" id="dzMainEmpty"><span class="dz-tag">01</span> Obraz do edycji</div>
+            <div class="dz-empty" id="dzMainEmpty"><span class="dz-tag">01</span><span id="dzMainLabel">Obraz</span></div>
             <div class="dz-filled" id="dzMainFilled">
               <img id="dzMainPreview" alt="">
               <span class="dz-name" id="dzMainName"></span>
@@ -467,20 +505,20 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
           </div>
         </div>
 
-        <div class="prompt-box">
-          <textarea id="prompt" rows="1" placeholder="Opisz ikonę…"></textarea>
+        <div class="prompt-box" id="promptBox">
+          <textarea id="prompt" rows="1" placeholder="Napisz wiadomość…"></textarea>
           <div class="composer-btns">
-            <button class="enhance-btn" id="enhanceBtn" onclick="enhancePrompt()">
+            <button class="enhance-btn" id="enhanceBtn" onclick="enhancePrompt()" style="display:none;">
               <span id="enhanceIcon">✦</span><span id="enhanceLabel">Enhance</span>
             </button>
-            <button class="send-btn" id="generateBtn" onclick="generateImage()">
+            <button class="send-btn" id="generateBtn" onclick="onSendClick()">
               <span id="sendIcon">➤</span>
             </button>
           </div>
         </div>
 
         <div class="composer-footrow">
-          <div class="template-mini" id="templateMini">
+          <div class="template-mini" id="templateMini" style="display:none;">
             <div class="tm-opt tm-square active" data-template="square" title="Game icon"><div class="tm-shape"></div></div>
             <div class="tm-opt tm-pass" data-template="pass" title="Gamepass"><div class="tm-shape"></div></div>
             <div class="tm-opt tm-hex" data-template="hex" title="Badge"><div class="tm-shape"></div></div>
@@ -489,7 +527,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
           <span class="char-count" id="charCount">0 znaków</span>
         </div>
 
-        <div class="composer-hint" id="composerHint">Opisz pomysł — reszta dobierze się automatycznie.</div>
+        <div class="composer-hint" id="composerHint">Napisz, czego potrzebujesz — sam rozpoznam intencję.</div>
       </div>
     </div>
   </main>
@@ -500,7 +538,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
   <div class="modal-card">
     <button class="modal-close" onclick="closeBuyModal()">✕</button>
     <p class="modal-title">Doładuj tokeny</p>
-    <p class="modal-sub">1 token = 1 wygenerowana ikona. Płatność przez Stripe.</p>
+    <p class="modal-sub">1 token = 1 grafika. Model 3D kosztuje kilka tokenów (etap kształtu + tekstury). Płatność przez Stripe.</p>
     <div class="package-grid" id="packageGrid"></div>
     <div class="modal-status" id="modalStatus"></div>
   </div>
@@ -528,26 +566,40 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
     { id: "p200", tokens: 200, price: "129,99 zł", tag: "najlepsza cena / token" }
   ];
 
-  const MODE_INFO = {
-    text:  { label: "Od zera",       api: "text2img",      hint: "Opisz pomysł — reszta dobierze się automatycznie." },
-    image: { label: "Edytuj zdjęcie", api: "image2img",     hint: "Wgraj zdjęcie i opisz, co zmienić." },
-    style: { label: "Przenieś styl",  api: "reference2img", hint: "Wgraj obraz do edycji i osobny wzorzec stylu. Opis jest opcjonalny." }
+  // Trzy tryby WYMUSZONE + domyślny tryb "chat" (żaden nie wymuszony).
+  const FORCE_MODE_INFO = {
+    chat:      { label: "Czat",      icon: "💬", hint: "Napisz, czego potrzebujesz — sam rozpoznam intencję i zaproponuję generowanie." },
+    icon:      { label: "Icon",      icon: "🎮", hint: "Wybierz metodę poniżej i opisz ikonę." },
+    thumbnail: { label: "Thumbnail", icon: "🖼️", hint: "Wybierz metodę poniżej i opisz thumbnail (format poziomy)." },
+    model3d:   { label: "Model 3D",  icon: "🧊", hint: "Wybierz, jak chcesz stworzyć model 3D." }
   };
 
-  // Historical thumbnails are stored square at this size — kept generous so the
-  // most recent result in a chat still looks sharp when shown large.
+  // Metody TWORZENIA obrazu — dotyczą tylko trybów icon/thumbnail.
+  const METHOD_INFO = {
+    text:  { api: "text2img",     label: "Od zera",        hint: "Opisz pomysł — reszta dobierze się automatycznie." },
+    image: { api: "image2img",    label: "Edytuj zdjęcie",  hint: "Wgraj zdjęcie i opisz, co zmienić." },
+    style: { api: "reference2img",label: "Przenieś styl",   hint: "Wgraj obraz do edycji i osobny wzorzec stylu. Opis jest opcjonalny." }
+  };
+
   const HISTORY_THUMB_SIZE = 480;
 
   // ==================================================
-  // STATE
+  // STAN
   // ==================================================
-  let currentMode = "text";
-  let currentTemplate = "square";
-  let mainImage = null;      // base64 data URL
-  let refImage = null;       // base64 data URL
+  let activeForceMode = "chat";     // "chat" | "icon" | "thumbnail" | "model3d"
+  let currentMethod = "text";       // tylko dla icon/thumbnail
+  let currentTemplate = "square";   // tylko dla icon
+  let mainImage = null;             // base64 data URL — obraz "główny" (chat attach / edit / model3d referencja)
+  let refImage = null;              // base64 data URL — wzorzec stylu (tylko metoda "style")
+
+  // Stan przepływu Modelu 3D w obrębie AKTUALNEJ tury komponowania.
+  // idle -> choose_method -> awaiting_description | awaiting_reference_image | awaiting_generated_image -> busy
+  let model3dState = "idle";
+  let model3dGeneratedImageDataUrl = null; // obraz wygenerowany do potwierdzenia w ścieżce "najpierw wygeneruj obraz"
+
   let activeChatId = null;
   let chatsCache = [];
-  let lastLargeFrame = null; // tracks the .result-frame currently shown large in the feed
+  let lastLargeFrame = null;
 
   let auth = null;
   let currentUser = null;
@@ -563,7 +615,8 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
   }
 
   function init() {
-    bindModePicker();
+    bindForceModeBar();
+    bindMethodPicker();
     bindTemplateMini();
     bindDropzones();
     renderPackages();
@@ -575,7 +628,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
       promptEl.style.height = Math.min(promptEl.scrollHeight, 160) + "px";
     });
     promptEl.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); generateImage(); }
+      if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); onSendClick(); }
     });
 
     firebase.initializeApp(firebaseConfig);
@@ -691,7 +744,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
       el.innerHTML = `
         <div class="ci-text">
           <div class="ci-title">${escapeHtml(chat.title || "Czat")}</div>
-          <div class="ci-time">${relativeTime(chat.updatedAt)}</div>
+          <div class="ci-time"><span class="ci-badge">${forceModeIcon(chat.mode)}</span>${relativeTime(chat.updatedAt)}</div>
         </div>
         <button class="ci-del" title="Usuń czat">✕</button>
       `;
@@ -707,11 +760,16 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
     });
   }
 
+  function forceModeIcon(mode) {
+    return (FORCE_MODE_INFO[mode] || FORCE_MODE_INFO.chat).icon;
+  }
+
   function startNewChat() {
     if (!currentUser) { document.getElementById("signInBtn").click(); return; }
     activeChatId = null;
     lastLargeFrame = null;
     document.getElementById("chatTitle").textContent = "Nowy czat";
+    setForceMode("chat");
     resetComposer();
     renderFeed([]);
     renderChatList();
@@ -751,12 +809,12 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
     const res = await authedFetch("/chats", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title: seedTitle || "Nowy czat", mode: MODE_INFO[currentMode].api })
+      body: JSON.stringify({ title: seedTitle || "Nowy czat", mode: activeForceMode })
     });
     if (!res.ok) throw new Error("Nie udało się utworzyć czatu.");
     const data = await res.json();
     activeChatId = data.id;
-    chatsCache.unshift({ id: data.id, title: data.title, mode: MODE_INFO[currentMode].api, updatedAt: data.updatedAt, createdAt: data.createdAt });
+    chatsCache.unshift({ id: data.id, title: data.title, mode: activeForceMode, updatedAt: data.updatedAt, createdAt: data.createdAt });
     document.getElementById("chatTitle").textContent = data.title;
     renderChatList();
     return activeChatId;
@@ -773,8 +831,19 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
     renderChatList();
   }
 
+  async function persistMessage(chatId, payload) {
+    try {
+      await authedFetch("/chats/" + chatId + "/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      bumpChatToTop(chatId, chatsCache.find(c => c.id === chatId)?.title);
+    } catch (e) { console.error("Zapis wiadomości:", e); }
+  }
+
   // ==================================================
-  // FEED RENDERING
+  // FEED — renderowanie historii
   // ==================================================
 
   function renderFeed(messages) {
@@ -783,11 +852,10 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
     lastLargeFrame = null;
 
     if (!messages || messages.length === 0) {
-      inner.appendChild(document.getElementById("welcome") || buildWelcomeNode());
+      inner.appendChild(buildWelcomeNode());
       return;
     }
 
-    // only the most recent generation (last item) renders large; earlier ones stay small
     messages.forEach((m, i) => appendHistoryPair(m, i === messages.length - 1));
     scrollFeedToBottom();
   }
@@ -796,7 +864,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
     const div = document.createElement("div");
     div.id = "welcome";
     div.className = "welcome";
-    div.innerHTML = `<div class="w-mark"></div><h2>Nad czym pracujemy?</h2><p>Wybierz sposób generowania i opisz pomysł.</p>`;
+    div.innerHTML = `<div class="w-mark"></div><h2>Nad czym pracujemy?</h2><p>Napisz, czego potrzebujesz.</p>`;
     return div;
   }
 
@@ -809,28 +877,46 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
       <div class="msg-avatar"><img src="${currentUser && currentUser.photoURL ? currentUser.photoURL : ""}" alt=""></div>
       <div class="msg-bubble">
         <div>${escapeHtml(m.prompt || "(bez opisu)")}</div>
-        <div class="msg-meta"><span>${modeShortLabel(m.mode)}</span></div>
+        <div class="msg-meta"><span>${historyBadge(m)}</span></div>
       </div>
     `;
     inner.appendChild(userMsg);
 
     const botMsg = document.createElement("div");
     botMsg.className = "msg msg-bot";
-    const frameClass = "result-frame t-" + (m.template || "square") + (isLatest ? " latest" : "");
-    botMsg.innerHTML = `
-      <div class="msg-avatar">✦</div>
-      <div class="msg-bubble">
-        <div class="result-frame-wrap">
-          <div class="${frameClass}"><img src="${m.thumbnail}" alt=""></div>
-          <div class="result-meta">
-            <span class="r-tag">${templateLabel(m.template)}</span>
-            ${isLatest ? `<div class="result-actions"><button onclick="downloadBlob('${m.thumbnail}')">Pobierz PNG</button></div>` : ""}
-          </div>
-        </div>
-      </div>
-    `;
+    const body = document.createElement("div");
+    body.className = "bot-body";
+
+    if (m.type === "text") {
+      body.innerHTML = textHtml(m.reply || "");
+    } else if (m.type === "model3d") {
+      body.innerHTML = modelFrameHtml(m.modelUrl, m.thumbnailUrl, isLatest);
+    } else {
+      body.innerHTML = imageFrameHtml(m.thumbnail, m.template || "square", categoryLabel(m.category), isLatest, m.category === "thumbnail");
+    }
+
+    botMsg.innerHTML = `<div class="msg-avatar">✦</div><div class="msg-bubble"></div>`;
+    botMsg.querySelector(".msg-bubble").appendChild(body);
     inner.appendChild(botMsg);
-    if (isLatest) lastLargeFrame = botMsg.querySelector(".result-frame");
+
+    if (isLatest) {
+      const frame = botMsg.querySelector(".result-frame, .model-frame");
+      if (frame) lastLargeFrame = frame;
+    }
+  }
+
+  function historyBadge(m) {
+    if (m.type === "text") return "Czat";
+    if (m.type === "model3d") return "Model 3D";
+    return categoryLabel(m.category) + " · " + methodShortLabel(m.mode);
+  }
+
+  function categoryLabel(cat) { return cat === "thumbnail" ? "Thumbnail" : "Icon"; }
+  function methodShortLabel(m) {
+    return { text2img: "Od zera", image2img: "Edytuj zdjęcie", reference2img: "Przenieś styl" }[m] || m;
+  }
+  function templateLabel(t) {
+    return { square: "Game icon", pass: "Gamepass", hex: "Badge", circle: "Group icon", wide: "Thumbnail" }[t] || "Game icon";
   }
 
   function scrollFeedToBottom() {
@@ -838,36 +924,25 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
     requestAnimationFrame(() => { feed.scrollTop = feed.scrollHeight; });
   }
 
-  function appendUserBubble(promptText) {
+  // ==================================================
+  // FEED — wiadomości "na żywo" (bieżąca tura)
+  // ==================================================
+
+  function appendUserBubble(text, imagePreviewUrl) {
     const inner = document.getElementById("feedInner");
     const welcome = document.getElementById("welcome");
     if (welcome) welcome.remove();
 
     const el = document.createElement("div");
     el.className = "msg msg-user";
+    const chip = imagePreviewUrl
+      ? `<div class="chat-image-chip"><img src="${imagePreviewUrl}" alt=""><span>zdjęcie załączone</span></div>`
+      : "";
     el.innerHTML = `
       <div class="msg-avatar"><img src="${currentUser && currentUser.photoURL ? currentUser.photoURL : ""}" alt=""></div>
       <div class="msg-bubble">
-        <div>${escapeHtml(promptText || "(bez opisu)")}</div>
-        <div class="msg-meta"><span>${MODE_INFO[currentMode].label}</span></div>
-      </div>
-    `;
-    inner.appendChild(el);
-    scrollFeedToBottom();
-  }
-
-  function appendBotPlaceholder() {
-    const inner = document.getElementById("feedInner");
-    const el = document.createElement("div");
-    el.className = "msg msg-bot";
-    el.id = "botPending";
-    el.innerHTML = `
-      <div class="msg-avatar">✦</div>
-      <div class="msg-bubble">
-        <div class="bot-status" id="botStatusLine">
-          <span class="mini-loader"><span></span><span></span><span></span></span>
-          <span id="botStatusText">Generuję…</span>
-        </div>
+        ${chip}
+        <div>${escapeHtml(text || "(bez opisu)")}</div>
       </div>
     `;
     inner.appendChild(el);
@@ -875,79 +950,182 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
     return el;
   }
 
-  function setBotStatus(text, kind) {
-    const line = document.getElementById("botStatusLine");
-    if (!line) return;
-    line.className = "bot-status" + (kind ? " " + kind : "");
-    line.innerHTML = kind === "error"
-      ? `<span>⚠</span><span>${escapeHtml(text)}</span>`
-      : `<span class="mini-loader"><span></span><span></span><span></span></span><span id="botStatusText">${escapeHtml(text)}</span>`;
+  function loaderHtml(text) {
+    return `<div class="bot-status"><span class="mini-loader"><span></span><span></span><span></span></span><span>${escapeHtml(text || "Myślę…")}</span></div>`;
+  }
+  function errorHtml(text) {
+    return `<div class="bot-status error"><span>⚠</span><span>${escapeHtml(text)}</span></div>`;
+  }
+  function textHtml(text) {
+    return `<div class="bot-text">${escapeHtml(text)}</div>`;
+  }
+  function progressHtml(text, progress) {
+    return `<div class="bot-status"><span class="mini-loader"><span></span><span></span><span></span></span><span>${escapeHtml(text)}</span></div>
+            <div class="progress-track"><div class="progress-fill" style="width:${Math.max(4, progress || 0)}%"></div></div>`;
   }
 
-  function resolveBotWithImage(el, blobUrl) {
-    // demote whatever was previously the large "latest" frame back to small
-    if (lastLargeFrame) lastLargeFrame.classList.remove("latest");
+  function appendBotPlaceholder(text) {
+    const inner = document.getElementById("feedInner");
+    const el = document.createElement("div");
+    el.className = "msg msg-bot";
+    el.innerHTML = `<div class="msg-avatar">✦</div><div class="msg-bubble"><div class="bot-body">${loaderHtml(text)}</div></div>`;
+    inner.appendChild(el);
+    scrollFeedToBottom();
+    return el;
+  }
 
-    el.innerHTML = `
-      <div class="msg-avatar">✦</div>
-      <div class="msg-bubble">
-        <div class="result-frame-wrap">
-          <div class="result-frame t-${currentTemplate} latest"><img src="${blobUrl}" alt=""></div>
-          <div class="result-meta">
-            <span class="r-tag">${templateLabel(currentTemplate)}</span>
-            <div class="result-actions">
-              <button onclick="downloadBlob('${blobUrl}')">Pobierz PNG</button>
-            </div>
+  function botBody(el) { return el.querySelector(".bot-body"); }
+  function setBotBody(el, html) { botBody(el).innerHTML = html; scrollFeedToBottom(); }
+  function appendBotBody(el, html) { botBody(el).insertAdjacentHTML("beforeend", html); scrollFeedToBottom(); }
+
+  function demoteLastLarge() {
+    if (lastLargeFrame) lastLargeFrame.classList.remove("latest");
+    lastLargeFrame = null;
+  }
+
+  function imageFrameHtml(src, template, tagText, isLatest, wide) {
+    demoteIfLatest(isLatest);
+    const frameClass = "result-frame " + (wide ? "t-wide" : "t-" + template) + (isLatest ? " latest" : "");
+    return `
+      <div class="result-frame-wrap">
+        <div class="${frameClass}"><img src="${src}" alt=""></div>
+        <div class="result-meta">
+          <span class="r-tag">${escapeHtml(tagText)}</span>
+          ${isLatest ? `<div class="result-actions"><a href="${src}" download="icon-lab.png">⬇ Pobierz PNG</a></div>` : ""}
+        </div>
+      </div>`;
+  }
+
+  function modelFrameHtml(modelUrl, thumbnailUrl, isLatest) {
+    demoteIfLatest(isLatest);
+    return `
+      <div class="result-frame-wrap">
+        <div class="model-frame">
+          <model-viewer src="${modelUrl}" poster="${thumbnailUrl || ""}" camera-controls auto-rotate shadow-intensity="1" exposure="1" style="background:transparent;"></model-viewer>
+        </div>
+        <div class="result-meta">
+          <span class="r-tag">Model 3D (.glb)</span>
+          <div class="result-actions">
+            <a href="${modelUrl}" target="_blank" rel="noopener" download="icon-lab-model.glb">⬇ Pobierz GLB</a>
           </div>
         </div>
-      </div>
-    `;
-    lastLargeFrame = el.querySelector(".result-frame");
-    scrollFeedToBottom();
+      </div>`;
   }
 
-  function showAnalysisInBot(description, enhanced) {
-    const pending = document.getElementById("botPending");
-    if (!pending) return;
-    const bubble = pending.querySelector(".msg-bubble");
-    const box = document.createElement("div");
-    box.className = "analysis-box";
-    box.innerHTML = `
-      <p><span class="a-label">Opis:</span> ${escapeHtml(description || "—")}</p>
-      <p><span class="a-label">Enhanced prompt:</span> ${escapeHtml(enhanced || "—")}</p>
-    `;
-    bubble.appendChild(box);
-    scrollFeedToBottom();
+  function demoteIfLatest(isLatest) {
+    if (isLatest) demoteLastLarge();
+  }
+
+  function markNewLastLarge(el) {
+    const frame = el.querySelector(".result-frame, .model-frame");
+    if (frame) lastLargeFrame = frame;
   }
 
   // ==================================================
-  // MODE PICKER
+  // PASEK TRYBÓW WYMUSZONYCH
   // ==================================================
 
-  function bindModePicker() {
-    document.querySelectorAll(".mode-card").forEach(card => {
-      card.addEventListener("click", () => setMode(card.dataset.mode));
+  function bindForceModeBar() {
+    document.querySelectorAll(".fm-pill").forEach(pill => {
+      pill.addEventListener("click", () => setForceMode(pill.dataset.force));
     });
   }
 
-  function setMode(mode) {
-    currentMode = mode;
-    document.querySelectorAll(".mode-card").forEach(c => c.classList.toggle("active", c.dataset.mode === mode));
-    document.getElementById("modeBadge").textContent = MODE_INFO[mode].label;
-    document.getElementById("composerHint").textContent = MODE_INFO[mode].hint;
+  function setForceMode(mode, opts) {
+    opts = opts || {};
+    activeForceMode = mode;
+
+    document.querySelectorAll(".fm-pill").forEach(p => p.classList.toggle("active", p.dataset.force === mode));
+
+    const info = FORCE_MODE_INFO[mode];
+    document.getElementById("modeBadgeIcon").textContent = info.icon;
+    document.getElementById("modeBadgeText").textContent = info.label;
+
+    const methodPicker = document.getElementById("methodPicker");
+    const dropzoneRow = document.getElementById("dropzoneRow");
+    const dzRef = document.getElementById("dzRef");
+    const templateMini = document.getElementById("templateMini");
+    const enhanceBtn = document.getElementById("enhanceBtn");
+    const promptEl = document.getElementById("prompt");
+
+    if (mode === "icon" || mode === "thumbnail") {
+      methodPicker.style.display = "flex";
+      enhanceBtn.style.display = "flex";
+      templateMini.style.display = mode === "icon" ? "flex" : "none";
+      setMethod(currentMethod, true);
+      document.getElementById("composerHint").textContent = info.hint;
+      promptEl.placeholder = mode === "icon" ? "Opisz ikonę…" : "Opisz thumbnail…";
+    } else {
+      methodPicker.style.display = "none";
+      dropzoneRow.style.display = "none";
+      dzRef.style.display = "none";
+      templateMini.style.display = "none";
+      enhanceBtn.style.display = "none";
+      clearMainImage();
+      clearRefImage();
+    }
+
+    if (mode === "chat") {
+      document.getElementById("composerHint").textContent = info.hint;
+      promptEl.placeholder = "Napisz wiadomość…";
+      dropzoneRow.style.display = "flex";
+      updateDropzoneLabels();
+      setPromptBoxEnabled(true);
+    }
+
+    if (mode === "model3d") {
+      updateDropzoneLabels();
+      if (model3dState === "idle" && !opts.skipAutoChooser) {
+        model3dState = "choose_method";
+        appendModel3DChooser();
+      }
+      applyModel3DComposerState();
+    } else {
+      // opuszczamy tryb model3d — reset stanu na potrzeby kolejnego wejścia
+      if (model3dState !== "busy") {
+        model3dState = "idle";
+        model3dGeneratedImageDataUrl = null;
+      }
+    }
+  }
+
+  function updateDropzoneLabels() {
+    const label = document.getElementById("dzMainLabel");
+    if (activeForceMode === "chat") label.textContent = "Załącz zdjęcie (opcjonalnie)";
+    else if (activeForceMode === "model3d") label.textContent = "Zdjęcie referencyjne";
+    else if (currentMethod === "style") label.textContent = "Obraz do edycji";
+    else label.textContent = "Obraz do edycji";
+  }
+
+  // ==================================================
+  // METODA TWORZENIA (icon/thumbnail: od zera / edytuj / styl)
+  // ==================================================
+
+  function bindMethodPicker() {
+    document.querySelectorAll(".mode-card").forEach(card => {
+      card.addEventListener("click", () => setMethod(card.dataset.method));
+    });
+  }
+
+  function setMethod(method, silent) {
+    currentMethod = method;
+    document.querySelectorAll(".mode-card").forEach(c => c.classList.toggle("active", c.dataset.method === method));
 
     const row = document.getElementById("dropzoneRow");
     const dzRef = document.getElementById("dzRef");
-    if (mode === "text") {
+    if (method === "text") {
       row.style.display = "none";
     } else {
       row.style.display = "flex";
-      dzRef.style.display = mode === "style" ? "block" : "none";
+      dzRef.style.display = method === "style" ? "block" : "none";
     }
+    updateDropzoneLabels();
 
-    document.getElementById("prompt").placeholder =
-      mode === "text" ? "Opisz ikonę…" :
-      mode === "image" ? "Co zmienić na tym obrazie?" :
+    const promptEl = document.getElementById("prompt");
+    const catLabel = activeForceMode === "thumbnail" ? "thumbnail" : "ikonę";
+    promptEl.placeholder =
+      method === "text" ? "Opisz " + catLabel + "…" :
+      method === "image" ? "Co zmienić na tym obrazie?" :
       "Opcjonalnie: dodatkowe wskazówki dla stylu…";
 
     updateEnhanceButtonLabel();
@@ -964,7 +1142,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
   }
 
   // ==================================================
-  // DROPZONES
+  // DROPZONES (wspólne: chat-attach / edit / model3d referencja)
   // ==================================================
 
   function bindDropzones() {
@@ -993,7 +1171,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
   }
 
   function clearMainImage(e) {
-    e.stopPropagation();
+    if (e) e.stopPropagation();
     mainImage = null;
     document.getElementById("mainImageInput").value = "";
     document.getElementById("dzMainFilled").classList.remove("show");
@@ -1002,7 +1180,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
   }
 
   function clearRefImage(e) {
-    e.stopPropagation();
+    if (e) e.stopPropagation();
     refImage = null;
     document.getElementById("refImageInput").value = "";
     document.getElementById("dzRefFilled").classList.remove("show");
@@ -1021,13 +1199,13 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 
   function updateEnhanceButtonLabel() {
     const label = document.getElementById("enhanceLabel");
-    if (currentMode === "text") label.textContent = "Enhance";
-    else if (currentMode === "image") label.textContent = mainImage ? "Analyze + Enhance" : "Enhance";
+    if (currentMethod === "text") label.textContent = "Enhance";
+    else if (currentMethod === "image") label.textContent = mainImage ? "Analyze + Enhance" : "Enhance";
     else label.textContent = refImage ? "Analyze style + Enhance" : "Enhance";
   }
 
   // ==================================================
-  // ENHANCE / ANALYZE
+  // ENHANCE / ANALYZE (tylko tryby Icon / Thumbnail)
   // ==================================================
 
   async function enhancePrompt() {
@@ -1037,9 +1215,9 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
     const raw = promptEl.value.trim();
     const btn = document.getElementById("enhanceBtn");
     const icon = document.getElementById("enhanceIcon");
+    const category = activeForceMode === "thumbnail" ? "thumbnail" : "icon";
 
-    const usingAnalyze = (currentMode === "image" && mainImage) || (currentMode === "style" && refImage);
-
+    const usingAnalyze = (currentMethod === "image" && mainImage) || (currentMethod === "style" && refImage);
     if (!raw && !usingAnalyze) return;
 
     btn.disabled = true;
@@ -1047,11 +1225,11 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 
     try {
       if (usingAnalyze) {
-        const targetImage = currentMode === "style" ? refImage : mainImage;
+        const targetImage = currentMethod === "style" ? refImage : mainImage;
         const res = await authedFetch("/analyze-image", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ prompt: raw, image: targetImage, styleMode: currentMode === "style" })
+          body: JSON.stringify({ prompt: raw, image: targetImage, styleMode: currentMethod === "style", category })
         });
         if (!res.ok) throw new Error(await extractError(res));
         const data = await res.json();
@@ -1061,7 +1239,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
         const res = await authedFetch("/enhance", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ prompt: raw, hasReference: false })
+          body: JSON.stringify({ prompt: raw, hasReference: false, category })
         });
         if (!res.ok) throw new Error(await extractError(res));
         const data = await res.json();
@@ -1101,7 +1279,21 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
   }
 
   // ==================================================
-  // GENERATE
+  // GŁÓWNY PRZYCISK WYSYŁKI — routing wg aktywnego trybu
+  // ==================================================
+
+  function onSendClick() {
+    if (activeForceMode === "chat") sendChatMessage();
+    else if (activeForceMode === "icon" || activeForceMode === "thumbnail") generateImage();
+    else if (activeForceMode === "model3d") handleModel3DSend();
+  }
+
+  function setPromptBoxEnabled(enabled) {
+    document.getElementById("promptBox").classList.toggle("disabled", !enabled);
+  }
+
+  // ==================================================
+  // GENEROWANIE OBRAZU — TRYB WYMUSZONY (Icon / Thumbnail)
   // ==================================================
 
   async function generateImage() {
@@ -1109,14 +1301,15 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 
     const promptEl = document.getElementById("prompt");
     const raw = promptEl.value.trim();
+    const category = activeForceMode === "thumbnail" ? "thumbnail" : "icon";
 
-    if (currentMode === "text" && !raw) return;
-    if (currentMode === "image" && (!mainImage || !raw)) {
-      alert("Tryb „Edytuj zdjęcie” wymaga wgranego obrazu i opisu zmian.");
+    if (currentMethod === "text" && !raw) return;
+    if (currentMethod === "image" && (!mainImage || !raw)) {
+      alert("Metoda „Edytuj zdjęcie” wymaga wgranego obrazu i opisu zmian.");
       return;
     }
-    if (currentMode === "style" && (!mainImage || !refImage)) {
-      alert("Tryb „Przenieś styl” wymaga obrazu do edycji ORAZ obrazu-wzorca stylu.");
+    if (currentMethod === "style" && (!mainImage || !refImage)) {
+      alert("Metoda „Przenieś styl” wymaga obrazu do edycji ORAZ obrazu-wzorca stylu.");
       return;
     }
     if ((tokenBalance ?? 0) < 1) { openBuyModal(); return; }
@@ -1128,31 +1321,29 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
     sendIcon.textContent = "◌";
 
     appendUserBubble(raw);
-    const pendingEl = appendBotPlaceholder();
+    const pendingEl = appendBotPlaceholder(activeForceMode === "icon" ? "Generuję ikonę…" : "Generuję thumbnail…");
 
     try {
-      const chatId = await ensureActiveChat(raw || (currentMode === "style" ? "Reference style edit" : "Icon"));
+      const chatId = await ensureActiveChat(raw || (currentMethod === "style" ? "Reference style edit" : (category === "icon" ? "Icon" : "Thumbnail")));
 
       let finalPrompt = raw;
       if (raw) {
-        setBotStatus("Tłumaczę prompt…");
         const { text } = await translateToEnglish(raw);
         finalPrompt = text;
       }
-      if (currentMode === "image" && mainImage) {
+      if (currentMethod === "image" && mainImage) {
         finalPrompt = "Using the attached image as the base, keep its main subject, character, and pose recognizable. Apply this edit: " + finalPrompt;
       }
-
-      setBotStatus(currentMode === "text" ? "Generuję ikonę…" : "Edytuję obraz…");
 
       const res = await authedFetch("/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           prompt: finalPrompt,
-          image: currentMode !== "text" ? mainImage : null,
-          referenceImage: currentMode === "style" ? refImage : null,
-          mode: MODE_INFO[currentMode].api
+          image: currentMethod !== "text" ? mainImage : null,
+          referenceImage: currentMethod === "style" ? refImage : null,
+          mode: METHOD_INFO[currentMethod].api,
+          category
         })
       });
 
@@ -1164,25 +1355,29 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 
       const blob = await res.blob();
       const blobUrl = URL.createObjectURL(blob);
-      resolveBotWithImage(pendingEl, blobUrl);
+
+      setBotBody(pendingEl, imageFrameHtml(blobUrl, currentTemplate, templateLabel(category === "thumbnail" ? "wide" : currentTemplate), true, category === "thumbnail"));
+      markNewLastLarge(pendingEl);
 
       if (tokenBalance != null) tokenBalance -= 1;
       updateTokenPill();
       refreshBalance();
 
       const thumbnail = await createThumbnail(blobUrl);
-      await authedFetch("/chats/" + chatId + "/messages", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ thumbnail, prompt: raw, mode: MODE_INFO[currentMode].api, template: currentTemplate })
+      await persistMessage(chatId, {
+        type: "generation",
+        thumbnail,
+        prompt: raw,
+        mode: METHOD_INFO[currentMethod].api,
+        template: currentTemplate,
+        category
       });
-      bumpChatToTop(chatId, chatsCache.find(c => c.id === chatId)?.title);
 
       resetComposerAfterSend();
 
     } catch (e) {
       console.error(e);
-      setBotStatus("Błąd: " + e.message, "error");
+      setBotBody(pendingEl, errorHtml("Błąd: " + e.message));
     } finally {
       sendBtn.disabled = false;
       sendIcon.className = "";
@@ -1190,27 +1385,451 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
     }
   }
 
-  function resetComposerAfterSend() {
-    document.getElementById("prompt").value = "";
-    document.getElementById("prompt").style.height = "auto";
-    document.getElementById("charCount").textContent = "0 znaków";
+  // ==================================================
+  // CZAT SWOBODNY (tryb domyślny) — Gemini sam wykrywa intencję
+  // ==================================================
+
+  async function sendChatMessage() {
+    if (!currentUser) { document.getElementById("signInBtn").click(); return; }
+
+    const promptEl = document.getElementById("prompt");
+    const raw = promptEl.value.trim();
+    if (!raw && !mainImage) return;
+
+    const sendBtn = document.getElementById("generateBtn");
+    const sendIcon = document.getElementById("sendIcon");
+    sendBtn.disabled = true;
+    sendIcon.className = "spin";
+    sendIcon.textContent = "◌";
+
+    const attachedImage = mainImage;
+    const attachedPreview = attachedImage ? document.getElementById("dzMainPreview").src : null;
+
+    appendUserBubble(raw, attachedPreview);
+    const pendingEl = appendBotPlaceholder("Myślę…");
+
+    try {
+      const chatId = await ensureActiveChat(raw || "Czat");
+
+      const res = await authedFetch("/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ chatId, message: raw, image: attachedImage })
+      });
+
+      if (!res.ok) throw new Error(await extractError(res));
+      const data = await res.json();
+
+      setBotBody(pendingEl, textHtml(data.reply || "..."));
+
+      const action = data.action;
+
+      if (!action) {
+        await persistMessage(chatId, { type: "text", prompt: raw, reply: data.reply || "" });
+
+      } else if (action.type === "generated_image") {
+        appendBotBody(pendingEl, imageFrameHtml(action.image, "square", categoryLabel(action.category), true, action.category === "thumbnail"));
+        markNewLastLarge(pendingEl);
+        if (tokenBalance != null) tokenBalance -= 1;
+        updateTokenPill();
+        refreshBalance();
+
+        const thumbnail = await createThumbnail(action.image);
+        await persistMessage(chatId, {
+          type: "generation",
+          thumbnail,
+          prompt: raw,
+          mode: "text2img",
+          template: "square",
+          category: action.category
+        });
+
+      } else if (action.type === "need_3d_method") {
+        await persistMessage(chatId, { type: "text", prompt: raw, reply: data.reply || "" });
+        setForceMode("model3d", { skipAutoChooser: true });
+        model3dState = "choose_method";
+        appendModel3DChooser(pendingEl);
+
+      } else if (action.type === "model3d_task_started") {
+        await persistMessage(chatId, { type: "text", prompt: raw, reply: data.reply || "" });
+        setForceMode("model3d", { skipAutoChooser: true });
+        model3dState = "busy";
+        applyModel3DComposerState();
+        const progressEl = appendBotPlaceholder("Startuję generowanie modelu 3D…");
+        pollMeshyTask(progressEl, action.taskType, action.taskId, action.prompt || raw, {
+          offerRefine: action.taskType === "text-to-3d",
+          chatId
+        });
+
+      } else if (action.type === "need_tokens") {
+        await persistMessage(chatId, { type: "text", prompt: raw, reply: data.reply || "" });
+        openBuyModal();
+      }
+
+      clearMainImage();
+      resetComposerAfterSend();
+
+    } catch (e) {
+      console.error(e);
+      setBotBody(pendingEl, errorHtml("Błąd: " + e.message));
+    } finally {
+      sendBtn.disabled = false;
+      sendIcon.className = "";
+      sendIcon.textContent = "➤";
+    }
   }
 
-  function resetComposer() {
-    resetComposerAfterSend();
-    mainImage = null; refImage = null;
-    document.getElementById("mainImageInput").value = "";
-    document.getElementById("refImageInput").value = "";
-    document.getElementById("dzMainFilled").classList.remove("show");
-    document.getElementById("dzRefFilled").classList.remove("show");
-    document.getElementById("dzMain").classList.remove("filled");
-    document.getElementById("dzRef").classList.remove("filled");
-    updateEnhanceButtonLabel();
+  // ==================================================
+  // MODEL 3D — chooser + trzy ścieżki + polling Meshy
+  // ==================================================
+
+  function appendModel3DChooser(existingEl) {
+    const html = `
+      <div class="chooser-3d" id="chooser3d-${Date.now()}">
+        <button onclick="chooseModel3DMethod('describe', this)"><span class="c3-emoji">✏️</span><span>Opiszę tekstem<span class="c3-sub">Krótki opis obiektu → model 3D</span></span></button>
+        <button onclick="chooseModel3DMethod('image', this)"><span class="c3-emoji">🖼️</span><span>Wgram zdjęcie referencyjne<span class="c3-sub">Zdjęcie obiektu → model 3D</span></span></button>
+        <button onclick="chooseModel3DMethod('generate', this)"><span class="c3-emoji">✨</span><span>Najpierw wygeneruj obraz<span class="c3-sub">Opiszę, AI wygeneruje obraz, potem model 3D</span></span></button>
+      </div>`;
+    if (existingEl) {
+      appendBotBody(existingEl, html);
+    } else {
+      const el = appendBotPlaceholder("Jak chcesz stworzyć model 3D?");
+      setBotBody(el, textHtml("Jak chcesz stworzyć model 3D?") + html);
+    }
   }
+
+  function chooseModel3DMethod(choice, btnEl) {
+    const group = btnEl.closest(".chooser-3d");
+    group.querySelectorAll("button").forEach(b => { b.disabled = true; b.classList.remove("chosen"); });
+    btnEl.classList.add("chosen");
+
+    const promptEl = document.getElementById("prompt");
+
+    if (choice === "describe") {
+      model3dState = "awaiting_description";
+      promptEl.placeholder = "Opisz obiekt, który ma powstać jako model 3D…";
+    } else if (choice === "image") {
+      model3dState = "awaiting_reference_image";
+      promptEl.placeholder = "Opcjonalnie: wskazówki co do tekstury/stylu…";
+    } else if (choice === "generate") {
+      model3dState = "awaiting_generated_image";
+      promptEl.placeholder = "Opisz obiekt, który mam najpierw wygenerować jako obraz…";
+    }
+
+    applyModel3DComposerState();
+    promptEl.focus();
+  }
+
+  function applyModel3DComposerState() {
+    const dropzoneRow = document.getElementById("dropzoneRow");
+    const dzRef = document.getElementById("dzRef");
+    dzRef.style.display = "none";
+
+    if (model3dState === "choose_method" || model3dState === "busy") {
+      setPromptBoxEnabled(false);
+      dropzoneRow.style.display = "none";
+      document.getElementById("composerHint").textContent =
+        model3dState === "busy" ? "Trwa generowanie modelu 3D — poczekaj na wynik poniżej." : "Wybierz jedną z opcji powyżej w czacie.";
+    } else if (model3dState === "awaiting_reference_image") {
+      setPromptBoxEnabled(true);
+      dropzoneRow.style.display = "flex";
+      updateDropzoneLabels();
+      document.getElementById("composerHint").textContent = "Wgraj zdjęcie referencyjne, opis jest opcjonalny.";
+    } else {
+      setPromptBoxEnabled(true);
+      dropzoneRow.style.display = "none";
+      document.getElementById("composerHint").textContent = FORCE_MODE_INFO.model3d.hint;
+    }
+  }
+
+  function handleModel3DSend() {
+    const promptEl = document.getElementById("prompt");
+    const raw = promptEl.value.trim();
+
+    if (model3dState === "awaiting_description") {
+      if (!raw) return;
+      startTextTo3D(raw);
+    } else if (model3dState === "awaiting_reference_image") {
+      if (!mainImage) { alert("Najpierw wgraj zdjęcie referencyjne."); return; }
+      startImageTo3D(raw);
+    } else if (model3dState === "awaiting_generated_image") {
+      if (!raw) return;
+      generateImageForModel3D(raw);
+    }
+    // w stanach "choose_method" / "busy" pole jest zablokowane — nic nie robimy
+  }
+
+  async function startTextTo3D(desc) {
+    if (!currentUser) { document.getElementById("signInBtn").click(); return; }
+    if ((tokenBalance ?? 0) < 1) { openBuyModal(); return; }
+
+    model3dState = "busy";
+    applyModel3DComposerState();
+
+    appendUserBubble(desc);
+    const pendingEl = appendBotPlaceholder("Tworzę kształt modelu (mesh)… to może potrwać do minuty.");
+
+    try {
+      const chatId = await ensureActiveChat(desc);
+      const { text: enTranslated } = await translateToEnglish(desc);
+
+      const res = await authedFetch("/meshy/text-preview", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt: enTranslated || desc })
+      });
+      if (!res.ok) { if (res.status === 402) openBuyModal(); throw new Error(await extractError(res)); }
+      const data = await res.json();
+
+      refreshBalance();
+      pollMeshyTask(pendingEl, "text-to-3d", data.taskId, desc, { offerRefine: true, chatId });
+      resetComposerAfterSend();
+
+    } catch (e) {
+      console.error(e);
+      setBotBody(pendingEl, errorHtml("Błąd: " + e.message));
+      model3dState = "awaiting_description";
+      applyModel3DComposerState();
+    }
+  }
+
+  async function startImageTo3D(raw) {
+    if (!currentUser) { document.getElementById("signInBtn").click(); return; }
+    if ((tokenBalance ?? 0) < 1) { openBuyModal(); return; }
+
+    model3dState = "busy";
+    applyModel3DComposerState();
+
+    appendUserBubble(raw || "(zdjęcie referencyjne)", document.getElementById("dzMainPreview").src);
+    const pendingEl = appendBotPlaceholder("Tworzę model 3D ze zdjęcia… to może potrwać do minuty.");
+
+    try {
+      const chatId = await ensureActiveChat(raw || "Model 3D ze zdjęcia");
+      let texturePrompt = "";
+      if (raw) { const { text } = await translateToEnglish(raw); texturePrompt = text; }
+
+      const res = await authedFetch("/meshy/image-to-3d", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ image: mainImage, prompt: texturePrompt })
+      });
+      if (!res.ok) { if (res.status === 402) openBuyModal(); throw new Error(await extractError(res)); }
+      const data = await res.json();
+
+      refreshBalance();
+      clearMainImage();
+      pollMeshyTask(pendingEl, "image-to-3d", data.taskId, raw, { offerRefine: false, chatId });
+      resetComposerAfterSend();
+
+    } catch (e) {
+      console.error(e);
+      setBotBody(pendingEl, errorHtml("Błąd: " + e.message));
+      model3dState = "awaiting_reference_image";
+      applyModel3DComposerState();
+    }
+  }
+
+  async function generateImageForModel3D(raw) {
+    if (!currentUser) { document.getElementById("signInBtn").click(); return; }
+    if ((tokenBalance ?? 0) < 1) { openBuyModal(); return; }
+
+    model3dState = "busy";
+    applyModel3DComposerState();
+
+    appendUserBubble(raw);
+    const pendingEl = appendBotPlaceholder("Generuję obraz referencyjny…");
+
+    try {
+      const chatId = await ensureActiveChat(raw);
+      const { text: translated } = await translateToEnglish(raw);
+      const refPrompt = "Studio product photo of " + translated + ", isolated on a plain white background, centered, single object fully visible, soft even lighting, no text, no watermark, high detail, suitable as a 3D modeling reference.";
+
+      const res = await authedFetch("/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt: refPrompt, mode: "text2img", category: "icon" })
+      });
+      if (!res.ok) { if (res.status === 402) openBuyModal(); throw new Error(await extractError(res)); }
+
+      const blob = await res.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const dataUrl = await blobUrlToDataUrl(blobUrl);
+      model3dGeneratedImageDataUrl = dataUrl;
+
+      refreshBalance();
+
+      const thumbnail = await createThumbnail(blobUrl);
+      await persistMessage(chatId, { type: "generation", thumbnail, prompt: raw, mode: "text2img", template: "square", category: "icon" });
+
+      setBotBody(pendingEl,
+        imageFrameHtml(blobUrl, "square", "Obraz referencyjny", true, false) +
+        `<div class="result-actions" style="margin-top:10px;">
+           <button class="primary" onclick="confirmGeneratedImageFor3D(this, '${chatId}', ${JSON.stringify(raw).replace(/'/g, "&#39;")})">🧊 Użyj do modelu 3D</button>
+           <button onclick="regenerateImageForModel3D(this, ${JSON.stringify(raw).replace(/'/g, "&#39;")})">🔄 Wygeneruj inny</button>
+         </div>`
+      );
+      markNewLastLarge(pendingEl);
+      model3dState = "awaiting_generated_image"; // można kliknąć "wygeneruj inny" ponownie przez przyciski
+      applyModel3DComposerState();
+
+    } catch (e) {
+      console.error(e);
+      setBotBody(pendingEl, errorHtml("Błąd: " + e.message));
+      model3dState = "awaiting_generated_image";
+      applyModel3DComposerState();
+    }
+  }
+
+  function regenerateImageForModel3D(btnEl, raw) {
+    const bubbleEl = btnEl.closest(".msg-bot");
+    setBotBody(bubbleEl, loaderHtml("Generuję nowy obraz referencyjny…"));
+    generateImageForModel3D(raw).then(() => {}); // odświeży ten sam obszar poprzez nowy appendBotPlaceholder — ok wizualnie jako nowa wiadomość
+  }
+
+  async function confirmGeneratedImageFor3D(btnEl, chatId, raw) {
+    if (!model3dGeneratedImageDataUrl) return;
+    const actionsRow = btnEl.closest(".result-actions");
+    actionsRow.innerHTML = `<span class="bot-status"><span class="mini-loader"><span></span><span></span><span></span></span><span>Startuję model 3D…</span></span>`;
+
+    if ((tokenBalance ?? 0) < 1) { openBuyModal(); return; }
+
+    try {
+      const res = await authedFetch("/meshy/image-to-3d", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ image: model3dGeneratedImageDataUrl, prompt: "" })
+      });
+      if (!res.ok) { if (res.status === 402) openBuyModal(); throw new Error(await extractError(res)); }
+      const data = await res.json();
+      refreshBalance();
+
+      model3dState = "busy";
+      applyModel3DComposerState();
+      const progressEl = appendBotPlaceholder("Teksturuję i buduję model 3D… to może potrwać do minuty.");
+      pollMeshyTask(progressEl, "image-to-3d", data.taskId, raw, { offerRefine: false, chatId });
+
+    } catch (e) {
+      console.error(e);
+      actionsRow.innerHTML = `<span class="bot-status error">⚠ ${escapeHtml(e.message)}</span>`;
+      model3dState = "awaiting_generated_image";
+      applyModel3DComposerState();
+    }
+  }
+
+  async function blobUrlToDataUrl(blobUrl) {
+    const res = await fetch(blobUrl);
+    const blob = await res.blob();
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = () => reject(new Error("Nie udało się przetworzyć obrazu."));
+      reader.readAsDataURL(blob);
+    });
+  }
+
+  // ---- polling zadania Meshy ----
+
+  function pollMeshyTask(el, taskType, taskId, promptText, opts) {
+    opts = opts || {};
+    let attempts = 0;
+
+    const tick = async () => {
+      attempts++;
+      try {
+        const res = await authedFetch(`/meshy/status?type=${encodeURIComponent(taskType)}&id=${encodeURIComponent(taskId)}`);
+        if (!res.ok) throw new Error(await extractError(res));
+        const data = await res.json();
+
+        if (data.status === "FAILED" || data.status === "CANCELED") {
+          setBotBody(el, errorHtml("Generowanie modelu 3D nie powiodło się" + (data.errorMessage ? (": " + data.errorMessage) : ".")));
+          model3dState = activeForceMode === "model3d" ? "choose_method" : "idle";
+          if (activeForceMode === "model3d") { applyModel3DComposerState(); appendModel3DChooser(el); }
+          return;
+        }
+
+        if (data.status !== "SUCCEEDED") {
+          setBotBody(el, progressHtml(
+            data.precedingTasks > 0 ? `W kolejce (${data.precedingTasks} przed Tobą)…` : `Generuję… ${data.progress || 0}%`,
+            data.progress || 0
+          ));
+          setTimeout(tick, attempts < 5 ? 2500 : 4500);
+          return;
+        }
+
+        // SUCCEEDED
+        if (taskType === "text-to-3d" && opts.offerRefine) {
+          setBotBody(el,
+            modelFrameHtml(data.modelUrl, data.thumbnailUrl, true) +
+            `<div class="result-actions" style="margin-top:2px;">
+               <button class="primary" onclick="refineTextTo3D(this, '${data.taskId}', '${opts.chatId || ""}', ${JSON.stringify(promptText || "").replace(/'/g, "&#39;")})">🎨 Dodaj teksturę</button>
+               <button onclick="saveMeshyResultAsIs(this, '${opts.chatId || ""}', ${JSON.stringify(promptText || "").replace(/'/g, "&#39;")}, ${JSON.stringify(data.modelUrl)}, ${JSON.stringify(data.thumbnailUrl || "")}, 'text-to-3d')">✅ Zapisz bez tekstury</button>
+             </div>`
+          );
+          markNewLastLarge(el);
+          model3dState = activeForceMode === "model3d" ? "choose_method" : "idle";
+          applyModel3DComposerState();
+        } else {
+          setBotBody(el, modelFrameHtml(data.modelUrl, data.thumbnailUrl, true));
+          markNewLastLarge(el);
+          if (opts.chatId) {
+            persistMessage(opts.chatId, {
+              type: "model3d", prompt: promptText || "", modelUrl: data.modelUrl, thumbnailUrl: data.thumbnailUrl || "", taskType: data.taskType
+            });
+          }
+          model3dState = activeForceMode === "model3d" ? "choose_method" : "idle";
+          applyModel3DComposerState();
+        }
+
+      } catch (e) {
+        console.error(e);
+        setBotBody(el, errorHtml("Błąd sprawdzania statusu: " + e.message));
+      }
+    };
+
+    setTimeout(tick, 2500);
+  }
+
+  async function refineTextTo3D(btnEl, previewTaskId, chatId, promptText) {
+    if ((tokenBalance ?? 0) < 1) { openBuyModal(); return; }
+    const actionsRow = btnEl.closest(".result-actions");
+    actionsRow.innerHTML = `<span class="bot-status"><span class="mini-loader"><span></span><span></span><span></span></span><span>Doteksturowuję model…</span></span>`;
+
+    try {
+      const res = await authedFetch("/meshy/text-refine", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ previewTaskId })
+      });
+      if (!res.ok) { if (res.status === 402) openBuyModal(); throw new Error(await extractError(res)); }
+      const data = await res.json();
+      refreshBalance();
+
+      model3dState = "busy";
+      applyModel3DComposerState();
+      const progressEl = appendBotPlaceholder("Nakładam teksturę…");
+      pollMeshyTask(progressEl, "text-to-3d", data.taskId, promptText, { offerRefine: false, chatId });
+
+    } catch (e) {
+      actionsRow.innerHTML = `<span class="bot-status error">⚠ ${escapeHtml(e.message)}</span>`;
+    }
+  }
+
+  async function saveMeshyResultAsIs(btnEl, chatId, promptText, modelUrl, thumbnailUrl, taskType) {
+    const actionsRow = btnEl.closest(".result-actions");
+    actionsRow.innerHTML = `<span class="bot-status ok">✓ Zapisano bez tekstury</span>`;
+    if (chatId) {
+      await persistMessage(chatId, { type: "model3d", prompt: promptText || "", modelUrl, thumbnailUrl, taskType });
+    }
+  }
+
+  // ==================================================
+  // MINIATURY
+  // ==================================================
 
   function createThumbnail(sourceUrl, size = HISTORY_THUMB_SIZE) {
     return new Promise((resolve, reject) => {
       const img = new Image();
+      img.crossOrigin = "anonymous";
       img.onload = () => {
         try {
           const canvas = document.createElement("canvas");
@@ -1228,17 +1847,8 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
     });
   }
 
-  function downloadBlob(blobUrl) {
-    const a = document.createElement("a");
-    a.href = blobUrl;
-    a.download = "roblox-icon.png";
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-  }
-
   // ==================================================
-  // BUY MODAL
+  // KOSZYK (BUY MODAL)
   // ==================================================
 
   function renderPackages() {
@@ -1289,19 +1899,25 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
   });
 
   // ==================================================
-  // UTILS
+  // RESET / UTILS
   // ==================================================
+
+  function resetComposerAfterSend() {
+    document.getElementById("prompt").value = "";
+    document.getElementById("prompt").style.height = "auto";
+    document.getElementById("charCount").textContent = "0 znaków";
+  }
+
+  function resetComposer() {
+    resetComposerAfterSend();
+    clearMainImage();
+    clearRefImage();
+    model3dState = "idle";
+    model3dGeneratedImageDataUrl = null;
+  }
 
   function escapeHtml(str) {
     return String(str).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-  }
-
-  function templateLabel(t) {
-    return { square: "Game icon", pass: "Gamepass", hex: "Badge", circle: "Group icon" }[t] || "Game icon";
-  }
-
-  function modeShortLabel(m) {
-    return { text2img: "Od zera", image2img: "Edytuj zdjęcie", reference2img: "Przenieś styl" }[m] || m;
   }
 
   function relativeTime(iso) {
