@@ -240,6 +240,24 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 .analysis-box p{ margin: 0 0 6px; }
 .analysis-box p:last-child{ margin-bottom:0; }
 
+/* ---------- code blocks w wiadomościach bota (renderMarkdown) ---------- */
+.code-block{ position:relative; margin-top:10px; }
+.code-block:first-child{ margin-top:0; }
+.code-block .cb-head{ display:flex; align-items:center; justify-content:space-between; background:#1B1D2B; border-radius:10px 10px 0 0; padding:8px 12px; }
+.code-block .cb-lang{ font-family: var(--font-mono); font-size:11px; color:#9DA0B0; text-transform:uppercase; letter-spacing:.04em; }
+.code-block .cb-btns{ display:flex; gap:6px; }
+.code-block .cb-btn{ background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.14); color:#E4E5EF; font-size:11.5px; font-weight:600; padding:5px 10px; border-radius:7px; cursor:pointer; }
+.code-block .cb-btn:hover{ background:rgba(255,255,255,0.16); }
+.code-block pre{ margin:0; background:#14162A; border-radius:0 0 10px 10px; padding:14px; overflow-x:auto; max-height:420px; }
+.code-block code{ font-family: var(--font-mono); font-size:12.5px; line-height:1.6; color:#E7E9F3; white-space:pre; }
+.bot-text code.inline{ font-family: var(--font-mono); background: var(--soft); padding:2px 5px; border-radius:5px; font-size:12.8px; }
+.md-content strong{ font-weight:700; }
+.md-content .md-p{ margin: 0 0 8px; font-size:14px; line-height:1.6; color: var(--ink); }
+.md-content .md-p:last-child{ margin-bottom:0; }
+
+/* ---------- UI -> Lua dropzone label ---------- */
+.ui2lua-hint-box{ background: var(--cobalt-wash); border:1px solid var(--soft-2); border-radius: var(--radius-sm); padding:10px 13px; margin-bottom:12px; font-size:12.5px; line-height:1.55; color: var(--ink-muted); }
+
 /* ---------- inline mode chooser (icon / thumbnail / model3d) ---------- */
 .chooser-3d{ display:flex; flex-direction:column; gap:8px; margin-top:12px; }
 .chooser-3d button{
@@ -261,7 +279,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 .composer-wrap{ border-top:1px solid var(--border); background: var(--card); flex-shrink:0; padding: 16px 30px 20px; }
 .composer{ max-width:760px; margin:0 auto; }
 
-/* pasek trybów wymuszonych: Czat / Icon / Thumbnail / Model 3D */
+/* pasek trybów wymuszonych: Czat / Icon / Thumbnail / Model 3D / UI -> Lua */
 .force-mode-bar{ display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap; }
 .fm-pill{
   display:flex; align-items:center; gap:7px; padding:9px 15px; border-radius:999px; border:1.5px solid var(--border);
@@ -459,6 +477,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
             <span class="w-hint">🎮 „zrób mi ikonę smoka”</span>
             <span class="w-hint">🖼️ „potrzebuję thumbnaila do gry o zombie”</span>
             <span class="w-hint">🧊 „chcę model 3D miecza”</span>
+            <span class="w-hint">🧩 „zamień to UI na skrypt Lua”</span>
           </div>
         </div>
       </div>
@@ -473,6 +492,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
           <div class="fm-pill" data-force="icon"><span class="fm-icon">🎮</span>Icon</div>
           <div class="fm-pill" data-force="thumbnail"><span class="fm-icon">🖼️</span>Thumbnail</div>
           <div class="fm-pill" data-force="model3d"><span class="fm-icon">🧊</span>Model 3D</div>
+          <div class="fm-pill" data-force="ui2lua"><span class="fm-icon">🧩</span>UI → Lua</div>
         </div>
 
         <div class="dropzone-row" id="dropzoneRow" style="display:none;">
@@ -527,7 +547,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
   <div class="modal-card">
     <button class="modal-close" onclick="closeBuyModal()">✕</button>
     <p class="modal-title">Doładuj tokeny</p>
-    <p class="modal-sub">1 token = 1 grafika. Model 3D kosztuje kilka tokenów (etap kształtu + tekstury). Płatność przez Stripe.</p>
+    <p class="modal-sub">1 token = 1 grafika. Model 3D kosztuje kilka tokenów (etap kształtu + tekstury). UI → Lua kosztuje kilka tokenów za skrypt. Płatność przez Stripe.</p>
     <div class="package-grid" id="packageGrid"></div>
     <div class="modal-status" id="modalStatus"></div>
   </div>
@@ -555,12 +575,13 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
     { id: "p200", tokens: 200, price: "129,99 zł", tag: "najlepsza cena / token" }
   ];
 
-  // Trzy tryby WYMUSZONE + domyślny tryb "chat" (żaden nie wymuszony).
+  // Cztery tryby WYMUSZONE + domyślny tryb "chat" (żaden nie wymuszony).
   const FORCE_MODE_INFO = {
     chat:      { label: "Czat",      icon: "💬", hint: "Napisz, czego potrzebujesz — sam rozpoznam intencję i zaproponuję generowanie." },
     icon:      { label: "Icon",      icon: "🎮", hint: "Wybierz metodę tworzenia w wiadomości poniżej." },
     thumbnail: { label: "Thumbnail", icon: "🖼️", hint: "Wybierz metodę tworzenia w wiadomości poniżej." },
-    model3d:   { label: "Model 3D",  icon: "🧊", hint: "Wybierz, jak chcesz stworzyć model 3D." }
+    model3d:   { label: "Model 3D",  icon: "🧊", hint: "Wybierz, jak chcesz stworzyć model 3D." },
+    ui2lua:    { label: "UI → Lua",  icon: "🧩", hint: "Wgraj zrzut ekranu UI z Robloxa — stworzę responsywny skrypt LUA, który go odtworzy." }
   };
 
   // Metody TWORZENIA obrazu — dotyczą tylko trybów icon/thumbnail.
@@ -575,10 +596,10 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
   // ==================================================
   // STAN
   // ==================================================
-  let activeForceMode = "chat";     // "chat" | "icon" | "thumbnail" | "model3d"
+  let activeForceMode = "chat";     // "chat" | "icon" | "thumbnail" | "model3d" | "ui2lua"
   let currentMethod = "text";       // tylko dla icon/thumbnail
   let currentTemplate = "square";   // tylko dla icon
-  let mainImage = null;             // base64 data URL — obraz "główny" (edit / model3d referencja)
+  let mainImage = null;             // base64 data URL — obraz "główny" (edit / model3d referencja / UI screenshot)
   let refImage = null;              // base64 data URL — wzorzec stylu (tylko metoda "style")
 
   // Ogólny stan przepływu WYBORU TRYBU w obrębie AKTUALNEJ tury komponowania.
@@ -598,6 +619,12 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
   let auth = null;
   let currentUser = null;
   let tokenBalance = null;
+
+  // Przechowuje surowy tekst każdego wyrenderowanego bloku kodu, żeby
+  // przycisk "Kopiuj" / "Pobierz .lua" mógł do niego sięgnąć bez
+  // ponownego parsowania HTML-a.
+  let codeBlockSeq = 0;
+  const codeBlockStore = {};
 
   function toggleSidebar(open) {
     const sidebar = document.getElementById("sidebar");
@@ -881,7 +908,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
     body.className = "bot-body";
 
     if (m.type === "text") {
-      body.innerHTML = textHtml(m.reply || "");
+      body.innerHTML = renderMarkdown(m.reply || "");
     } else if (m.type === "model3d") {
       body.innerHTML = modelFrameHtml(m.modelUrl, m.thumbnailUrl, isLatest);
     } else {
@@ -958,12 +985,83 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
   function errorHtml(text) {
     return `<div class="bot-status error"><span>⚠</span><span>${escapeHtml(text)}</span></div>`;
   }
-  function textHtml(text) {
-    return `<div class="bot-text">${escapeHtml(text)}</div>`;
-  }
   function progressHtml(text, progress) {
     return `<div class="bot-status"><span class="mini-loader"><span></span><span></span><span></span></span><span>${escapeHtml(text)}</span></div>
             <div class="progress-track"><div class="progress-fill" style="width:${Math.max(4, progress || 0)}%"></div></div>`;
+  }
+
+  // ==================================================
+  // FORMATOWANIE ODPOWIEDZI GEMINI (markdown -> HTML)
+  //
+  // Gemini w polu "reply" zwraca zwykły tekst, w którym kod jest owinięty
+  // w ```lang ... ```. Ta funkcja zamienia to na czytelne bloki kodu z
+  // przyciskami "Kopiuj"/"Pobierz", a resztę tekstu na akapity z obsługą
+  // **pogrubienia** i `inline code`, zamiast wyświetlać surowe ``` w treści.
+  // ==================================================
+
+  function renderMarkdown(raw) {
+    if (!raw) return "";
+    const parts = String(raw).split(/```(\w*)\n?([\s\S]*?)```/g);
+    // split zwraca naprzemiennie: tekst, lang, kod, tekst, lang, kod, ...
+    let html = `<div class="md-content">`;
+    for (let i = 0; i < parts.length; i += 3) {
+      const textChunk = parts[i];
+      if (textChunk && textChunk.trim()) html += renderInlineMarkdown(textChunk);
+      const lang = parts[i + 1];
+      const code = parts[i + 2];
+      if (code !== undefined) {
+        const id = "cb" + (++codeBlockSeq);
+        codeBlockStore[id] = code.trim();
+        const langLabel = (lang || "text").toLowerCase();
+        const isLua = langLabel === "lua";
+        html += `
+          <div class="code-block">
+            <div class="cb-head">
+              <span class="cb-lang">${escapeHtml(langLabel)}</span>
+              <div class="cb-btns">
+                ${isLua ? `<button class="cb-btn" onclick="downloadCodeBlock('${id}')">⬇ .lua</button>` : ""}
+                <button class="cb-btn" onclick="copyCodeBlock('${id}', this)">⧉ Kopiuj</button>
+              </div>
+            </div>
+            <pre><code>${escapeHtml(code.trim())}</code></pre>
+          </div>`;
+      }
+    }
+    html += `</div>`;
+    return html;
+  }
+
+  function renderInlineMarkdown(text) {
+    return text.split(/\n{2,}/).map(paragraph => {
+      if (!paragraph.trim()) return "";
+      let esc = escapeHtml(paragraph.trim());
+      esc = esc.replace(/`([^`]+)`/g, '<code class="inline">$1</code>');
+      esc = esc.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+      esc = esc.replace(/\n/g, "<br>");
+      return `<div class="md-p">${esc}</div>`;
+    }).join("");
+  }
+
+  function copyCodeBlock(id, btnEl) {
+    const code = codeBlockStore[id] || "";
+    navigator.clipboard.writeText(code).then(() => {
+      const original = btnEl.textContent;
+      btnEl.textContent = "✓ Skopiowano";
+      setTimeout(() => { btnEl.textContent = original; }, 1500);
+    }).catch(() => alert("Nie udało się skopiować kodu."));
+  }
+
+  function downloadCodeBlock(id) {
+    const code = codeBlockStore[id] || "";
+    const blob = new Blob([code], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "icon-lab-ui.lua";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
   }
 
   function appendBotPlaceholder(text) {
@@ -1062,6 +1160,19 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
       return;
     }
 
+    if (mode === "ui2lua") {
+      document.getElementById("composerHint").textContent = info.hint;
+      document.getElementById("prompt").placeholder = "Opcjonalne dodatkowe wskazówki (np. „dodaj zakładki”, „to ma być responsywne na telefonie”)…";
+      document.getElementById("enhanceBtn").style.display = "none";
+      dropzoneRow.style.display = "flex";
+      dzRef.style.display = "none";
+      document.getElementById("dzMainLabel").textContent = "Zrzut ekranu UI";
+      clearRefImage();
+      flowState = "idle";
+      setPromptBoxEnabled(true);
+      return;
+    }
+
     // Icon / Thumbnail / Model3D — wszystkie trzy używają TEGO SAMEGO
     // mechanizmu: wiadomość z wyborem trybu w wątku czatu.
     dropzoneRow.style.display = "none";
@@ -1080,6 +1191,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
   function updateDropzoneLabels() {
     const label = document.getElementById("dzMainLabel");
     if (activeForceMode === "model3d") label.textContent = "Zdjęcie referencyjne";
+    else if (activeForceMode === "ui2lua") label.textContent = "Zrzut ekranu UI";
     else label.textContent = "Obraz do edycji";
   }
 
@@ -1112,7 +1224,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
       appendBotBody(existingEl, html);
     } else {
       const el = appendBotPlaceholder(introText);
-      setBotBody(el, textHtml(introText) + html);
+      setBotBody(el, renderInlineMarkdown(introText) + html);
     }
   }
 
@@ -1182,7 +1294,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
   }
 
   // ==================================================
-  // DROPZONES (edit / style ref / model3d referencja)
+  // DROPZONES (edit / style ref / model3d referencja / UI screenshot)
   // ==================================================
 
   function bindDropzones() {
@@ -1377,6 +1489,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
     if (activeForceMode === "chat") sendChatMessage();
     else if (activeForceMode === "icon" || activeForceMode === "thumbnail") handleImageFlowSend();
     else if (activeForceMode === "model3d") handleModel3DSend();
+    else if (activeForceMode === "ui2lua") sendUiToLua();
   }
 
   function setPromptBoxEnabled(enabled) {
@@ -1495,6 +1608,58 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
   }
 
   // ==================================================
+  // UI -> LUA — tryb wymuszony: wgrywasz zrzut ekranu UI, dostajesz
+  // gotowy, responsywny skrypt LocalScript.
+  // ==================================================
+
+  async function sendUiToLua() {
+    if (!currentUser) { document.getElementById("signInBtn").click(); return; }
+    if (!mainImage) { alert("Wgraj najpierw zrzut ekranu UI, które chcesz odtworzyć jako skrypt."); return; }
+    if ((tokenBalance ?? 0) < 1) { openBuyModal(); return; }
+
+    const promptEl = document.getElementById("prompt");
+    const raw = promptEl.value.trim();
+
+    const sendBtn = document.getElementById("generateBtn");
+    const sendIcon = document.getElementById("sendIcon");
+    sendBtn.disabled = true;
+    sendIcon.className = "spin";
+    sendIcon.textContent = "◌";
+
+    appendUserBubble(raw || "(zrzut ekranu UI)", [{ kind: "image", dataUrl: mainImage }]);
+    const pendingEl = appendBotPlaceholder("Analizuję UI i piszę responsywny skrypt LUA…");
+
+    try {
+      const chatId = await ensureActiveChat(raw || "UI → Lua");
+
+      const res = await authedFetch("/generate-ui-lua", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ image: mainImage, prompt: raw })
+      });
+      if (!res.ok) { if (res.status === 402) openBuyModal(); throw new Error(await extractError(res)); }
+      const data = await res.json();
+
+      const replyText = (data.description ? data.description + "\n\n" : "") + "```lua\n" + data.code + "\n```";
+      setBotBody(pendingEl, renderMarkdown(replyText));
+
+      refreshBalance();
+      await persistMessage(chatId, { type: "text", prompt: raw, reply: replyText });
+
+      resetComposerAfterSend();
+      clearMainImage();
+
+    } catch (e) {
+      console.error(e);
+      setBotBody(pendingEl, errorHtml("Błąd: " + e.message));
+    } finally {
+      sendBtn.disabled = false;
+      sendIcon.className = "";
+      sendIcon.textContent = "➤";
+    }
+  }
+
+  // ==================================================
   // CZAT SWOBODNY (tryb domyślny) — Gemini sam wykrywa intencję
   // ==================================================
 
@@ -1539,7 +1704,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
       if (!res.ok) throw new Error(await extractError(res));
       const data = await res.json();
 
-      setBotBody(pendingEl, textHtml(data.reply || "..."));
+      setBotBody(pendingEl, renderMarkdown(data.reply || "..."));
 
       const action = data.action;
 
