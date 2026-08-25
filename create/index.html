@@ -1368,39 +1368,34 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
       </div>`;
   }
 
-  async function downloadModelGlb(btnEl) {
+ async function downloadModelGlb(btnEl) {
     const modelUrl = btnEl.dataset.modelUrl;
-    if (!modelUrl) return;
-
+    if (!modelUrl || modelUrl === "null" || modelUrl === "undefined") {
+        alert("Link do pliku modelu jest niedostępny dla tego wygenerowanego modelu (backend nie zwrócił URL-a).");
+        return;
+    }
     const original = btnEl.innerHTML;
     btnEl.disabled = true;
     btnEl.innerHTML = "⋯ Pobieram";
-
     try {
-      const res = await authedFetch(
-        "/proxy-download?url=" + encodeURIComponent(modelUrl) +
-        "&filename=" + encodeURIComponent("icon-lab-model.glb")
-      );
-
-      if (!res.ok) throw new Error(await extractError(res));
-
-      const blob = await res.blob();
-      const blobUrl = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = blobUrl;
-      a.download = "icon-lab-model.glb";
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-
-      setTimeout(() => URL.revokeObjectURL(blobUrl), 4000);
+        const res = await authedFetch("/proxy-download?url=" + encodeURIComponent(modelUrl) + "&filename=" + encodeURIComponent("icon-lab-model.glb"));
+        if (!res.ok) throw new Error(await extractError(res));
+        const blob = await res.blob();
+        const blobUrl = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = blobUrl;
+        a.download = "icon-lab-model.glb";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 4000);
     } catch (e) {
-      alert("Nie udało się pobrać modelu: " + e.message);
+        alert("Nie udało się pobrać modelu: " + e.message);
     } finally {
-      btnEl.disabled = false;
-      btnEl.innerHTML = original;
+        btnEl.disabled = false;
+        btnEl.innerHTML = original;
     }
-  }
+}
 
   function demoteIfLatest(isLatest) {
     if (isLatest) demoteLastLarge();
