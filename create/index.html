@@ -800,10 +800,10 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
       <div class="gw-info">
         <div class="gw-title" title="${escapeHtml(w.name)}">${escapeHtml(w.name)}</div>
         <div class="gw-stats">
-          <span style="color: #74e8f0">✪ <b>${formatCount(w.playing)}</b></span>
-          <span style="color: #74b6ed">👁 <b>${formatCount(w.visits)}</b></span>
-          <span style="color: #f25c73">▲ <b>${formatCount(w.upVotes)}</b></span>
-          <span style="color: #00e9a5">▼ <b>${formatCount(w.downVotes)}</b></span>
+          <span style="color: #47f54c">✪ <b>${formatCount(w.playing)}</b></span>
+          <span>👁 <b>${formatCount(w.visits)}</b></span>
+          <span style="color: #00e9a5">▲ <b>${formatCount(w.upVotes)}</b></span>
+          <span style="color: #f25c73">▼ <b>${formatCount(w.downVotes)}</b></span>
         </div>
       </div>
       <button class="gw-remove" onclick="removeGameWidget('${w.id}')">✕</button>
