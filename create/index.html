@@ -420,6 +420,13 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 .modal-status{ margin-top:13px; font-size:12px; color: var(--ink-muted); min-height:16px; }
 .modal-status.error{ color: var(--coral); }
 
+  .thumb-up{
+    color: lime;
+  }
+  .thumb-down{
+    color: red;
+  }
+
 /* ========================= RESPONSYWNOŚĆ MOBILNA ========================= */
 @media (max-width: 900px){
   .feed-inner{ max-width: 100%; }
@@ -795,8 +802,8 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
         <div class="gw-stats">
           <span>🟢 <b>${formatCount(w.playing)}</b></span>
           <span>👁 <b>${formatCount(w.visits)}</b></span>
-          <span>▲ <b>${formatCount(w.upVotes)}</b></span>
-          <span>▼ <b>${formatCount(w.downVotes)}</b></span>
+          <span class="thumb-up">▲ <b>${formatCount(w.upVotes)}</b></span>
+          <span class="thumb-down">▼ <b>${formatCount(w.downVotes)}</b></span>
         </div>
       </div>
       <button class="gw-remove" onclick="removeGameWidget('${w.id}')">✕</button>
