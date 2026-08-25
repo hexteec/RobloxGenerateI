@@ -1357,15 +1357,49 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
     return `
       <div class="result-frame-wrap">
         <div class="model-frame">
-          <model-viewer src="${modelUrl}" poster="${thumbnailUrl || ""}" camera-controls auto-rotate shadow-intensity="1" exposure="1" style="background:transparent;"></model-viewer>
+          <model-viewer src="${escapeHtml(modelUrl)}" poster="${escapeHtml(thumbnailUrl || "")}" camera-controls auto-rotate shadow-intensity="1" exposure="1" style="background:transparent;"></model-viewer>
         </div>
         <div class="result-meta">
           <span class="r-tag">Model 3D (.glb)</span>
           <div class="result-actions">
-            <a href="${modelUrl}" target="_blank" rel="noopener" download="icon-lab-model.glb">⬇ Pobierz GLB</a>
+            <button class="dl-glb-btn" data-model-url="${escapeHtml(modelUrl)}" onclick="downloadModelGlb(this)">⬇ Pobierz GLB</button>
           </div>
         </div>
       </div>`;
+  }
+
+  async function downloadModelGlb(btnEl) {
+    const modelUrl = btnEl.dataset.modelUrl;
+    if (!modelUrl) return;
+
+    const original = btnEl.innerHTML;
+    btnEl.disabled = true;
+    btnEl.innerHTML = "⋯ Pobieram";
+
+    try {
+      const res = await authedFetch(
+        "/proxy-download?url=" + encodeURIComponent(modelUrl) +
+        "&filename=" + encodeURIComponent("icon-lab-model.glb")
+      );
+
+      if (!res.ok) throw new Error(await extractError(res));
+
+      const blob = await res.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = blobUrl;
+      a.download = "icon-lab-model.glb";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 4000);
+    } catch (e) {
+      alert("Nie udało się pobrać modelu: " + e.message);
+    } finally {
+      btnEl.disabled = false;
+      btnEl.innerHTML = original;
+    }
   }
 
   function demoteIfLatest(isLatest) {
@@ -2287,8 +2321,8 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
       setBotBody(pendingEl,
         imageFrameHtml(blobUrl, "square", "Obraz referencyjny", true, false) +
         `<div class="result-actions" style="margin-top:10px;">
-           <button class="primary" onclick="confirmGeneratedImageFor3D(this, '${chatId}', ${JSON.stringify(raw).replace(/'/g, "&#39;")})">🧊 Użyj do modelu 3D</button>
-           <button onclick="regenerateImageForModel3D(this, ${JSON.stringify(raw).replace(/'/g, "&#39;")})">🔄 Wygeneruj inny</button>
+           <button class="primary" onclick='confirmGeneratedImageFor3D(this, ${JSON.stringify(chatId)}, ${escapeHtml(JSON.stringify(raw))})'>🧊 Użyj do modelu 3D</button>
+           <button onclick='regenerateImageForModel3D(this, ${escapeHtml(JSON.stringify(raw))})'>🔄 Wygeneruj inny</button>
          </div>`
       );
       markNewLastLarge(pendingEl);
