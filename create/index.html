@@ -275,6 +275,31 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 .chooser-templates .ct-opt{ display:flex; align-items:center; gap:7px; border:1.5px solid var(--border); background: var(--card); border-radius:999px; padding:7px 12px; font-size:12px; font-weight:600; color: var(--ink-muted); cursor:pointer; }
 .chooser-templates .ct-opt.active{ border-color: var(--cobalt); color: var(--cobalt-deep); background: var(--cobalt-wash); }
 
+/* ---------- panel ustawień modelu 3D ---------- */
+.m3d-panel{ display:flex; flex-direction:column; gap:14px; margin-top:6px; max-width:420px; }
+.m3d-section{ display:flex; flex-direction:column; gap:7px; }
+.m3d-label{ font-size:12px; font-weight:700; color: var(--ink-muted); text-transform:uppercase; letter-spacing:.03em; display:flex; justify-content:space-between; }
+.m3d-label .m3d-val{ color: var(--cobalt); font-weight:700; text-transform:none; }
+.m3d-row{ display:flex; gap:7px; flex-wrap:wrap; }
+.m3d-preset, .m3d-toggle{
+  border:1.5px solid var(--border); background: var(--soft); color: var(--ink); font-size:12.5px; font-weight:600;
+  padding:8px 13px; border-radius:999px; cursor:pointer; transition: border-color .15s ease, background .15s ease, transform .12s ease;
+}
+.m3d-preset:hover, .m3d-toggle:hover{ border-color: var(--cobalt); transform: translateY(-1px); }
+.m3d-preset.active, .m3d-toggle.active{ border-color: var(--cobalt); background: var(--cobalt-wash); color: var(--cobalt-deep); }
+.m3d-slider{
+  -webkit-appearance:none; width:100%; height:6px; border-radius:4px; background: var(--soft-2); outline:none; cursor:pointer;
+  transition: background .2s ease;
+}
+.m3d-slider::-webkit-slider-thumb{
+  -webkit-appearance:none; width:18px; height:18px; border-radius:50%; background: var(--cobalt); border:3px solid #fff;
+  box-shadow: 0 2px 6px rgba(46,67,214,0.4); cursor:pointer; transition: transform .12s ease;
+}
+.m3d-slider::-webkit-slider-thumb:hover{ transform: scale(1.15); }
+.m3d-slider::-moz-range-thumb{ width:14px; height:14px; border-radius:50%; background: var(--cobalt); border:3px solid #fff; cursor:pointer; }
+.m3d-steps{ display:flex; justify-content:space-between; font-size:10.5px; color: var(--ink-faint); font-family: var(--font-mono); }
+.m3d-cost{ font-size:13.5px; font-weight:700; color: var(--ink); background: var(--soft); border-radius:10px; padding:9px 13px; text-align:center; }
+
 /* ---------- composer ---------- */
 .composer-wrap{ background: transparent; flex-shrink:0; padding: 14px 20px 22px; }
 
@@ -660,6 +685,34 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
     image: { api: "image2img",    label: "Edytuj zdjęcie",  emoji: "🖌️", sub: "Wgraj zdjęcie i opisz, co zmienić.",                              hint: "Wgraj zdjęcie i opisz, co zmienić." },
     style: { api: "reference2img",label: "Przenieś styl",   emoji: "🎨", sub: "Wgraj obraz do edycji i osobny wzorzec stylu.",                    hint: "Wgraj obraz do edycji oraz wzorzec stylu. Opis jest opcjonalny." }
   };
+
+
+  // Ustawienia modelu 3D — koszt jest tylko podglądem; backend nalicza autorytatywnie.
+  const MODEL3D_PRESETS = {
+    low:      { label:"Low Poly",     polygonCount:2000,  geometryQuality:"standard", lowPoly:true,  textures:false, pbr:false, textureQuality:"standard" },
+    standard: { label:"Standard",     polygonCount:10000, geometryQuality:"standard", lowPoly:false, textures:true,  pbr:false, textureQuality:"standard" },
+    high:     { label:"High Quality", polygonCount:50000, geometryQuality:"detailed", lowPoly:false, textures:true,  pbr:true,  textureQuality:"detailed" }
+  };
+  const POLY_STEPS = [1000,2000,5000,10000,25000,50000,75000,100000];
+  const POLY_TIER_COST = {1000:0,2000:0,5000:2,10000:4,25000:8,50000:14,75000:20,100000:26};
+  const TEXTURE_QUALITY_COST = { standard:0, detailed:10, extreme:20 };
+
+  function calcModel3DCost(s) {
+    let cost = 10;
+    if (s.geometryQuality === "detailed") cost += 10;
+    if (s.lowPoly) cost -= 3;
+    cost += POLY_TIER_COST[s.polygonCount] ?? 0;
+    if (s.textures) {
+      cost += 15;
+      if (s.pbr) cost += 10;
+      cost += TEXTURE_QUALITY_COST[s.textureQuality] ?? 0;
+    }
+    return Math.max(cost, 5);
+  }
+
+  let model3DSettings = { ...MODEL3D_PRESETS.standard, preset: "standard" };
+  let pending3DInput = null;
+  let pendingModel3DPanelEl = null;
 
   const HISTORY_THUMB_SIZE = 480;
 
@@ -1945,16 +1998,18 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
         flowState = "choose_method";
         appendModeChooser("model3d", pendingEl);
 
-      } else if (action.type === "model3d_task_started") {
+      } else if (action.type === "need_3d_settings") {
         await persistMessage(chatId, { type: "text", prompt: raw, reply: data.reply || "" });
         setForceMode("model3d", { skipAutoChooser: true });
-        flowState = "busy";
+        model3DSettings = { ...MODEL3D_PRESETS.standard, preset: "standard" };
+        pending3DInput = action.useAttachedImage
+          ? { kind: "image", text: action.prompt || raw, image: imageAttachments[0] || null }
+          : { kind: "text", text: action.prompt || raw };
+        setBotBody(pendingEl, renderMarkdown(data.reply || "...") );
+        appendBotBody(pendingEl, model3DSettingsPanelHtml());
+        pendingModel3DPanelEl = pendingEl;
+        flowState = "choose_method";
         applyFlowComposerState();
-        const progressEl = appendBotPlaceholder("Startuję generowanie modelu 3D…");
-        pollMeshyTask(progressEl, action.taskType, action.taskId, action.prompt || raw, {
-          offerRefine: action.taskType === "text-to-3d",
-          chatId
-        });
 
       } else if (action.type === "need_tokens") {
         await persistMessage(chatId, { type: "text", prompt: raw, reply: data.reply || "" });
@@ -1975,8 +2030,184 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
   }
 
   // ==================================================
-  // MODEL 3D — chooser + trzy ścieżki + polling Meshy
+  // MODEL 3D — chooser + panel ustawień + polling Tripo
   // ==================================================
+
+  function model3DSettingsPanelHtml() {
+    const s = model3DSettings;
+    const cost = calcModel3DCost(s);
+    const presetBtn = (key,label) => `<button class="m3d-preset ${s.preset===key?'active':''}" onclick="applyModel3DPreset('${key}')">${label}</button>`;
+    const toggleBtn = (field, val, label) => `<button class="m3d-toggle ${s[field]===val?'active':''}" onclick="setModel3DField('${field}', ${JSON.stringify(val)})">${label}</button>`;
+    const polyIndex = POLY_STEPS.indexOf(s.polygonCount);
+
+    return `
+    <div class="m3d-panel" id="model3dPanel">
+      <div class="m3d-section">
+        <div class="m3d-label">Preset</div>
+        <div class="m3d-row">${presetBtn('low','Low Poly')}${presetBtn('standard','Standard')}${presetBtn('high','High Quality')}</div>
+      </div>
+      <div class="m3d-section">
+        <div class="m3d-label">Polygon Count <span class="m3d-val">${formatCount(s.polygonCount)}</span></div>
+        <input type="range" min="0" max="${POLY_STEPS.length-1}" step="1" value="${polyIndex}" class="m3d-slider" oninput="setModel3DPolyIndex(this.value)">
+        <div class="m3d-steps">${POLY_STEPS.map(v=>`<span>${formatCount(v)}</span>`).join("")}</div>
+      </div>
+      <div class="m3d-section">
+        <div class="m3d-label">Geometry Quality</div>
+        <div class="m3d-row">${toggleBtn('geometryQuality','standard','Standard')}${toggleBtn('geometryQuality','detailed','Detailed +10')}</div>
+      </div>
+      <div class="m3d-section">
+        <div class="m3d-label">Low Poly</div>
+        <div class="m3d-row">${toggleBtn('lowPoly',false,'OFF')}${toggleBtn('lowPoly',true,'ON −3')}</div>
+      </div>
+      <div class="m3d-section">
+        <div class="m3d-label">Textures</div>
+        <div class="m3d-row">${toggleBtn('textures',false,'OFF')}${toggleBtn('textures',true,'ON +15')}</div>
+      </div>
+      <div class="m3d-section" style="${s.textures?'':'opacity:.4;pointer-events:none;'}">
+        <div class="m3d-label">PBR</div>
+        <div class="m3d-row">${toggleBtn('pbr',false,'OFF')}${toggleBtn('pbr',true,'ON +10')}</div>
+      </div>
+      <div class="m3d-section" style="${s.textures?'':'opacity:.4;pointer-events:none;'}">
+        <div class="m3d-label">Texture Quality</div>
+        <div class="m3d-row">${toggleBtn('textureQuality','standard','Standard +0')}${toggleBtn('textureQuality','detailed','Detailed +10')}${toggleBtn('textureQuality','extreme','Extreme +20')}</div>
+      </div>
+      <div class="m3d-cost">Koszt: <b>${cost} tokenów</b></div>
+      <button class="btn-newchat" style="margin-top:2px;" onclick="confirmModel3DGeneration()">🧊 Generuj model 3D (${cost} tokenów)</button>
+    </div>`;
+  }
+
+  function rerenderModel3DPanel() {
+    const el = document.getElementById("model3dPanel");
+    if (el) el.outerHTML = model3DSettingsPanelHtml();
+    scrollFeedToBottom();
+  }
+
+  function applyModel3DPreset(key) {
+    model3DSettings = { ...MODEL3D_PRESETS[key], preset: key };
+    rerenderModel3DPanel();
+  }
+
+  function setModel3DField(field, val) {
+    model3DSettings[field] = val;
+    model3DSettings.preset = null;
+    rerenderModel3DPanel();
+  }
+
+  function setModel3DPolyIndex(idx) {
+    model3DSettings.polygonCount = POLY_STEPS[idx];
+    model3DSettings.preset = null;
+    rerenderModel3DPanel();
+  }
+
+  function presentModel3DSettingsStep(userText, attachments, imageForPending) {
+    appendUserBubble(userText, attachments || []);
+    model3DSettings = { ...MODEL3D_PRESETS.standard, preset: "standard" };
+    pending3DInput = imageForPending
+      ? { kind: "image", text: userText, image: imageForPending }
+      : { kind: "text", text: userText };
+    const el = appendBotPlaceholder("");
+    setBotBody(el, renderInlineMarkdown("Skonfiguruj model 3D przed generowaniem:") + model3DSettingsPanelHtml());
+    pendingModel3DPanelEl = el;
+    flowState = "choose_method";
+    applyFlowComposerState();
+    resetComposerAfterSend();
+  }
+
+  async function confirmModel3DGeneration() {
+    if (!pending3DInput || !pendingModel3DPanelEl) return;
+    if ((tokenBalance ?? 0) < 1) { openBuyModal(); return; }
+
+    const panelEl = pendingModel3DPanelEl;
+    setBotBody(panelEl, loaderHtml("Startuję generowanie modelu 3D…"));
+    flowState = "busy";
+    applyFlowComposerState();
+
+    try {
+      const chatId = await ensureActiveChat(pending3DInput.text || "Model 3D");
+      let promptPayload = "";
+      let imagePayload = null;
+
+      if (pending3DInput.kind === "image") {
+        imagePayload = pending3DInput.image;
+      } else {
+        const { text } = await translateToEnglish(pending3DInput.text);
+        promptPayload = text || pending3DInput.text;
+      }
+
+      const res = await authedFetch("/tripo/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          prompt: promptPayload,
+          image: imagePayload,
+          settings: model3DSettings
+        })
+      });
+      if (!res.ok) {
+        if (res.status === 402) openBuyModal();
+        throw new Error(await extractError(res));
+      }
+      const data = await res.json();
+      refreshBalance();
+
+      pending3DInput = null;
+      pollTripoTask(panelEl, data.taskId, "", chatId);
+
+    } catch (e) {
+      console.error(e);
+      setBotBody(panelEl, errorHtml("Błąd: " + e.message));
+      flowState = "choose_method";
+      appendModeChooser("model3d", panelEl);
+      applyFlowComposerState();
+    }
+  }
+
+  function pollTripoTask(el, taskId, promptText, chatId) {
+    let attempts = 0;
+    const tick = async () => {
+      attempts++;
+      try {
+        const res = await authedFetch(`/tripo/status?id=${encodeURIComponent(taskId)}`);
+        if (!res.ok) throw new Error(await extractError(res));
+        const data = await res.json();
+
+        if (data.status === "FAILED" || data.status === "CANCELED") {
+          setBotBody(el, errorHtml("Generowanie modelu 3D nie powiodło się" + (data.errorMessage ? (": " + data.errorMessage) : ".")));
+          flowState = "choose_method";
+          appendModeChooser("model3d", el);
+          applyFlowComposerState();
+          return;
+        }
+
+        if (data.status !== "SUCCEEDED") {
+          setBotBody(el, progressHtml(`Generuję… ${data.progress || 0}%`, data.progress || 0));
+          setTimeout(tick, attempts < 5 ? 2500 : 4500);
+          return;
+        }
+
+        setBotBody(el, modelFrameHtml(data.modelUrl, data.thumbnailUrl, true));
+        markNewLastLarge(el);
+        if (chatId) {
+          persistMessage(chatId, {
+            type: "model3d",
+            prompt: promptText || "",
+            modelUrl: data.modelUrl,
+            thumbnailUrl: data.thumbnailUrl || "",
+            taskType: "tripo"
+          });
+        }
+        flowState = "choose_method";
+        applyFlowComposerState();
+
+      } catch (e) {
+        console.error(e);
+        setBotBody(el, errorHtml("Błąd sprawdzania statusu: " + e.message));
+        flowState = "choose_method";
+        applyFlowComposerState();
+      }
+    };
+    setTimeout(tick, 2500);
+  }
 
   function chooseModel3DMethod(choice, btnEl) {
     const group = btnEl.closest(".chooser-3d");
@@ -2006,84 +2237,15 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 
     if (flowState === "awaiting_description") {
       if (!raw) return;
-      startTextTo3D(raw);
+      presentModel3DSettingsStep(raw);
     } else if (flowState === "awaiting_reference_image") {
       if (!mainImage) { alert("Najpierw wgraj zdjęcie referencyjne."); return; }
-      startImageTo3D(raw);
+      const img = mainImage;
+      clearMainImage();
+      presentModel3DSettingsStep(raw || "(zdjęcie referencyjne)", [{ kind:"image", dataUrl: img }], img);
     } else if (flowState === "awaiting_generated_image") {
       if (!raw) return;
       generateImageForModel3D(raw);
-    }
-    // w stanach "choose_method" / "busy" pole jest zablokowane — nic nie robimy
-  }
-
-  async function startTextTo3D(desc) {
-    if (!currentUser) { document.getElementById("signInBtn").click(); return; }
-    if ((tokenBalance ?? 0) < 1) { openBuyModal(); return; }
-
-    flowState = "busy";
-    applyFlowComposerState();
-
-    appendUserBubble(desc);
-    const pendingEl = appendBotPlaceholder("Tworzę kształt modelu (mesh)… to może potrwać do minuty.");
-
-    try {
-      const chatId = await ensureActiveChat(desc);
-      const { text: enTranslated } = await translateToEnglish(desc);
-
-      const res = await authedFetch("/meshy/text-preview", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: enTranslated || desc })
-      });
-      if (!res.ok) { if (res.status === 402) openBuyModal(); throw new Error(await extractError(res)); }
-      const data = await res.json();
-
-      refreshBalance();
-      pollMeshyTask(pendingEl, "text-to-3d", data.taskId, desc, { offerRefine: true, chatId });
-      resetComposerAfterSend();
-
-    } catch (e) {
-      console.error(e);
-      setBotBody(pendingEl, errorHtml("Błąd: " + e.message));
-      flowState = "awaiting_description";
-      applyFlowComposerState();
-    }
-  }
-
-  async function startImageTo3D(raw) {
-    if (!currentUser) { document.getElementById("signInBtn").click(); return; }
-    if ((tokenBalance ?? 0) < 1) { openBuyModal(); return; }
-
-    flowState = "busy";
-    applyFlowComposerState();
-
-    appendUserBubble(raw || "(zdjęcie referencyjne)", mainImage ? [{ kind: "image", dataUrl: mainImage }] : []);
-    const pendingEl = appendBotPlaceholder("Tworzę model 3D ze zdjęcia… to może potrwać do minuty.");
-
-    try {
-      const chatId = await ensureActiveChat(raw || "Model 3D ze zdjęcia");
-      let texturePrompt = "";
-      if (raw) { const { text } = await translateToEnglish(raw); texturePrompt = text; }
-
-      const res = await authedFetch("/meshy/image-to-3d", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ image: mainImage, prompt: texturePrompt })
-      });
-      if (!res.ok) { if (res.status === 402) openBuyModal(); throw new Error(await extractError(res)); }
-      const data = await res.json();
-
-      refreshBalance();
-      clearMainImage();
-      pollMeshyTask(pendingEl, "image-to-3d", data.taskId, raw, { offerRefine: false, chatId });
-      resetComposerAfterSend();
-
-    } catch (e) {
-      console.error(e);
-      setBotBody(pendingEl, errorHtml("Błąd: " + e.message));
-      flowState = "awaiting_reference_image";
-      applyFlowComposerState();
     }
   }
 
@@ -2107,7 +2269,10 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ prompt: refPrompt, mode: "text2img", category: "icon" })
       });
-      if (!res.ok) { if (res.status === 402) openBuyModal(); throw new Error(await extractError(res)); }
+      if (!res.ok) {
+        if (res.status === 402) openBuyModal();
+        throw new Error(await extractError(res));
+      }
 
       const blob = await res.blob();
       const blobUrl = URL.createObjectURL(blob);
@@ -2127,7 +2292,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
          </div>`
       );
       markNewLastLarge(pendingEl);
-      flowState = "awaiting_generated_image"; // można kliknąć "wygeneruj inny" ponownie przez przyciski
+      flowState = "awaiting_generated_image";
       applyFlowComposerState();
 
     } catch (e) {
@@ -2141,37 +2306,18 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
   function regenerateImageForModel3D(btnEl, raw) {
     const bubbleEl = btnEl.closest(".msg-bot");
     setBotBody(bubbleEl, loaderHtml("Generuję nowy obraz referencyjny…"));
-    generateImageForModel3D(raw).then(() => {}); // odświeży ten sam obszar poprzez nowy appendBotPlaceholder — ok wizualnie jako nowa wiadomość
+    generateImageForModel3D(raw).then(() => {});
   }
 
-  async function confirmGeneratedImageFor3D(btnEl, chatId, raw) {
+  function confirmGeneratedImageFor3D(btnEl, chatId, raw) {
     if (!model3dGeneratedImageDataUrl) return;
-    const actionsRow = btnEl.closest(".result-actions");
-    actionsRow.innerHTML = `<span class="bot-status"><span class="mini-loader"><span></span><span></span><span></span></span><span>Startuję model 3D…</span></span>`;
-
-    if ((tokenBalance ?? 0) < 1) { openBuyModal(); return; }
-
-    try {
-      const res = await authedFetch("/meshy/image-to-3d", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ image: model3dGeneratedImageDataUrl, prompt: "" })
-      });
-      if (!res.ok) { if (res.status === 402) openBuyModal(); throw new Error(await extractError(res)); }
-      const data = await res.json();
-      refreshBalance();
-
-      flowState = "busy";
-      applyFlowComposerState();
-      const progressEl = appendBotPlaceholder("Teksturuję i buduję model 3D… to może potrwać do minuty.");
-      pollMeshyTask(progressEl, "image-to-3d", data.taskId, raw, { offerRefine: false, chatId });
-
-    } catch (e) {
-      console.error(e);
-      actionsRow.innerHTML = `<span class="bot-status error">⚠ ${escapeHtml(e.message)}</span>`;
-      flowState = "awaiting_generated_image";
-      applyFlowComposerState();
-    }
+    model3DSettings = { ...MODEL3D_PRESETS.standard, preset: "standard" };
+    pending3DInput = { kind: "image", text: raw, image: model3dGeneratedImageDataUrl };
+    const bubbleEl = btnEl.closest(".msg-bot");
+    setBotBody(bubbleEl, renderInlineMarkdown("Skonfiguruj model 3D przed generowaniem:") + model3DSettingsPanelHtml());
+    pendingModel3DPanelEl = bubbleEl;
+    flowState = "choose_method";
+    applyFlowComposerState();
   }
 
   async function blobUrlToDataUrl(blobUrl) {
@@ -2183,101 +2329,6 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
       reader.onerror = () => reject(new Error("Nie udało się przetworzyć obrazu."));
       reader.readAsDataURL(blob);
     });
-  }
-
-  // ---- polling zadania Meshy ----
-
-  function pollMeshyTask(el, taskType, taskId, promptText, opts) {
-    opts = opts || {};
-    let attempts = 0;
-
-    const tick = async () => {
-      attempts++;
-      try {
-        const res = await authedFetch(`/meshy/status?type=${encodeURIComponent(taskType)}&id=${encodeURIComponent(taskId)}`);
-        if (!res.ok) throw new Error(await extractError(res));
-        const data = await res.json();
-
-        if (data.status === "FAILED" || data.status === "CANCELED") {
-          setBotBody(el, errorHtml("Generowanie modelu 3D nie powiodło się" + (data.errorMessage ? (": " + data.errorMessage) : ".")));
-          flowState = activeForceMode === "model3d" ? "choose_method" : "idle";
-          if (activeForceMode === "model3d") { applyFlowComposerState(); appendModeChooser("model3d", el); }
-          return;
-        }
-
-        if (data.status !== "SUCCEEDED") {
-          setBotBody(el, progressHtml(
-            data.precedingTasks > 0 ? `W kolejce (${data.precedingTasks} przed Tobą)…` : `Generuję… ${data.progress || 0}%`,
-            data.progress || 0
-          ));
-          setTimeout(tick, attempts < 5 ? 2500 : 4500);
-          return;
-        }
-
-        // SUCCEEDED
-        if (taskType === "text-to-3d" && opts.offerRefine) {
-          setBotBody(el,
-            modelFrameHtml(data.modelUrl, data.thumbnailUrl, true) +
-            `<div class="result-actions" style="margin-top:2px;">
-               <button class="primary" onclick="refineTextTo3D(this, '${data.taskId}', '${opts.chatId || ""}', ${JSON.stringify(promptText || "").replace(/'/g, "&#39;")})">🎨 Dodaj teksturę</button>
-               <button onclick="saveMeshyResultAsIs(this, '${opts.chatId || ""}', ${JSON.stringify(promptText || "").replace(/'/g, "&#39;")}, ${JSON.stringify(data.modelUrl)}, ${JSON.stringify(data.thumbnailUrl || "")}, 'text-to-3d')">✅ Zapisz bez tekstury</button>
-             </div>`
-          );
-          markNewLastLarge(el);
-          flowState = activeForceMode === "model3d" ? "choose_method" : "idle";
-          applyFlowComposerState();
-        } else {
-          setBotBody(el, modelFrameHtml(data.modelUrl, data.thumbnailUrl, true));
-          markNewLastLarge(el);
-          if (opts.chatId) {
-            persistMessage(opts.chatId, {
-              type: "model3d", prompt: promptText || "", modelUrl: data.modelUrl, thumbnailUrl: data.thumbnailUrl || "", taskType: data.taskType
-            });
-          }
-          flowState = activeForceMode === "model3d" ? "choose_method" : "idle";
-          applyFlowComposerState();
-        }
-
-      } catch (e) {
-        console.error(e);
-        setBotBody(el, errorHtml("Błąd sprawdzania statusu: " + e.message));
-      }
-    };
-
-    setTimeout(tick, 2500);
-  }
-
-  async function refineTextTo3D(btnEl, previewTaskId, chatId, promptText) {
-    if ((tokenBalance ?? 0) < 1) { openBuyModal(); return; }
-    const actionsRow = btnEl.closest(".result-actions");
-    actionsRow.innerHTML = `<span class="bot-status"><span class="mini-loader"><span></span><span></span><span></span></span><span>Doteksturowuję model…</span></span>`;
-
-    try {
-      const res = await authedFetch("/meshy/text-refine", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ previewTaskId })
-      });
-      if (!res.ok) { if (res.status === 402) openBuyModal(); throw new Error(await extractError(res)); }
-      const data = await res.json();
-      refreshBalance();
-
-      flowState = "busy";
-      applyFlowComposerState();
-      const progressEl = appendBotPlaceholder("Nakładam teksturę…");
-      pollMeshyTask(progressEl, "text-to-3d", data.taskId, promptText, { offerRefine: false, chatId });
-
-    } catch (e) {
-      actionsRow.innerHTML = `<span class="bot-status error">⚠ ${escapeHtml(e.message)}</span>`;
-    }
-  }
-
-  async function saveMeshyResultAsIs(btnEl, chatId, promptText, modelUrl, thumbnailUrl, taskType) {
-    const actionsRow = btnEl.closest(".result-actions");
-    actionsRow.innerHTML = `<span class="bot-status ok">✓ Zapisano bez tekstury</span>`;
-    if (chatId) {
-      await persistMessage(chatId, { type: "model3d", prompt: promptText || "", modelUrl, thumbnailUrl, taskType });
-    }
   }
 
   // ==================================================
