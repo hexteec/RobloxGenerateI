@@ -278,21 +278,21 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 /* ---------- composer ---------- */
 .composer-wrap{ background: transparent; flex-shrink:0; padding: 14px 20px 22px; }
 
-.widgets-row{ display:flex; gap:10px; justify-content:center; flex-wrap:wrap; max-width:1000px; margin:0 auto 12px; }
+.composer-dock{ display:flex; align-items:flex-end; justify-content:center; gap:10px; max-width:100%; flex-wrap:wrap; }
 
-.composer-dock{ display:flex; align-items:flex-end; justify-content:center; gap:10px; max-width:100%; }
+.widgets-row{ display:flex; align-items:flex-end; gap:10px; flex-wrap:wrap; order:3; }
 
 .composer{
   background: var(--card); border:1px solid var(--border); border-radius:22px;
   box-shadow: var(--shadow-lg); padding:12px 14px 14px; width:auto; max-width:680px;
-  flex:1 1 560px; min-width:0;
+  flex:1 1 560px; min-width:0; order:2;
 }
 
 .widget-add-btn{
   display:flex; align-items:center; gap:7px; flex-shrink:0; background: var(--card);
   border:1.5px dashed var(--border); border-radius:18px; padding:12px 16px; cursor:pointer;
   color: var(--ink-muted); font-size:12.5px; font-weight:600; box-shadow: var(--shadow-sm);
-  height:44px; align-self:flex-end; margin-bottom:2px; white-space:nowrap;
+  height:44px; align-self:flex-end; margin-bottom:2px; white-space:nowrap; order:1;
   transition: border-color .15s ease, color .15s ease, background .15s ease;
 }
 .widget-add-btn:hover{ border-color: var(--cobalt); color: var(--cobalt-deep); background: var(--cobalt-wash); }
@@ -437,6 +437,10 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
   .welcome h2{ font-size:19px; }
   .msg-bubble{ max-width: 88%; }
   .composer-wrap{ padding: 12px 16px 16px; }
+  .composer-dock{ flex-direction:column; align-items:stretch; }
+  .widgets-row{ order:1; justify-content:center; }
+  .widget-add-btn{ order:2; align-self:center; }
+  .composer{ order:3; flex:1 1 auto; }
   .force-mode-bar{ gap:6px; }
   .fm-pill{ padding:8px 12px; font-size:12px; }
   .dropzone-row{ flex-direction: column; }
@@ -524,8 +528,11 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
     </div>
 
     <div class="composer-wrap">
-      <div class="widgets-row" id="widgetsRow"></div>
       <div class="composer-dock">
+        <button class="widget-add-btn" id="widgetAddBtn" onclick="openGameWidgetModal()">
+          <span class="wab-icon">+</span><span>Live game stats</span>
+        </button>
+
       <div class="composer">
 
         <!-- Pasek trybów wymuszonych -->
@@ -581,9 +588,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
         <div class="composer-hint" id="composerHint">Napisz, czego potrzebujesz — sam rozpoznam intencję.</div>
       </div>
 
-        <button class="widget-add-btn" id="widgetAddBtn" onclick="openGameWidgetModal()">
-          <span class="wab-icon">+</span><span>Live game stats</span>
-        </button>
+        <div class="widgets-row" id="widgetsRow"></div>
       </div>
     </div>
   </main>
