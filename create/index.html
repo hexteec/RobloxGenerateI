@@ -276,8 +276,48 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 .chooser-templates .ct-opt.active{ border-color: var(--cobalt); color: var(--cobalt-deep); background: var(--cobalt-wash); }
 
 /* ---------- composer ---------- */
-.composer-wrap{ border-top:1px solid var(--border); background: var(--card); flex-shrink:0; padding: 16px 30px 20px; }
-.composer{ max-width:760px; margin:0 auto; }
+.composer-wrap{ background: transparent; flex-shrink:0; padding: 14px 20px 22px; }
+
+.widgets-row{ display:flex; gap:10px; justify-content:center; flex-wrap:wrap; max-width:1000px; margin:0 auto 12px; }
+
+.composer-dock{ display:flex; align-items:flex-end; justify-content:center; gap:10px; max-width:100%; }
+
+.composer{
+  background: var(--card); border:1px solid var(--border); border-radius:22px;
+  box-shadow: var(--shadow-lg); padding:12px 14px 14px; width:auto; max-width:680px;
+  flex:1 1 560px; min-width:0;
+}
+
+.widget-add-btn{
+  display:flex; align-items:center; gap:7px; flex-shrink:0; background: var(--card);
+  border:1.5px dashed var(--border); border-radius:18px; padding:12px 16px; cursor:pointer;
+  color: var(--ink-muted); font-size:12.5px; font-weight:600; box-shadow: var(--shadow-sm);
+  height:44px; align-self:flex-end; margin-bottom:2px; white-space:nowrap;
+  transition: border-color .15s ease, color .15s ease, background .15s ease;
+}
+.widget-add-btn:hover{ border-color: var(--cobalt); color: var(--cobalt-deep); background: var(--cobalt-wash); }
+.widget-add-btn .wab-icon{ font-size:16px; line-height:1; }
+
+.gw-card{
+  display:flex; align-items:center; gap:10px; background: var(--card); border:1px solid var(--border);
+  border-radius:16px; padding:8px 14px 8px 8px; box-shadow: var(--shadow-md); position:relative;
+  animation: popIn .25s ease both; min-width:200px;
+}
+.gw-card .gw-icon{ width:38px; height:38px; border-radius:9px; object-fit:cover; background: var(--soft); flex-shrink:0; }
+.gw-card .gw-info{ display:flex; flex-direction:column; min-width:0; }
+.gw-card .gw-title{ font-size:12.5px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:150px; }
+.gw-card .gw-stats{ display:flex; gap:9px; margin-top:2px; font-size:11px; color: var(--ink-muted); flex-wrap:wrap; }
+.gw-card .gw-stats b{ color: var(--ink); font-weight:700; }
+.gw-card .gw-remove{
+  position:absolute; top:-6px; right:-6px; width:18px; height:18px; border-radius:50%; background: var(--coral);
+  color:#fff; border:2px solid var(--bg); font-size:10px; cursor:pointer; display:flex; align-items:center;
+  justify-content:center; padding:0; opacity:0; transition: opacity .15s ease;
+}
+.gw-card:hover .gw-remove{ opacity:1; }
+.gw-card.gw-error{ border-color: var(--coral); }
+
+.gw-modal-input{ width:100%; border:1.5px solid var(--border); border-radius:10px; padding:11px 13px; font-size:13.5px; font-family:var(--font-body); background: var(--soft); color:var(--ink); }
+.gw-modal-input:focus{ outline:none; border-color: var(--cobalt); background:var(--card); }
 
 /* pasek trybów wymuszonych: Czat / Icon / Thumbnail / Model 3D / UI -> Lua */
 .force-mode-bar{ display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap; }
@@ -415,7 +455,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
   .msg-bubble{ max-width: 92%; }
 }
 
-@media (hover: none){ .chat-item .ci-del{ opacity: 1; } }
+@media (hover: none){ .chat-item .ci-del{ opacity: 1; } .gw-card .gw-remove{ opacity:1; } }
 </style>
 </head>
 <body>
@@ -484,6 +524,8 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
     </div>
 
     <div class="composer-wrap">
+      <div class="widgets-row" id="widgetsRow"></div>
+      <div class="composer-dock">
       <div class="composer">
 
         <!-- Pasek trybów wymuszonych -->
@@ -538,6 +580,11 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 
         <div class="composer-hint" id="composerHint">Napisz, czego potrzebujesz — sam rozpoznam intencję.</div>
       </div>
+
+        <button class="widget-add-btn" id="widgetAddBtn" onclick="openGameWidgetModal()">
+          <span class="wab-icon">+</span><span>Live game stats</span>
+        </button>
+      </div>
     </div>
   </main>
 </div>
@@ -550,6 +597,17 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
     <p class="modal-sub">1 token = 1 grafika. Model 3D kosztuje kilka tokenów (etap kształtu + tekstury). UI → Lua kosztuje kilka tokenów za skrypt. Płatność przez Stripe.</p>
     <div class="package-grid" id="packageGrid"></div>
     <div class="modal-status" id="modalStatus"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="gameWidgetModal">
+  <div class="modal-card">
+    <button class="modal-close" onclick="closeGameWidgetModal()">✕</button>
+    <p class="modal-title">Dodaj widget gry</p>
+    <p class="modal-sub">Wklej link do gry na Roblox (lub samo Place ID) — pokażę live staty: liczbę graczy, odwiedziny, oceny.</p>
+    <input type="text" id="gwModalInput" placeholder="np. roblox.com/games/1234567/Nazwa lub 1234567" class="gw-modal-input">
+    <button class="btn-newchat" style="margin-top:12px;" onclick="submitGameWidget()">Dodaj widget</button>
+    <div class="modal-status" id="gwModalStatus"></div>
   </div>
 </div>
 
@@ -620,6 +678,10 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
   let currentUser = null;
   let tokenBalance = null;
 
+  let gameWidgets = [];
+  let gameWidgetsPollTimer = null;
+  const GAME_WIDGET_POLL_MS = 30000;
+
   // Przechowuje surowy tekst każdego wyrenderowanego bloku kodu, żeby
   // przycisk "Kopiuj" / "Pobierz .lua" mógł do niego sięgnąć bez
   // ponownego parsowania HTML-a.
@@ -659,6 +721,8 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
       pollBalanceAfterPurchase();
       window.history.replaceState(null, "", location.pathname);
     }
+
+    startGameWidgetsPolling();
   }
 
   // ==================================================
@@ -677,13 +741,132 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
       document.getElementById("userName").textContent = user.displayName || user.email || "Konto";
       await refreshBalance();
       await loadChats();
+      await loadGameWidgets();
     } else {
       signInBtn.style.display = "flex";
       row.classList.remove("show");
       tokenBalance = null;
       chatsCache = [];
+      gameWidgets = [];
+      renderGameWidgets();
       renderChatList();
     }
+  }
+
+
+  // ==================================================
+  // LIVE GAME STATS WIDGETS
+  // ==================================================
+
+  async function loadGameWidgets() {
+    if (!currentUser) { gameWidgets = []; renderGameWidgets(); return; }
+    try {
+      const res = await authedFetch("/game-widgets");
+      if (!res.ok) throw new Error(await extractError(res));
+      const data = await res.json();
+      gameWidgets = data.widgets || [];
+      renderGameWidgets();
+    } catch (e) { console.error("Widgety gier:", e); }
+  }
+
+  function renderGameWidgets() {
+    const row = document.getElementById("widgetsRow");
+    if (!row) return;
+    row.innerHTML = gameWidgets.map(gameWidgetCardHtml).join("");
+  }
+
+  function gameWidgetCardHtml(w) {
+    if (w.error) {
+      return `<div class="gw-card gw-error" data-id="${w.id}">
+        <div class="gw-icon"></div>
+        <div class="gw-info"><div class="gw-title">Błąd danych</div><div class="gw-stats">${escapeHtml(w.error)}</div></div>
+        <button class="gw-remove" onclick="removeGameWidget('${w.id}')">✕</button>
+      </div>`;
+    }
+    return `<div class="gw-card" data-id="${w.id}">
+      <img class="gw-icon" src="${w.iconUrl || ''}" alt="">
+      <div class="gw-info">
+        <div class="gw-title" title="${escapeHtml(w.name)}">${escapeHtml(w.name)}</div>
+        <div class="gw-stats">
+          <span>🟢 <b>${formatCount(w.playing)}</b></span>
+          <span>👁 <b>${formatCount(w.visits)}</b></span>
+          <span>👍 <b>${formatCount(w.upVotes)}</b></span>
+          <span>👎 <b>${formatCount(w.downVotes)}</b></span>
+        </div>
+      </div>
+      <button class="gw-remove" onclick="removeGameWidget('${w.id}')">✕</button>
+    </div>`;
+  }
+
+  function formatCount(n) {
+    n = Number(n) || 0;
+    if (n >= 1_000_000) return (n / 1_000_000).toFixed(1).replace(/\.0$/, "") + "M";
+    if (n >= 1_000) return (n / 1_000).toFixed(1).replace(/\.0$/, "") + "K";
+    return String(n);
+  }
+
+  async function removeGameWidget(id) {
+    gameWidgets = gameWidgets.filter(w => w.id !== id);
+    renderGameWidgets();
+    try { await authedFetch("/game-widgets/" + id, { method: "DELETE" }); } catch (e) { console.error(e); }
+  }
+
+  function openGameWidgetModal() {
+    if (!currentUser) { document.getElementById("signInBtn").click(); return; }
+    document.getElementById("gameWidgetModal").classList.add("show");
+    document.getElementById("gwModalStatus").textContent = "";
+    document.getElementById("gwModalStatus").className = "modal-status";
+    document.getElementById("gwModalInput").value = "";
+    document.getElementById("gwModalInput").focus();
+  }
+
+  function closeGameWidgetModal() {
+    document.getElementById("gameWidgetModal").classList.remove("show");
+  }
+
+  async function submitGameWidget() {
+    const input = document.getElementById("gwModalInput").value.trim();
+    const statusEl = document.getElementById("gwModalStatus");
+    if (!input) {
+      statusEl.className = "modal-status error";
+      statusEl.textContent = "Wklej link lub ID gry.";
+      return;
+    }
+
+    statusEl.className = "modal-status";
+    statusEl.textContent = "Sprawdzam grę…";
+
+    try {
+      const res = await authedFetch("/game-widgets", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ input })
+      });
+      if (!res.ok) throw new Error(await extractError(res));
+      gameWidgets.push(await res.json());
+      renderGameWidgets();
+      closeGameWidgetModal();
+    } catch (e) {
+      statusEl.className = "modal-status error";
+      statusEl.textContent = "Błąd: " + e.message;
+    }
+  }
+
+  function startGameWidgetsPolling() {
+    if (gameWidgetsPollTimer) clearInterval(gameWidgetsPollTimer);
+    gameWidgetsPollTimer = setInterval(refreshGameWidgetsStats, GAME_WIDGET_POLL_MS);
+  }
+
+  async function refreshGameWidgetsStats() {
+    if (!currentUser || gameWidgets.length === 0) return;
+    for (const w of gameWidgets) {
+      if (!w.universeId) continue;
+      try {
+        const res = await authedFetch("/game-widgets/stats?universeId=" + encodeURIComponent(w.universeId));
+        if (res.ok) Object.assign(w, await res.json(), { error: null });
+      } catch (e) { /* ciche pominięcie */ }
+    }
+    renderGameWidgets();
   }
 
   function signInWithGoogle() {
@@ -2159,6 +2342,14 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 
   document.getElementById("buyModal").addEventListener("click", (e) => {
     if (e.target.id === "buyModal") closeBuyModal();
+  });
+
+  document.getElementById("gameWidgetModal").addEventListener("click", (e) => {
+    if (e.target.id === "gameWidgetModal") closeGameWidgetModal();
+  });
+
+  document.getElementById("gwModalInput").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") submitGameWidget();
   });
 
   // ==================================================
