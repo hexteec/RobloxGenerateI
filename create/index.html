@@ -889,41 +889,49 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
   }
 
   function appendHistoryPair(m, isLatest) {
-    const inner = document.getElementById("feedInner");
+  const inner = document.getElementById("feedInner");
 
-    const userMsg = document.createElement("div");
-    userMsg.className = "msg msg-user";
-    userMsg.innerHTML = `
-      <div class="msg-avatar"><img src="${currentUser && currentUser.photoURL ? currentUser.photoURL : ""}" alt=""></div>
-      <div class="msg-bubble">
-        <div>${escapeHtml(m.prompt || "(bez opisu)")}</div>
-        <div class="msg-meta"><span>${historyBadge(m)}</span></div>
-      </div>
-    `;
-    inner.appendChild(userMsg);
+  const userMsg = document.createElement("div");
+  userMsg.className = "msg msg-user";
+  userMsg.innerHTML = `
+    <div class="msg-avatar"><img src="${currentUser && currentUser.photoURL ? currentUser.photoURL : ""}" alt=""></div>
+    <div class="msg-bubble">
+      <div>${escapeHtml(m.prompt || "(bez opisu)")}</div>
+      <div class="msg-meta"><span>${historyBadge(m)}</span></div>
+    </div>
+  `;
+  inner.appendChild(userMsg);
 
-    const botMsg = document.createElement("div");
-    botMsg.className = "msg msg-bot";
-    const body = document.createElement("div");
-    body.className = "bot-body";
+  const botMsg = document.createElement("div");
+  botMsg.className = "msg msg-bot";
+  const body = document.createElement("div");
+  body.className = "bot-body";
 
-    if (m.type === "text") {
-      body.innerHTML = renderMarkdown(m.reply || "");
-    } else if (m.type === "model3d") {
-      body.innerHTML = modelFrameHtml(m.modelUrl, m.thumbnailUrl, isLatest);
-    } else {
-      body.innerHTML = imageFrameHtml(m.thumbnail, m.template || "square", categoryLabel(m.category), isLatest, m.category === "thumbnail");
-    }
+  // Rozpoznajemy typ nie tylko po `m.type`, ale też po obecności danych —
+  // starsze rekordy mogły nie mieć poprawnie ustawionego pola `type`.
+  const isModel3d = m.type === "model3d" || !!m.modelUrl;
+  const isImageGen = !isModel3d && (m.type === "generation" || !!m.thumbnail);
+  const isTextReply = !isModel3d && !isImageGen;
 
-    botMsg.innerHTML = `<div class="msg-avatar">✦</div><div class="msg-bubble"></div>`;
-    botMsg.querySelector(".msg-bubble").appendChild(body);
-    inner.appendChild(botMsg);
-
-    if (isLatest) {
-      const frame = botMsg.querySelector(".result-frame, .model-frame");
-      if (frame) lastLargeFrame = frame;
-    }
+  if (isTextReply) {
+    // m.reply może w starych rekordach nazywać się inaczej — sprawdzamy fallbacki.
+    const replyText = m.reply ?? m.content ?? m.text ?? "";
+    body.innerHTML = renderMarkdown(replyText);
+  } else if (isModel3d) {
+    body.innerHTML = modelFrameHtml(m.modelUrl, m.thumbnailUrl, isLatest);
+  } else {
+    body.innerHTML = imageFrameHtml(m.thumbnail, m.template || "square", categoryLabel(m.category), isLatest, m.category === "thumbnail");
   }
+
+  botMsg.innerHTML = `<div class="msg-avatar">✦</div><div class="msg-bubble"></div>`;
+  botMsg.querySelector(".msg-bubble").appendChild(body);
+  inner.appendChild(botMsg);
+
+  if (isLatest) {
+    const frame = botMsg.querySelector(".result-frame, .model-frame");
+    if (frame) lastLargeFrame = frame;
+  }
+}
 
   function historyBadge(m) {
     if (m.type === "text") return "Czat";
