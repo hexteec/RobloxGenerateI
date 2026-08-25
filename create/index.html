@@ -240,7 +240,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 .analysis-box p{ margin: 0 0 6px; }
 .analysis-box p:last-child{ margin-bottom:0; }
 
-/* ---------- 3D method chooser (inline w wiadomości bota) ---------- */
+/* ---------- inline mode chooser (icon / thumbnail / model3d) ---------- */
 .chooser-3d{ display:flex; flex-direction:column; gap:8px; margin-top:12px; }
 .chooser-3d button{
   display:flex; align-items:center; gap:11px; text-align:left; background: var(--soft); border:1.5px solid var(--border);
@@ -252,6 +252,10 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 .chooser-3d button:hover:not(:disabled){ border-color: var(--cobalt); background: var(--cobalt-wash); }
 .chooser-3d button:disabled{ opacity:.45; cursor:default; }
 .chooser-3d button.chosen{ border-color: var(--mint); background: var(--mint-wash); opacity:1; }
+
+.chooser-templates{ display:flex; gap:8px; margin-top:10px; flex-wrap:wrap; }
+.chooser-templates .ct-opt{ display:flex; align-items:center; gap:7px; border:1.5px solid var(--border); background: var(--card); border-radius:999px; padding:7px 12px; font-size:12px; font-weight:600; color: var(--ink-muted); cursor:pointer; }
+.chooser-templates .ct-opt.active{ border-color: var(--cobalt); color: var(--cobalt-deep); background: var(--cobalt-wash); }
 
 /* ---------- composer ---------- */
 .composer-wrap{ border-top:1px solid var(--border); background: var(--card); flex-shrink:0; padding: 16px 30px 20px; }
@@ -268,19 +272,6 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 .fm-pill.active{ border-color: var(--cobalt); background: var(--cobalt-wash); color: var(--cobalt-deep); }
 .fm-pill .fm-icon{ font-size:15px; line-height:1; }
 
-.method-picker{ display:flex; gap:10px; margin-bottom:12px; }
-.mode-card{
-  flex:1; display:flex; flex-direction:column; align-items:center; gap:7px; background: var(--soft);
-  border:1.5px solid transparent; border-radius: var(--radius-md); padding:10px 8px 11px; cursor:pointer;
-  transition: border-color .15s ease, background .15s ease, transform .12s ease;
-}
-.mode-card:hover{ transform: translateY(-1px); }
-.mode-card.active{ border-color: var(--cobalt); background: var(--cobalt-wash); }
-.mode-card .mc-art{ width:60%; aspect-ratio: 1.5 / 1; overflow:hidden; border-radius: 8px; background:var(--soft-2); display:flex; align-items:center; justify-content:center; font-size:20px; }
-.mode-card .mc-art img{ width:100%; height:100%; object-fit:cover; display:block; }
-.mode-card .mc-caption{ font-size:11.8px; font-weight:600; color: var(--ink-muted); text-align:center; }
-.mode-card.active .mc-caption{ color: var(--cobalt-deep); }
-
 .dropzone-row{ display:flex; gap:10px; margin-bottom:12px; }
 .dropzone{ flex:1; border:1.5px dashed var(--border); border-radius: var(--radius-sm); padding:12px; cursor:pointer; background: var(--soft); position:relative; transition: border-color .15s ease, background .15s ease; }
 .dropzone:hover{ border-color: var(--cobalt); }
@@ -296,14 +287,23 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 .dz-filled .dz-remove{ background:none; border:none; color: var(--ink-faint); cursor:pointer; font-size:13px; z-index:2; position:relative; }
 .dz-filled .dz-remove:hover{ color: var(--coral); }
 
-.prompt-box{ background: var(--soft); border:1.5px solid var(--border); border-radius: var(--radius-md); padding:6px 6px 6px 16px; display:flex; align-items:flex-end; gap:8px; transition: border-color .15s ease, background .15s ease; }
+.prompt-box{ background: var(--soft); border:1.5px solid var(--border); border-radius: var(--radius-md); padding:6px 6px 6px 8px; display:flex; align-items:flex-end; gap:6px; transition: border-color .15s ease, background .15s ease; }
 .prompt-box:focus-within{ border-color: var(--cobalt); background: var(--card); }
 .prompt-box.disabled{ opacity:.55; pointer-events:none; }
 #prompt{ flex:1; background:none; border:none; color: var(--ink); font-size:14.5px; font-family: var(--font-body); resize:none; min-height:44px; max-height:160px; padding:10px 0; line-height:1.5; }
 #prompt:focus{ outline:none; }
 #prompt::placeholder{ color: var(--ink-faint); }
 
-.composer-btns{ display:flex; gap:6px; padding-bottom:5px; }
+.composer-btns{ display:flex; gap:6px; padding-bottom:5px; align-items:center; }
+
+.attach-btn{
+  width:34px; height:34px; border-radius:10px; background: var(--card); border:1px solid var(--border); color: var(--ink-muted);
+  cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:17px; flex-shrink:0;
+  transition: border-color .15s ease, background .15s ease, color .15s ease;
+}
+.attach-btn:hover:not(:disabled){ border-color: var(--cobalt); background: var(--cobalt-wash); color: var(--cobalt-deep); }
+.attach-btn:disabled{ opacity:.4; cursor:not-allowed; }
+
 .enhance-btn{
   display:flex; align-items:center; gap:6px; background: var(--card); border:1px solid var(--border); color: var(--cobalt);
   font-size:12px; font-weight:600; padding:9px 13px; border-radius: var(--radius-sm); cursor:pointer; white-space:nowrap;
@@ -322,16 +322,26 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 .send-btn:disabled{ opacity:0.4; cursor:not-allowed; box-shadow:none; }
 .send-btn .spin{ animation: spin 0.8s linear infinite; display:inline-block; }
 
-.composer-footrow{ display:flex; align-items:center; justify-content:space-between; margin-top:10px; flex-wrap:wrap; gap:8px; }
-.template-mini{ display:flex; gap:6px; }
-.tm-opt{ width:28px; height:28px; border:1.5px solid var(--border); background: var(--card); cursor:pointer; display:flex; align-items:center; justify-content:center; transition: border-color .15s ease; }
-.tm-opt.active{ border-color: var(--cobalt); }
-.tm-opt .tm-shape{ width:14px; height:14px; background: var(--ink-faint); }
-.tm-opt.active .tm-shape{ background: var(--cobalt); }
-.tm-square, .tm-pass{ border-radius:8px; } .tm-square .tm-shape, .tm-pass .tm-shape{ border-radius:3px; }
-.tm-circle{ border-radius:50%; } .tm-circle .tm-shape{ border-radius:50%; }
-.tm-hex{ border-radius:5px; } .tm-hex .tm-shape{ clip-path: polygon(50% 0%, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%); }
+/* ---------- pending attachments row (before send, in composer) ---------- */
+.pending-attachments{ display:none; flex-wrap:wrap; gap:8px; margin-bottom:10px; }
+.pending-attachments.show{ display:flex; }
+.pa-chip{ position:relative; width:52px; height:52px; border-radius:10px; overflow:hidden; border:1px solid var(--border); background: var(--soft); flex-shrink:0; }
+.pa-chip img{ width:100%; height:100%; object-fit:cover; display:block; }
+.pa-chip.pa-file{ display:flex; align-items:center; justify-content:center; font-size:18px; flex-direction:column; gap:2px; padding:4px; }
+.pa-chip.pa-file .pa-file-name{ font-size:8.5px; color: var(--ink-muted); text-align:center; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:100%; }
+.pa-chip .pa-remove{
+  position:absolute; top:2px; right:2px; width:16px; height:16px; border-radius:50%; background: rgba(20,23,42,0.65);
+  color:#fff; border:none; font-size:10px; cursor:pointer; display:flex; align-items:center; justify-content:center; line-height:1; padding:0;
+}
 
+/* ---------- attachment gallery inside a sent message ---------- */
+.msg-attach-grid{ display:grid; grid-template-columns: repeat(auto-fill, minmax(70px,1fr)); gap:6px; margin-bottom:8px; max-width:260px; }
+.msg-attach-grid .ag-item{ width:100%; aspect-ratio:1/1; border-radius:9px; overflow:hidden; border:1px solid rgba(255,255,255,0.25); background: rgba(255,255,255,0.12); }
+.msg-attach-grid .ag-item img{ width:100%; height:100%; object-fit:cover; display:block; }
+.msg-attach-grid .ag-item.ag-file{ display:flex; align-items:center; justify-content:center; flex-direction:column; gap:2px; font-size:16px; padding:4px; }
+.msg-attach-grid .ag-item.ag-file span{ font-size:8.5px; opacity:.85; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:100%; }
+
+.composer-footrow{ display:flex; align-items:center; justify-content:space-between; margin-top:10px; flex-wrap:wrap; gap:8px; }
 .char-count{ font-size:11px; color: var(--ink-faint); }
 .composer-hint{ font-size:11.5px; color: var(--ink-faint); margin-top:9px; line-height:1.5; }
 
@@ -371,9 +381,6 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
   .composer-wrap{ padding: 12px 16px 16px; }
   .force-mode-bar{ gap:6px; }
   .fm-pill{ padding:8px 12px; font-size:12px; }
-  .method-picker{ gap:8px; }
-  .mode-card{ padding:8px 6px 9px; }
-  .mode-card .mc-caption{ font-size:11px; }
   .dropzone-row{ flex-direction: column; }
   .composer-footrow{ justify-content: flex-start; }
   .result-frame-wrap{ gap:12px; }
@@ -386,7 +393,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 @media (max-width: 420px){
   .topbar-title .tt-text{ max-width: 38vw; }
   .tt-badge{ display:none; }
-  .prompt-box{ padding-left:12px; }
+  .prompt-box{ padding-left:6px; }
   .msg-bubble{ max-width: 92%; }
 }
 
@@ -462,26 +469,10 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 
         <!-- Pasek trybów wymuszonych -->
         <div class="force-mode-bar" id="forceModeBar">
-          <div class="fm-pill active" data-force="chat" onclick="setForceMode('chat')"><span class="fm-icon">💬</span>Czat</div>
-          <div class="fm-pill" data-force="icon" onclick="setForceMode('icon')"><span class="fm-icon">🎮</span>Icon</div>
-          <div class="fm-pill" data-force="thumbnail" onclick="setForceMode('thumbnail')"><span class="fm-icon">🖼️</span>Thumbnail</div>
-          <div class="fm-pill" data-force="model3d" onclick="setForceMode('model3d')"><span class="fm-icon">🧊</span>Model 3D</div>
-        </div>
-
-        <!-- Metoda tworzenia (tylko dla Icon / Thumbnail) -->
-        <div class="method-picker" id="methodPicker" style="display:none;">
-          <div class="mode-card active" data-method="text" onclick="setMethod('text')">
-            <div class="mc-art">✨</div>
-            <span class="mc-caption">Od zera</span>
-          </div>
-          <div class="mode-card" data-method="image" onclick="setMethod('image')">
-            <div class="mc-art">🖌️</div>
-            <span class="mc-caption">Edytuj zdjęcie</span>
-          </div>
-          <div class="mode-card" data-method="style" onclick="setMethod('style')">
-            <div class="mc-art">🎨</div>
-            <span class="mc-caption">Przenieś styl</span>
-          </div>
+          <div class="fm-pill active" data-force="chat"><span class="fm-icon">💬</span>Czat</div>
+          <div class="fm-pill" data-force="icon"><span class="fm-icon">🎮</span>Icon</div>
+          <div class="fm-pill" data-force="thumbnail"><span class="fm-icon">🖼️</span>Thumbnail</div>
+          <div class="fm-pill" data-force="model3d"><span class="fm-icon">🧊</span>Model 3D</div>
         </div>
 
         <div class="dropzone-row" id="dropzoneRow" style="display:none;">
@@ -505,7 +496,11 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
           </div>
         </div>
 
+        <div class="pending-attachments" id="pendingAttachments"></div>
+
         <div class="prompt-box" id="promptBox">
+          <button class="attach-btn" id="attachBtn" onclick="triggerAttachPicker()" title="Dodaj załącznik" type="button">+</button>
+          <input type="file" id="chatAttachInput" multiple accept="image/*,.pdf,.txt,.doc,.docx,.zip" style="display:none;">
           <textarea id="prompt" rows="1" placeholder="Napisz wiadomość…"></textarea>
           <div class="composer-btns">
             <button class="enhance-btn" id="enhanceBtn" onclick="enhancePrompt()" style="display:none;">
@@ -518,12 +513,6 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
         </div>
 
         <div class="composer-footrow">
-          <div class="template-mini" id="templateMini" style="display:none;">
-            <div class="tm-opt tm-square active" data-template="square" title="Game icon"><div class="tm-shape"></div></div>
-            <div class="tm-opt tm-pass" data-template="pass" title="Gamepass"><div class="tm-shape"></div></div>
-            <div class="tm-opt tm-hex" data-template="hex" title="Badge"><div class="tm-shape"></div></div>
-            <div class="tm-opt tm-circle" data-template="circle" title="Group icon"><div class="tm-shape"></div></div>
-          </div>
           <span class="char-count" id="charCount">0 znaków</span>
         </div>
 
@@ -569,16 +558,16 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
   // Trzy tryby WYMUSZONE + domyślny tryb "chat" (żaden nie wymuszony).
   const FORCE_MODE_INFO = {
     chat:      { label: "Czat",      icon: "💬", hint: "Napisz, czego potrzebujesz — sam rozpoznam intencję i zaproponuję generowanie." },
-    icon:      { label: "Icon",      icon: "🎮", hint: "Wybierz metodę poniżej i opisz ikonę." },
-    thumbnail: { label: "Thumbnail", icon: "🖼️", hint: "Wybierz metodę poniżej i opisz thumbnail (format poziomy)." },
+    icon:      { label: "Icon",      icon: "🎮", hint: "Wybierz metodę tworzenia w wiadomości poniżej." },
+    thumbnail: { label: "Thumbnail", icon: "🖼️", hint: "Wybierz metodę tworzenia w wiadomości poniżej." },
     model3d:   { label: "Model 3D",  icon: "🧊", hint: "Wybierz, jak chcesz stworzyć model 3D." }
   };
 
   // Metody TWORZENIA obrazu — dotyczą tylko trybów icon/thumbnail.
   const METHOD_INFO = {
-    text:  { api: "text2img",     label: "Od zera",        hint: "Opisz pomysł — reszta dobierze się automatycznie." },
-    image: { api: "image2img",    label: "Edytuj zdjęcie",  hint: "Wgraj zdjęcie i opisz, co zmienić." },
-    style: { api: "reference2img",label: "Przenieś styl",   hint: "Wgraj obraz do edycji i osobny wzorzec stylu. Opis jest opcjonalny." }
+    text:  { api: "text2img",     label: "Od zera",         emoji: "✨", sub: "Opisz pomysł — reszta dobierze się automatycznie.",              hint: "Opisz pomysł — reszta dobierze się automatycznie." },
+    image: { api: "image2img",    label: "Edytuj zdjęcie",  emoji: "🖌️", sub: "Wgraj zdjęcie i opisz, co zmienić.",                              hint: "Wgraj zdjęcie i opisz, co zmienić." },
+    style: { api: "reference2img",label: "Przenieś styl",   emoji: "🎨", sub: "Wgraj obraz do edycji i osobny wzorzec stylu.",                    hint: "Wgraj obraz do edycji oraz wzorzec stylu. Opis jest opcjonalny." }
   };
 
   const HISTORY_THUMB_SIZE = 480;
@@ -589,13 +578,18 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
   let activeForceMode = "chat";     // "chat" | "icon" | "thumbnail" | "model3d"
   let currentMethod = "text";       // tylko dla icon/thumbnail
   let currentTemplate = "square";   // tylko dla icon
-  let mainImage = null;             // base64 data URL — obraz "główny" (chat attach / edit / model3d referencja)
+  let mainImage = null;             // base64 data URL — obraz "główny" (edit / model3d referencja)
   let refImage = null;              // base64 data URL — wzorzec stylu (tylko metoda "style")
 
-  // Stan przepływu Modelu 3D w obrębie AKTUALNEJ tury komponowania.
-  // idle -> choose_method -> awaiting_description | awaiting_reference_image | awaiting_generated_image -> busy
-  let model3dState = "idle";
+  // Ogólny stan przepływu WYBORU TRYBU w obrębie AKTUALNEJ tury komponowania.
+  // Wspólny dla icon / thumbnail / model3d:
+  // idle -> choose_method -> awaiting_input (opis / zdjęcie) -> busy
+  let flowState = "idle";
   let model3dGeneratedImageDataUrl = null; // obraz wygenerowany do potwierdzenia w ścieżce "najpierw wygeneruj obraz"
+
+  // Załączniki w GŁÓWNYM CZACIE (wiele obrazów / plików jednocześnie)
+  let pendingAttachments = []; // { id, kind: 'image'|'file', dataUrl, name, mimeType }
+  let attachmentSeq = 0;
 
   let activeChatId = null;
   let chatsCache = [];
@@ -616,9 +610,8 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 
   function init() {
     bindForceModeBar();
-    bindMethodPicker();
-    bindTemplateMini();
     bindDropzones();
+    bindAttachInput();
     renderPackages();
 
     const promptEl = document.getElementById("prompt");
@@ -928,26 +921,35 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
   // FEED — wiadomości "na żywo" (bieżąca tura)
   // ==================================================
 
-  function appendUserBubble(text, imagePreviewUrl) {
+  function appendUserBubble(text, attachments) {
     const inner = document.getElementById("feedInner");
     const welcome = document.getElementById("welcome");
     if (welcome) welcome.remove();
 
     const el = document.createElement("div");
     el.className = "msg msg-user";
-    const chip = imagePreviewUrl
-      ? `<div class="chat-image-chip"><img src="${imagePreviewUrl}" alt=""><span>zdjęcie załączone</span></div>`
-      : "";
+    const gallery = attachmentsGridHtml(attachments);
     el.innerHTML = `
       <div class="msg-avatar"><img src="${currentUser && currentUser.photoURL ? currentUser.photoURL : ""}" alt=""></div>
       <div class="msg-bubble">
-        ${chip}
+        ${gallery}
         <div>${escapeHtml(text || "(bez opisu)")}</div>
       </div>
     `;
     inner.appendChild(el);
     scrollFeedToBottom();
     return el;
+  }
+
+  function attachmentsGridHtml(attachments) {
+    if (!attachments || attachments.length === 0) return "";
+    const items = attachments.map(a => {
+      if (a.kind === "image") {
+        return `<div class="ag-item"><img src="${a.dataUrl}" alt=""></div>`;
+      }
+      return `<div class="ag-item ag-file">📄<span>${escapeHtml(a.name || "plik")}</span></div>`;
+    }).join("");
+    return `<div class="msg-attach-grid">${items}</div>`;
   }
 
   function loaderHtml(text) {
@@ -1031,6 +1033,9 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
     });
   }
 
+  // Ustawia aktywny tryb. `opts.skipAutoChooser` = true gdy chooser zostanie
+  // dołożony ręcznie w innym miejscu (np. bezpośrednio w wątku czatu po
+  // wykryciu intencji).
   function setForceMode(mode, opts) {
     opts = opts || {};
     activeForceMode = mode;
@@ -1041,108 +1046,143 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
     document.getElementById("modeBadgeIcon").textContent = info.icon;
     document.getElementById("modeBadgeText").textContent = info.label;
 
-    const methodPicker = document.getElementById("methodPicker");
     const dropzoneRow = document.getElementById("dropzoneRow");
     const dzRef = document.getElementById("dzRef");
-    const templateMini = document.getElementById("templateMini");
-    const enhanceBtn = document.getElementById("enhanceBtn");
-    const promptEl = document.getElementById("prompt");
-
-    if (mode === "icon" || mode === "thumbnail") {
-      methodPicker.style.display = "flex";
-      enhanceBtn.style.display = "flex";
-      templateMini.style.display = mode === "icon" ? "flex" : "none";
-      setMethod(currentMethod, true);
-      document.getElementById("composerHint").textContent = info.hint;
-      promptEl.placeholder = mode === "icon" ? "Opisz ikonę…" : "Opisz thumbnail…";
-    } else {
-      methodPicker.style.display = "none";
-      dropzoneRow.style.display = "none";
-      dzRef.style.display = "none";
-      templateMini.style.display = "none";
-      enhanceBtn.style.display = "none";
-      clearMainImage();
-      clearRefImage();
-    }
 
     if (mode === "chat") {
       document.getElementById("composerHint").textContent = info.hint;
-      promptEl.placeholder = "Napisz wiadomość…";
-      dropzoneRow.style.display = "flex";
-      updateDropzoneLabels();
+      document.getElementById("prompt").placeholder = "Napisz wiadomość…";
+      document.getElementById("enhanceBtn").style.display = "none";
+      dropzoneRow.style.display = "none";
+      dzRef.style.display = "none";
+      clearMainImage();
+      clearRefImage();
+      flowState = "idle";
       setPromptBoxEnabled(true);
+      return;
     }
 
-    if (mode === "model3d") {
-      updateDropzoneLabels();
-      if (model3dState === "idle" && !opts.skipAutoChooser) {
-        model3dState = "choose_method";
-        appendModel3DChooser();
-      }
-      applyModel3DComposerState();
-    } else {
-      // opuszczamy tryb model3d — reset stanu na potrzeby kolejnego wejścia
-      if (model3dState !== "busy") {
-        model3dState = "idle";
-        model3dGeneratedImageDataUrl = null;
-      }
+    // Icon / Thumbnail / Model3D — wszystkie trzy używają TEGO SAMEGO
+    // mechanizmu: wiadomość z wyborem trybu w wątku czatu.
+    dropzoneRow.style.display = "none";
+    dzRef.style.display = "none";
+    document.getElementById("enhanceBtn").style.display = (mode === "icon" || mode === "thumbnail") ? "flex" : "none";
+    clearMainImage();
+    clearRefImage();
+
+    if (flowState !== "busy") {
+      flowState = "choose_method";
+      if (!opts.skipAutoChooser) appendModeChooser(mode);
+      applyFlowComposerState();
     }
   }
 
   function updateDropzoneLabels() {
     const label = document.getElementById("dzMainLabel");
-    if (activeForceMode === "chat") label.textContent = "Załącz zdjęcie (opcjonalnie)";
-    else if (activeForceMode === "model3d") label.textContent = "Zdjęcie referencyjne";
-    else if (currentMethod === "style") label.textContent = "Obraz do edycji";
+    if (activeForceMode === "model3d") label.textContent = "Zdjęcie referencyjne";
     else label.textContent = "Obraz do edycji";
   }
 
   // ==================================================
-  // METODA TWORZENIA (icon/thumbnail: od zera / edytuj / styl)
+  // WSPÓLNY MECHANIZM WYBORU TRYBU (chooser message)
+  // Używany identycznie dla: Icon, Thumbnail, Model 3D.
   // ==================================================
 
-  function bindMethodPicker() {
-    document.querySelectorAll(".mode-card").forEach(card => {
-      card.addEventListener("click", () => setMethod(card.dataset.method));
-    });
+  function appendModeChooser(mode, existingEl) {
+    let html;
+    if (mode === "model3d") {
+      html = `
+        <div class="chooser-3d">
+          <button onclick="chooseModel3DMethod('describe', this)"><span class="c3-emoji">✏️</span><span>Opiszę tekstem<span class="c3-sub">Krótki opis obiektu → model 3D</span></span></button>
+          <button onclick="chooseModel3DMethod('image', this)"><span class="c3-emoji">🖼️</span><span>Wgram zdjęcie referencyjne<span class="c3-sub">Zdjęcie obiektu → model 3D</span></span></button>
+          <button onclick="chooseModel3DMethod('generate', this)"><span class="c3-emoji">✨</span><span>Najpierw wygeneruj obraz<span class="c3-sub">Opiszę, AI wygeneruje obraz, potem model 3D</span></span></button>
+        </div>`;
+    } else {
+      html = `
+        <div class="chooser-3d">
+          <button onclick="chooseImageMethod('${mode}','text', this)"><span class="c3-emoji">${METHOD_INFO.text.emoji}</span><span>${METHOD_INFO.text.label}<span class="c3-sub">${METHOD_INFO.text.sub}</span></span></button>
+          <button onclick="chooseImageMethod('${mode}','image', this)"><span class="c3-emoji">${METHOD_INFO.image.emoji}</span><span>${METHOD_INFO.image.label}<span class="c3-sub">${METHOD_INFO.image.sub}</span></span></button>
+          <button onclick="chooseImageMethod('${mode}','style', this)"><span class="c3-emoji">${METHOD_INFO.style.emoji}</span><span>${METHOD_INFO.style.label}<span class="c3-sub">${METHOD_INFO.style.sub}</span></span></button>
+        </div>`;
+    }
+
+    const introText = mode === "model3d" ? "Jak chcesz stworzyć model 3D?" : (mode === "thumbnail" ? "Jak chcesz stworzyć thumbnail?" : "Jak chcesz stworzyć ikonę?");
+
+    if (existingEl) {
+      appendBotBody(existingEl, html);
+    } else {
+      const el = appendBotPlaceholder(introText);
+      setBotBody(el, textHtml(introText) + html);
+    }
   }
 
-  function setMethod(method, silent) {
-    currentMethod = method;
-    document.querySelectorAll(".mode-card").forEach(c => c.classList.toggle("active", c.dataset.method === method));
-
-    const row = document.getElementById("dropzoneRow");
+  function applyFlowComposerState() {
+    const dropzoneRow = document.getElementById("dropzoneRow");
     const dzRef = document.getElementById("dzRef");
-    if (method === "text") {
-      row.style.display = "none";
-    } else {
-      row.style.display = "flex";
-      dzRef.style.display = method === "style" ? "block" : "none";
+
+    if (flowState === "choose_method" || flowState === "busy") {
+      setPromptBoxEnabled(false);
+      dropzoneRow.style.display = "none";
+      dzRef.style.display = "none";
+      document.getElementById("composerHint").textContent =
+        flowState === "busy" ? "Trwa generowanie — poczekaj na wynik poniżej." : "Wybierz jedną z opcji powyżej w czacie.";
+      return;
     }
-    updateDropzoneLabels();
+
+    setPromptBoxEnabled(true);
+
+    if (activeForceMode === "model3d") {
+      if (flowState === "awaiting_reference_image") {
+        dropzoneRow.style.display = "flex";
+        dzRef.style.display = "none";
+        updateDropzoneLabels();
+        document.getElementById("composerHint").textContent = "Wgraj zdjęcie referencyjne, opis jest opcjonalny.";
+      } else {
+        dropzoneRow.style.display = "none";
+        document.getElementById("composerHint").textContent = FORCE_MODE_INFO.model3d.hint;
+      }
+      return;
+    }
+
+    // Icon / Thumbnail — w zależności od wybranej metody tworzenia
+    if (currentMethod === "text") {
+      dropzoneRow.style.display = "none";
+      dzRef.style.display = "none";
+    } else if (currentMethod === "image") {
+      dropzoneRow.style.display = "flex";
+      dzRef.style.display = "none";
+      updateDropzoneLabels();
+    } else if (currentMethod === "style") {
+      dropzoneRow.style.display = "flex";
+      dzRef.style.display = "block";
+      updateDropzoneLabels();
+    }
+    document.getElementById("composerHint").textContent = METHOD_INFO[currentMethod].hint;
+  }
+
+  // Wybór metody tworzenia dla Icon / Thumbnail (z wiadomości chooser)
+  function chooseImageMethod(mode, method, btnEl) {
+    const group = btnEl.closest(".chooser-3d");
+    group.querySelectorAll("button").forEach(b => { b.disabled = true; b.classList.remove("chosen"); });
+    btnEl.classList.add("chosen");
+
+    currentMethod = method;
+    flowState = "awaiting_input";
 
     const promptEl = document.getElementById("prompt");
-    const catLabel = activeForceMode === "thumbnail" ? "thumbnail" : "ikonę";
+    const catLabel = mode === "thumbnail" ? "thumbnail" : "ikonę";
     promptEl.placeholder =
       method === "text" ? "Opisz " + catLabel + "…" :
       method === "image" ? "Co zmienić na tym obrazie?" :
       "Opcjonalnie: dodatkowe wskazówki dla stylu…";
 
     updateEnhanceButtonLabel();
-  }
-
-  function bindTemplateMini() {
-    document.querySelectorAll(".tm-opt").forEach(opt => {
-      opt.addEventListener("click", () => {
-        document.querySelectorAll(".tm-opt").forEach(o => o.classList.remove("active"));
-        opt.classList.add("active");
-        currentTemplate = opt.dataset.template;
-      });
-    });
+    applyFlowComposerState();
+    promptEl.focus();
   }
 
   // ==================================================
-  // DROPZONES (wspólne: chat-attach / edit / model3d referencja)
+  // DROPZONES (edit / style ref / model3d referencja)
   // ==================================================
 
   function bindDropzones() {
@@ -1202,6 +1242,57 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
     if (currentMethod === "text") label.textContent = "Enhance";
     else if (currentMethod === "image") label.textContent = mainImage ? "Analyze + Enhance" : "Enhance";
     else label.textContent = refImage ? "Analyze style + Enhance" : "Enhance";
+  }
+
+  // ==================================================
+  // ZAŁĄCZNIKI W GŁÓWNYM CZACIE (przycisk "+", wiele plików)
+  // ==================================================
+
+  function bindAttachInput() {
+    const input = document.getElementById("chatAttachInput");
+    input.addEventListener("change", async () => {
+      const files = Array.from(input.files || []);
+      for (const file of files) await addChatAttachment(file);
+      input.value = "";
+    });
+  }
+
+  function triggerAttachPicker() {
+    if (activeForceMode !== "chat") return;
+    document.getElementById("chatAttachInput").click();
+  }
+
+  async function addChatAttachment(file) {
+    const isImage = file.type.startsWith("image/");
+    const id = "att" + (++attachmentSeq);
+    if (isImage) {
+      const dataUrl = await fileToBase64(file);
+      pendingAttachments.push({ id, kind: "image", dataUrl, name: file.name, mimeType: file.type });
+    } else {
+      pendingAttachments.push({ id, kind: "file", dataUrl: null, name: file.name, mimeType: file.type });
+    }
+    renderPendingAttachments();
+  }
+
+  function removePendingAttachment(id) {
+    pendingAttachments = pendingAttachments.filter(a => a.id !== id);
+    renderPendingAttachments();
+  }
+
+  function renderPendingAttachments() {
+    const row = document.getElementById("pendingAttachments");
+    row.classList.toggle("show", pendingAttachments.length > 0);
+    row.innerHTML = pendingAttachments.map(a => {
+      if (a.kind === "image") {
+        return `<div class="pa-chip"><img src="${a.dataUrl}" alt=""><button class="pa-remove" onclick="removePendingAttachment('${a.id}')">✕</button></div>`;
+      }
+      return `<div class="pa-chip pa-file">📄<span class="pa-file-name">${escapeHtml(a.name)}</span><button class="pa-remove" onclick="removePendingAttachment('${a.id}')">✕</button></div>`;
+    }).join("");
+  }
+
+  function clearPendingAttachments() {
+    pendingAttachments = [];
+    renderPendingAttachments();
   }
 
   // ==================================================
@@ -1279,12 +1370,12 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
   }
 
   // ==================================================
-  // GŁÓWNY PRZYCISK WYSYŁKI — routing wg aktywnego trybu
+  // GŁÓWNY PRZYCISK WYSYŁKI — routing wg aktywnego trybu / stanu
   // ==================================================
 
   function onSendClick() {
     if (activeForceMode === "chat") sendChatMessage();
-    else if (activeForceMode === "icon" || activeForceMode === "thumbnail") generateImage();
+    else if (activeForceMode === "icon" || activeForceMode === "thumbnail") handleImageFlowSend();
     else if (activeForceMode === "model3d") handleModel3DSend();
   }
 
@@ -1293,8 +1384,14 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
   }
 
   // ==================================================
-  // GENEROWANIE OBRAZU — TRYB WYMUSZONY (Icon / Thumbnail)
+  // GENEROWANIE OBRAZU — TRYB WYMUSZONY (Icon / Thumbnail),
+  // po wyborze metody z wiadomości chooser.
   // ==================================================
+
+  function handleImageFlowSend() {
+    if (flowState === "choose_method" || flowState === "busy") return; // zablokowane, czekamy na wybór w czacie
+    generateImage();
+  }
 
   async function generateImage() {
     if (!currentUser) { document.getElementById("signInBtn").click(); return; }
@@ -1319,8 +1416,13 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
     sendBtn.disabled = true;
     sendIcon.className = "spin";
     sendIcon.textContent = "◌";
+    flowState = "busy";
+    applyFlowComposerState();
 
-    appendUserBubble(raw);
+    const attachPreview = [];
+    if (mainImage) attachPreview.push({ kind: "image", dataUrl: mainImage });
+    if (refImage) attachPreview.push({ kind: "image", dataUrl: refImage });
+    appendUserBubble(raw, attachPreview);
     const pendingEl = appendBotPlaceholder(activeForceMode === "icon" ? "Generuję ikonę…" : "Generuję thumbnail…");
 
     try {
@@ -1374,10 +1476,17 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
       });
 
       resetComposerAfterSend();
+      clearMainImage();
+      clearRefImage();
+      flowState = "choose_method";
+      appendModeChooser(activeForceMode);
+      applyFlowComposerState();
 
     } catch (e) {
       console.error(e);
       setBotBody(pendingEl, errorHtml("Błąd: " + e.message));
+      flowState = "awaiting_input";
+      applyFlowComposerState();
     } finally {
       sendBtn.disabled = false;
       sendIcon.className = "";
@@ -1394,7 +1503,8 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 
     const promptEl = document.getElementById("prompt");
     const raw = promptEl.value.trim();
-    if (!raw && !mainImage) return;
+    const attachments = pendingAttachments.slice();
+    if (!raw && attachments.length === 0) return;
 
     const sendBtn = document.getElementById("generateBtn");
     const sendIcon = document.getElementById("sendIcon");
@@ -1402,19 +1512,28 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
     sendIcon.className = "spin";
     sendIcon.textContent = "◌";
 
-    const attachedImage = mainImage;
-    const attachedPreview = attachedImage ? document.getElementById("dzMainPreview").src : null;
-
-    appendUserBubble(raw, attachedPreview);
+    appendUserBubble(raw, attachments);
     const pendingEl = appendBotPlaceholder("Myślę…");
 
     try {
       const chatId = await ensureActiveChat(raw || "Czat");
 
+      const imageAttachments = attachments.filter(a => a.kind === "image").map(a => a.dataUrl);
+      const fileAttachments = attachments.filter(a => a.kind === "file");
+      let messageForModel = raw;
+      if (fileAttachments.length > 0) {
+        messageForModel += (messageForModel ? "\n" : "") + "[Załączone pliki: " + fileAttachments.map(f => f.name).join(", ") + "]";
+      }
+
       const res = await authedFetch("/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ chatId, message: raw, image: attachedImage })
+        body: JSON.stringify({
+          chatId,
+          message: messageForModel,
+          image: imageAttachments[0] || null,   // wstecznie kompatybilne pole
+          images: imageAttachments               // wszystkie załączone obrazy
+        })
       });
 
       if (!res.ok) throw new Error(await extractError(res));
@@ -1444,17 +1563,25 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
           category: action.category
         });
 
+      } else if (action.type === "need_image_method") {
+        // Wykryto intencję Icon/Thumbnail w czacie -> pokaż DOKŁADNIE ten sam
+        // chooser co przy wymuszonym trybie / modelu 3D.
+        await persistMessage(chatId, { type: "text", prompt: raw, reply: data.reply || "" });
+        setForceMode(action.category, { skipAutoChooser: true });
+        flowState = "choose_method";
+        appendModeChooser(action.category, pendingEl);
+
       } else if (action.type === "need_3d_method") {
         await persistMessage(chatId, { type: "text", prompt: raw, reply: data.reply || "" });
         setForceMode("model3d", { skipAutoChooser: true });
-        model3dState = "choose_method";
-        appendModel3DChooser(pendingEl);
+        flowState = "choose_method";
+        appendModeChooser("model3d", pendingEl);
 
       } else if (action.type === "model3d_task_started") {
         await persistMessage(chatId, { type: "text", prompt: raw, reply: data.reply || "" });
         setForceMode("model3d", { skipAutoChooser: true });
-        model3dState = "busy";
-        applyModel3DComposerState();
+        flowState = "busy";
+        applyFlowComposerState();
         const progressEl = appendBotPlaceholder("Startuję generowanie modelu 3D…");
         pollMeshyTask(progressEl, action.taskType, action.taskId, action.prompt || raw, {
           offerRefine: action.taskType === "text-to-3d",
@@ -1466,7 +1593,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
         openBuyModal();
       }
 
-      clearMainImage();
+      clearPendingAttachments();
       resetComposerAfterSend();
 
     } catch (e) {
@@ -1483,21 +1610,6 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
   // MODEL 3D — chooser + trzy ścieżki + polling Meshy
   // ==================================================
 
-  function appendModel3DChooser(existingEl) {
-    const html = `
-      <div class="chooser-3d" id="chooser3d-${Date.now()}">
-        <button onclick="chooseModel3DMethod('describe', this)"><span class="c3-emoji">✏️</span><span>Opiszę tekstem<span class="c3-sub">Krótki opis obiektu → model 3D</span></span></button>
-        <button onclick="chooseModel3DMethod('image', this)"><span class="c3-emoji">🖼️</span><span>Wgram zdjęcie referencyjne<span class="c3-sub">Zdjęcie obiektu → model 3D</span></span></button>
-        <button onclick="chooseModel3DMethod('generate', this)"><span class="c3-emoji">✨</span><span>Najpierw wygeneruj obraz<span class="c3-sub">Opiszę, AI wygeneruje obraz, potem model 3D</span></span></button>
-      </div>`;
-    if (existingEl) {
-      appendBotBody(existingEl, html);
-    } else {
-      const el = appendBotPlaceholder("Jak chcesz stworzyć model 3D?");
-      setBotBody(el, textHtml("Jak chcesz stworzyć model 3D?") + html);
-    }
-  }
-
   function chooseModel3DMethod(choice, btnEl) {
     const group = btnEl.closest(".chooser-3d");
     group.querySelectorAll("button").forEach(b => { b.disabled = true; b.classList.remove("chosen"); });
@@ -1506,53 +1618,31 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
     const promptEl = document.getElementById("prompt");
 
     if (choice === "describe") {
-      model3dState = "awaiting_description";
+      flowState = "awaiting_description";
       promptEl.placeholder = "Opisz obiekt, który ma powstać jako model 3D…";
     } else if (choice === "image") {
-      model3dState = "awaiting_reference_image";
+      flowState = "awaiting_reference_image";
       promptEl.placeholder = "Opcjonalnie: wskazówki co do tekstury/stylu…";
     } else if (choice === "generate") {
-      model3dState = "awaiting_generated_image";
+      flowState = "awaiting_generated_image";
       promptEl.placeholder = "Opisz obiekt, który mam najpierw wygenerować jako obraz…";
     }
 
-    applyModel3DComposerState();
+    applyFlowComposerState();
     promptEl.focus();
-  }
-
-  function applyModel3DComposerState() {
-    const dropzoneRow = document.getElementById("dropzoneRow");
-    const dzRef = document.getElementById("dzRef");
-    dzRef.style.display = "none";
-
-    if (model3dState === "choose_method" || model3dState === "busy") {
-      setPromptBoxEnabled(false);
-      dropzoneRow.style.display = "none";
-      document.getElementById("composerHint").textContent =
-        model3dState === "busy" ? "Trwa generowanie modelu 3D — poczekaj na wynik poniżej." : "Wybierz jedną z opcji powyżej w czacie.";
-    } else if (model3dState === "awaiting_reference_image") {
-      setPromptBoxEnabled(true);
-      dropzoneRow.style.display = "flex";
-      updateDropzoneLabels();
-      document.getElementById("composerHint").textContent = "Wgraj zdjęcie referencyjne, opis jest opcjonalny.";
-    } else {
-      setPromptBoxEnabled(true);
-      dropzoneRow.style.display = "none";
-      document.getElementById("composerHint").textContent = FORCE_MODE_INFO.model3d.hint;
-    }
   }
 
   function handleModel3DSend() {
     const promptEl = document.getElementById("prompt");
     const raw = promptEl.value.trim();
 
-    if (model3dState === "awaiting_description") {
+    if (flowState === "awaiting_description") {
       if (!raw) return;
       startTextTo3D(raw);
-    } else if (model3dState === "awaiting_reference_image") {
+    } else if (flowState === "awaiting_reference_image") {
       if (!mainImage) { alert("Najpierw wgraj zdjęcie referencyjne."); return; }
       startImageTo3D(raw);
-    } else if (model3dState === "awaiting_generated_image") {
+    } else if (flowState === "awaiting_generated_image") {
       if (!raw) return;
       generateImageForModel3D(raw);
     }
@@ -1563,8 +1653,8 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
     if (!currentUser) { document.getElementById("signInBtn").click(); return; }
     if ((tokenBalance ?? 0) < 1) { openBuyModal(); return; }
 
-    model3dState = "busy";
-    applyModel3DComposerState();
+    flowState = "busy";
+    applyFlowComposerState();
 
     appendUserBubble(desc);
     const pendingEl = appendBotPlaceholder("Tworzę kształt modelu (mesh)… to może potrwać do minuty.");
@@ -1588,8 +1678,8 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
     } catch (e) {
       console.error(e);
       setBotBody(pendingEl, errorHtml("Błąd: " + e.message));
-      model3dState = "awaiting_description";
-      applyModel3DComposerState();
+      flowState = "awaiting_description";
+      applyFlowComposerState();
     }
   }
 
@@ -1597,10 +1687,10 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
     if (!currentUser) { document.getElementById("signInBtn").click(); return; }
     if ((tokenBalance ?? 0) < 1) { openBuyModal(); return; }
 
-    model3dState = "busy";
-    applyModel3DComposerState();
+    flowState = "busy";
+    applyFlowComposerState();
 
-    appendUserBubble(raw || "(zdjęcie referencyjne)", document.getElementById("dzMainPreview").src);
+    appendUserBubble(raw || "(zdjęcie referencyjne)", mainImage ? [{ kind: "image", dataUrl: mainImage }] : []);
     const pendingEl = appendBotPlaceholder("Tworzę model 3D ze zdjęcia… to może potrwać do minuty.");
 
     try {
@@ -1624,8 +1714,8 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
     } catch (e) {
       console.error(e);
       setBotBody(pendingEl, errorHtml("Błąd: " + e.message));
-      model3dState = "awaiting_reference_image";
-      applyModel3DComposerState();
+      flowState = "awaiting_reference_image";
+      applyFlowComposerState();
     }
   }
 
@@ -1633,8 +1723,8 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
     if (!currentUser) { document.getElementById("signInBtn").click(); return; }
     if ((tokenBalance ?? 0) < 1) { openBuyModal(); return; }
 
-    model3dState = "busy";
-    applyModel3DComposerState();
+    flowState = "busy";
+    applyFlowComposerState();
 
     appendUserBubble(raw);
     const pendingEl = appendBotPlaceholder("Generuję obraz referencyjny…");
@@ -1669,14 +1759,14 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
          </div>`
       );
       markNewLastLarge(pendingEl);
-      model3dState = "awaiting_generated_image"; // można kliknąć "wygeneruj inny" ponownie przez przyciski
-      applyModel3DComposerState();
+      flowState = "awaiting_generated_image"; // można kliknąć "wygeneruj inny" ponownie przez przyciski
+      applyFlowComposerState();
 
     } catch (e) {
       console.error(e);
       setBotBody(pendingEl, errorHtml("Błąd: " + e.message));
-      model3dState = "awaiting_generated_image";
-      applyModel3DComposerState();
+      flowState = "awaiting_generated_image";
+      applyFlowComposerState();
     }
   }
 
@@ -1703,16 +1793,16 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
       const data = await res.json();
       refreshBalance();
 
-      model3dState = "busy";
-      applyModel3DComposerState();
+      flowState = "busy";
+      applyFlowComposerState();
       const progressEl = appendBotPlaceholder("Teksturuję i buduję model 3D… to może potrwać do minuty.");
       pollMeshyTask(progressEl, "image-to-3d", data.taskId, raw, { offerRefine: false, chatId });
 
     } catch (e) {
       console.error(e);
       actionsRow.innerHTML = `<span class="bot-status error">⚠ ${escapeHtml(e.message)}</span>`;
-      model3dState = "awaiting_generated_image";
-      applyModel3DComposerState();
+      flowState = "awaiting_generated_image";
+      applyFlowComposerState();
     }
   }
 
@@ -1742,8 +1832,8 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 
         if (data.status === "FAILED" || data.status === "CANCELED") {
           setBotBody(el, errorHtml("Generowanie modelu 3D nie powiodło się" + (data.errorMessage ? (": " + data.errorMessage) : ".")));
-          model3dState = activeForceMode === "model3d" ? "choose_method" : "idle";
-          if (activeForceMode === "model3d") { applyModel3DComposerState(); appendModel3DChooser(el); }
+          flowState = activeForceMode === "model3d" ? "choose_method" : "idle";
+          if (activeForceMode === "model3d") { applyFlowComposerState(); appendModeChooser("model3d", el); }
           return;
         }
 
@@ -1766,8 +1856,8 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
              </div>`
           );
           markNewLastLarge(el);
-          model3dState = activeForceMode === "model3d" ? "choose_method" : "idle";
-          applyModel3DComposerState();
+          flowState = activeForceMode === "model3d" ? "choose_method" : "idle";
+          applyFlowComposerState();
         } else {
           setBotBody(el, modelFrameHtml(data.modelUrl, data.thumbnailUrl, true));
           markNewLastLarge(el);
@@ -1776,8 +1866,8 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
               type: "model3d", prompt: promptText || "", modelUrl: data.modelUrl, thumbnailUrl: data.thumbnailUrl || "", taskType: data.taskType
             });
           }
-          model3dState = activeForceMode === "model3d" ? "choose_method" : "idle";
-          applyModel3DComposerState();
+          flowState = activeForceMode === "model3d" ? "choose_method" : "idle";
+          applyFlowComposerState();
         }
 
       } catch (e) {
@@ -1804,8 +1894,8 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
       const data = await res.json();
       refreshBalance();
 
-      model3dState = "busy";
-      applyModel3DComposerState();
+      flowState = "busy";
+      applyFlowComposerState();
       const progressEl = appendBotPlaceholder("Nakładam teksturę…");
       pollMeshyTask(progressEl, "text-to-3d", data.taskId, promptText, { offerRefine: false, chatId });
 
@@ -1912,7 +2002,8 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
     resetComposerAfterSend();
     clearMainImage();
     clearRefImage();
-    model3dState = "idle";
+    clearPendingAttachments();
+    flowState = "idle";
     model3dGeneratedImageDataUrl = null;
   }
 
