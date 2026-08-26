@@ -753,7 +753,7 @@ body{ top:0 !important; position:static !important; }
         <div class="dropzone-row" id="dropzoneRow" style="display:none;">
           <div class="dropzone" id="dzMain">
             <input type="file" id="mainImageInput" accept="image/png,image/jpeg,image/webp">
-            <div class="dz-empty" id="dzMainEmpty"><span class="dz-tag">01</span><span id="dzMainLabel">Obraz</span></div>
+            <div class="dz-empty" id="dzMainEmpty"><span class="dz-tag">01</span><span id="dzMainLabel">Image</span></div>
             <div class="dz-filled" id="dzMainFilled">
               <img id="dzMainPreview" alt="">
               <span class="dz-name" id="dzMainName"></span>
@@ -762,7 +762,7 @@ body{ top:0 !important; position:static !important; }
           </div>
           <div class="dropzone" id="dzRef" style="display:none;">
             <input type="file" id="refImageInput" accept="image/png,image/jpeg,image/webp">
-            <div class="dz-empty" id="dzRefEmpty"><span class="dz-tag">02</span> Wzorzec stylu</div>
+            <div class="dz-empty" id="dzRefEmpty"><span class="dz-tag">02</span> Style Reference</div>
             <div class="dz-filled" id="dzRefFilled">
               <img id="dzRefPreview" alt="">
               <span class="dz-name" id="dzRefName"></span>
@@ -814,10 +814,10 @@ body{ top:0 !important; position:static !important; }
 <div class="modal-overlay" id="gameWidgetModal">
   <div class="modal-card">
     <button class="modal-close" onclick="closeGameWidgetModal()"></button>
-    <p class="modal-title">Dodaj widget gry</p>
+    <p class="modal-title">Add Game Widget</p>
     <p class="modal-sub">Paste a link to a Roblox game (or just the Place ID) — I'll show live stats: player count, visits, ratings.</p>
     <input type="text" id="gwModalInput" placeholder="np. roblox.com/games/1234567/Nazwa lub 1234567" class="gw-modal-input">
-    <button class="btn-newchat" style="margin-top:12px;" onclick="submitGameWidget()">Dodaj widget</button>
+    <button class="btn-newchat" style="margin-top:12px;" onclick="submitGameWidget()">Add Widget</button>
     <div class="modal-status" id="gwModalStatus"></div>
   </div>
 </div>
@@ -2400,7 +2400,7 @@ body{ top:0 !important; position:static !important; }
       ? { kind: "image", text: userText, image: imageForPending }
       : { kind: "text", text: userText };
     const el = appendBotPlaceholder("");
-    setBotBody(el, renderInlineMarkdown("Skonfiguruj model 3D przed generowaniem:") + model3DSettingsPanelHtml());
+    setBotBody(el, renderInlineMarkdown("Set up the 3D model before generating:") + model3DSettingsPanelHtml());
     pendingModel3DPanelEl = el;
     flowState = "choose_method";
     applyFlowComposerState();
@@ -2579,7 +2579,7 @@ body{ top:0 !important; position:static !important; }
       await persistMessage(chatId, { type: "generation", thumbnail, prompt: raw, mode: "text2img", template: "square", category: "icon" });
 
       setBotBody(pendingEl,
-        imageFrameHtml(blobUrl, "square", "Obraz referencyjny", true, false) +
+        imageFrameHtml(blobUrl, "square", "Reference Image", true, false) +
         `<div class="result-actions" style="margin-top:10px;">
            <button class="primary" onclick='confirmGeneratedImageFor3D(this, ${JSON.stringify(chatId)}, ${escapeHtml(JSON.stringify(raw))})'>Use for 3D model</button>
            <button onclick='regenerateImageForModel3D(this, ${escapeHtml(JSON.stringify(raw))})'>Wygeneruj inny</button>
@@ -2608,7 +2608,7 @@ body{ top:0 !important; position:static !important; }
     model3DSettings = { ...MODEL3D_PRESETS.standard, preset: "standard" };
     pending3DInput = { kind: "image", text: raw, image: model3dGeneratedImageDataUrl };
     const bubbleEl = btnEl.closest(".msg-bot");
-    setBotBody(bubbleEl, renderInlineMarkdown("Skonfiguruj model 3D przed generowaniem:") + model3DSettingsPanelHtml());
+    setBotBody(bubbleEl, renderInlineMarkdown("Set up the 3D model before generating:") + model3DSettingsPanelHtml());
     pendingModel3DPanelEl = bubbleEl;
     flowState = "choose_method";
     applyFlowComposerState();
