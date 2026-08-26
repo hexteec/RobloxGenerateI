@@ -363,7 +363,62 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 .topbar-widgets-mobile::-webkit-scrollbar-thumb{ background:var(--soft-2); border-radius:999px; }
 
 /* ---------- feed ---------- */
-.feed{ flex:1; overflow-y:auto; padding: 28px 0 240px; background: var(--bg); }
+.feed {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.feed::before,
+.feed::after {
+  content: "";
+  position: absolute;
+  width: 500px;
+  height: 500px;
+  border-radius: 50%;
+  filter: blur(100px);
+  opacity: 0.12;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.feed::before {
+  background: var(--accent);
+  top: -180px;
+  left: -150px;
+  animation: glowMove1 14s ease-in-out infinite alternate;
+}
+
+.feed::after {
+  background: var(--accent);
+  right: -180px;
+  bottom: -150px;
+  animation: glowMove2 18s ease-in-out infinite alternate;
+}
+
+@keyframes glowMove1 {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(220px, 120px) scale(1.15);
+  }
+  100% {
+    transform: translate(100px, 300px) scale(0.9);
+  }
+}
+
+@keyframes glowMove2 {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(-180px, -100px) scale(1.2);
+  }
+  100% {
+    transform: translate(-300px, 80px) scale(0.95);
+  }
+}
 .feed::-webkit-scrollbar{ width:8px; }
 .feed::-webkit-scrollbar-thumb{ background: var(--soft-2); border-radius:4px; }
 .feed-inner{ max-width:860px; margin:0 auto; padding: 0 30px; display:flex; flex-direction:column; gap:20px; }
