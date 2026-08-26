@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="pl">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Warsztat — Icon Lab</title>
+<title>Workshop — Icon Lab</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -11,7 +11,7 @@
 
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
-<!-- <model-viewer> — do podglądu wygenerowanych modeli 3D (.glb) bezpośrednio w czacie -->
+<!-- <model-viewer> — for previewing generated 3D models (.glb) directly in chat -->
 <script type="module" src="https://unpkg.com/@google/model-viewer@3.5.0/dist/model-viewer.min.js"></script>
 
 <style>
@@ -54,8 +54,8 @@
 }
 
 /* ==================================================
-   MOTYWY — każdy nadpisuje tylko zmienne kolorów.
-   Layout, spacing, promienie i cienie zostają wspólne.
+   THEMES — each one only overrides color variables.
+   Layout, spacing, radii and shadows stay shared.
    ================================================== */
 
 /* ---- Dark ---- */
@@ -84,7 +84,7 @@
   --shadow-lg: 0 16px 40px rgba(0,0,0,0.45);
 }
 
-/* ---- Sea (chłodny, morski) ---- */
+/* ---- Sea (cool, ocean-like) ---- */
 [data-theme="sea"]{
   --bg: #F3F7F9;
   --card: #FFFFFF;
@@ -110,7 +110,7 @@
   --shadow-lg: 0 16px 40px rgba(20,50,60,0.12);
 }
 
-/* ---- Forest (zielony, naturalny) ---- */
+/* ---- Forest (green, natural) ---- */
 [data-theme="forest"]{
   --bg: #F5F7F2;
   --card: #FFFFFF;
@@ -136,7 +136,7 @@
   --shadow-lg: 0 16px 40px rgba(30,40,20,0.12);
 }
 
-/* ---- Sun (ciepły, słoneczny) ---- */
+/* ---- Sun (warm, sunny) ---- */
 [data-theme="sun"]{
   --bg: #FCF8F1;
   --card: #FFFFFF;
@@ -165,7 +165,7 @@
 body{ transition: background-color .2s ease, color .2s ease; }
 .sidebar, .card, .composer, .topbar, .modal-card{ transition: background-color .2s ease, border-color .2s ease; }
 
-/* ---- przełącznik motywu ---- */
+/* ---- theme switcher ---- */
 .theme-switch{ display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:12px; }
 .theme-dot{
   width:22px; height:22px; border-radius:50%; border:1.5px solid var(--border); cursor:pointer; padding:0;
@@ -374,7 +374,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 .analysis-box p{ margin: 0 0 6px; }
 .analysis-box p:last-child{ margin-bottom:0; }
 
-/* ---------- code blocks w wiadomościach bota (renderMarkdown) ---------- */
+/* ---------- code blocks in bot messages (renderMarkdown) ---------- */
 .code-block{ position:relative; margin-top:10px; }
 .code-block:first-child{ margin-top:0; }
 .code-block .cb-head{ display:flex; align-items:center; justify-content:space-between; background:#201F1C; border-radius:10px 10px 0 0; padding:8px 12px; }
@@ -411,7 +411,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 .chooser-templates .ct-opt{ display:flex; align-items:center; gap:7px; border:1px solid var(--border); background: var(--card); border-radius:999px; padding:7px 12px; font-size:12px; font-weight:600; color: var(--ink-muted); cursor:pointer; }
 .chooser-templates .ct-opt.active{ border-color: var(--accent); color: var(--accent-deep); background: var(--accent-wash); }
 
-/* ---------- panel ustawień modelu 3D ---------- */
+/* ---------- 3D model settings panel ---------- */
 .m3d-panel{ display:flex; flex-direction:column; gap:14px; margin-top:6px; max-width:420px; }
 .m3d-section{ display:flex; flex-direction:column; gap:7px; }
 .m3d-label{ font-size:11.5px; font-weight:700; color: var(--ink-muted); text-transform:uppercase; letter-spacing:.04em; display:flex; justify-content:space-between; }
@@ -480,7 +480,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 .gw-modal-input{ width:100%; border:1px solid var(--border); border-radius:10px; padding:11px 13px; font-size:13px; font-family:var(--font-body); background: var(--soft); color:var(--ink); }
 .gw-modal-input:focus{ outline:none; border-color: var(--accent); background:var(--card); }
 
-/* pasek trybów wymuszonych: Czat / Icon / Thumbnail / Model 3D / UI -> Lua */
+/* forced mode bar: Chat / Icon / Thumbnail / 3D Model / UI -> Lua */
 .force-mode-bar{ display:flex; gap:7px; margin-bottom:12px; flex-wrap:wrap; }
 .fm-pill{
   display:flex; align-items:center; gap:7px; padding:8px 14px; border-radius:999px; border:1px solid var(--border);
@@ -589,7 +589,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
   .thumb-up{ color: var(--mint); }
   .thumb-down{ color: var(--coral); }
 
-/* ========================= RESPONSYWNOŚĆ MOBILNA ========================= */
+/* ========================= MOBILE RESPONSIVENESS ========================= */
 @media (max-width: 900px){
   .feed-inner{ max-width: 100%; }
   .result-frame.latest{ width: min(320px, 70vw); height: min(320px, 70vw); }
@@ -641,11 +641,11 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
   <aside class="sidebar" id="sidebar">
     <div class="sb-top">
       <div class="sb-brand"><div class="mark" id="brandMark"></div>Icon Lab</div>
-      <button class="btn-newchat" onclick="startNewChat()"><span id="newChatIcon"></span> Nowy czat</button>
+      <button class="btn-newchat" onclick="startNewChat()"><span id="newChatIcon"></span> New chat</button>
     </div>
 
     <div class="sb-chats" id="chatList">
-      <div class="sb-empty" id="chatListEmpty">Zaloguj się, żeby zobaczyć swoje czaty.</div>
+      <div class="sb-empty" id="chatListEmpty">Sign in to see your chats.</div>
     </div>
 
     <div class="sb-bottom">
@@ -653,21 +653,21 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
         <div class="theme-switch-label">Motyw</div>
       </div>
 
-      <a class="sb-back" href="/">← Strona główna</a>
+      <a class="sb-back" href="/">← Home</a>
 
       <div class="auth-block">
         <button class="btn-google" id="signInBtn" onclick="signInWithGoogle()">
           <svg viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.9 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 8 3l5.7-5.7C34.6 6.1 29.6 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.7-.4-3.5z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.6 15.9 18.9 13 24 13c3.1 0 5.8 1.1 8 3l5.7-5.7C34.6 6.1 29.6 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.5 0 10.4-1.9 14.2-5.1l-6.6-5.4C29.6 35.4 26.9 36 24 36c-5.3 0-9.7-3.1-11.3-7.6l-6.6 5.1C9.6 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.3-4.2 5.6l6.6 5.4C41.5 36 44 30.5 44 24c0-1.3-.1-2.7-.4-3.5z"/></svg>
-          Zaloguj przez Google
+          Sign in with Google
         </button>
 
         <div class="user-row" id="userRow">
           <img class="u-avatar" id="userAvatar" alt="">
           <div class="u-meta">
             <div class="u-name" id="userName"></div>
-            <div class="u-tokens" id="tokenPill" onclick="openBuyModal()"><span id="tokenCount">–</span> tokenów · doładuj</div>
+            <div class="u-tokens" id="tokenPill" onclick="openBuyModal()"><span id="tokenCount">–</span> tokens · top up</div>
           </div>
-          <button class="u-signout" onclick="signOutUser()" title="Wyloguj"></button>
+          <button class="u-signout" onclick="signOutUser()" title="Sign out"></button>
         </div>
       </div>
     </div>
@@ -677,8 +677,8 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
   <main class="main">
     <div class="topbar">
       <div class="topbar-title">
-        <button class="sb-toggle" onclick="toggleSidebar(true)" aria-label="Otwórz menu czatów"></button>
-        <span class="tt-text" id="chatTitle">Nowy czat</span>
+        <button class="sb-toggle" onclick="toggleSidebar(true)" aria-label="Open chats menu"></button>
+        <span class="tt-text" id="chatTitle">New chat</span>
       </div>
       <span class="tt-badge" id="modeBadge"><span id="modeBadgeIcon"></span><span id="modeBadgeText">Czat</span></span>
     </div>
@@ -688,12 +688,12 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
         <div class="welcome" id="welcome">
           <div class="w-mark"></div>
           <h2>Nad czym pracujemy?</h2>
-          <p>Napisz, czego potrzebujesz — sam rozpoznam, o co prosisz. Możesz też wymusić konkretny tryb poniżej.</p>
+          <p>Tell me what you need — I'll figure out what you're asking for. You can also force a specific mode below.</p>
           <div class="w-hints">
-            <span class="w-hint">„zrób mi ikonę smoka”</span>
-            <span class="w-hint">„potrzebuję thumbnaila do gry o zombie”</span>
-            <span class="w-hint">„chcę model 3D miecza”</span>
-            <span class="w-hint">„zamień to UI na skrypt Lua”</span>
+            <span class="w-hint">"make me a dragon icon"</span>
+            <span class="w-hint">"I need a thumbnail for a zombie game"</span>
+            <span class="w-hint">"I want a 3D model of a sword"</span>
+            <span class="w-hint">"turn this UI into a Lua script"</span>
           </div>
         </div>
       </div>
@@ -707,9 +707,9 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 
       <div class="composer">
 
-        <!-- Pasek trybów wymuszonych -->
+        <!-- Forced mode bar -->
         <div class="force-mode-bar" id="forceModeBar">
-          <div class="fm-pill active" data-force="chat"><span class="fm-icon"></span>Czat</div>
+          <div class="fm-pill active" data-force="chat"><span class="fm-icon"></span>Chat</div>
           <div class="fm-pill" data-force="icon"><span class="fm-icon"></span>Icon</div>
           <div class="fm-pill" data-force="thumbnail"><span class="fm-icon"></span>Thumbnail</div>
           <div class="fm-pill" data-force="model3d"><span class="fm-icon"></span>Model 3D</div>
@@ -740,9 +740,9 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
         <div class="pending-attachments" id="pendingAttachments"></div>
 
         <div class="prompt-box" id="promptBox">
-          <button class="attach-btn" id="attachBtn" onclick="triggerAttachPicker()" title="Dodaj załącznik" type="button"></button>
+          <button class="attach-btn" id="attachBtn" onclick="triggerAttachPicker()" title="Add attachment" type="button"></button>
           <input type="file" id="chatAttachInput" multiple accept="image/*,.pdf,.txt,.doc,.docx,.zip" style="display:none;">
-          <textarea id="prompt" rows="1" placeholder="Napisz wiadomość…"></textarea>
+          <textarea id="prompt" rows="1" placeholder="Write a message…"></textarea>
           <div class="composer-btns">
             <button class="enhance-btn" id="enhanceBtn" onclick="enhancePrompt()" style="display:none;">
               <span id="enhanceIcon"></span><span id="enhanceLabel">Enhance</span>
@@ -754,10 +754,10 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
         </div>
 
         <div class="composer-footrow">
-          <span class="char-count" id="charCount">0 znaków</span>
+          <span class="char-count" id="charCount">0 characters</span>
         </div>
 
-        <div class="composer-hint" id="composerHint">Napisz, czego potrzebujesz — sam rozpoznam intencję.</div>
+        <div class="composer-hint" id="composerHint">Tell me what you need — I'll figure out the intent.</div>
       </div>
 
         <div class="widgets-row" id="widgetsRow"></div>
@@ -770,8 +770,8 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 <div class="modal-overlay" id="buyModal">
   <div class="modal-card">
     <button class="modal-close" onclick="closeBuyModal()"></button>
-    <p class="modal-title">Doładuj tokeny</p>
-    <p class="modal-sub">1 token = 1 grafika. Model 3D kosztuje kilka tokenów (etap kształtu + tekstury). UI → Lua kosztuje kilka tokenów za skrypt. Płatność przez Stripe.</p>
+    <p class="modal-title">Top up tokens</p>
+    <p class="modal-sub">1 token = 1 image. A 3D model costs several tokens (shape stage + textures). UI → Lua costs several tokens per script. Payment via Stripe.</p>
     <div class="package-grid" id="packageGrid"></div>
     <div class="modal-status" id="modalStatus"></div>
   </div>
@@ -781,7 +781,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
   <div class="modal-card">
     <button class="modal-close" onclick="closeGameWidgetModal()"></button>
     <p class="modal-title">Dodaj widget gry</p>
-    <p class="modal-sub">Wklej link do gry na Roblox (lub samo Place ID) — pokażę live staty: liczbę graczy, odwiedziny, oceny.</p>
+    <p class="modal-sub">Paste a link to a Roblox game (or just the Place ID) — I'll show live stats: player count, visits, ratings.</p>
     <input type="text" id="gwModalInput" placeholder="np. roblox.com/games/1234567/Nazwa lub 1234567" class="gw-modal-input">
     <button class="btn-newchat" style="margin-top:12px;" onclick="submitGameWidget()">Dodaj widget</button>
     <div class="modal-status" id="gwModalStatus"></div>
@@ -790,7 +790,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 
 <script>
   // ==================================================
-  // ZESTAW IKON (proste, liniowe SVG — zastępują emoji)
+  // ICON SET (simple, linear SVGs — replace emoji)
   // ==================================================
   const ICONS = {
     spark: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v6M12 16v6M4.9 4.9l4.2 4.2M14.9 14.9l4.2 4.2M2 12h6M16 12h6M4.9 19.1l4.2-4.2M14.9 9.1l4.2-4.2"/></svg>`,
@@ -837,29 +837,29 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
   };
 
   const PACKAGES = [
-    { id: "p10",  tokens: 10,  price: "9,99 zł",   tag: "na próbę" },
-    { id: "p50",  tokens: 50,  price: "39,99 zł",  tag: "najczęściej wybierany", best: true },
-    { id: "p200", tokens: 200, price: "129,99 zł", tag: "najlepsza cena / token" }
+    { id: "p10",  tokens: 10,  price: "9,99 zł",   tag: "trial" },
+    { id: "p50",  tokens: 50,  price: "39,99 zł",  tag: "most popular", best: true },
+    { id: "p200", tokens: 200, price: "129,99 zł", tag: "best price / token" }
   ];
 
-  // Cztery tryby WYMUSZONE + domyślny tryb "chat" (żaden nie wymuszony).
+  // Four FORCED modes + default "chat" mode (none forced).
   const FORCE_MODE_INFO = {
-    chat:      { label: "Czat",      icon: ICONS.chat,   hint: "Napisz, czego potrzebujesz — sam rozpoznam intencję i zaproponuję generowanie." },
-    icon:      { label: "Icon",      icon: ICONS.icon,   hint: "Wybierz metodę tworzenia w wiadomości poniżej." },
-    thumbnail: { label: "Thumbnail", icon: ICONS.thumb,  hint: "Wybierz metodę tworzenia w wiadomości poniżej." },
-    model3d:   { label: "Model 3D",  icon: ICONS.cube,   hint: "Wybierz, jak chcesz stworzyć model 3D." },
-    ui2lua:    { label: "UI → Lua",  icon: ICONS.layout, hint: "Wgraj zrzut ekranu UI z Robloxa — stworzę responsywny skrypt LUA, który go odtworzy." }
+    chat:      { label: "Chat",      icon: ICONS.chat,   hint: "Tell me what you need — I'll figure out the intent and suggest a generation." },
+    icon:      { label: "Icon",      icon: ICONS.icon,   hint: "Choose a creation method in the message below." },
+    thumbnail: { label: "Thumbnail", icon: ICONS.thumb,  hint: "Choose a creation method in the message below." },
+    model3d:   { label: "3D Model",  icon: ICONS.cube,   hint: "Choose how you want to create the 3D model." },
+    ui2lua:    { label: "UI → Lua",  icon: ICONS.layout, hint: "Upload a Roblox UI screenshot — I'll create a responsive LUA script that recreates it." }
   };
 
-  // Metody TWORZENIA obrazu — dotyczą tylko trybów icon/thumbnail.
+  // Image CREATION methods — apply only to icon/thumbnail modes.
   const METHOD_INFO = {
-    text:  { api: "text2img",     label: "Od zera",         icon: ICONS.wand,   sub: "Opisz pomysł — reszta dobierze się automatycznie.",              hint: "Opisz pomysł — reszta dobierze się automatycznie." },
-    image: { api: "image2img",    label: "Edytuj zdjęcie",  icon: ICONS.edit,   sub: "Wgraj zdjęcie i opisz, co zmienić.",                              hint: "Wgraj zdjęcie i opisz, co zmienić." },
-    style: { api: "reference2img",label: "Przenieś styl",   icon: ICONS.upload, sub: "Wgraj obraz do edycji i osobny wzorzec stylu.",                    hint: "Wgraj obraz do edycji oraz wzorzec stylu. Opis jest opcjonalny." }
+    text:  { api: "text2img",     label: "From scratch",    icon: ICONS.wand,   sub: "Describe the idea — the rest is chosen automatically.",          hint: "Describe the idea — the rest is chosen automatically." },
+    image: { api: "image2img",    label: "Edit photo",      icon: ICONS.edit,   sub: "Upload a photo and describe what to change.",                     hint: "Upload a photo and describe what to change." },
+    style: { api: "reference2img",label: "Transfer style",  icon: ICONS.upload, sub: "Upload an image to edit and a separate style reference.",         hint: "Upload an image to edit and a style reference. Description is optional." }
   };
 
 
-  // Ustawienia modelu 3D — koszt jest tylko podglądem; backend nalicza autorytatywnie.
+  // 3D model settings — the cost is just a preview; the backend calculates it authoritatively.
   const MODEL3D_PRESETS = {
     low:      { label:"Low Poly",     polygonCount:2000,  geometryQuality:"standard", lowPoly:true,  textures:false, pbr:false, textureQuality:"standard" },
     standard: { label:"Standard",     polygonCount:10000, geometryQuality:"standard", lowPoly:false, textures:true,  pbr:false, textureQuality:"standard" },
@@ -937,16 +937,16 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
   let activeForceMode = "chat";     // "chat" | "icon" | "thumbnail" | "model3d" | "ui2lua"
   let currentMethod = "text";       // tylko dla icon/thumbnail
   let currentTemplate = "square";   // tylko dla icon
-  let mainImage = null;             // base64 data URL — obraz "główny" (edit / model3d referencja / UI screenshot)
+  let mainImage = null;             // base64 data URL — "main" image (edit / model3d reference / UI screenshot)
   let refImage = null;              // base64 data URL — wzorzec stylu (tylko metoda "style")
 
-  // Ogólny stan przepływu WYBORU TRYBU w obrębie AKTUALNEJ tury komponowania.
-  // Wspólny dla icon / thumbnail / model3d:
-  // idle -> choose_method -> awaiting_input (opis / zdjęcie) -> busy
+  // General state of the MODE SELECTION flow within the CURRENT composing turn.
+  // Shared by icon / thumbnail / model3d:
+  // idle -> choose_method -> awaiting_input (description / image) -> busy
   let flowState = "idle";
-  let model3dGeneratedImageDataUrl = null; // obraz wygenerowany do potwierdzenia w ścieżce "najpierw wygeneruj obraz"
+  let model3dGeneratedImageDataUrl = null; // image generated for confirmation in the "generate image first" path
 
-  // Załączniki w GŁÓWNYM CZACIE (wiele obrazów / plików jednocześnie)
+  // Attachments in the MAIN CHAT (multiple images / files at once)
   let pendingAttachments = []; // { id, kind: 'image'|'file', dataUrl, name, mimeType }
   let attachmentSeq = 0;
 
@@ -962,9 +962,9 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
   let gameWidgetsPollTimer = null;
   const GAME_WIDGET_POLL_MS = 30000;
 
-  // Przechowuje surowy tekst każdego wyrenderowanego bloku kodu, żeby
-  // przycisk "Kopiuj" / "Pobierz .lua" mógł do niego sięgnąć bez
-  // ponownego parsowania HTML-a.
+  // Stores the raw text of each rendered code block so the
+  // "Copy" / "Download .lua" button can access it without
+  // re-parsing the HTML.
   let codeBlockSeq = 0;
   const codeBlockStore = {};
 
@@ -1003,7 +1003,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 
     const promptEl = document.getElementById("prompt");
     promptEl.addEventListener("input", () => {
-      document.getElementById("charCount").textContent = promptEl.value.length + " znaków";
+      document.getElementById("charCount").textContent = promptEl.value.length + " characters";
       promptEl.style.height = "auto";
       promptEl.style.height = Math.min(promptEl.scrollHeight, 160) + "px";
     });
@@ -1036,7 +1036,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
       signInBtn.style.display = "none";
       row.classList.add("show");
       document.getElementById("userAvatar").src = user.photoURL || "";
-      document.getElementById("userName").textContent = user.displayName || user.email || "Konto";
+      document.getElementById("userName").textContent = user.displayName || user.email || "Account";
       await refreshBalance();
       await loadChats();
       await loadGameWidgets();
@@ -1064,7 +1064,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
       const data = await res.json();
       gameWidgets = data.widgets || [];
       renderGameWidgets();
-    } catch (e) { console.error("Widgety gier:", e); }
+    } catch (e) { console.error("Game widgets:", e); }
   }
 
   function renderGameWidgets() {
@@ -1077,7 +1077,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
     if (w.error) {
       return `<div class="gw-card gw-error" data-id="${w.id}">
         <div class="gw-icon"></div>
-        <div class="gw-info"><div class="gw-title">Błąd danych</div><div class="gw-stats">${escapeHtml(w.error)}</div></div>
+        <div class="gw-info"><div class="gw-title">Data error</div><div class="gw-stats">${escapeHtml(w.error)}</div></div>
         <button class="gw-remove" onclick="removeGameWidget('${w.id}')">${ICONS.close}</button>
       </div>`;
     }
@@ -1127,12 +1127,12 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
     const statusEl = document.getElementById("gwModalStatus");
     if (!input) {
       statusEl.className = "modal-status error";
-      statusEl.textContent = "Wklej link lub ID gry.";
+      statusEl.textContent = "Paste a game link or ID.";
       return;
     }
 
     statusEl.className = "modal-status";
-    statusEl.textContent = "Sprawdzam grę…";
+    statusEl.textContent = "Checking game…";
 
     try {
       const res = await authedFetch("/game-widgets", {
@@ -1146,7 +1146,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
       closeGameWidgetModal();
     } catch (e) {
       statusEl.className = "modal-status error";
-      statusEl.textContent = "Błąd: " + e.message;
+      statusEl.textContent = "Error: " + e.message;
     }
   }
 
@@ -1162,7 +1162,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
       try {
         const res = await authedFetch("/game-widgets/stats?universeId=" + encodeURIComponent(w.universeId));
         if (res.ok) Object.assign(w, await res.json(), { error: null });
-      } catch (e) { /* ciche pominięcie */ }
+      } catch (e) { /* silent skip */ }
     }
     renderGameWidgets();
   }
@@ -1181,7 +1181,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 
   async function authedFetch(path, options = {}) {
     const idToken = await getIdToken();
-    if (!idToken) throw new Error("Musisz być zalogowany.");
+    if (!idToken) throw new Error("You must be signed in.");
     const headers = Object.assign({ "Authorization": "Bearer " + idToken }, options.headers || {});
     return fetch(WORKER_URL + path, Object.assign({}, options, { headers }));
   }
@@ -1193,7 +1193,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
       const data = await res.json();
       tokenBalance = data.tokens;
       updateTokenPill();
-    } catch (e) { console.error("Saldo:", e); }
+    } catch (e) { console.error("Balance:", e); }
   }
 
   function updateTokenPill() {
@@ -1217,7 +1217,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
       const data = await res.json();
       chatsCache = data.chats || [];
       renderChatList();
-    } catch (e) { console.error("Czaty:", e); }
+    } catch (e) { console.error("Chats:", e); }
   }
 
   function renderChatList() {
@@ -1226,14 +1226,14 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 
     if (!currentUser) {
       list.innerHTML = "";
-      empty.textContent = "Zaloguj się, żeby zobaczyć swoje czaty.";
+      empty.textContent = "Sign in to see your chats.";
       list.appendChild(empty);
       return;
     }
 
     if (chatsCache.length === 0) {
       list.innerHTML = "";
-      empty.textContent = "Brak czatów — kliknij „+ Nowy czat”, żeby zacząć.";
+      empty.textContent = "No chats yet — click \u201c+ New chat\u201d to start.";
       list.appendChild(empty);
       return;
     }
@@ -1247,7 +1247,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
           <div class="ci-title">${escapeHtml(chat.title || "Czat")}</div>
           <div class="ci-time"><span class="ci-badge">${forceModeLabel(chat.mode)}</span>${relativeTime(chat.updatedAt)}</div>
         </div>
-        <button class="ci-del" title="Usuń czat">${ICONS.trash}</button>
+        <button class="ci-del" title="Delete chat">${ICONS.trash}</button>
       `;
       el.addEventListener("click", (e) => {
         if (e.target.closest(".ci-del")) return;
@@ -1269,7 +1269,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
     if (!currentUser) { document.getElementById("signInBtn").click(); return; }
     activeChatId = null;
     lastLargeFrame = null;
-    document.getElementById("chatTitle").textContent = "Nowy czat";
+    document.getElementById("chatTitle").textContent = "New chat";
     setForceMode("chat");
     resetComposer();
     renderFeed([]);
@@ -1290,7 +1290,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
       const data = await res.json();
       renderFeed(data.messages || []);
     } catch (e) {
-      console.error("Wiadomości czatu:", e);
+      console.error("Chat messages:", e);
       renderFeed([]);
     }
     toggleSidebar(false);
@@ -1302,7 +1302,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
       chatsCache = chatsCache.filter(c => c.id !== chatId);
       if (activeChatId === chatId) startNewChat();
       renderChatList();
-    } catch (e) { console.error("Usuwanie czatu:", e); }
+    } catch (e) { console.error("Deleting chat:", e); }
   }
 
   async function ensureActiveChat(seedTitle) {
@@ -1310,9 +1310,9 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
     const res = await authedFetch("/chats", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title: seedTitle || "Nowy czat", mode: activeForceMode })
+      body: JSON.stringify({ title: seedTitle || "New chat", mode: activeForceMode })
     });
-    if (!res.ok) throw new Error("Nie udało się utworzyć czatu.");
+    if (!res.ok) throw new Error("Failed to create chat.");
     const data = await res.json();
     activeChatId = data.id;
     chatsCache.unshift({ id: data.id, title: data.title, mode: activeForceMode, updatedAt: data.updatedAt, createdAt: data.createdAt });
@@ -1340,7 +1340,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
         body: JSON.stringify(payload)
       });
       bumpChatToTop(chatId, chatsCache.find(c => c.id === chatId)?.title);
-    } catch (e) { console.error("Zapis wiadomości:", e); }
+    } catch (e) { console.error("Saving message:", e); }
   }
 
   // ==================================================
@@ -1388,14 +1388,14 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
   const body = document.createElement("div");
   body.className = "bot-body";
 
-  // Rozpoznajemy typ nie tylko po `m.type`, ale też po obecności danych —
-  // starsze rekordy mogły nie mieć poprawnie ustawionego pola `type`.
+  // We detect the type not only by `m.type`, but also by data presence —
+  // older records might not have the `type` field set correctly.
   const isModel3d = m.type === "model3d" || !!m.modelUrl;
   const isImageGen = !isModel3d && (m.type === "generation" || !!m.thumbnail);
   const isTextReply = !isModel3d && !isImageGen;
 
   if (isTextReply) {
-    // m.reply może w starych rekordach nazywać się inaczej — sprawdzamy fallbacki.
+    // m.reply might be named differently in old records — we check fallbacks.
     const replyText = m.reply ?? m.content ?? m.text ?? "";
     body.innerHTML = renderMarkdown(replyText);
   } else if (isModel3d) {
@@ -1422,7 +1422,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 
   function categoryLabel(cat) { return cat === "thumbnail" ? "Thumbnail" : "Icon"; }
   function methodShortLabel(m) {
-    return { text2img: "Od zera", image2img: "Edytuj zdjęcie", reference2img: "Przenieś styl" }[m] || m;
+    return { text2img: "From scratch", image2img: "Edit photo", reference2img: "Transfer style" }[m] || m;
   }
   function templateLabel(t) {
     return { square: "Game icon", pass: "Gamepass", hex: "Badge", circle: "Group icon", wide: "Thumbnail" }[t] || "Game icon";
@@ -1434,7 +1434,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
   }
 
   // ==================================================
-  // FEED — wiadomości "na żywo" (bieżąca tura)
+  // FEED — "live" messages (current turn)
   // ==================================================
 
   function appendUserBubble(text, attachments) {
@@ -1469,7 +1469,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
   }
 
   function loaderHtml(text) {
-    return `<div class="bot-status"><span class="mini-loader"><span></span><span></span><span></span></span><span>${escapeHtml(text || "Myślę…")}</span></div>`;
+    return `<div class="bot-status"><span class="mini-loader"><span></span><span></span><span></span></span><span>${escapeHtml(text || "Thinking…")}</span></div>`;
   }
   function errorHtml(text) {
     return `<div class="bot-status error"><span>${escapeHtml(text)}</span></div>`;
@@ -1482,10 +1482,10 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
   // ==================================================
   // FORMATOWANIE ODPOWIEDZI GEMINI (markdown -> HTML)
   //
-  // Gemini w polu "reply" zwraca zwykły tekst, w którym kod jest owinięty
+  // Gemini returns plain text in the "reply" field, where code is wrapped
   // w ```lang ... ```. Ta funkcja zamienia to na czytelne bloki kodu z
-  // przyciskami "Kopiuj"/"Pobierz", a resztę tekstu na akapity z obsługą
-  // **pogrubienia** i `inline code`, zamiast wyświetlać surowe ``` w treści.
+  // with "Copy"/"Download" buttons, and the rest of the text into paragraphs with
+  // **bold** and `inline code` support, instead of showing raw ``` in the content.
   // ==================================================
 
   function renderMarkdown(raw) {
@@ -1509,7 +1509,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
               <span class="cb-lang">${escapeHtml(langLabel)}</span>
               <div class="cb-btns">
                 ${isLua ? `<button class="cb-btn" onclick="downloadCodeBlock('${id}')">${ICONS.download} .lua</button>` : ""}
-                <button class="cb-btn" onclick="copyCodeBlock('${id}', this)">${ICONS.copy} Kopiuj</button>
+                <button class="cb-btn" onclick="copyCodeBlock('${id}', this)">${ICONS.copy} Copy</button>
               </div>
             </div>
             <pre><code>${escapeHtml(code.trim())}</code></pre>
@@ -1535,9 +1535,9 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
     const code = codeBlockStore[id] || "";
     navigator.clipboard.writeText(code).then(() => {
       const original = btnEl.innerHTML;
-      btnEl.textContent = "Skopiowano";
+      btnEl.textContent = "Copied";
       setTimeout(() => { btnEl.innerHTML = original; }, 1500);
-    }).catch(() => alert("Nie udało się skopiować kodu."));
+    }).catch(() => alert("Failed to copy the code."));
   }
 
   function downloadCodeBlock(id) {
@@ -1580,7 +1580,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
         <div class="${frameClass}"><img src="${src}" alt=""></div>
         <div class="result-meta">
           <span class="r-tag">${escapeHtml(tagText)}</span>
-          ${isLatest ? `<div class="result-actions"><a href="${src}" download="icon-lab.png">${ICONS.download} Pobierz PNG</a></div>` : ""}
+          ${isLatest ? `<div class="result-actions"><a href="${src}" download="icon-lab.png">${ICONS.download} Download PNG</a></div>` : ""}
         </div>
       </div>`;
   }
@@ -1595,7 +1595,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
         <div class="result-meta">
           <span class="r-tag">Model 3D (.glb)</span>
           <div class="result-actions">
-            <button class="dl-glb-btn" data-model-url="${escapeHtml(modelUrl)}" onclick="downloadModelGlb(this)">${ICONS.download} Pobierz GLB</button>
+            <button class="dl-glb-btn" data-model-url="${escapeHtml(modelUrl)}" onclick="downloadModelGlb(this)">${ICONS.download} Download GLB</button>
           </div>
         </div>
       </div>`;
@@ -1604,12 +1604,12 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
  async function downloadModelGlb(btnEl) {
     const modelUrl = btnEl.dataset.modelUrl;
     if (!modelUrl || modelUrl === "null" || modelUrl === "undefined") {
-        alert("Link do pliku modelu jest niedostępny dla tego wygenerowanego modelu (backend nie zwrócił URL-a).");
+        alert("The model file link is unavailable for this generated model (backend did not return a URL).");
         return;
     }
     const original = btnEl.innerHTML;
     btnEl.disabled = true;
-    btnEl.textContent = "Pobieram…";
+    btnEl.textContent = "Downloading…";
     try {
         const res = await authedFetch("/proxy-download?url=" + encodeURIComponent(modelUrl) + "&filename=" + encodeURIComponent("icon-lab-model.glb"));
         if (!res.ok) throw new Error(await extractError(res));
@@ -1623,7 +1623,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
         a.remove();
         setTimeout(() => URL.revokeObjectURL(blobUrl), 4000);
     } catch (e) {
-        alert("Nie udało się pobrać modelu: " + e.message);
+        alert("Failed to download the model: " + e.message);
     } finally {
         btnEl.disabled = false;
         btnEl.innerHTML = original;
@@ -1640,7 +1640,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
   }
 
   // ==================================================
-  // PASEK TRYBÓW WYMUSZONYCH
+  // FORCED MODE BAR
   // ==================================================
 
   function bindForceModeBar() {
@@ -1650,7 +1650,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
   }
 
   // Ustawia aktywny tryb. `opts.skipAutoChooser` = true gdy chooser zostanie
-  // dołożony ręcznie w innym miejscu (np. bezpośrednio w wątku czatu po
+  // added manually elsewhere (e.g. directly in the chat thread after
   // wykryciu intencji).
   function setForceMode(mode, opts) {
     opts = opts || {};
@@ -1667,7 +1667,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 
     if (mode === "chat") {
       document.getElementById("composerHint").textContent = info.hint;
-      document.getElementById("prompt").placeholder = "Napisz wiadomość…";
+      document.getElementById("prompt").placeholder = "Write a message…";
       document.getElementById("enhanceBtn").style.display = "none";
       dropzoneRow.style.display = "none";
       dzRef.style.display = "none";
@@ -1680,7 +1680,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 
     if (mode === "ui2lua") {
       document.getElementById("composerHint").textContent = info.hint;
-      document.getElementById("prompt").placeholder = "Opcjonalne dodatkowe wskazówki (np. „dodaj zakładki”, „to ma być responsywne na telefonie”)…";
+      document.getElementById("prompt").placeholder = "Optional extra hints (e.g. \u201cadd tabs\u201d, \u201cthis should be responsive on mobile\u201d)…";
       document.getElementById("enhanceBtn").style.display = "none";
       dropzoneRow.style.display = "flex";
       dzRef.style.display = "none";
@@ -1691,8 +1691,8 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
       return;
     }
 
-    // Icon / Thumbnail / Model3D — wszystkie trzy używają TEGO SAMEGO
-    // mechanizmu: wiadomość z wyborem trybu w wątku czatu.
+    // Icon / Thumbnail / Model3D — all three use the SAME
+    // mechanism: a mode-selection message in the chat thread.
     dropzoneRow.style.display = "none";
     dzRef.style.display = "none";
     document.getElementById("enhanceBtn").style.display = (mode === "icon" || mode === "thumbnail") ? "flex" : "none";
@@ -1708,14 +1708,14 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 
   function updateDropzoneLabels() {
     const label = document.getElementById("dzMainLabel");
-    if (activeForceMode === "model3d") label.textContent = "Zdjęcie referencyjne";
+    if (activeForceMode === "model3d") label.textContent = "Reference image";
     else if (activeForceMode === "ui2lua") label.textContent = "Zrzut ekranu UI";
     else label.textContent = "Obraz do edycji";
   }
 
   // ==================================================
-  // WSPÓLNY MECHANIZM WYBORU TRYBU (chooser message)
-  // Używany identycznie dla: Icon, Thumbnail, Model 3D.
+  // SHARED MODE SELECTION MECHANISM (chooser message)
+  // Used identically for: Icon, Thumbnail, 3D Model.
   // ==================================================
 
   function appendModeChooser(mode, existingEl) {
@@ -1723,9 +1723,9 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
     if (mode === "model3d") {
       html = `
         <div class="chooser-3d">
-          <button onclick="chooseModel3DMethod('describe', this)"><span class="c3-icon">${ICONS.edit}</span><span>Opiszę tekstem<span class="c3-sub">Krótki opis obiektu → model 3D</span></span></button>
-          <button onclick="chooseModel3DMethod('image', this)"><span class="c3-icon">${ICONS.upload}</span><span>Wgram zdjęcie referencyjne<span class="c3-sub">Zdjęcie obiektu → model 3D</span></span></button>
-          <button onclick="chooseModel3DMethod('generate', this)"><span class="c3-icon">${ICONS.wand}</span><span>Najpierw wygeneruj obraz<span class="c3-sub">Opiszę, AI wygeneruje obraz, potem model 3D</span></span></button>
+          <button onclick="chooseModel3DMethod('describe', this)"><span class="c3-icon">${ICONS.edit}</span><span>Describe in text<span class="c3-sub">Short object description → 3D model</span></span></button>
+          <button onclick="chooseModel3DMethod('image', this)"><span class="c3-icon">${ICONS.upload}</span><span>Upload a reference image<span class="c3-sub">Object photo → 3D model</span></span></button>
+          <button onclick="chooseModel3DMethod('generate', this)"><span class="c3-icon">${ICONS.wand}</span><span>Generate an image first<span class="c3-sub">Describe it, AI generates an image, then the 3D model</span></span></button>
         </div>`;
     } else {
       html = `
@@ -1736,7 +1736,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
         </div>`;
     }
 
-    const introText = mode === "model3d" ? "Jak chcesz stworzyć model 3D?" : (mode === "thumbnail" ? "Jak chcesz stworzyć thumbnail?" : "Jak chcesz stworzyć ikonę?");
+    const introText = mode === "model3d" ? "How do you want to create the 3D model?" : (mode === "thumbnail" ? "How do you want to create the thumbnail?" : "How do you want to create the icon?");
 
     if (existingEl) {
       appendBotBody(existingEl, html);
@@ -1755,7 +1755,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
       dropzoneRow.style.display = "none";
       dzRef.style.display = "none";
       document.getElementById("composerHint").textContent =
-        flowState === "busy" ? "Trwa generowanie — poczekaj na wynik poniżej." : "Wybierz jedną z opcji powyżej w czacie.";
+        flowState === "busy" ? "Generation in progress — wait for the result below." : "Choose one of the options above in the chat.";
       return;
     }
 
@@ -1766,7 +1766,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
         dropzoneRow.style.display = "flex";
         dzRef.style.display = "none";
         updateDropzoneLabels();
-        document.getElementById("composerHint").textContent = "Wgraj zdjęcie referencyjne, opis jest opcjonalny.";
+        document.getElementById("composerHint").textContent = "Upload a reference image, description is optional.";
       } else {
         dropzoneRow.style.display = "none";
         document.getElementById("composerHint").textContent = FORCE_MODE_INFO.model3d.hint;
@@ -1774,7 +1774,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
       return;
     }
 
-    // Icon / Thumbnail — w zależności od wybranej metody tworzenia
+    // Icon / Thumbnail — depending on the chosen creation method
     if (currentMethod === "text") {
       dropzoneRow.style.display = "none";
       dzRef.style.display = "none";
@@ -1790,7 +1790,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
     document.getElementById("composerHint").textContent = METHOD_INFO[currentMethod].hint;
   }
 
-  // Wybór metody tworzenia dla Icon / Thumbnail (z wiadomości chooser)
+  // Creation method selection for Icon / Thumbnail (from the chooser message)
   function chooseImageMethod(mode, method, btnEl) {
     const group = btnEl.closest(".chooser-3d");
     group.querySelectorAll("button").forEach(b => { b.disabled = true; b.classList.remove("chosen"); });
@@ -1800,11 +1800,11 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
     flowState = "awaiting_input";
 
     const promptEl = document.getElementById("prompt");
-    const catLabel = mode === "thumbnail" ? "thumbnail" : "ikonę";
+    const catLabel = mode === "thumbnail" ? "thumbnail" : "icon";
     promptEl.placeholder =
-      method === "text" ? "Opisz " + catLabel + "…" :
-      method === "image" ? "Co zmienić na tym obrazie?" :
-      "Opcjonalnie: dodatkowe wskazówki dla stylu…";
+      method === "text" ? "Describe the " + catLabel + "…" :
+      method === "image" ? "What to change in this image?" :
+      "Optional: extra hints for the style…";
 
     updateEnhanceButtonLabel();
     applyFlowComposerState();
@@ -1862,7 +1862,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = () => resolve(reader.result);
-      reader.onerror = () => reject(new Error("Nie udało się wczytać obrazu."));
+      reader.onerror = () => reject(new Error("Failed to load the image."));
       reader.readAsDataURL(file);
     });
   }
@@ -1875,7 +1875,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
   }
 
   // ==================================================
-  // ZAŁĄCZNIKI W GŁÓWNYM CZACIE (przycisk "+", wiele plików)
+  // ATTACHMENTS IN THE MAIN CHAT ("+" button, multiple files)
   // ==================================================
 
   function bindAttachInput() {
@@ -1970,7 +1970,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
       }
     } catch (e) {
       console.error(e);
-      alert("Błąd enhance: " + e.message);
+      alert("Enhance error: " + e.message);
     } finally {
       btn.disabled = false;
       icon.innerHTML = ICONS.wand;
@@ -1983,7 +1983,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
   }
 
   // ==================================================
-  // TRANSLATION (fallback dla surowego promptu przed generacją)
+  // TRANSLATION (fallback for the raw prompt before generation)
   // ==================================================
 
   async function translateToEnglish(text) {
@@ -2001,7 +2001,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
   }
 
   // ==================================================
-  // GŁÓWNY PRZYCISK WYSYŁKI — routing wg aktywnego trybu / stanu
+  // MAIN SEND BUTTON — routing by active mode / state
   // ==================================================
 
   function onSendClick() {
@@ -2017,11 +2017,11 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 
   // ==================================================
   // GENEROWANIE OBRAZU — TRYB WYMUSZONY (Icon / Thumbnail),
-  // po wyborze metody z wiadomości chooser.
+  // after choosing a method from the chooser message.
   // ==================================================
 
   function handleImageFlowSend() {
-    if (flowState === "choose_method" || flowState === "busy") return; // zablokowane, czekamy na wybór w czacie
+    if (flowState === "choose_method" || flowState === "busy") return; // blocked, waiting for a choice in the chat
     generateImage();
   }
 
@@ -2034,11 +2034,11 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 
     if (currentMethod === "text" && !raw) return;
     if (currentMethod === "image" && (!mainImage || !raw)) {
-      alert("Metoda „Edytuj zdjęcie” wymaga wgranego obrazu i opisu zmian.");
+      alert("The \u201cEdit photo\u201d method requires an uploaded image and a description of the changes.");
       return;
     }
     if (currentMethod === "style" && (!mainImage || !refImage)) {
-      alert("Metoda „Przenieś styl” wymaga obrazu do edycji ORAZ obrazu-wzorca stylu.");
+      alert("The \u201cTransfer style\u201d method requires an image to edit AND a style reference image.");
       return;
     }
     if ((tokenBalance ?? 0) < 1) { openBuyModal(); return; }
@@ -2055,7 +2055,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
     if (mainImage) attachPreview.push({ kind: "image", dataUrl: mainImage });
     if (refImage) attachPreview.push({ kind: "image", dataUrl: refImage });
     appendUserBubble(raw, attachPreview);
-    const pendingEl = appendBotPlaceholder(activeForceMode === "icon" ? "Generuję ikonę…" : "Generuję thumbnail…");
+    const pendingEl = appendBotPlaceholder(activeForceMode === "icon" ? "Generating icon…" : "Generating thumbnail…");
 
     try {
       const chatId = await ensureActiveChat(raw || (currentMethod === "style" ? "Reference style edit" : (category === "icon" ? "Icon" : "Thumbnail")));
@@ -2116,7 +2116,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 
     } catch (e) {
       console.error(e);
-      setBotBody(pendingEl, errorHtml("Błąd: " + e.message));
+      setBotBody(pendingEl, errorHtml("Error: " + e.message));
       flowState = "awaiting_input";
       applyFlowComposerState();
     } finally {
@@ -2132,7 +2132,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 
   async function sendUiToLua() {
     if (!currentUser) { document.getElementById("signInBtn").click(); return; }
-    if (!mainImage) { alert("Wgraj najpierw zrzut ekranu UI, które chcesz odtworzyć jako skrypt."); return; }
+    if (!mainImage) { alert("First upload a UI screenshot you want to recreate as a script."); return; }
     if ((tokenBalance ?? 0) < 1) { openBuyModal(); return; }
 
     const promptEl = document.getElementById("prompt");
@@ -2145,7 +2145,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
     sendIcon.querySelector("svg").classList.add("spin");
 
     appendUserBubble(raw || "(zrzut ekranu UI)", [{ kind: "image", dataUrl: mainImage }]);
-    const pendingEl = appendBotPlaceholder("Analizuję UI i piszę responsywny skrypt LUA…");
+    const pendingEl = appendBotPlaceholder("Analyzing the UI and writing a responsive LUA script…");
 
     try {
       const chatId = await ensureActiveChat(raw || "UI → Lua");
@@ -2169,7 +2169,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 
     } catch (e) {
       console.error(e);
-      setBotBody(pendingEl, errorHtml("Błąd: " + e.message));
+      setBotBody(pendingEl, errorHtml("Error: " + e.message));
     } finally {
       sendBtn.disabled = false;
       sendIcon.innerHTML = ICONS.send;
@@ -2177,7 +2177,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
   }
 
   // ==================================================
-  // CZAT SWOBODNY (tryb domyślny) — Gemini sam wykrywa intencję
+  // FREE CHAT (default mode) — Gemini detects intent automatically
   // ==================================================
 
   async function sendChatMessage() {
@@ -2195,7 +2195,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
     sendIcon.querySelector("svg").classList.add("spin");
 
     appendUserBubble(raw, attachments);
-    const pendingEl = appendBotPlaceholder("Myślę…");
+    const pendingEl = appendBotPlaceholder("Thinking…");
 
     try {
       const chatId = await ensureActiveChat(raw || "Czat");
@@ -2204,7 +2204,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
       const fileAttachments = attachments.filter(a => a.kind === "file");
       let messageForModel = raw;
       if (fileAttachments.length > 0) {
-        messageForModel += (messageForModel ? "\n" : "") + "[Załączone pliki: " + fileAttachments.map(f => f.name).join(", ") + "]";
+        messageForModel += (messageForModel ? "\n" : "") + "[Attached files: " + fileAttachments.map(f => f.name).join(", ") + "]";
       }
 
       const res = await authedFetch("/chat", {
@@ -2214,7 +2214,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
           chatId,
           message: messageForModel,
           image: imageAttachments[0] || null,   // wstecznie kompatybilne pole
-          images: imageAttachments               // wszystkie załączone obrazy
+          images: imageAttachments               // all attached images
         })
       });
 
@@ -2246,7 +2246,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
         });
 
       } else if (action.type === "need_image_method") {
-        // Wykryto intencję Icon/Thumbnail w czacie -> pokaż DOKŁADNIE ten sam
+        // Icon/Thumbnail intent detected in chat -> show EXACTLY the same
         // chooser co przy wymuszonym trybie / modelu 3D.
         await persistMessage(chatId, { type: "text", prompt: raw, reply: data.reply || "" });
         setForceMode(action.category, { skipAutoChooser: true });
@@ -2282,7 +2282,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 
     } catch (e) {
       console.error(e);
-      setBotBody(pendingEl, errorHtml("Błąd: " + e.message));
+      setBotBody(pendingEl, errorHtml("Error: " + e.message));
     } finally {
       sendBtn.disabled = false;
       sendIcon.innerHTML = ICONS.send;
@@ -2290,7 +2290,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
   }
 
   // ==================================================
-  // MODEL 3D — chooser + panel ustawień + polling Tripo
+  // 3D MODEL — chooser + settings panel + Tripo polling
   // ==================================================
 
   function model3DSettingsPanelHtml() {
@@ -2331,8 +2331,8 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
         <div class="m3d-label">Texture Quality</div>
         <div class="m3d-row">${toggleBtn('textureQuality','standard','Standard +0')}${toggleBtn('textureQuality','detailed','Detailed +10')}${toggleBtn('textureQuality','extreme','Extreme +20')}</div>
       </div>
-      <div class="m3d-cost">Koszt: <b>${cost} tokenów</b></div>
-      <button class="btn-newchat" style="margin-top:2px;" onclick="confirmModel3DGeneration()">Generuj model 3D (${cost} tokenów)</button>
+      <div class="m3d-cost">Cost: <b>${cost} tokens</b></div>
+      <button class="btn-newchat" style="margin-top:2px;" onclick="confirmModel3DGeneration()">Generate 3D model (${cost} tokens)</button>
     </div>`;
   }
 
@@ -2378,7 +2378,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
     if ((tokenBalance ?? 0) < 1) { openBuyModal(); return; }
 
     const panelEl = pendingModel3DPanelEl;
-    setBotBody(panelEl, loaderHtml("Startuję generowanie modelu 3D…"));
+    setBotBody(panelEl, loaderHtml("Starting 3D model generation…"));
     flowState = "busy";
     applyFlowComposerState();
 
@@ -2415,7 +2415,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 
     } catch (e) {
       console.error(e);
-      setBotBody(panelEl, errorHtml("Błąd: " + e.message));
+      setBotBody(panelEl, errorHtml("Error: " + e.message));
       flowState = "choose_method";
       appendModeChooser("model3d", panelEl);
       applyFlowComposerState();
@@ -2432,7 +2432,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
         const data = await res.json();
 
         if (data.status === "FAILED" || data.status === "CANCELED") {
-          setBotBody(el, errorHtml("Generowanie modelu 3D nie powiodło się" + (data.errorMessage ? (": " + data.errorMessage) : ".")));
+          setBotBody(el, errorHtml("3D model generation failed" + (data.errorMessage ? (": " + data.errorMessage) : ".")));
           flowState = "choose_method";
           appendModeChooser("model3d", el);
           applyFlowComposerState();
@@ -2440,7 +2440,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
         }
 
         if (data.status !== "SUCCEEDED") {
-          setBotBody(el, progressHtml(`Generuję… ${data.progress || 0}%`, data.progress || 0));
+          setBotBody(el, progressHtml(`Generating… ${data.progress || 0}%`, data.progress || 0));
           setTimeout(tick, attempts < 5 ? 2500 : 4500);
           return;
         }
@@ -2461,7 +2461,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 
       } catch (e) {
         console.error(e);
-        setBotBody(el, errorHtml("Błąd sprawdzania statusu: " + e.message));
+        setBotBody(el, errorHtml("Error checking status: " + e.message));
         flowState = "choose_method";
         applyFlowComposerState();
       }
@@ -2478,13 +2478,13 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 
     if (choice === "describe") {
       flowState = "awaiting_description";
-      promptEl.placeholder = "Opisz obiekt, który ma powstać jako model 3D…";
+      promptEl.placeholder = "Describe the object to turn into a 3D model…";
     } else if (choice === "image") {
       flowState = "awaiting_reference_image";
-      promptEl.placeholder = "Opcjonalnie: wskazówki co do tekstury/stylu…";
+      promptEl.placeholder = "Optional: hints about texture/style…";
     } else if (choice === "generate") {
       flowState = "awaiting_generated_image";
-      promptEl.placeholder = "Opisz obiekt, który mam najpierw wygenerować jako obraz…";
+      promptEl.placeholder = "Describe the object I should generate as an image first…";
     }
 
     applyFlowComposerState();
@@ -2499,10 +2499,10 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
       if (!raw) return;
       presentModel3DSettingsStep(raw);
     } else if (flowState === "awaiting_reference_image") {
-      if (!mainImage) { alert("Najpierw wgraj zdjęcie referencyjne."); return; }
+      if (!mainImage) { alert("First upload a reference image."); return; }
       const img = mainImage;
       clearMainImage();
-      presentModel3DSettingsStep(raw || "(zdjęcie referencyjne)", [{ kind:"image", dataUrl: img }], img);
+      presentModel3DSettingsStep(raw || "(reference image)", [{ kind:"image", dataUrl: img }], img);
     } else if (flowState === "awaiting_generated_image") {
       if (!raw) return;
       generateImageForModel3D(raw);
@@ -2517,7 +2517,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
     applyFlowComposerState();
 
     appendUserBubble(raw);
-    const pendingEl = appendBotPlaceholder("Generuję obraz referencyjny…");
+    const pendingEl = appendBotPlaceholder("Generating reference image…");
 
     try {
       const chatId = await ensureActiveChat(raw);
@@ -2547,7 +2547,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
       setBotBody(pendingEl,
         imageFrameHtml(blobUrl, "square", "Obraz referencyjny", true, false) +
         `<div class="result-actions" style="margin-top:10px;">
-           <button class="primary" onclick='confirmGeneratedImageFor3D(this, ${JSON.stringify(chatId)}, ${escapeHtml(JSON.stringify(raw))})'>Użyj do modelu 3D</button>
+           <button class="primary" onclick='confirmGeneratedImageFor3D(this, ${JSON.stringify(chatId)}, ${escapeHtml(JSON.stringify(raw))})'>Use for 3D model</button>
            <button onclick='regenerateImageForModel3D(this, ${escapeHtml(JSON.stringify(raw))})'>Wygeneruj inny</button>
          </div>`
       );
@@ -2557,7 +2557,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 
     } catch (e) {
       console.error(e);
-      setBotBody(pendingEl, errorHtml("Błąd: " + e.message));
+      setBotBody(pendingEl, errorHtml("Error: " + e.message));
       flowState = "awaiting_generated_image";
       applyFlowComposerState();
     }
@@ -2565,7 +2565,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 
   function regenerateImageForModel3D(btnEl, raw) {
     const bubbleEl = btnEl.closest(".msg-bot");
-    setBotBody(bubbleEl, loaderHtml("Generuję nowy obraz referencyjny…"));
+    setBotBody(bubbleEl, loaderHtml("Generating a new reference image…"));
     generateImageForModel3D(raw).then(() => {});
   }
 
@@ -2586,7 +2586,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = () => resolve(reader.result);
-      reader.onerror = () => reject(new Error("Nie udało się przetworzyć obrazu."));
+      reader.onerror = () => reject(new Error("Failed to process the image."));
       reader.readAsDataURL(blob);
     });
   }
@@ -2611,7 +2611,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
           resolve(canvas.toDataURL("image/jpeg", 0.86));
         } catch (e) { reject(e); }
       };
-      img.onerror = () => reject(new Error("Nie udało się zrobić miniatury."));
+      img.onerror = () => reject(new Error("Failed to create the thumbnail."));
       img.src = sourceUrl;
     });
   }
@@ -2627,7 +2627,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
       const el = document.createElement("div");
       el.className = "package-opt" + (pkg.best ? " best" : "");
       el.innerHTML = `
-        <div><div class="p-tokens">${pkg.tokens} tokenów</div><div class="p-tag">${pkg.tag}</div></div>
+        <div><div class="p-tokens">${pkg.tokens} tokens</div><div class="p-tag">${pkg.tag}</div></div>
         <div class="p-price">${pkg.price}</div>
       `;
       el.onclick = () => buyPackage(pkg.id);
@@ -2643,10 +2643,10 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 
   async function buyPackage(packageId) {
     const modalStatus = document.getElementById("modalStatus");
-    if (!currentUser) { modalStatus.className = "modal-status error"; modalStatus.textContent = "Zaloguj się najpierw."; return; }
+    if (!currentUser) { modalStatus.className = "modal-status error"; modalStatus.textContent = "Sign in first."; return; }
 
     modalStatus.className = "modal-status";
-    modalStatus.textContent = "Przekierowuję do płatności…";
+    modalStatus.textContent = "Redirecting to payment…";
 
     try {
       const res = await authedFetch("/create-checkout-session", {
@@ -2655,11 +2655,11 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
         body: JSON.stringify({ package: packageId })
       });
       const data = await res.json();
-      if (!res.ok || !data.url) throw new Error(data.error || "Nie udało się utworzyć płatności.");
+      if (!res.ok || !data.url) throw new Error(data.error || "Failed to create the payment.");
       window.location.href = data.url;
     } catch (e) {
       modalStatus.className = "modal-status error";
-      modalStatus.textContent = "Błąd: " + e.message;
+      modalStatus.textContent = "Error: " + e.message;
     }
   }
 
@@ -2682,7 +2682,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
   function resetComposerAfterSend() {
     document.getElementById("prompt").value = "";
     document.getElementById("prompt").style.height = "auto";
-    document.getElementById("charCount").textContent = "0 znaków";
+    document.getElementById("charCount").textContent = "0 characters";
   }
 
   function resetComposer() {
