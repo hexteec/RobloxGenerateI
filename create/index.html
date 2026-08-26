@@ -364,8 +364,12 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 
 /* ---------- feed ---------- */
 .feed {
+  flex: 1;
+  overflow-y: auto;
+  padding: 28px 0 240px;
+  background: var(--bg);
+
   position: relative;
-  overflow: hidden;
   isolation: isolate;
 }
 
@@ -376,47 +380,51 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
   width: 500px;
   height: 500px;
   border-radius: 50%;
-  filter: blur(100px);
-  opacity: 0.12;
   pointer-events: none;
   z-index: -1;
+  filter: blur(120px);
+  opacity: 0.10;
 }
 
 .feed::before {
-  background: var(--accent);
+  background: #7c5cff;
   top: -180px;
-  left: -150px;
-  animation: glowMove1 14s ease-in-out infinite alternate;
+  left: -120px;
+  animation: feedGlow1 18s ease-in-out infinite alternate;
 }
 
 .feed::after {
-  background: var(--accent);
+  background: #3b82f6;
   right: -180px;
-  bottom: -150px;
-  animation: glowMove2 18s ease-in-out infinite alternate;
+  top: 35%;
+  animation: feedGlow2 22s ease-in-out infinite alternate;
 }
 
-@keyframes glowMove1 {
+@keyframes feedGlow1 {
   0% {
     transform: translate(0, 0) scale(1);
   }
+
   50% {
-    transform: translate(220px, 120px) scale(1.15);
+    transform: translate(250px, 180px) scale(1.2);
   }
+
   100% {
-    transform: translate(100px, 300px) scale(0.9);
+    transform: translate(100px, 500px) scale(0.9);
   }
 }
 
-@keyframes glowMove2 {
+@keyframes feedGlow2 {
   0% {
     transform: translate(0, 0) scale(1);
   }
+
   50% {
-    transform: translate(-180px, -100px) scale(1.2);
+    transform: translate(-220px, -120px) scale(1.15);
   }
+
   100% {
-    transform: translate(-300px, 80px) scale(0.95);
+    transform: translate(-100px, 300px) scale(0.9);
   }
 }
 .feed::-webkit-scrollbar{ width:8px; }
