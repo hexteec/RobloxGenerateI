@@ -794,7 +794,7 @@ body{ top:0 !important; position:static !important; }
     <div class="composer-wrap">
       <div class="composer-dock">
         <button class="widget-add-btn" id="widgetAddBtn" onclick="openGameWidgetModal()">
-          <span class="wab-icon"></span><span>Live game stats</span>
+          <span class="wab-icon"></span><span>Live Stats</span>
         </button>
 
       <div class="composer">
@@ -872,8 +872,12 @@ body{ top:0 !important; position:static !important; }
 <div class="modal-overlay" id="gameWidgetModal">
   <div class="modal-card">
     <button class="modal-close" onclick="closeGameWidgetModal()"></button>
-    <p class="modal-title">Add Game Widget</p>
-    <p class="modal-sub">Paste a link to a Roblox game (or just the Place ID) — I'll show live stats: player count, visits, ratings.</p>
+    <p class="modal-title">Add Live Stats</p>
+    <p class="modal-sub">Track a Roblox game or a Roblox user — pick one, then paste a link, ID or username.</p>
+    <div class="force-mode-bar" id="gwTypeBar" style="margin-bottom:12px;">
+      <div class="fm-pill active" data-gwtype="game">Game</div>
+      <div class="fm-pill" data-gwtype="user">User</div>
+    </div>
     <input type="text" id="gwModalInput" placeholder="np. roblox.com/games/1234567/Nazwa lub 1234567" class="gw-modal-input">
     <button class="btn-newchat" style="margin-top:12px;" onclick="submitGameWidget()">Add Widget</button>
     <div class="modal-status" id="gwModalStatus"></div>
@@ -1184,6 +1188,7 @@ body{ top:0 !important; position:static !important; }
     initThemeSwitch();
     initLangSwitch();
     bindForceModeBar();
+    bindGwTypeBar();
     bindDropzones();
     bindAttachInput();
     renderPackages();
@@ -1268,6 +1273,22 @@ body{ top:0 !important; position:static !important; }
         <button class="gw-remove" onclick="removeGameWidget('${w.id}')">${ICONS.close}</button>
       </div>`;
     }
+
+    if (w.type === "user") {
+      return `<div class="gw-card" data-id="${w.id}">
+        <img class="gw-icon" style="border-radius:50%;" src="${w.avatarUrl || ''}" alt="">
+        <div class="gw-info">
+          <div class="gw-title" title="${escapeHtml(w.displayName)} (@${escapeHtml(w.username)})">${escapeHtml(w.displayName)}</div>
+          <div class="gw-stats">
+            <span style="color: var(--mint)">${ICONS.up} <b>${formatCount(w.followers)}</b></span>
+            <span>${ICONS.eye} <b>${formatCount(w.following)}</b></span>
+            <span>${ICONS.play} <b>${formatCount(w.friends)}</b></span>
+          </div>
+        </div>
+        <button class="gw-remove" onclick="removeGameWidget('${w.id}')">${ICONS.close}</button>
+      </div>`;
+    }
+
     return `<div class="gw-card" data-id="${w.id}">
       <img class="gw-icon" src="${w.iconUrl || ''}" alt="">
       <div class="gw-info">
@@ -1296,12 +1317,29 @@ body{ top:0 !important; position:static !important; }
     try { await authedFetch("/game-widgets/" + id, { method: "DELETE" }); } catch (e) { console.error(e); }
   }
 
+  let gwSelectedType = "game";
+
+  function bindGwTypeBar() {
+    document.querySelectorAll("#gwTypeBar .fm-pill").forEach(p => {
+      p.addEventListener("click", () => {
+        gwSelectedType = p.dataset.gwtype;
+        document.querySelectorAll("#gwTypeBar .fm-pill").forEach(x => x.classList.toggle("active", x === p));
+        document.getElementById("gwModalInput").placeholder = gwSelectedType === "user"
+          ? "np. nazwa użytkownika, roblox.com/users/12345/profile lub samo ID"
+          : "np. roblox.com/games/1234567/Nazwa lub 1234567";
+      });
+    });
+  }
+
   function openGameWidgetModal() {
     if (!currentUser) { document.getElementById("signInBtn").click(); return; }
+    gwSelectedType = "game";
+    document.querySelectorAll("#gwTypeBar .fm-pill").forEach(p => p.classList.toggle("active", p.dataset.gwtype === "game"));
     document.getElementById("gameWidgetModal").classList.add("show");
     document.getElementById("gwModalStatus").textContent = "";
     document.getElementById("gwModalStatus").className = "modal-status";
     document.getElementById("gwModalInput").value = "";
+    document.getElementById("gwModalInput").placeholder = "np. roblox.com/games/1234567/Nazwa lub 1234567";
     document.getElementById("gwModalInput").focus();
   }
 
@@ -1314,18 +1352,16 @@ body{ top:0 !important; position:static !important; }
     const statusEl = document.getElementById("gwModalStatus");
     if (!input) {
       statusEl.className = "modal-status error";
-      statusEl.textContent = "Paste a game link or ID.";
+      statusEl.textContent = gwSelectedType === "user" ? "Paste a username or user ID." : "Paste a game link or ID.";
       return;
     }
-
     statusEl.className = "modal-status";
-    statusEl.textContent = "Checking game…";
-
+    statusEl.textContent = gwSelectedType === "user" ? "Checking user…" : "Checking game…";
     try {
       const res = await authedFetch("/game-widgets", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ input })
+        body: JSON.stringify({ input, type: gwSelectedType })
       });
       if (!res.ok) throw new Error(await extractError(res));
       gameWidgets.push(await res.json());
@@ -1345,9 +1381,16 @@ body{ top:0 !important; position:static !important; }
   async function refreshGameWidgetsStats() {
     if (!currentUser || gameWidgets.length === 0) return;
     for (const w of gameWidgets) {
-      if (!w.universeId) continue;
       try {
-        const res = await authedFetch("/game-widgets/stats?universeId=" + encodeURIComponent(w.universeId));
+        let url;
+        if (w.type === "user") {
+          if (!w.userId) continue;
+          url = "/game-widgets/stats?type=user&userId=" + encodeURIComponent(w.userId);
+        } else {
+          if (!w.universeId) continue;
+          url = "/game-widgets/stats?type=game&universeId=" + encodeURIComponent(w.universeId);
+        }
+        const res = await authedFetch(url);
         if (res.ok) Object.assign(w, await res.json(), { error: null });
       } catch (e) { /* silent skip */ }
     }
