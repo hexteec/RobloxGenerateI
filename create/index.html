@@ -13,6 +13,16 @@
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
 <!-- <model-viewer> — for previewing generated 3D models (.glb) directly in chat -->
 <script type="module" src="https://unpkg.com/@google/model-viewer@3.5.0/dist/model-viewer.min.js"></script>
+<!-- Google Translate widget -->
+<script type="text/javascript">
+  function googleTranslateElementInit() {
+    new google.translate.TranslateElement(
+      { pageLanguage: "en", autoDisplay: false },
+      "google_translate_element"
+    );
+  }
+</script>
+<script type="text/javascript" src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
 <style>
 :root{
@@ -629,6 +639,46 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 }
 
 @media (hover: none){ .chat-item .ci-del{ opacity: 1; } .gw-card .gw-remove{ opacity:1; } }
+
+/* ---------- Google Translate: engine hidden, custom UI shown ---------- */
+/* The real Google widget is rendered off-screen — it just powers translation.
+   Everything the user sees is the custom .lang-select below. */
+#google_translate_element{ position:absolute; width:1px; height:1px; overflow:hidden; opacity:0; pointer-events:none; }
+.goog-te-banner-frame, .goog-te-banner-frame.skiptranslate, iframe.goog-te-banner-frame{ display:none !important; visibility:hidden !important; height:0 !important; }
+body{ top:0 !important; position:static !important; }
+.goog-tooltip, .goog-tooltip:hover{ display:none !important; }
+.goog-text-highlight{ background:none !important; box-shadow:none !important; }
+#goog-gt-tt, .goog-te-balloon-frame{ display:none !important; }
+.goog-te-spinner-pos{ display:none !important; }
+
+.lang-switch{ margin-bottom:14px; position:relative; }
+.lang-select{
+  width:100%; display:flex; align-items:center; justify-content:space-between; gap:8px;
+  font-family: var(--font-body); font-size:12.3px; font-weight:600; color: var(--ink);
+  background: var(--soft); border:1px solid var(--border); border-radius: var(--radius-sm);
+  padding:9px 11px; cursor:pointer; transition: border-color .15s ease, background .15s ease;
+}
+.lang-select:hover{ border-color: var(--ink-faint); }
+.lang-select .ls-current{ display:flex; align-items:center; gap:7px; min-width:0; }
+.lang-select .ls-current span{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.lang-select .ls-chevron{ flex-shrink:0; color: var(--ink-faint); display:flex; transition: transform .15s ease; }
+.lang-select.open .ls-chevron{ transform: rotate(180deg); }
+
+.lang-menu{
+  display:none; position:absolute; bottom:calc(100% + 6px); left:0; right:0; z-index:50;
+  background: var(--card); border:1px solid var(--border); border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-lg); padding:5px; max-height:240px; overflow-y:auto;
+}
+.lang-menu.show{ display:block; }
+.lang-menu::-webkit-scrollbar{ width:6px; }
+.lang-menu::-webkit-scrollbar-thumb{ background: var(--soft-2); border-radius:3px; }
+.lang-opt{
+  display:flex; align-items:center; gap:8px; padding:8px 9px; border-radius:8px; cursor:pointer;
+  font-size:12.5px; font-weight:500; color: var(--ink); transition: background .1s ease;
+}
+.lang-opt:hover{ background: var(--soft); }
+.lang-opt.active{ background: var(--accent-wash); color: var(--accent-deep); font-weight:600; }
+.lang-opt .lo-flag{ font-size:14px; flex-shrink:0; }
 </style>
 </head>
 <body>
@@ -651,6 +701,16 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
     <div class="sb-bottom">
       <div class="theme-switch" id="themeSwitch">
         <div class="theme-switch-label">Theme</div>
+      </div>
+
+      <div class="lang-switch">
+        <div class="theme-switch-label">Language</div>
+        <div class="lang-select" id="langSelect" onclick="toggleLangMenu()">
+          <span class="ls-current"><span class="lo-flag" id="langFlag">🇬🇧</span><span id="langLabel">English</span></span>
+          <span class="ls-chevron" id="langChevron"></span>
+        </div>
+        <div class="lang-menu" id="langMenu"></div>
+        <div id="google_translate_element"></div>
       </div>
 
       <a class="sb-back" href="/">← Home</a>
@@ -687,7 +747,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
       <div class="feed-inner" id="feedInner">
         <div class="welcome" id="welcome">
           <div class="w-mark"></div>
-          <h2>What are we working on?</h2>
+          <h2>Nad czym pracujemy?</h2>
           <p>Tell me what you need — I'll figure out what you're asking for. You can also force a specific mode below.</p>
           <div class="w-hints">
             <span class="w-hint">"make me a dragon icon"</span>
@@ -719,7 +779,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
         <div class="dropzone-row" id="dropzoneRow" style="display:none;">
           <div class="dropzone" id="dzMain">
             <input type="file" id="mainImageInput" accept="image/png,image/jpeg,image/webp">
-            <div class="dz-empty" id="dzMainEmpty"><span class="dz-tag">01</span><span id="dzMainLabel">Image</span></div>
+            <div class="dz-empty" id="dzMainEmpty"><span class="dz-tag">01</span><span id="dzMainLabel">Obraz</span></div>
             <div class="dz-filled" id="dzMainFilled">
               <img id="dzMainPreview" alt="">
               <span class="dz-name" id="dzMainName"></span>
@@ -728,7 +788,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
           </div>
           <div class="dropzone" id="dzRef" style="display:none;">
             <input type="file" id="refImageInput" accept="image/png,image/jpeg,image/webp">
-            <div class="dz-empty" id="dzRefEmpty"><span class="dz-tag">02</span> Style Reference</div>
+            <div class="dz-empty" id="dzRefEmpty"><span class="dz-tag">02</span> Wzorzec stylu</div>
             <div class="dz-filled" id="dzRefFilled">
               <img id="dzRefPreview" alt="">
               <span class="dz-name" id="dzRefName"></span>
@@ -780,10 +840,10 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 <div class="modal-overlay" id="gameWidgetModal">
   <div class="modal-card">
     <button class="modal-close" onclick="closeGameWidgetModal()"></button>
-    <p class="modal-title">Add Game Widget</p>
+    <p class="modal-title">Dodaj widget gry</p>
     <p class="modal-sub">Paste a link to a Roblox game (or just the Place ID) — I'll show live stats: player count, visits, ratings.</p>
     <input type="text" id="gwModalInput" placeholder="np. roblox.com/games/1234567/Nazwa lub 1234567" class="gw-modal-input">
-    <button class="btn-newchat" style="margin-top:12px;" onclick="submitGameWidget()">Add Widget</button>
+    <button class="btn-newchat" style="margin-top:12px;" onclick="submitGameWidget()">Dodaj widget</button>
     <div class="modal-status" id="gwModalStatus"></div>
   </div>
 </div>
@@ -793,6 +853,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
   // ICON SET (simple, linear SVGs — replace emoji)
   // ==================================================
   const ICONS = {
+    chevronDown: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>`,
     spark: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v6M12 16v6M4.9 4.9l4.2 4.2M14.9 14.9l4.2 4.2M2 12h6M16 12h6M4.9 19.1l4.2-4.2M14.9 9.1l4.2-4.2"/></svg>`,
     plus: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>`,
     chat: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>`,
@@ -910,7 +971,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
     }
     document.querySelectorAll(".theme-dot").forEach(d => d.classList.toggle("active", d.dataset.themeId === valid));
     if (!opts.skipSave) {
-      try { localStorage.setItem(THEME_STORAGE_KEY, valid); } catch (e) { /* ignoruj */ }
+      try { localStorage.setItem(THEME_STORAGE_KEY, valid); } catch (e) { /* ignore */ }
     }
   }
 
@@ -927,8 +988,101 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
     });
 
     let saved = "light";
-    try { saved = localStorage.getItem(THEME_STORAGE_KEY) || "light"; } catch (e) { /* ignoruj */ }
+    try { saved = localStorage.getItem(THEME_STORAGE_KEY) || "light"; } catch (e) { /* ignore */ }
     applyTheme(saved, { skipSave: true });
+  }
+
+  // ==================================================
+  // LANGUAGE — custom dropdown driving the hidden Google Translate engine.
+  // We never show Google's own widget/banner; we just flip its internal
+  // <select> and let it swap the DOM text, then mirror the choice in our UI.
+  // ==================================================
+  const LANGUAGES = [
+    { code: "en", label: "English",    flag: "🇬🇧" },
+    { code: "pl", label: "Polski",     flag: "🇵🇱" },
+    { code: "de", label: "Deutsch",    flag: "🇩🇪" },
+    { code: "es", label: "Español",    flag: "🇪🇸" },
+    { code: "fr", label: "Français",   flag: "🇫🇷" },
+    { code: "it", label: "Italiano",   flag: "🇮🇹" },
+    { code: "pt", label: "Português",  flag: "🇵🇹" },
+    { code: "uk", label: "Українська", flag: "🇺🇦" },
+    { code: "ru", label: "Русский",    flag: "🇷🇺" },
+    { code: "tr", label: "Türkçe",     flag: "🇹🇷" },
+    { code: "ja", label: "日本語",      flag: "🇯🇵" },
+    { code: "zh-CN", label: "中文",     flag: "🇨🇳" }
+  ];
+  const LANG_STORAGE_KEY = "iconlab-lang";
+
+  function initLangSwitch() {
+    const menu = document.getElementById("langMenu");
+    document.getElementById("langChevron").innerHTML = ICONS.chevronDown;
+
+    menu.innerHTML = LANGUAGES.map(l =>
+      `<div class="lang-opt" data-code="${l.code}" onclick="selectLanguage('${l.code}')">
+         <span class="lo-flag">${l.flag}</span><span>${l.label}</span>
+       </div>`
+    ).join("");
+
+    document.addEventListener("click", (e) => {
+      if (!e.target.closest(".lang-switch")) closeLangMenu();
+    });
+
+    let saved = "en";
+    try { saved = localStorage.getItem(LANG_STORAGE_KEY) || "en"; } catch (e) { /* ignore */ }
+    if (saved !== "en") {
+      // Defer until the Google engine has finished bootstrapping.
+      const tryApply = (attempt) => {
+        if (applyGoogleLanguage(saved)) { setLangDisplay(saved); return; }
+        if (attempt < 20) setTimeout(() => tryApply(attempt + 1), 300);
+      };
+      tryApply(0);
+    } else {
+      setLangDisplay("en");
+    }
+  }
+
+  function toggleLangMenu() {
+    document.getElementById("langSelect").classList.toggle("open");
+    document.getElementById("langMenu").classList.toggle("show");
+  }
+  function closeLangMenu() {
+    document.getElementById("langSelect").classList.remove("open");
+    document.getElementById("langMenu").classList.remove("show");
+  }
+
+  function setLangDisplay(code) {
+    const l = LANGUAGES.find(x => x.code === code) || LANGUAGES[0];
+    document.getElementById("langFlag").textContent = l.flag;
+    document.getElementById("langLabel").textContent = l.label;
+    document.querySelectorAll(".lang-opt").forEach(el => el.classList.toggle("active", el.dataset.code === code));
+  }
+
+  function applyGoogleLanguage(code) {
+    const combo = document.querySelector("#google_translate_element select.goog-te-combo");
+    if (!combo) return false;
+    combo.value = code === "en" ? "" : code;
+    combo.dispatchEvent(new Event("change"));
+    return true;
+  }
+
+  function selectLanguage(code) {
+    try { localStorage.setItem(LANG_STORAGE_KEY, code); } catch (e) { /* ignore */ }
+    setLangDisplay(code);
+    closeLangMenu();
+    if (code === "en") {
+      // Cleanest way back to the untranslated original page.
+      try { document.cookie = "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/"; } catch (e) { /* ignore */ }
+      location.reload();
+      return;
+    }
+    if (!applyGoogleLanguage(code)) {
+      // Engine not ready yet — retry briefly.
+      let attempts = 0;
+      const retry = setInterval(() => {
+        attempts++;
+        if (applyGoogleLanguage(code) || attempts > 15) clearInterval(retry);
+      }, 300);
+    }
   }
 
   // ==================================================
@@ -996,6 +1150,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
     });
 
     initThemeSwitch();
+    initLangSwitch();
     bindForceModeBar();
     bindDropzones();
     bindAttachInput();
@@ -1244,7 +1399,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
       el.className = "chat-item" + (chat.id === activeChatId ? " active" : "");
       el.innerHTML = `
         <div class="ci-text">
-          <div class="ci-title">${escapeHtml(chat.title || "Czat")}</div>
+          <div class="ci-title">${escapeHtml(chat.title || "Chat")}</div>
           <div class="ci-time"><span class="ci-badge">${forceModeLabel(chat.mode)}</span>${relativeTime(chat.updatedAt)}</div>
         </div>
         <button class="ci-del" title="Delete chat">${ICONS.trash}</button>
@@ -1281,7 +1436,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
     activeChatId = chatId;
     lastLargeFrame = null;
     const chat = chatsCache.find(c => c.id === chatId);
-    document.getElementById("chatTitle").textContent = chat ? chat.title : "Czat";
+    document.getElementById("chatTitle").textContent = chat ? chat.title : "Chat";
     renderChatList();
 
     try {
@@ -1415,7 +1570,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 }
 
   function historyBadge(m) {
-    if (m.type === "text") return "Czat";
+    if (m.type === "text") return "Chat";
     if (m.type === "model3d") return "Model 3D";
     return categoryLabel(m.category) + " · " + methodShortLabel(m.mode);
   }
@@ -1985,7 +2140,16 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
   // ==================================================
   // TRANSLATION (fallback for the raw prompt before generation)
   // ==================================================
-catch (err) {
+
+  async function translateToEnglish(text) {
+    if (!text) return { text: "" };
+    try {
+      const url = "https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=en&dt=t&q=" + encodeURIComponent(text);
+      const res = await fetch(url);
+      if (!res.ok) throw new Error("translation unavailable");
+      const data = await res.json();
+      return { text: data[0].map(c => c[0]).join("") };
+    } catch (err) {
       console.warn("Translation failed:", err);
       return { text };
     }
@@ -2189,7 +2353,7 @@ catch (err) {
     const pendingEl = appendBotPlaceholder("Thinking…");
 
     try {
-      const chatId = await ensureActiveChat(raw || "Czat");
+      const chatId = await ensureActiveChat(raw || "Chat");
 
       const imageAttachments = attachments.filter(a => a.kind === "image").map(a => a.dataUrl);
       const fileAttachments = attachments.filter(a => a.kind === "file");
@@ -2357,7 +2521,7 @@ catch (err) {
       ? { kind: "image", text: userText, image: imageForPending }
       : { kind: "text", text: userText };
     const el = appendBotPlaceholder("");
-    setBotBody(el, renderInlineMarkdown("Set up the 3D model before generating:") + model3DSettingsPanelHtml());
+    setBotBody(el, renderInlineMarkdown("Skonfiguruj model 3D przed generowaniem:") + model3DSettingsPanelHtml());
     pendingModel3DPanelEl = el;
     flowState = "choose_method";
     applyFlowComposerState();
@@ -2536,7 +2700,7 @@ catch (err) {
       await persistMessage(chatId, { type: "generation", thumbnail, prompt: raw, mode: "text2img", template: "square", category: "icon" });
 
       setBotBody(pendingEl,
-        imageFrameHtml(blobUrl, "square", "Reference Image", true, false) +
+        imageFrameHtml(blobUrl, "square", "Obraz referencyjny", true, false) +
         `<div class="result-actions" style="margin-top:10px;">
            <button class="primary" onclick='confirmGeneratedImageFor3D(this, ${JSON.stringify(chatId)}, ${escapeHtml(JSON.stringify(raw))})'>Use for 3D model</button>
            <button onclick='regenerateImageForModel3D(this, ${escapeHtml(JSON.stringify(raw))})'>Wygeneruj inny</button>
@@ -2565,7 +2729,7 @@ catch (err) {
     model3DSettings = { ...MODEL3D_PRESETS.standard, preset: "standard" };
     pending3DInput = { kind: "image", text: raw, image: model3dGeneratedImageDataUrl };
     const bubbleEl = btnEl.closest(".msg-bot");
-    setBotBody(bubbleEl, renderInlineMarkdown("Set up the 3D model before generating:") + model3DSettingsPanelHtml());
+    setBotBody(bubbleEl, renderInlineMarkdown("Skonfiguruj model 3D przed generowaniem:") + model3DSettingsPanelHtml());
     pendingModel3DPanelEl = bubbleEl;
     flowState = "choose_method";
     applyFlowComposerState();
