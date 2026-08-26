@@ -341,8 +341,18 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 }
 
 .topbar{
-  display:flex; align-items:center; justify-content:space-between; padding:14px 30px;
-  border-bottom:1px solid transparent; flex-shrink:0; background: transparent; min-height: var(--topbar-h); gap:12px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:14px 30px;
+  flex-shrink:0;
+  min-height:var(--topbar-h);
+  gap:12px;
+
+  background:none !important;
+  background-color:transparent !important;
+  border-bottom-color:transparent !important;
+  box-shadow:none !important;
 }
 .topbar-title{ font-family: var(--font-display); font-weight:600; font-size:15px; display:flex; align-items:center; gap:10px; min-width:0; letter-spacing:-0.01em; }
 .topbar-title .tt-text{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:360px; color: var(--ink); }
@@ -523,6 +533,34 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 .widget-add-btn,
 .widgets-row{
   pointer-events:auto;
+}
+
+  .composer-dock{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:10px;
+  width:100%;
+  max-width:860px;
+  margin:0 auto;
+  box-sizing:border-box;
+  position:relative;
+  z-index:2;
+}
+
+.widgets-row{
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:10px;
+  width:100%;
+  max-width:680px;   /* taka sama optyczna szerokość jak composer */
+  margin:0 auto;
+}
+
+.gw-card{
+  flex:0 0 auto;
 }
 
 /* Row 1: Live Stats widget cards — independent flex line, full width,
