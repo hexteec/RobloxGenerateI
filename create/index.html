@@ -343,7 +343,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 .tt-badge svg{ width:13px; height:13px; }
 
 /* ---------- feed ---------- */
-.feed{ flex:1; overflow-y:auto; padding: 28px 0 12px; background: var(--bg); }
+.feed{ flex:1; overflow-y:auto; padding: 28px 0 160px; background: var(--bg); }
 .feed::-webkit-scrollbar{ width:8px; }
 .feed::-webkit-scrollbar-thumb{ background: var(--soft-2); border-radius:4px; }
 .feed-inner{ max-width:860px; margin:0 auto; padding: 0 30px; display:flex; flex-direction:column; gap:20px; }
@@ -492,20 +492,28 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
    same flex line as the composer, adding/removing Live Stats cards never
    changes how the composer itself is centered/wrapped — it stays put.
 ------------------------------------------------------------------ */
-.composer-wrap{ background: transparent; flex-shrink:0; padding: 0 20px 22px; position:relative; }
+.composer-wrap{ background: transparent; flex-shrink:0; padding: 0 0 22px; position:relative; }
 
 .composer-wrap::before{
   content:"";
   position:absolute;
   left:0; right:0;
-  top:-70px; height:100px;
-  background: linear-gradient(to bottom, transparent 0%, var(--bg) 78%, var(--bg) 100%);
+  top:-160px; height:190px;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--bg) 0%, transparent) 0%,
+    color-mix(in srgb, var(--bg) 0%, transparent) 8%,
+    color-mix(in srgb, var(--bg) 35%, transparent) 35%,
+    color-mix(in srgb, var(--bg) 70%, transparent) 65%,
+    var(--bg) 92%,
+    var(--bg) 100%
+  );
   pointer-events:none;
   z-index:1;
 }
 .composer-dock{
   display:flex; flex-direction:column; align-items:center; gap:10px;
-  max-width:860px; margin:0 auto; padding-top:14px; box-sizing:border-box;
+  max-width:860px; margin:0 auto; padding: 14px 30px 0; box-sizing:border-box;
   position:relative; z-index:2;
 }
 
