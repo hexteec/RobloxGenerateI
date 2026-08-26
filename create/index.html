@@ -21,6 +21,36 @@
       "google_translate_element"
     );
   }
+  // Google injects its top banner (and nudges <body> down) as a one-off DOM
+  // mutation whenever a translation kicks in. Instead of polling on an
+  // interval, we passively listen for that exact mutation and strip it the
+  // instant it appears — this fires only when something actually changes,
+  // never runs on a timer, and adds no ongoing background work.
+  (function () {
+    function isBanner(node) {
+      if (!(node instanceof Element)) return false;
+      return node.classList.contains("goog-te-banner-frame")
+        || node.classList.contains("skiptranslate") && node.tagName === "IFRAME"
+        || (node.id && node.id.indexOf(":") === 0 && node.tagName === "IFRAME");
+    }
+    function stripBanner(node) {
+      node.style.setProperty("display", "none", "important");
+      node.style.setProperty("visibility", "hidden", "important");
+      node.style.setProperty("height", "0", "important");
+      document.body.style.top = "0px";
+      document.body.style.position = "static";
+    }
+    const observer = new MutationObserver((mutations) => {
+      for (const m of mutations) {
+        m.addedNodes.forEach((node) => { if (isBanner(node)) stripBanner(node); });
+      }
+      if (document.body.style.top && document.body.style.top !== "0px") {
+        document.body.style.top = "0px";
+        document.body.style.position = "static";
+      }
+    });
+    observer.observe(document.documentElement, { childList: true, subtree: true });
+  })();
 </script>
 <script type="text/javascript" src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
@@ -644,7 +674,9 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 /* The real Google widget is rendered off-screen — it just powers translation.
    Everything the user sees is the custom .lang-select below. */
 #google_translate_element{ position:absolute; width:1px; height:1px; overflow:hidden; opacity:0; pointer-events:none; }
-.goog-te-banner-frame, .goog-te-banner-frame.skiptranslate, iframe.goog-te-banner-frame{ display:none !important; visibility:hidden !important; height:0 !important; }
+.goog-te-banner-frame, .goog-te-banner-frame.skiptranslate, iframe.goog-te-banner-frame,
+iframe.skiptranslate, iframe[id^=":"], .skiptranslate > iframe{ display:none !important; visibility:hidden !important; height:0 !important; }
+html.translated-ltr body, html.translated-rtl body{ top:0 !important; position:static !important; }
 body{ top:0 !important; position:static !important; }
 .goog-tooltip, .goog-tooltip:hover{ display:none !important; }
 .goog-text-highlight{ background:none !important; box-shadow:none !important; }
