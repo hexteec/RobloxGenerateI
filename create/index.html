@@ -11,9 +11,8 @@
 
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
-<!-- <model-viewer> — for previewing generated 3D models (.glb) directly in chat -->
 <script type="module" src="https://unpkg.com/@google/model-viewer@3.5.0/dist/model-viewer.min.js"></script>
-<!-- Google Translate widget -->
+
 <script type="text/javascript">
   function googleTranslateElementInit() {
     new google.translate.TranslateElement(
@@ -21,11 +20,6 @@
       "google_translate_element"
     );
   }
-  // Google injects its top banner (and nudges <body> down) as a one-off DOM
-  // mutation whenever a translation kicks in. Instead of polling on an
-  // interval, we passively listen for that exact mutation and strip it the
-  // instant it appears — this fires only when something actually changes,
-  // never runs on a timer, and adds no ongoing background work.
   (function () {
     function isBanner(node) {
       if (!(node instanceof Element)) return false;
@@ -56,7 +50,6 @@
 
 <style>
 :root{
-  /* ---- neutral, warm-gray base (no AI-blue/purple gradient) ---- */
   --bg: #FAFAF9;
   --card: #FFFFFF;
   --soft: #F4F3F1;
@@ -66,7 +59,6 @@
   --ink-muted: #6B6862;
   --ink-faint: #A6A29A;
 
-  /* ---- single accent: warm terracotta/clay, not AI-purple ---- */
   --accent: #B45A34;
   --accent-deep: #954A2A;
   --accent-wash: #FBEEE7;
@@ -93,12 +85,6 @@
   --topbar-h: 60px;
 }
 
-/* ==================================================
-   THEMES — each one only overrides color variables.
-   Layout, spacing, radii and shadows stay shared.
-   ================================================== */
-
-/* ---- Dark ---- */
 [data-theme="dark"]{
   --bg: #17161A;
   --card: #1F1E23;
@@ -124,7 +110,6 @@
   --shadow-lg: 0 16px 40px rgba(0,0,0,0.45);
 }
 
-/* ---- Sea (cool, ocean-like) ---- */
 [data-theme="sea"]{
   --bg: #F3F7F9;
   --card: #FFFFFF;
@@ -150,7 +135,6 @@
   --shadow-lg: 0 16px 40px rgba(20,50,60,0.12);
 }
 
-/* ---- Forest (green, natural) ---- */
 [data-theme="forest"]{
   --bg: #F5F7F2;
   --card: #FFFFFF;
@@ -176,7 +160,6 @@
   --shadow-lg: 0 16px 40px rgba(30,40,20,0.12);
 }
 
-/* ---- Sun (warm, sunny) ---- */
 [data-theme="sun"]{
   --bg: #FCF8F1;
   --card: #FFFFFF;
@@ -205,7 +188,6 @@
 body{ transition: background-color .2s ease, color .2s ease; }
 .sidebar, .card, .composer, .topbar, .modal-card{ transition: background-color .2s ease, border-color .2s ease; }
 
-/* ---- theme switcher ---- */
 .theme-switch{ display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:12px; }
 .theme-dot{
   width:22px; height:22px; border-radius:50%; border:1.5px solid var(--border); cursor:pointer; padding:0;
@@ -342,30 +324,46 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 
 .topbar{
   display:flex;
-  align-items:center;
+  align-items:flex-start;
   justify-content:space-between;
-  padding:14px 30px;
+  flex-wrap:wrap;
+  padding:14px 30px 10px;
   flex-shrink:0;
-  min-height:var(--topbar-h);
-  gap:12px;
-
+  min-height: var(--topbar-h);
+  gap:10px 12px;
   background:none !important;
   background-color:transparent !important;
   border-bottom-color:transparent !important;
   box-shadow:none !important;
 }
-.topbar-title{ font-family: var(--font-display); font-weight:600; font-size:15px; display:flex; align-items:center; gap:10px; min-width:0; letter-spacing:-0.01em; }
+.topbar-title{
+  font-family: var(--font-display);
+  font-weight:600;
+  font-size:15px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  min-width:0;
+  letter-spacing:-0.01em;
+}
 .topbar-title .tt-text{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:360px; color: var(--ink); }
+.topbar-right{ display:flex; align-items:center; gap:10px; margin-left:auto; }
 .tt-badge{ font-size:11.5px; font-weight:600; color: var(--ink-muted); background: var(--soft); border:1px solid var(--border); padding:5px 11px; border-radius:999px; flex-shrink:0; display:flex; align-items:center; gap:6px; }
 .tt-badge svg{ width:13px; height:13px; }
 
-/* ---------- feed ---------- */
-.feed{
-  flex:1;
-  overflow-y:auto;
-  padding:28px 0 240px;
-  background:var(--bg);
+.topbar-widgets-mobile{
+  display:none;
+  width:100%;
+  align-items:center;
+  gap:8px;
+  overflow-x:auto;
+  padding-bottom:2px;
 }
+.topbar-widgets-mobile::-webkit-scrollbar{ height:6px; }
+.topbar-widgets-mobile::-webkit-scrollbar-thumb{ background:var(--soft-2); border-radius:999px; }
+
+/* ---------- feed ---------- */
+.feed{ flex:1; overflow-y:auto; padding: 28px 0 240px; background: var(--bg); }
 .feed::-webkit-scrollbar{ width:8px; }
 .feed::-webkit-scrollbar-thumb{ background: var(--soft-2); border-radius:4px; }
 .feed-inner{ max-width:860px; margin:0 auto; padding: 0 30px; display:flex; flex-direction:column; gap:20px; }
@@ -443,7 +441,6 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 .analysis-box p{ margin: 0 0 6px; }
 .analysis-box p:last-child{ margin-bottom:0; }
 
-/* ---------- code blocks in bot messages (renderMarkdown) ---------- */
 .code-block{ position:relative; margin-top:10px; }
 .code-block:first-child{ margin-top:0; }
 .code-block .cb-head{ display:flex; align-items:center; justify-content:space-between; background:#201F1C; border-radius:10px 10px 0 0; padding:8px 12px; }
@@ -451,17 +448,15 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 .code-block .cb-btns{ display:flex; gap:6px; }
 .code-block .cb-btn{ background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.12); color:#EAE8E4; font-size:11.3px; font-weight:600; padding:5px 10px; border-radius:7px; cursor:pointer; }
 .code-block .cb-btn:hover{ background:rgba(255,255,255,0.14); }
-.code-block pre{ margin:0; background:#17160F; background:#181712; border-radius:0 0 10px 10px; padding:14px; overflow-x:auto; max-height:420px; }
+.code-block pre{ margin:0; background:#181712; border-radius:0 0 10px 10px; padding:14px; overflow-x:auto; max-height:420px; }
 .code-block code{ font-family: var(--font-mono); font-size:12.3px; line-height:1.6; color:#EAE8E4; white-space:pre; }
 .bot-text code.inline{ font-family: var(--font-mono); background: var(--soft); padding:2px 5px; border-radius:5px; font-size:12.6px; }
 .md-content strong{ font-weight:700; }
 .md-content .md-p{ margin: 0 0 8px; font-size:13.8px; line-height:1.6; color: var(--ink); }
 .md-content .md-p:last-child{ margin-bottom:0; }
 
-/* ---------- UI -> Lua dropzone label ---------- */
 .ui2lua-hint-box{ background: var(--soft); border:1px solid var(--border); border-radius: var(--radius-sm); padding:10px 13px; margin-bottom:12px; font-size:12.4px; line-height:1.55; color: var(--ink-muted); }
 
-/* ---------- inline mode chooser (icon / thumbnail / model3d) ---------- */
 .chooser-3d{ display:flex; flex-direction:column; gap:8px; margin-top:12px; }
 .chooser-3d button{
   display:flex; align-items:center; gap:12px; text-align:left; background: var(--card); border:1px solid var(--border);
@@ -480,7 +475,6 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 .chooser-templates .ct-opt{ display:flex; align-items:center; gap:7px; border:1px solid var(--border); background: var(--card); border-radius:999px; padding:7px 12px; font-size:12px; font-weight:600; color: var(--ink-muted); cursor:pointer; }
 .chooser-templates .ct-opt.active{ border-color: var(--accent); color: var(--accent-deep); background: var(--accent-wash); }
 
-/* ---------- 3D model settings panel ---------- */
 .m3d-panel{ display:flex; flex-direction:column; gap:14px; margin-top:6px; max-width:420px; }
 .m3d-section{ display:flex; flex-direction:column; gap:7px; }
 .m3d-label{ font-size:11.5px; font-weight:700; color: var(--ink-muted); text-transform:uppercase; letter-spacing:.04em; display:flex; justify-content:space-between; }
@@ -505,15 +499,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 .m3d-steps{ display:flex; justify-content:space-between; font-size:10.3px; color: var(--ink-faint); font-family: var(--font-mono); }
 .m3d-cost{ font-size:13px; font-weight:700; color: var(--ink); background: var(--soft); border-radius:10px; padding:9px 13px; text-align:center; border:1px solid var(--border); }
 
-/* ---------- composer ----------
-   NOTE ON THE FIX:
-   The dock is now a COLUMN: the widgets row (Live Stats cards) sits in its
-   own full-width flex line above, and the "+ Live Stats" button + the
-   composer box live together in a separate, independently centered row
-   (.composer-main-row). Because the widgets row is no longer sharing the
-   same flex line as the composer, adding/removing Live Stats cards never
-   changes how the composer itself is centered/wrapped — it stays put.
------------------------------------------------------------------- */
+/* ---------- composer overlay + new desktop/mobile widgets layout ---------- */
 .composer-wrap{
   position:absolute;
   left:0;
@@ -521,76 +507,110 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
   bottom:0;
   z-index:30;
   background:transparent;
-  padding:0 0 24px;
+  padding: 0 0 22px;
   pointer-events:none;
 }
-.composer-wrap::before{
-  display:none; /* albo zostaw gradient, jeśli chcesz */
-}
+.composer-wrap::before{ display:none; }
 
-.composer-dock,
-.composer,
-.widget-add-btn,
-.widgets-row{
-  pointer-events:auto;
-}
-
-  .composer-dock{
+.composer-dock{
   display:flex;
   flex-direction:column;
   align-items:center;
   gap:10px;
   width:100%;
-  max-width:860px;
+  max-width:1280px;
   margin:0 auto;
   box-sizing:border-box;
   position:relative;
   z-index:2;
+  overflow:visible;
+  pointer-events:none;
+}
+.composer-stage{
+  position:relative;
+  width:min(820px, calc(100vw - 420px));
+  margin:0 auto;
+  pointer-events:none;
+}
+.composer-main-row{
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
+  width:100%;
+  pointer-events:none;
+}
+
+.composer{
+  background: var(--card);
+  border:1px solid var(--border);
+  border-radius:18px;
+  box-shadow: var(--shadow-md);
+  padding:12px 14px 14px;
+  width:100%;
+  max-width:none;
+  flex:none;
+  min-width:0;
+  pointer-events:auto;
+}
+
+.widgets-side{
+  position:absolute;
+  left:calc(100% + 18px);
+  bottom:0;
+  width:300px;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  gap:10px;
+  pointer-events:auto;
 }
 
 .widgets-row{
   display:flex;
-  align-items:flex-end;
-  justify-content:center;
+  gap:10px;
+}
+.widgets-row-desktop{
+  display:flex;
   flex-wrap:wrap;
+  justify-content:flex-start;
+  align-items:flex-start;
   gap:10px;
   width:100%;
-  max-width:680px;   /* taka sama optyczna szerokość jak composer */
-  margin:0 auto;
-}
-
-.gw-card{
-  flex:0 0 auto;
-}
-
-/* Row 1: Live Stats widget cards — independent flex line, full width,
-   centered content. Growing/shrinking this never affects row 2 below. */
-.widgets-row{ display:flex; align-items:flex-end; gap:10px; flex-wrap:wrap; justify-content:center; width:100%; }
-
-/* Row 2: the "+ Live Stats" add-button + the actual composer box.
-   This is its own centered flex row, isolated from .widgets-row above. */
-.composer-main-row{ display:flex; align-items:flex-end; justify-content:center; gap:10px; width:100%; }
-
-.composer{
-  background: var(--card); border:1px solid var(--border); border-radius:18px;
-  box-shadow: var(--shadow-md); padding:12px 14px 14px; width:auto; max-width:680px;
-  flex:1 1 560px; min-width:0;
 }
 
 .widget-add-btn{
-  display:flex; align-items:center; gap:7px; flex-shrink:0; background: var(--card);
-  border:1px dashed var(--border); border-radius:16px; padding:12px 16px; cursor:pointer;
-  color: var(--ink-muted); font-size:12.3px; font-weight:600; box-shadow: var(--shadow-sm);
-  height:44px; align-self:flex-end; margin-bottom:2px; white-space:nowrap;
+  display:flex;
+  align-items:center;
+  gap:7px;
+  flex-shrink:0;
+  background: var(--card);
+  border:1px dashed var(--border);
+  border-radius:16px;
+  padding:12px 16px;
+  cursor:pointer;
+  color: var(--ink-muted);
+  font-size:12.3px;
+  font-weight:600;
+  box-shadow: var(--shadow-sm);
+  white-space:nowrap;
   transition: border-color .15s ease, color .15s ease, background .15s ease;
+  pointer-events:auto;
 }
 .widget-add-btn:hover{ border-color: var(--accent); color: var(--accent-deep); background: var(--accent-wash); }
 .widget-add-btn .wab-icon{ font-size:15px; line-height:1; }
+.widget-add-btn-mobile{
+  display:none;
+  padding:8px 12px;
+  border-radius:12px;
+  font-size:11.8px;
+  height:auto;
+}
+.widget-add-btn-desktop{ align-self:flex-start; }
 
 .gw-card{
   display:flex; align-items:center; gap:10px; background: var(--card); border:1px solid var(--border);
   border-radius:14px; padding:8px 14px 8px 8px; box-shadow: var(--shadow-sm); position:relative;
-  animation: popIn .2s ease both; min-width:200px;
+  animation: popIn .2s ease both; min-width:220px; max-width:100%; flex:0 0 auto;
 }
 .gw-card .gw-icon{ width:36px; height:36px; border-radius:8px; object-fit:cover; background: var(--soft); flex-shrink:0; }
 .gw-card .gw-info{ display:flex; flex-direction:column; min-width:0; }
@@ -608,7 +628,6 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 .gw-modal-input{ width:100%; border:1px solid var(--border); border-radius:10px; padding:11px 13px; font-size:13px; font-family:var(--font-body); background: var(--soft); color:var(--ink); }
 .gw-modal-input:focus{ outline:none; border-color: var(--accent); background:var(--card); }
 
-/* forced mode bar: Chat / Icon / Thumbnail / 3D Model / UI -> Lua */
 .force-mode-bar{ display:flex; gap:7px; margin-bottom:12px; flex-wrap:wrap; }
 .fm-pill{
   display:flex; align-items:center; gap:7px; padding:8px 14px; border-radius:999px; border:1px solid var(--border);
@@ -673,7 +692,6 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 .send-btn:disabled{ opacity:0.4; cursor:not-allowed; }
 .send-btn .spin{ animation: spin 0.8s linear infinite; display:inline-flex; }
 
-/* ---------- pending attachments row (before send, in composer) ---------- */
 .pending-attachments{ display:none; flex-wrap:wrap; gap:8px; margin-bottom:10px; }
 .pending-attachments.show{ display:flex; }
 .pa-chip{ position:relative; width:50px; height:50px; border-radius:9px; overflow:hidden; border:1px solid var(--border); background: var(--soft); flex-shrink:0; }
@@ -685,7 +703,6 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
   color:#fff; border:none; font-size:10px; cursor:pointer; display:flex; align-items:center; justify-content:center; line-height:1; padding:0;
 }
 
-/* ---------- attachment gallery inside a sent message ---------- */
 .msg-attach-grid{ display:grid; grid-template-columns: repeat(auto-fill, minmax(70px,1fr)); gap:6px; margin-bottom:8px; max-width:260px; }
 .msg-attach-grid .ag-item{ width:100%; aspect-ratio:1/1; border-radius:8px; overflow:hidden; border:1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1); }
 .msg-attach-grid .ag-item img{ width:100%; height:100%; object-fit:cover; display:block; }
@@ -696,7 +713,6 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 .char-count{ font-size:11px; color: var(--ink-faint); }
 .composer-hint{ font-size:11.5px; color: var(--ink-faint); margin-top:9px; line-height:1.5; }
 
-/* ---------- buy modal ---------- */
 .modal-overlay{ display:none; position:fixed; inset:0; background: rgba(32,31,28,0.35); backdrop-filter: blur(2px); z-index:80; align-items:center; justify-content:center; padding:20px; }
 .modal-overlay.show{ display:flex; }
 .modal-card{ background: var(--card); border:1px solid var(--border); border-radius: var(--radius-lg); max-width:420px; width:100%; padding:26px; position:relative; animation: popIn 0.2s ease both; box-shadow: var(--shadow-lg); }
@@ -714,10 +730,21 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 .modal-status{ margin-top:13px; font-size:12px; color: var(--ink-muted); min-height:16px; }
 .modal-status.error{ color: var(--coral); }
 
-  .thumb-up{ color: var(--mint); }
-  .thumb-down{ color: var(--coral); }
+.thumb-up{ color: var(--mint); }
+.thumb-down{ color: var(--coral); }
 
-/* ========================= MOBILE RESPONSIVENESS ========================= */
+/* ========================= RESPONSIVE ========================= */
+@media (max-width: 1180px){
+  .widgets-side{
+    width:260px;
+    left:calc(100% + 12px);
+  }
+  .gw-card{ min-width:200px; }
+  .composer-stage{
+    width:min(760px, calc(100vw - 340px));
+  }
+}
+
 @media (max-width: 900px){
   .feed-inner{ max-width: 100%; }
   .result-frame.latest{ width: min(320px, 70vw); height: min(320px, 70vw); }
@@ -725,18 +752,78 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 
 @media (max-width: 768px){
   .sb-toggle{ display:flex; }
-  .sidebar{ position: fixed; top:0; left:0; z-index:70; width: min(280px, 82vw); transform: translateX(-100%); box-shadow: var(--shadow-lg); }
+
+  .sidebar{
+    position: fixed;
+    top:0;
+    left:0;
+    z-index:70;
+    width: min(280px, 82vw);
+    transform: translateX(-100%);
+    box-shadow: var(--shadow-lg);
+  }
   .sidebar.open{ transform: translateX(0); }
-  .topbar{ padding: 12px 16px; }
-  .topbar-title .tt-text{ max-width: 46vw; }
+
+  .topbar{
+    padding:12px 16px 8px;
+    align-items:flex-start;
+  }
+
+  .topbar-title .tt-text{ max-width:46vw; }
+  .topbar-right{ width:auto; margin-left:auto; }
+
+  .widget-add-btn-mobile{
+    display:flex;
+    align-items:center;
+  }
+
+  .topbar-widgets-mobile{
+    display:flex;
+  }
+
+  .topbar-widgets-mobile .gw-card{
+    min-width:180px;
+    padding:7px 12px 7px 7px;
+    border-radius:12px;
+  }
+
+  .topbar-widgets-mobile .gw-card .gw-icon{
+    width:30px;
+    height:30px;
+  }
+
+  .topbar-widgets-mobile .gw-card .gw-title{
+    max-width:110px;
+    font-size:11.8px;
+  }
+
+  .topbar-widgets-mobile .gw-card .gw-stats{
+    font-size:10px;
+    gap:7px;
+  }
+
   .feed-inner{ padding: 0 16px; gap: 18px; }
   .welcome{ margin-top: 6vh; }
   .welcome h2{ font-size:18px; }
   .msg-bubble{ max-width: 88%; }
-  .composer-wrap{ padding: 12px 16px 16px; }
-  .composer-main-row{ flex-direction:column; align-items:stretch; }
-  .widget-add-btn{ align-self:center; }
-  .composer{ flex:1 1 auto; }
+
+  .composer-wrap{
+    left:0;
+    right:0;
+    bottom:0;
+    padding:12px 16px 16px;
+  }
+
+  .composer-dock{ max-width:100%; }
+  .composer-stage{ width:100%; }
+  .widgets-side{ display:none; }
+
+  .composer-main-row{
+    flex-direction:column;
+    align-items:stretch;
+  }
+
+  .composer{ width:100%; }
   .force-mode-bar{ gap:6px; }
   .fm-pill{ padding:8px 12px; font-size:12px; }
   .dropzone-row{ flex-direction: column; }
@@ -755,11 +842,12 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
   .msg-bubble{ max-width: 92%; }
 }
 
-@media (hover: none){ .chat-item .ci-del{ opacity: 1; } .gw-card .gw-remove{ opacity:1; } }
+@media (hover: none){
+  .chat-item .ci-del{ opacity:1; }
+  .gw-card .gw-remove{ opacity:1; }
+}
 
-/* ---------- Google Translate: engine hidden, custom UI shown ---------- */
-/* The real Google widget is rendered off-screen — it just powers translation.
-   Everything the user sees is the custom .lang-select below. */
+/* ---------- Google Translate ---------- */
 #google_translate_element{ position:absolute; width:1px; height:1px; overflow:hidden; opacity:0; pointer-events:none; }
 .goog-te-banner-frame, .goog-te-banner-frame.skiptranslate, iframe.goog-te-banner-frame,
 iframe.skiptranslate, iframe[id^=":"], .skiptranslate > iframe{ display:none !important; visibility:hidden !important; height:0 !important; }
@@ -806,7 +894,6 @@ body{ top:0 !important; position:static !important; }
 
   <div class="sb-overlay" id="sbOverlay" onclick="toggleSidebar(false)"></div>
 
-  <!-- ===================== SIDEBAR ===================== -->
   <aside class="sidebar" id="sidebar">
     <div class="sb-top">
       <div class="sb-brand"><div class="mark" id="brandMark"></div>Icon Lab</div>
@@ -852,14 +939,22 @@ body{ top:0 !important; position:static !important; }
     </div>
   </aside>
 
-  <!-- ===================== MAIN ===================== -->
   <main class="main">
     <div class="topbar">
       <div class="topbar-title">
         <button class="sb-toggle" onclick="toggleSidebar(true)" aria-label="Open chats menu"></button>
         <span class="tt-text" id="chatTitle">New chat</span>
       </div>
-      <span class="tt-badge" id="modeBadge"><span id="modeBadgeIcon"></span><span id="modeBadgeText">Chat</span></span>
+
+      <div class="topbar-right">
+        <span class="tt-badge" id="modeBadge"><span id="modeBadgeIcon"></span><span id="modeBadgeText">Chat</span></span>
+
+        <button class="widget-add-btn widget-add-btn-mobile" id="widgetAddBtnMobile" onclick="openGameWidgetModal()">
+          <span class="wab-icon"></span><span>Live Stats</span>
+        </button>
+      </div>
+
+      <div class="topbar-widgets-mobile" id="widgetsRowMobile"></div>
     </div>
 
     <div class="feed" id="feed">
@@ -880,81 +975,78 @@ body{ top:0 !important; position:static !important; }
 
     <div class="composer-wrap">
       <div class="composer-dock">
+        <div class="composer-stage">
 
-        <!-- Row 1 (own flex line): Live Stats widget cards.
-             Adding/removing cards here never touches row 2 below,
-             so the composer never shifts sideways. -->
-        <div class="widgets-row" id="widgetsRow"></div>
+          <div class="composer-main-row">
+            <div class="composer">
 
-        <!-- Row 2 (own flex line): "+ Live Stats" button + the composer box,
-             always centered together regardless of how many widgets exist above. -->
-        <div class="composer-main-row">
-          <button class="widget-add-btn" id="widgetAddBtn" onclick="openGameWidgetModal()">
-            <span class="wab-icon"></span><span>Live Stats</span>
-          </button>
+              <div class="force-mode-bar" id="forceModeBar">
+                <div class="fm-pill active" data-force="chat"><span class="fm-icon"></span>Chat</div>
+                <div class="fm-pill" data-force="icon"><span class="fm-icon"></span>Icon</div>
+                <div class="fm-pill" data-force="thumbnail"><span class="fm-icon"></span>Thumbnail</div>
+                <div class="fm-pill" data-force="model3d"><span class="fm-icon"></span>Model 3D</div>
+                <div class="fm-pill" data-force="ui2lua"><span class="fm-icon"></span>UI → Lua</div>
+              </div>
 
-          <div class="composer">
+              <div class="dropzone-row" id="dropzoneRow" style="display:none;">
+                <div class="dropzone" id="dzMain">
+                  <input type="file" id="mainImageInput" accept="image/png,image/jpeg,image/webp">
+                  <div class="dz-empty" id="dzMainEmpty"><span class="dz-tag">01</span><span id="dzMainLabel">Image</span></div>
+                  <div class="dz-filled" id="dzMainFilled">
+                    <img id="dzMainPreview" alt="">
+                    <span class="dz-name" id="dzMainName"></span>
+                    <button class="dz-remove" onclick="clearMainImage(event)"></button>
+                  </div>
+                </div>
 
-            <!-- Forced mode bar -->
-            <div class="force-mode-bar" id="forceModeBar">
-              <div class="fm-pill active" data-force="chat"><span class="fm-icon"></span>Chat</div>
-              <div class="fm-pill" data-force="icon"><span class="fm-icon"></span>Icon</div>
-              <div class="fm-pill" data-force="thumbnail"><span class="fm-icon"></span>Thumbnail</div>
-              <div class="fm-pill" data-force="model3d"><span class="fm-icon"></span>Model 3D</div>
-              <div class="fm-pill" data-force="ui2lua"><span class="fm-icon"></span>UI → Lua</div>
-            </div>
-
-            <div class="dropzone-row" id="dropzoneRow" style="display:none;">
-              <div class="dropzone" id="dzMain">
-                <input type="file" id="mainImageInput" accept="image/png,image/jpeg,image/webp">
-                <div class="dz-empty" id="dzMainEmpty"><span class="dz-tag">01</span><span id="dzMainLabel">Image</span></div>
-                <div class="dz-filled" id="dzMainFilled">
-                  <img id="dzMainPreview" alt="">
-                  <span class="dz-name" id="dzMainName"></span>
-                  <button class="dz-remove" onclick="clearMainImage(event)"></button>
+                <div class="dropzone" id="dzRef" style="display:none;">
+                  <input type="file" id="refImageInput" accept="image/png,image/jpeg,image/webp">
+                  <div class="dz-empty" id="dzRefEmpty"><span class="dz-tag">02</span> Reference Image</div>
+                  <div class="dz-filled" id="dzRefFilled">
+                    <img id="dzRefPreview" alt="">
+                    <span class="dz-name" id="dzRefName"></span>
+                    <button class="dz-remove" onclick="clearRefImage(event)"></button>
+                  </div>
                 </div>
               </div>
-              <div class="dropzone" id="dzRef" style="display:none;">
-                <input type="file" id="refImageInput" accept="image/png,image/jpeg,image/webp">
-                <div class="dz-empty" id="dzRefEmpty"><span class="dz-tag">02</span> Reference Image</div>
-                <div class="dz-filled" id="dzRefFilled">
-                  <img id="dzRefPreview" alt="">
-                  <span class="dz-name" id="dzRefName"></span>
-                  <button class="dz-remove" onclick="clearRefImage(event)"></button>
+
+              <div class="pending-attachments" id="pendingAttachments"></div>
+
+              <div class="prompt-box" id="promptBox">
+                <button class="attach-btn" id="attachBtn" onclick="triggerAttachPicker()" title="Add attachment" type="button"></button>
+                <input type="file" id="chatAttachInput" multiple accept="image/*,.pdf,.txt,.doc,.docx,.zip" style="display:none;">
+                <textarea id="prompt" rows="1" placeholder="Write a message…"></textarea>
+                <div class="composer-btns">
+                  <button class="enhance-btn" id="enhanceBtn" onclick="enhancePrompt()" style="display:none;">
+                    <span id="enhanceIcon"></span><span id="enhanceLabel">Enhance</span>
+                  </button>
+                  <button class="send-btn" id="generateBtn" onclick="onSendClick()">
+                    <span id="sendIcon"></span>
+                  </button>
                 </div>
               </div>
-            </div>
 
-            <div class="pending-attachments" id="pendingAttachments"></div>
-
-            <div class="prompt-box" id="promptBox">
-              <button class="attach-btn" id="attachBtn" onclick="triggerAttachPicker()" title="Add attachment" type="button"></button>
-              <input type="file" id="chatAttachInput" multiple accept="image/*,.pdf,.txt,.doc,.docx,.zip" style="display:none;">
-              <textarea id="prompt" rows="1" placeholder="Write a message…"></textarea>
-              <div class="composer-btns">
-                <button class="enhance-btn" id="enhanceBtn" onclick="enhancePrompt()" style="display:none;">
-                  <span id="enhanceIcon"></span><span id="enhanceLabel">Enhance</span>
-                </button>
-                <button class="send-btn" id="generateBtn" onclick="onSendClick()">
-                  <span id="sendIcon"></span>
-                </button>
+              <div class="composer-footrow">
+                <span class="char-count" id="charCount">0 characters</span>
               </div>
-            </div>
 
-            <div class="composer-footrow">
-              <span class="char-count" id="charCount">0 characters</span>
+              <div class="composer-hint" id="composerHint">Tell me what you need — I'll figure out the intent.</div>
             </div>
-
-            <div class="composer-hint" id="composerHint">Tell me what you need — I'll figure out the intent.</div>
           </div>
-        </div>
 
+          <div class="widgets-side" id="widgetsSideDesktop">
+            <button class="widget-add-btn widget-add-btn-desktop" id="widgetAddBtnDesktop" onclick="openGameWidgetModal()">
+              <span class="wab-icon"></span><span>Live Stats</span>
+            </button>
+            <div class="widgets-row widgets-row-desktop" id="widgetsRowDesktop"></div>
+          </div>
+
+        </div>
       </div>
     </div>
   </main>
 </div>
 
-<!-- ===================== BUY MODAL ===================== -->
 <div class="modal-overlay" id="buyModal">
   <div class="modal-card">
     <button class="modal-close" onclick="closeBuyModal()"></button>
@@ -981,9 +1073,6 @@ body{ top:0 !important; position:static !important; }
 </div>
 
 <script>
-  // ==================================================
-  // ICON SET (simple, linear SVGs — replace emoji)
-  // ==================================================
   const ICONS = {
     chevronDown: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>`,
     spark: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v6M12 16v6M4.9 4.9l4.2 4.2M14.9 14.9l4.2 4.2M2 12h6M16 12h6M4.9 19.1l4.2-4.2M14.9 9.1l4.2-4.2"/></svg>`,
@@ -1014,9 +1103,6 @@ body{ top:0 !important; position:static !important; }
     bot: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="12" rx="2"/><path d="M12 8V4M8 14v1M16 14v1"/><circle cx="12" cy="4" r="1.4" fill="#fff" stroke="none"/></svg>`
   };
 
-  // ==================================================
-  // KONFIGURACJA
-  // ==================================================
   const WORKER_URL = "https://robloxgenerate.hexteec.workers.dev";
 
   const firebaseConfig = {
@@ -1035,7 +1121,6 @@ body{ top:0 !important; position:static !important; }
     { id: "p200", tokens: 200, price: "129,99 zł", tag: "best price / token" }
   ];
 
-  // Four FORCED modes + default "chat" mode (none forced).
   const FORCE_MODE_INFO = {
     chat:      { label: "Chat",      icon: ICONS.chat,   hint: "Tell me what you need — I'll figure out the intent and suggest a generation." },
     icon:      { label: "Icon",      icon: ICONS.icon,   hint: "Choose a creation method in the message below." },
@@ -1044,15 +1129,12 @@ body{ top:0 !important; position:static !important; }
     ui2lua:    { label: "UI → Lua",  icon: ICONS.layout, hint: "Upload a Roblox UI screenshot — I'll create a responsive LUA script that recreates it." }
   };
 
-  // Image CREATION methods — apply only to icon/thumbnail modes.
   const METHOD_INFO = {
-    text:  { api: "text2img",     label: "From scratch",    icon: ICONS.wand,   sub: "Describe the idea — the rest is chosen automatically.",          hint: "Describe the idea — the rest is chosen automatically." },
-    image: { api: "image2img",    label: "Edit photo",      icon: ICONS.edit,   sub: "Upload a photo and describe what to change.",                     hint: "Upload a photo and describe what to change." },
-    style: { api: "reference2img",label: "Transfer style",  icon: ICONS.upload, sub: "Upload an image to edit and a separate style reference.",         hint: "Upload an image to edit and a style reference. Description is optional." }
+    text:  { api: "text2img",      label: "From scratch",   icon: ICONS.wand,   sub: "Describe the idea — the rest is chosen automatically.", hint: "Describe the idea — the rest is chosen automatically." },
+    image: { api: "image2img",     label: "Edit photo",     icon: ICONS.edit,   sub: "Upload a photo and describe what to change.",            hint: "Upload a photo and describe what to change." },
+    style: { api: "reference2img", label: "Transfer style", icon: ICONS.upload, sub: "Upload an image to edit and a separate style reference.", hint: "Upload an image to edit and a style reference. Description is optional." }
   };
 
-
-  // 3D model settings — the cost is just a preview; the backend calculates it authoritatively.
   const MODEL3D_PRESETS = {
     low:      { label:"Low Poly",     polygonCount:2000,  geometryQuality:"standard", lowPoly:true,  textures:false, pbr:false, textureQuality:"standard" },
     standard: { label:"Standard",     polygonCount:10000, geometryQuality:"standard", lowPoly:false, textures:true,  pbr:false, textureQuality:"standard" },
@@ -1078,12 +1160,8 @@ body{ top:0 !important; position:static !important; }
   let model3DSettings = { ...MODEL3D_PRESETS.standard, preset: "standard" };
   let pending3DInput = null;
   let pendingModel3DPanelEl = null;
-
   const HISTORY_THUMB_SIZE = 480;
 
-  // ==================================================
-  // MOTYWY
-  // ==================================================
   const THEMES = [
     { id: "light",  label: "Light" },
     { id: "dark",   label: "Dark" },
@@ -1096,14 +1174,11 @@ body{ top:0 !important; position:static !important; }
   function applyTheme(themeId, opts) {
     opts = opts || {};
     const valid = THEMES.some(t => t.id === themeId) ? themeId : "light";
-    if (valid === "light") {
-      document.documentElement.removeAttribute("data-theme");
-    } else {
-      document.documentElement.setAttribute("data-theme", valid);
-    }
+    if (valid === "light") document.documentElement.removeAttribute("data-theme");
+    else document.documentElement.setAttribute("data-theme", valid);
     document.querySelectorAll(".theme-dot").forEach(d => d.classList.toggle("active", d.dataset.themeId === valid));
     if (!opts.skipSave) {
-      try { localStorage.setItem(THEME_STORAGE_KEY, valid); } catch (e) { /* ignore */ }
+      try { localStorage.setItem(THEME_STORAGE_KEY, valid); } catch (e) {}
     }
   }
 
@@ -1120,15 +1195,10 @@ body{ top:0 !important; position:static !important; }
     });
 
     let saved = "light";
-    try { saved = localStorage.getItem(THEME_STORAGE_KEY) || "light"; } catch (e) { /* ignore */ }
+    try { saved = localStorage.getItem(THEME_STORAGE_KEY) || "light"; } catch (e) {}
     applyTheme(saved, { skipSave: true });
   }
 
-  // ==================================================
-  // LANGUAGE — custom dropdown driving the hidden Google Translate engine.
-  // We never show Google's own widget/banner; we just flip its internal
-  // <select> and let it swap the DOM text, then mirror the choice in our UI.
-  // ==================================================
   const LANGUAGES = [
     { code: "en", label: "English",    flag: "🇬🇧" },
     { code: "pl", label: "Polski",     flag: "🇵🇱" },
@@ -1160,9 +1230,8 @@ body{ top:0 !important; position:static !important; }
     });
 
     let saved = "en";
-    try { saved = localStorage.getItem(LANG_STORAGE_KEY) || "en"; } catch (e) { /* ignore */ }
+    try { saved = localStorage.getItem(LANG_STORAGE_KEY) || "en"; } catch (e) {}
     if (saved !== "en") {
-      // Defer until the Google engine has finished bootstrapping.
       const tryApply = (attempt) => {
         if (applyGoogleLanguage(saved)) { setLangDisplay(saved); return; }
         if (attempt < 20) setTimeout(() => tryApply(attempt + 1), 300);
@@ -1198,17 +1267,15 @@ body{ top:0 !important; position:static !important; }
   }
 
   function selectLanguage(code) {
-    try { localStorage.setItem(LANG_STORAGE_KEY, code); } catch (e) { /* ignore */ }
+    try { localStorage.setItem(LANG_STORAGE_KEY, code); } catch (e) {}
     setLangDisplay(code);
     closeLangMenu();
     if (code === "en") {
-      // Cleanest way back to the untranslated original page.
-      try { document.cookie = "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/"; } catch (e) { /* ignore */ }
+      try { document.cookie = "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/"; } catch (e) {}
       location.reload();
       return;
     }
     if (!applyGoogleLanguage(code)) {
-      // Engine not ready yet — retry briefly.
       let attempts = 0;
       const retry = setInterval(() => {
         attempts++;
@@ -1217,23 +1284,16 @@ body{ top:0 !important; position:static !important; }
     }
   }
 
-  // ==================================================
-  // STAN
-  // ==================================================
-  let activeForceMode = "chat";     // "chat" | "icon" | "thumbnail" | "model3d" | "ui2lua"
-  let currentMethod = "text";       // tylko dla icon/thumbnail
-  let currentTemplate = "square";   // tylko dla icon
-  let mainImage = null;             // base64 data URL — "main" image (edit / model3d reference / UI screenshot)
-  let refImage = null;              // base64 data URL — wzorzec stylu (tylko metoda "style")
+  let activeForceMode = "chat";
+  let currentMethod = "text";
+  let currentTemplate = "square";
+  let mainImage = null;
+  let refImage = null;
 
-  // General state of the MODE SELECTION flow within the CURRENT composing turn.
-  // Shared by icon / thumbnail / model3d:
-  // idle -> choose_method -> awaiting_input (description / image) -> busy
   let flowState = "idle";
-  let model3dGeneratedImageDataUrl = null; // image generated for confirmation in the "generate image first" path
+  let model3dGeneratedImageDataUrl = null;
 
-  // Attachments in the MAIN CHAT (multiple images / files at once)
-  let pendingAttachments = []; // { id, kind: 'image'|'file', dataUrl, name, mimeType }
+  let pendingAttachments = [];
   let attachmentSeq = 0;
 
   let activeChatId = null;
@@ -1248,9 +1308,6 @@ body{ top:0 !important; position:static !important; }
   let gameWidgetsPollTimer = null;
   const GAME_WIDGET_POLL_MS = 30000;
 
-  // Stores the raw text of each rendered code block so the
-  // "Copy" / "Download .lua" button can access it without
-  // re-parsing the HTML.
   let codeBlockSeq = 0;
   const codeBlockStore = {};
 
@@ -1264,10 +1321,14 @@ body{ top:0 !important; position:static !important; }
   }
 
   function init() {
-    // ikony statyczne, wstawiane raz przy starcie
     document.getElementById("brandMark").innerHTML = ICONS.spark;
     document.getElementById("newChatIcon").innerHTML = ICONS.plus;
-    document.getElementById("widgetAddBtn").querySelector(".wab-icon").innerHTML = ICONS.stats;
+
+    const widgetBtnDesktop = document.getElementById("widgetAddBtnDesktop");
+    const widgetBtnMobile = document.getElementById("widgetAddBtnMobile");
+    if (widgetBtnDesktop) widgetBtnDesktop.querySelector(".wab-icon").innerHTML = ICONS.stats;
+    if (widgetBtnMobile) widgetBtnMobile.querySelector(".wab-icon").innerHTML = ICONS.stats;
+
     document.querySelector(".sb-toggle").innerHTML = ICONS.menu;
     document.getElementById("attachBtn").innerHTML = ICONS.paperclip;
     document.getElementById("enhanceIcon").innerHTML = ICONS.wand;
@@ -1275,10 +1336,10 @@ body{ top:0 !important; position:static !important; }
     document.querySelectorAll(".dz-remove").forEach(b => b.innerHTML = ICONS.close);
     document.querySelectorAll(".modal-close").forEach(b => b.innerHTML = ICONS.close);
     document.querySelector(".u-signout").innerHTML = ICONS.power;
-    document.getElementById("welcome").querySelector(".w-mark").innerHTML = ICONS.spark.replace('width="13" height="13"','width="20" height="20"').replace('stroke="#fff"','stroke="#fff"');
+    document.getElementById("welcome").querySelector(".w-mark").innerHTML = ICONS.spark.replace('width="13" height="13"','width="20" height="20"');
     document.querySelectorAll(".fm-pill").forEach(p => {
       const info = FORCE_MODE_INFO[p.dataset.force];
-      if (info) p.querySelector(".fm-icon").innerHTML = info.icon;
+      if (info && p.querySelector(".fm-icon")) p.querySelector(".fm-icon").innerHTML = info.icon;
     });
 
     initThemeSwitch();
@@ -1311,10 +1372,6 @@ body{ top:0 !important; position:static !important; }
     startGameWidgetsPolling();
   }
 
-  // ==================================================
-  // AUTH
-  // ==================================================
-
   async function onAuthChange(user) {
     currentUser = user;
     const signInBtn = document.getElementById("signInBtn");
@@ -1339,11 +1396,6 @@ body{ top:0 !important; position:static !important; }
     }
   }
 
-
-  // ==================================================
-  // LIVE GAME STATS WIDGETS
-  // ==================================================
-
   async function loadGameWidgets() {
     if (!currentUser) { gameWidgets = []; renderGameWidgets(); return; }
     try {
@@ -1356,9 +1408,12 @@ body{ top:0 !important; position:static !important; }
   }
 
   function renderGameWidgets() {
-    const row = document.getElementById("widgetsRow");
-    if (!row) return;
-    row.innerHTML = gameWidgets.map(gameWidgetCardHtml).join("");
+    const desktopRow = document.getElementById("widgetsRowDesktop");
+    const mobileRow = document.getElementById("widgetsRowMobile");
+    const html = gameWidgets.map(gameWidgetCardHtml).join("");
+
+    if (desktopRow) desktopRow.innerHTML = html;
+    if (mobileRow) mobileRow.innerHTML = html;
   }
 
   function gameWidgetCardHtml(w) {
@@ -1488,7 +1543,7 @@ body{ top:0 !important; position:static !important; }
         }
         const res = await authedFetch(url);
         if (res.ok) Object.assign(w, await res.json(), { error: null });
-      } catch (e) { /* silent skip */ }
+      } catch (e) {}
     }
     renderGameWidgets();
   }
@@ -1532,10 +1587,6 @@ body{ top:0 !important; position:static !important; }
     if (attempt < 6) setTimeout(() => pollBalanceAfterPurchase(attempt + 1), 1500);
   }
 
-  // ==================================================
-  // CHATS SIDEBAR
-  // ==================================================
-
   async function loadChats() {
     try {
       const res = await authedFetch("/chats");
@@ -1559,7 +1610,7 @@ body{ top:0 !important; position:static !important; }
 
     if (chatsCache.length === 0) {
       list.innerHTML = "";
-      empty.textContent = "No chats yet — click \u201c+ New chat\u201d to start.";
+      empty.textContent = "No chats yet — click “+ New chat” to start.";
       list.appendChild(empty);
       return;
     }
@@ -1669,10 +1720,6 @@ body{ top:0 !important; position:static !important; }
     } catch (e) { console.error("Saving message:", e); }
   }
 
-  // ==================================================
-  // FEED — renderowanie historii
-  // ==================================================
-
   function renderFeed(messages) {
     const inner = document.getElementById("feedInner");
     inner.innerHTML = "";
@@ -1696,49 +1743,46 @@ body{ top:0 !important; position:static !important; }
   }
 
   function appendHistoryPair(m, isLatest) {
-  const inner = document.getElementById("feedInner");
+    const inner = document.getElementById("feedInner");
 
-  const userMsg = document.createElement("div");
-  userMsg.className = "msg msg-user";
-  userMsg.innerHTML = `
-    <div class="msg-avatar"><img src="${currentUser && currentUser.photoURL ? currentUser.photoURL : ""}" alt=""></div>
-    <div class="msg-bubble">
-      <div>${escapeHtml(m.prompt || "_")}</div>
-      <div class="msg-meta"><span>${historyBadge(m)}</span></div>
-    </div>
-  `;
-  inner.appendChild(userMsg);
+    const userMsg = document.createElement("div");
+    userMsg.className = "msg msg-user";
+    userMsg.innerHTML = `
+      <div class="msg-avatar"><img src="${currentUser && currentUser.photoURL ? currentUser.photoURL : ""}" alt=""></div>
+      <div class="msg-bubble">
+        <div>${escapeHtml(m.prompt || "_")}</div>
+        <div class="msg-meta"><span>${historyBadge(m)}</span></div>
+      </div>
+    `;
+    inner.appendChild(userMsg);
 
-  const botMsg = document.createElement("div");
-  botMsg.className = "msg msg-bot";
-  const body = document.createElement("div");
-  body.className = "bot-body";
+    const botMsg = document.createElement("div");
+    botMsg.className = "msg msg-bot";
+    const body = document.createElement("div");
+    body.className = "bot-body";
 
-  // We detect the type not only by `m.type`, but also by data presence —
-  // older records might not have the `type` field set correctly.
-  const isModel3d = m.type === "model3d" || !!m.modelUrl;
-  const isImageGen = !isModel3d && (m.type === "generation" || !!m.thumbnail);
-  const isTextReply = !isModel3d && !isImageGen;
+    const isModel3d = m.type === "model3d" || !!m.modelUrl;
+    const isImageGen = !isModel3d && (m.type === "generation" || !!m.thumbnail);
+    const isTextReply = !isModel3d && !isImageGen;
 
-  if (isTextReply) {
-    // m.reply might be named differently in old records — we check fallbacks.
-    const replyText = m.reply ?? m.content ?? m.text ?? "";
-    body.innerHTML = renderMarkdown(replyText);
-  } else if (isModel3d) {
-    body.innerHTML = modelFrameHtml(m.modelUrl, m.thumbnailUrl, isLatest);
-  } else {
-    body.innerHTML = imageFrameHtml(m.thumbnail, m.template || "square", categoryLabel(m.category), isLatest, m.category === "thumbnail");
+    if (isTextReply) {
+      const replyText = m.reply ?? m.content ?? m.text ?? "";
+      body.innerHTML = renderMarkdown(replyText);
+    } else if (isModel3d) {
+      body.innerHTML = modelFrameHtml(m.modelUrl, m.thumbnailUrl, isLatest);
+    } else {
+      body.innerHTML = imageFrameHtml(m.thumbnail, m.template || "square", categoryLabel(m.category), isLatest, m.category === "thumbnail");
+    }
+
+    botMsg.innerHTML = `<div class="msg-avatar">${ICONS.bot}</div><div class="msg-bubble"></div>`;
+    botMsg.querySelector(".msg-bubble").appendChild(body);
+    inner.appendChild(botMsg);
+
+    if (isLatest) {
+      const frame = botMsg.querySelector(".result-frame, .model-frame");
+      if (frame) lastLargeFrame = frame;
+    }
   }
-
-  botMsg.innerHTML = `<div class="msg-avatar">${ICONS.bot}</div><div class="msg-bubble"></div>`;
-  botMsg.querySelector(".msg-bubble").appendChild(body);
-  inner.appendChild(botMsg);
-
-  if (isLatest) {
-    const frame = botMsg.querySelector(".result-frame, .model-frame");
-    if (frame) lastLargeFrame = frame;
-  }
-}
 
   function historyBadge(m) {
     if (m.type === "text") return "Chat";
@@ -1758,10 +1802,6 @@ body{ top:0 !important; position:static !important; }
     const feed = document.getElementById("feed");
     requestAnimationFrame(() => { feed.scrollTop = feed.scrollHeight; });
   }
-
-  // ==================================================
-  // FEED — "live" messages (current turn)
-  // ==================================================
 
   function appendUserBubble(text, attachments) {
     const inner = document.getElementById("feedInner");
@@ -1805,19 +1845,9 @@ body{ top:0 !important; position:static !important; }
             <div class="progress-track"><div class="progress-fill" style="width:${Math.max(4, progress || 0)}%"></div></div>`;
   }
 
-  // ==================================================
-  // FORMATOWANIE ODPOWIEDZI GEMINI (markdown -> HTML)
-  //
-  // Gemini returns plain text in the "reply" field, where code is wrapped
-  // w ```lang ... ```. Ta funkcja zamienia to na czytelne bloki kodu z
-  // with "Copy"/"Download" buttons, and the rest of the text into paragraphs with
-  // **bold** and `inline code` support, instead of showing raw ``` in the content.
-  // ==================================================
-
   function renderMarkdown(raw) {
     if (!raw) return "";
     const parts = String(raw).split(/```(\w*)\n?([\s\S]*?)```/g);
-    // split zwraca naprzemiennie: tekst, lang, kod, tekst, lang, kod, ...
     let html = `<div class="md-content">`;
     for (let i = 0; i < parts.length; i += 3) {
       const textChunk = parts[i];
@@ -1927,34 +1957,34 @@ body{ top:0 !important; position:static !important; }
       </div>`;
   }
 
- async function downloadModelGlb(btnEl) {
+  async function downloadModelGlb(btnEl) {
     const modelUrl = btnEl.dataset.modelUrl;
     if (!modelUrl || modelUrl === "null" || modelUrl === "undefined") {
-        alert("The model file link is unavailable for this generated model (backend did not return a URL).");
-        return;
+      alert("The model file link is unavailable for this generated model (backend did not return a URL).");
+      return;
     }
     const original = btnEl.innerHTML;
     btnEl.disabled = true;
     btnEl.textContent = "Downloading…";
     try {
-        const res = await authedFetch("/proxy-download?url=" + encodeURIComponent(modelUrl) + "&filename=" + encodeURIComponent("icon-lab-model.glb"));
-        if (!res.ok) throw new Error(await extractError(res));
-        const blob = await res.blob();
-        const blobUrl = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = blobUrl;
-        a.download = "icon-lab-model.glb";
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        setTimeout(() => URL.revokeObjectURL(blobUrl), 4000);
+      const res = await authedFetch("/proxy-download?url=" + encodeURIComponent(modelUrl) + "&filename=" + encodeURIComponent("icon-lab-model.glb"));
+      if (!res.ok) throw new Error(await extractError(res));
+      const blob = await res.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = blobUrl;
+      a.download = "icon-lab-model.glb";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 4000);
     } catch (e) {
-        alert("Failed to download the model: " + e.message);
+      alert("Failed to download the model: " + e.message);
     } finally {
-        btnEl.disabled = false;
-        btnEl.innerHTML = original;
+      btnEl.disabled = false;
+      btnEl.innerHTML = original;
     }
-}
+  }
 
   function demoteIfLatest(isLatest) {
     if (isLatest) demoteLastLarge();
@@ -1965,24 +1995,20 @@ body{ top:0 !important; position:static !important; }
     if (frame) lastLargeFrame = frame;
   }
 
-  // ==================================================
-  // FORCED MODE BAR
-  // ==================================================
-
   function bindForceModeBar() {
     document.querySelectorAll(".fm-pill").forEach(pill => {
+      if (!pill.dataset.force) return;
       pill.addEventListener("click", () => setForceMode(pill.dataset.force));
     });
   }
 
-  // Ustawia aktywny tryb. `opts.skipAutoChooser` = true gdy chooser zostanie
-  // added manually elsewhere (e.g. directly in the chat thread after
-  // wykryciu intencji).
   function setForceMode(mode, opts) {
     opts = opts || {};
     activeForceMode = mode;
 
-    document.querySelectorAll(".fm-pill").forEach(p => p.classList.toggle("active", p.dataset.force === mode));
+    document.querySelectorAll(".fm-pill").forEach(p => {
+      if (p.dataset.force) p.classList.toggle("active", p.dataset.force === mode);
+    });
 
     const info = FORCE_MODE_INFO[mode];
     document.getElementById("modeBadgeIcon").innerHTML = info.icon;
@@ -2006,7 +2032,7 @@ body{ top:0 !important; position:static !important; }
 
     if (mode === "ui2lua") {
       document.getElementById("composerHint").textContent = info.hint;
-      document.getElementById("prompt").placeholder = "Optional extra hints (e.g. \u201cadd tabs\u201d, \u201cthis should be responsive on mobile\u201d)…";
+      document.getElementById("prompt").placeholder = "Optional extra hints (e.g. “add tabs”, “this should be responsive on mobile”)…";
       document.getElementById("enhanceBtn").style.display = "none";
       dropzoneRow.style.display = "flex";
       dzRef.style.display = "none";
@@ -2017,8 +2043,6 @@ body{ top:0 !important; position:static !important; }
       return;
     }
 
-    // Icon / Thumbnail / Model3D — all three use the SAME
-    // mechanism: a mode-selection message in the chat thread.
     dropzoneRow.style.display = "none";
     dzRef.style.display = "none";
     document.getElementById("enhanceBtn").style.display = (mode === "icon" || mode === "thumbnail") ? "flex" : "none";
@@ -2039,11 +2063,6 @@ body{ top:0 !important; position:static !important; }
     else label.textContent = "Image for editing";
   }
 
-  // ==================================================
-  // SHARED MODE SELECTION MECHANISM (chooser message)
-  // Used identically for: Icon, Thumbnail, 3D Model.
-  // ==================================================
-
   function appendModeChooser(mode, existingEl) {
     let html;
     if (mode === "model3d") {
@@ -2062,7 +2081,9 @@ body{ top:0 !important; position:static !important; }
         </div>`;
     }
 
-    const introText = mode === "model3d" ? "How do you want to create the 3D model?" : (mode === "thumbnail" ? "How do you want to create the thumbnail?" : "How do you want to create the icon?");
+    const introText = mode === "model3d"
+      ? "How do you want to create the 3D model?"
+      : (mode === "thumbnail" ? "How do you want to create the thumbnail?" : "How do you want to create the icon?");
 
     if (existingEl) {
       appendBotBody(existingEl, html);
@@ -2100,7 +2121,6 @@ body{ top:0 !important; position:static !important; }
       return;
     }
 
-    // Icon / Thumbnail — depending on the chosen creation method
     if (currentMethod === "text") {
       dropzoneRow.style.display = "none";
       dzRef.style.display = "none";
@@ -2116,7 +2136,6 @@ body{ top:0 !important; position:static !important; }
     document.getElementById("composerHint").textContent = METHOD_INFO[currentMethod].hint;
   }
 
-  // Creation method selection for Icon / Thumbnail (from the chooser message)
   function chooseImageMethod(mode, method, btnEl) {
     const group = btnEl.closest(".chooser-3d");
     group.querySelectorAll("button").forEach(b => { b.disabled = true; b.classList.remove("chosen"); });
@@ -2136,10 +2155,6 @@ body{ top:0 !important; position:static !important; }
     applyFlowComposerState();
     promptEl.focus();
   }
-
-  // ==================================================
-  // DROPZONES (edit / style ref / model3d referencja / UI screenshot)
-  // ==================================================
 
   function bindDropzones() {
     bindOneDropzone("dzMain", "mainImageInput", "dzMainFilled", "dzMainPreview", "dzMainName", (b64) => mainImage = b64);
@@ -2195,14 +2210,11 @@ body{ top:0 !important; position:static !important; }
 
   function updateEnhanceButtonLabel() {
     const label = document.getElementById("enhanceLabel");
+    if (!label) return;
     if (currentMethod === "text") label.textContent = "Enhance";
     else if (currentMethod === "image") label.textContent = mainImage ? "Analyze + Enhance" : "Enhance";
     else label.textContent = refImage ? "Analyze style + Enhance" : "Enhance";
   }
-
-  // ==================================================
-  // ATTACHMENTS IN THE MAIN CHAT ("+" button, multiple files)
-  // ==================================================
 
   function bindAttachInput() {
     const input = document.getElementById("chatAttachInput");
@@ -2250,10 +2262,6 @@ body{ top:0 !important; position:static !important; }
     pendingAttachments = [];
     renderPendingAttachments();
   }
-
-  // ==================================================
-  // ENHANCE / ANALYZE (tylko tryby Icon / Thumbnail)
-  // ==================================================
 
   async function enhancePrompt() {
     if (!currentUser) { document.getElementById("signInBtn").click(); return; }
@@ -2308,10 +2316,6 @@ body{ top:0 !important; position:static !important; }
     catch { return await res.text(); }
   }
 
-  // ==================================================
-  // TRANSLATION (fallback for the raw prompt before generation)
-  // ==================================================
-
   async function translateToEnglish(text) {
     if (!text) return { text: "" };
     try {
@@ -2326,10 +2330,6 @@ body{ top:0 !important; position:static !important; }
     }
   }
 
-  // ==================================================
-  // MAIN SEND BUTTON — routing by active mode / state
-  // ==================================================
-
   function onSendClick() {
     if (activeForceMode === "chat") sendChatMessage();
     else if (activeForceMode === "icon" || activeForceMode === "thumbnail") handleImageFlowSend();
@@ -2341,13 +2341,8 @@ body{ top:0 !important; position:static !important; }
     document.getElementById("promptBox").classList.toggle("disabled", !enabled);
   }
 
-  // ==================================================
-  // GENEROWANIE OBRAZU — TRYB WYMUSZONY (Icon / Thumbnail),
-  // after choosing a method from the chooser message.
-  // ==================================================
-
   function handleImageFlowSend() {
-    if (flowState === "choose_method" || flowState === "busy") return; // blocked, waiting for a choice in the chat
+    if (flowState === "choose_method" || flowState === "busy") return;
     generateImage();
   }
 
@@ -2360,11 +2355,11 @@ body{ top:0 !important; position:static !important; }
 
     if (currentMethod === "text" && !raw) return;
     if (currentMethod === "image" && (!mainImage || !raw)) {
-      alert("The \u201cEdit photo\u201d method requires an uploaded image and a description of the changes.");
+      alert("The “Edit photo” method requires an uploaded image and a description of the changes.");
       return;
     }
     if (currentMethod === "style" && (!mainImage || !refImage)) {
-      alert("The \u201cTransfer style\u201d method requires an image to edit AND a style reference image.");
+      alert("The “Transfer style” method requires an image to edit AND a style reference image.");
       return;
     }
     if ((tokenBalance ?? 0) < 1) { openBuyModal(); return; }
@@ -2451,11 +2446,6 @@ body{ top:0 !important; position:static !important; }
     }
   }
 
-  // ==================================================
-  // UI -> LUA — tryb wymuszony: wgrywasz zrzut ekranu UI, dostajesz
-  // gotowy, responsywny skrypt LocalScript.
-  // ==================================================
-
   async function sendUiToLua() {
     if (!currentUser) { document.getElementById("signInBtn").click(); return; }
     if (!mainImage) { alert("First upload a UI screenshot you want to recreate as a script."); return; }
@@ -2502,10 +2492,6 @@ body{ top:0 !important; position:static !important; }
     }
   }
 
-  // ==================================================
-  // FREE CHAT (default mode) — Gemini detects intent automatically
-  // ==================================================
-
   async function sendChatMessage() {
     if (!currentUser) { document.getElementById("signInBtn").click(); return; }
 
@@ -2539,8 +2525,8 @@ body{ top:0 !important; position:static !important; }
         body: JSON.stringify({
           chatId,
           message: messageForModel,
-          image: imageAttachments[0] || null,   // wstecznie kompatybilne pole
-          images: imageAttachments               // all attached images
+          image: imageAttachments[0] || null,
+          images: imageAttachments
         })
       });
 
@@ -2572,8 +2558,6 @@ body{ top:0 !important; position:static !important; }
         });
 
       } else if (action.type === "need_image_method") {
-        // Icon/Thumbnail intent detected in chat -> show EXACTLY the same
-        // chooser co przy wymuszonym trybie / modelu 3D.
         await persistMessage(chatId, { type: "text", prompt: raw, reply: data.reply || "" });
         setForceMode(action.category, { skipAutoChooser: true });
         flowState = "choose_method";
@@ -2592,7 +2576,7 @@ body{ top:0 !important; position:static !important; }
         pending3DInput = action.useAttachedImage
           ? { kind: "image", text: action.prompt || raw, image: imageAttachments[0] || null }
           : { kind: "text", text: action.prompt || raw };
-        setBotBody(pendingEl, renderMarkdown(data.reply || "...") );
+        setBotBody(pendingEl, renderMarkdown(data.reply || "..."));
         appendBotBody(pendingEl, model3DSettingsPanelHtml());
         pendingModel3DPanelEl = pendingEl;
         flowState = "choose_method";
@@ -2614,10 +2598,6 @@ body{ top:0 !important; position:static !important; }
       sendIcon.innerHTML = ICONS.send;
     }
   }
-
-  // ==================================================
-  // 3D MODEL — chooser + settings panel + Tripo polling
-  // ==================================================
 
   function model3DSettingsPanelHtml() {
     const s = model3DSettings;
@@ -2873,8 +2853,8 @@ body{ top:0 !important; position:static !important; }
       setBotBody(pendingEl,
         imageFrameHtml(blobUrl, "square", "Obraz referencyjny", true, false) +
         `<div class="result-actions" style="margin-top:10px;">
-           <button class="primary" onclick='confirmGeneratedImageFor3D(this, ${JSON.stringify(chatId)}, ${escapeHtml(JSON.stringify(raw))})'>Use for 3D model</button>
-           <button onclick='regenerateImageForModel3D(this, ${escapeHtml(JSON.stringify(raw))})'>Wygeneruj inny</button>
+           <button class="primary" onclick='confirmGeneratedImageFor3D(this, ${JSON.stringify(chatId)}, ${JSON.stringify(raw)})'>Use for 3D model</button>
+           <button onclick='regenerateImageForModel3D(this, ${JSON.stringify(raw)})'>Wygeneruj inny</button>
          </div>`
       );
       markNewLastLarge(pendingEl);
@@ -2917,10 +2897,6 @@ body{ top:0 !important; position:static !important; }
     });
   }
 
-  // ==================================================
-  // MINIATURY
-  // ==================================================
-
   function createThumbnail(sourceUrl, size = HISTORY_THUMB_SIZE) {
     return new Promise((resolve, reject) => {
       const img = new Image();
@@ -2941,10 +2917,6 @@ body{ top:0 !important; position:static !important; }
       img.src = sourceUrl;
     });
   }
-
-  // ==================================================
-  // KOSZYK (BUY MODAL)
-  // ==================================================
 
   function renderPackages() {
     const grid = document.getElementById("packageGrid");
@@ -3000,10 +2972,6 @@ body{ top:0 !important; position:static !important; }
   document.getElementById("gwModalInput").addEventListener("keydown", (e) => {
     if (e.key === "Enter") submitGameWidget();
   });
-
-  // ==================================================
-  // RESET / UTILS
-  // ==================================================
 
   function resetComposerAfterSend() {
     document.getElementById("prompt").value = "";
