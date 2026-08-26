@@ -508,8 +508,10 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 .msg-avatar{ width:28px; height:28px; border-radius:8px; flex-shrink:0; display:flex; align-items:center; justify-content:center; overflow:hidden; }
 .msg-user .msg-avatar{ background: var(--soft); border:1px solid var(--border); }
 .msg-user .msg-avatar img{ width:100%; height:100%; object-fit:cover; }
-.msg-bot .msg-avatar{ background-image: url("mode-image.png"); }
-
+.msg-bot .msg-avatar img{
+     width:100%; height:100%; object-fit:cover; 
+  content: url("mode-image.png");
+}
 .msg-bubble{ max-width:78%; }
 .msg-user .msg-bubble{ background: var(--ink); color:#fff; border-radius: 14px 14px 3px 14px; padding: 11px 15px; font-size:13.8px; line-height:1.55; }
 .msg-user .msg-meta{ font-size:10.5px; color: rgba(255,255,255,0.6); margin-top:6px; display:flex; gap:8px; justify-content:flex-end; }
@@ -1953,7 +1955,7 @@ body{ top:0 !important; position:static !important; }
       body.innerHTML = imageFrameHtml(m.thumbnail, m.template || "square", categoryLabel(m.category), isLatest, m.category === "thumbnail");
     }
 
-    botMsg.innerHTML = `<div class="msg-avatar"></div><div class="msg-bubble"></div>`;
+    botMsg.innerHTML = `<div class="msg-avatar"><img></div><div class="msg-bubble"></div>`;
     botMsg.querySelector(".msg-bubble").appendChild(body);
     inner.appendChild(botMsg);
 
@@ -2092,7 +2094,7 @@ body{ top:0 !important; position:static !important; }
     const inner = document.getElementById("feedInner");
     const el = document.createElement("div");
     el.className = "msg msg-bot";
-    el.innerHTML = `<div class="msg-avatar">${ICONS.bot}</div><div class="msg-bubble"><div class="bot-body">${loaderHtml(text)}</div></div>`;
+    el.innerHTML = `<div class="msg-avatar"><img></div><div class="msg-bubble"><div class="bot-body">${loaderHtml(text)}</div></div>`;
     inner.appendChild(el);
     scrollFeedToBottom();
     return el;
