@@ -978,7 +978,14 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 }
 
 @media (max-width: 420px){
-  .topbar-title .tt-text{ max-width: 38vw; }
+  .topbar-title .tt-text{
+    background: var(--soft);
+    border: 1px solid var(--border);
+    padding: 5px 11px;
+    border-radius: 999px;
+    color: var(--ink);
+    display: block;
+  }
   .tt-badge{ display:none; }
   .prompt-box{ padding-left:6px; }
   .msg-bubble{ max-width: 92%; }
