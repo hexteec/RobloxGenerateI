@@ -53,6 +53,136 @@
   --topbar-h: 60px;
 }
 
+/* ==================================================
+   MOTYWY — każdy nadpisuje tylko zmienne kolorów.
+   Layout, spacing, promienie i cienie zostają wspólne.
+   ================================================== */
+
+/* ---- Dark ---- */
+[data-theme="dark"]{
+  --bg: #17161A;
+  --card: #1F1E23;
+  --soft: #26252B;
+  --soft-2: #333138;
+  --border: #35333A;
+  --ink: #EDEBEE;
+  --ink-muted: #A19FA8;
+  --ink-faint: #6E6C75;
+
+  --accent: #E08350;
+  --accent-deep: #F0996A;
+  --accent-wash: #3A2A20;
+
+  --mint: #5FAE8A;
+  --mint-wash: #1E2E27;
+  --coral: #E17A63;
+  --amber: #D3A657;
+  --amber-wash: #332A1A;
+
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.25);
+  --shadow-md: 0 6px 20px rgba(0,0,0,0.3);
+  --shadow-lg: 0 16px 40px rgba(0,0,0,0.45);
+}
+
+/* ---- Sea (chłodny, morski) ---- */
+[data-theme="sea"]{
+  --bg: #F3F7F9;
+  --card: #FFFFFF;
+  --soft: #E7EFF3;
+  --soft-2: #D8E5EB;
+  --border: #D3E1E8;
+  --ink: #172A32;
+  --ink-muted: #556E78;
+  --ink-faint: #93A9B1;
+
+  --accent: #1E7A8C;
+  --accent-deep: #16606F;
+  --accent-wash: #DFF0F3;
+
+  --mint: #2E8F72;
+  --mint-wash: #E1F3EC;
+  --coral: #C25A45;
+  --amber: #B08A2E;
+  --amber-wash: #F3EDDD;
+
+  --shadow-sm: 0 1px 2px rgba(20,50,60,0.06);
+  --shadow-md: 0 6px 20px rgba(20,50,60,0.08);
+  --shadow-lg: 0 16px 40px rgba(20,50,60,0.12);
+}
+
+/* ---- Forest (zielony, naturalny) ---- */
+[data-theme="forest"]{
+  --bg: #F5F7F2;
+  --card: #FFFFFF;
+  --soft: #EAEEE3;
+  --soft-2: #DCE3D2;
+  --border: #D8E0CD;
+  --ink: #232B1D;
+  --ink-muted: #5F6B54;
+  --ink-faint: #97A188;
+
+  --accent: #4C7A3F;
+  --accent-deep: #3B6130;
+  --accent-wash: #E6EEE0;
+
+  --mint: #397A63;
+  --mint-wash: #E2F0EA;
+  --coral: #B0553A;
+  --amber: #A8842C;
+  --amber-wash: #F2ECDA;
+
+  --shadow-sm: 0 1px 2px rgba(30,40,20,0.06);
+  --shadow-md: 0 6px 20px rgba(30,40,20,0.08);
+  --shadow-lg: 0 16px 40px rgba(30,40,20,0.12);
+}
+
+/* ---- Sun (ciepły, słoneczny) ---- */
+[data-theme="sun"]{
+  --bg: #FCF8F1;
+  --card: #FFFFFF;
+  --soft: #F5EDDC;
+  --soft-2: #EEE1C6;
+  --border: #EBDFC4;
+  --ink: #2C2210;
+  --ink-muted: #75674C;
+  --ink-faint: #AB9C7C;
+
+  --accent: #C97A25;
+  --accent-deep: #A6621A;
+  --accent-wash: #F8E9D2;
+
+  --mint: #3E7A5F;
+  --mint-wash: #E7F1EA;
+  --coral: #C1502F;
+  --amber: #C1911F;
+  --amber-wash: #F7EBCE;
+
+  --shadow-sm: 0 1px 2px rgba(60,45,10,0.06);
+  --shadow-md: 0 6px 20px rgba(60,45,10,0.08);
+  --shadow-lg: 0 16px 40px rgba(60,45,10,0.12);
+}
+
+body{ transition: background-color .2s ease, color .2s ease; }
+.sidebar, .card, .composer, .topbar, .modal-card{ transition: background-color .2s ease, border-color .2s ease; }
+
+/* ---- przełącznik motywu ---- */
+.theme-switch{ display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:12px; }
+.theme-dot{
+  width:22px; height:22px; border-radius:50%; border:1.5px solid var(--border); cursor:pointer; padding:0;
+  position:relative; flex-shrink:0; transition: transform .12s ease, border-color .15s ease;
+}
+.theme-dot:hover{ transform: scale(1.1); }
+.theme-dot.active{ border-color: var(--ink); }
+.theme-dot.active::after{
+  content:""; position:absolute; inset:-4px; border:1.5px solid var(--accent); border-radius:50%;
+}
+.theme-dot[data-theme-id="light"]{ background: linear-gradient(135deg, #FAFAF9 50%, #B45A34 50%); }
+.theme-dot[data-theme-id="dark"]{ background: linear-gradient(135deg, #17161A 50%, #E08350 50%); }
+.theme-dot[data-theme-id="sea"]{ background: linear-gradient(135deg, #F3F7F9 50%, #1E7A8C 50%); }
+.theme-dot[data-theme-id="forest"]{ background: linear-gradient(135deg, #F5F7F2 50%, #4C7A3F 50%); }
+.theme-dot[data-theme-id="sun"]{ background: linear-gradient(135deg, #FCF8F1 50%, #C97A25 50%); }
+.theme-switch-label{ font-size:10.5px; font-weight:700; color: var(--ink-faint); text-transform:uppercase; letter-spacing:.05em; width:100%; margin-bottom:2px; }
+
 *{ box-sizing: border-box; }
 html{ scroll-behavior: smooth; }
 body{
@@ -519,6 +649,10 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
     </div>
 
     <div class="sb-bottom">
+      <div class="theme-switch" id="themeSwitch">
+        <div class="theme-switch-label">Motyw</div>
+      </div>
+
       <a class="sb-back" href="/">← Strona główna</a>
 
       <div class="auth-block">
@@ -755,6 +889,49 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
   const HISTORY_THUMB_SIZE = 480;
 
   // ==================================================
+  // MOTYWY
+  // ==================================================
+  const THEMES = [
+    { id: "light",  label: "Light" },
+    { id: "dark",   label: "Dark" },
+    { id: "sea",    label: "Sea" },
+    { id: "forest", label: "Forest" },
+    { id: "sun",    label: "Sun" }
+  ];
+  const THEME_STORAGE_KEY = "iconlab-theme";
+
+  function applyTheme(themeId, opts) {
+    opts = opts || {};
+    const valid = THEMES.some(t => t.id === themeId) ? themeId : "light";
+    if (valid === "light") {
+      document.documentElement.removeAttribute("data-theme");
+    } else {
+      document.documentElement.setAttribute("data-theme", valid);
+    }
+    document.querySelectorAll(".theme-dot").forEach(d => d.classList.toggle("active", d.dataset.themeId === valid));
+    if (!opts.skipSave) {
+      try { localStorage.setItem(THEME_STORAGE_KEY, valid); } catch (e) { /* ignoruj */ }
+    }
+  }
+
+  function initThemeSwitch() {
+    const wrap = document.getElementById("themeSwitch");
+    THEMES.forEach(t => {
+      const dot = document.createElement("button");
+      dot.className = "theme-dot";
+      dot.type = "button";
+      dot.dataset.themeId = t.id;
+      dot.title = t.label;
+      dot.addEventListener("click", () => applyTheme(t.id));
+      wrap.appendChild(dot);
+    });
+
+    let saved = "light";
+    try { saved = localStorage.getItem(THEME_STORAGE_KEY) || "light"; } catch (e) { /* ignoruj */ }
+    applyTheme(saved, { skipSave: true });
+  }
+
+  // ==================================================
   // STAN
   // ==================================================
   let activeForceMode = "chat";     // "chat" | "icon" | "thumbnail" | "model3d" | "ui2lua"
@@ -818,6 +995,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
       if (info) p.querySelector(".fm-icon").innerHTML = info.icon;
     });
 
+    initThemeSwitch();
     bindForceModeBar();
     bindDropzones();
     bindAttachInput();
