@@ -641,20 +641,20 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 @media (hover: none){ .chat-item .ci-del{ opacity: 1; } .gw-card .gw-remove{ opacity:1; } }
 
 /* ---------- Google Translate widget ---------- */
-.gt-widget{ flex-shrink:0; display:flex; align-items:center; }
-.gt-widget .goog-te-gadget{ font-family: var(--font-body) !important; font-size:0 !important; color: transparent !important; }
+.lang-switch{ margin-bottom:14px; }
+.gt-widget{ display:flex; align-items:center; }
+.gt-widget .goog-te-gadget{ font-family: var(--font-body) !important; font-size:0 !important; color: transparent !important; width:100%; }
 .gt-widget .goog-te-gadget > span > a{ display:none !important; }
 .gt-widget select.goog-te-combo{
-  font-family: var(--font-body); font-size:12.3px; font-weight:600; color: var(--ink);
-  background: var(--soft); border:1px solid var(--border); border-radius:999px;
-  padding:7px 10px; cursor:pointer; outline:none; max-width:150px;
+  width:100%; font-family: var(--font-body); font-size:12.3px; font-weight:600; color: var(--ink);
+  background: var(--soft); border:1px solid var(--border); border-radius: var(--radius-sm);
+  padding:9px 11px; cursor:pointer; outline:none;
 }
 .gt-widget select.goog-te-combo:hover{ border-color: var(--ink-faint); }
 .goog-te-banner-frame{ display:none !important; }
 body{ top:0 !important; }
 .goog-tooltip, .goog-tooltip:hover{ display:none !important; }
 .goog-text-highlight{ background:none !important; box-shadow:none !important; }
-@media (max-width: 768px){ .gt-widget{ display:none; } }
 </style>
 </head>
 <body>
@@ -676,7 +676,12 @@ body{ top:0 !important; }
 
     <div class="sb-bottom">
       <div class="theme-switch" id="themeSwitch">
-        <div class="theme-switch-label">Motyw</div>
+        <div class="theme-switch-label">Theme</div>
+      </div>
+
+      <div class="lang-switch">
+        <div class="theme-switch-label">Language</div>
+        <div id="google_translate_element" class="gt-widget"></div>
       </div>
 
       <a class="sb-back" href="/">← Home</a>
@@ -706,7 +711,6 @@ body{ top:0 !important; }
         <button class="sb-toggle" onclick="toggleSidebar(true)" aria-label="Open chats menu"></button>
         <span class="tt-text" id="chatTitle">New chat</span>
       </div>
-      <div id="google_translate_element" class="gt-widget"></div>
       <span class="tt-badge" id="modeBadge"><span id="modeBadgeIcon"></span><span id="modeBadgeText">Chat</span></span>
     </div>
 
