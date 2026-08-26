@@ -779,7 +779,7 @@ body{ top:0 !important; position:static !important; }
       <div class="feed-inner" id="feedInner">
         <div class="welcome" id="welcome">
           <div class="w-mark"></div>
-          <h2>Nad czym pracujemy?</h2>
+          <h2>What are we working on?</h2>
           <p>Tell me what you need — I'll figure out what you're asking for. You can also force a specific mode below.</p>
           <div class="w-hints">
             <span class="w-hint">"make me a dragon icon"</span>
@@ -811,7 +811,7 @@ body{ top:0 !important; position:static !important; }
         <div class="dropzone-row" id="dropzoneRow" style="display:none;">
           <div class="dropzone" id="dzMain">
             <input type="file" id="mainImageInput" accept="image/png,image/jpeg,image/webp">
-            <div class="dz-empty" id="dzMainEmpty"><span class="dz-tag">01</span><span id="dzMainLabel">Obraz</span></div>
+            <div class="dz-empty" id="dzMainEmpty"><span class="dz-tag">01</span><span id="dzMainLabel">Image</span></div>
             <div class="dz-filled" id="dzMainFilled">
               <img id="dzMainPreview" alt="">
               <span class="dz-name" id="dzMainName"></span>
@@ -820,7 +820,7 @@ body{ top:0 !important; position:static !important; }
           </div>
           <div class="dropzone" id="dzRef" style="display:none;">
             <input type="file" id="refImageInput" accept="image/png,image/jpeg,image/webp">
-            <div class="dz-empty" id="dzRefEmpty"><span class="dz-tag">02</span> Wzorzec stylu</div>
+            <div class="dz-empty" id="dzRefEmpty"><span class="dz-tag">02</span> Reference Image</div>
             <div class="dz-filled" id="dzRefFilled">
               <img id="dzRefPreview" alt="">
               <span class="dz-name" id="dzRefName"></span>
@@ -872,10 +872,10 @@ body{ top:0 !important; position:static !important; }
 <div class="modal-overlay" id="gameWidgetModal">
   <div class="modal-card">
     <button class="modal-close" onclick="closeGameWidgetModal()"></button>
-    <p class="modal-title">Dodaj widget gry</p>
+    <p class="modal-title">Add Game Widget</p>
     <p class="modal-sub">Paste a link to a Roblox game (or just the Place ID) — I'll show live stats: player count, visits, ratings.</p>
     <input type="text" id="gwModalInput" placeholder="np. roblox.com/games/1234567/Nazwa lub 1234567" class="gw-modal-input">
-    <button class="btn-newchat" style="margin-top:12px;" onclick="submitGameWidget()">Dodaj widget</button>
+    <button class="btn-newchat" style="margin-top:12px;" onclick="submitGameWidget()">Add Widget</button>
     <div class="modal-status" id="gwModalStatus"></div>
   </div>
 </div>
@@ -1552,7 +1552,7 @@ body{ top:0 !important; position:static !important; }
     const div = document.createElement("div");
     div.id = "welcome";
     div.className = "welcome";
-    div.innerHTML = `<div class="w-mark">${ICONS.spark}</div><h2>Nad czym pracujemy?</h2><p>Napisz, czego potrzebujesz.</p>`;
+    div.innerHTML = `<div class="w-mark">${ICONS.spark}</div><h2>What are we working on?</h2><p>Write what you need.</p>`;
     return div;
   }
 
@@ -1564,7 +1564,7 @@ body{ top:0 !important; position:static !important; }
   userMsg.innerHTML = `
     <div class="msg-avatar"><img src="${currentUser && currentUser.photoURL ? currentUser.photoURL : ""}" alt=""></div>
     <div class="msg-bubble">
-      <div>${escapeHtml(m.prompt || "(bez opisu)")}</div>
+      <div>${escapeHtml(m.prompt || "_")}</div>
       <div class="msg-meta"><span>${historyBadge(m)}</span></div>
     </div>
   `;
@@ -1636,7 +1636,7 @@ body{ top:0 !important; position:static !important; }
       <div class="msg-avatar"><img src="${currentUser && currentUser.photoURL ? currentUser.photoURL : ""}" alt=""></div>
       <div class="msg-bubble">
         ${gallery}
-        <div>${escapeHtml(text || "(bez opisu)")}</div>
+        <div>${escapeHtml(text || "_")}</div>
       </div>
     `;
     inner.appendChild(el);
@@ -1871,7 +1871,7 @@ body{ top:0 !important; position:static !important; }
       document.getElementById("enhanceBtn").style.display = "none";
       dropzoneRow.style.display = "flex";
       dzRef.style.display = "none";
-      document.getElementById("dzMainLabel").textContent = "Zrzut ekranu UI";
+      document.getElementById("dzMainLabel").textContent = "UI screenshot";
       clearRefImage();
       flowState = "idle";
       setPromptBoxEnabled(true);
@@ -1896,8 +1896,8 @@ body{ top:0 !important; position:static !important; }
   function updateDropzoneLabels() {
     const label = document.getElementById("dzMainLabel");
     if (activeForceMode === "model3d") label.textContent = "Reference image";
-    else if (activeForceMode === "ui2lua") label.textContent = "Zrzut ekranu UI";
-    else label.textContent = "Obraz do edycji";
+    else if (activeForceMode === "ui2lua") label.textContent = "UI screenshot";
+    else label.textContent = "Image for editing";
   }
 
   // ==================================================
@@ -2553,7 +2553,7 @@ body{ top:0 !important; position:static !important; }
       ? { kind: "image", text: userText, image: imageForPending }
       : { kind: "text", text: userText };
     const el = appendBotPlaceholder("");
-    setBotBody(el, renderInlineMarkdown("Skonfiguruj model 3D przed generowaniem:") + model3DSettingsPanelHtml());
+    setBotBody(el, renderInlineMarkdown("Set up the 3D model before generating:") + model3DSettingsPanelHtml());
     pendingModel3DPanelEl = el;
     flowState = "choose_method";
     applyFlowComposerState();
@@ -2761,7 +2761,7 @@ body{ top:0 !important; position:static !important; }
     model3DSettings = { ...MODEL3D_PRESETS.standard, preset: "standard" };
     pending3DInput = { kind: "image", text: raw, image: model3dGeneratedImageDataUrl };
     const bubbleEl = btnEl.closest(".msg-bot");
-    setBotBody(bubbleEl, renderInlineMarkdown("Skonfiguruj model 3D przed generowaniem:") + model3DSettingsPanelHtml());
+    setBotBody(bubbleEl, renderInlineMarkdown("Set up the 3D model before generating:") + model3DSettingsPanelHtml());
     pendingModel3DPanelEl = bubbleEl;
     flowState = "choose_method";
     applyFlowComposerState();
@@ -2890,11 +2890,11 @@ body{ top:0 !important; position:static !important; }
     const diffMs = Date.now() - new Date(iso).getTime();
     const mins = Math.floor(diffMs / 60000);
     if (mins < 1) return "teraz";
-    if (mins < 60) return mins + " min temu";
+    if (mins < 60) return mins + " minutes ago";
     const hrs = Math.floor(mins / 60);
-    if (hrs < 24) return hrs + " godz. temu";
+    if (hrs < 24) return hrs + " an hour ago";
     const days = Math.floor(hrs / 24);
-    if (days < 7) return days + " dni temu";
+    if (days < 7) return days + " days ago";
     return new Date(iso).toLocaleDateString("pl-PL");
   }
 
