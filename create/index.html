@@ -13,25 +13,6 @@
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
 <!-- <model-viewer> — for previewing generated 3D models (.glb) directly in chat -->
 <script type="module" src="https://unpkg.com/@google/model-viewer@3.5.0/dist/model-viewer.min.js"></script>
-<!-- Google Translate widget
-     The widget is still used for page translation, but its top banner is
-     actively suppressed so it cannot push or cover the application UI. -->
-<script type="text/javascript">
-  function googleTranslateElementInit() {
-    new google.translate.TranslateElement(
-      {
-        pageLanguage: "en",
-        autoDisplay: false,
-        multilanguagePage: true
-      },
-      "google_translate_element"
-    );
-  }
-</script>
-<script
-  type="text/javascript"
-  src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit">
-</script>
 
 <style>
 :root{
@@ -648,70 +629,6 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 }
 
 @media (hover: none){ .chat-item .ci-del{ opacity: 1; } .gw-card .gw-remove{ opacity:1; } }
-
-/* ---------- Google Translate widget ---------- */
-.lang-switch{ margin-bottom:14px; }
-.gt-widget{ display:flex; align-items:center; }
-.gt-widget .goog-te-gadget{
-  font-family: var(--font-body) !important;
-  font-size:0 !important;
-  color: transparent !important;
-  width:100%;
-}
-.gt-widget .goog-te-gadget > span > a{ display:none !important; }
-.gt-widget select.goog-te-combo{
-  width:100%;
-  font-family:var(--font-body);
-  font-size:12.3px;
-  font-weight:600;
-  color:var(--ink);
-  background:var(--soft);
-  border:1px solid var(--border);
-  border-radius:var(--radius-sm);
-  padding:9px 11px;
-  cursor:pointer;
-  outline:none;
-}
-.gt-widget select.goog-te-combo:hover{ border-color:var(--ink-faint); }
-
-/*
- * Google Translate injects a legacy top banner outside #google_translate_element.
- * Do not remove the whole widget: only suppress the injected banner/artifacts.
- */
-html,
-html body{
-  top:0 !important;
-  margin-top:0 !important;
-}
-.goog-te-banner-frame,
-.goog-te-banner-frame.skiptranslate,
-iframe.goog-te-banner-frame,
-iframe.goog-te-banner-frame.skiptranslate{
-  display:none !important;
-  visibility:hidden !important;
-  opacity:0 !important;
-  width:0 !important;
-  height:0 !important;
-  max-height:0 !important;
-  border:0 !important;
-  pointer-events:none !important;
-}
-body{
-  top:0 !important;
-  position:static !important;
-}
-.goog-tooltip,
-.goog-tooltip:hover,
-#goog-gt-tt,
-.goog-te-balloon-frame,
-.goog-te-spinner-pos{
-  display:none !important;
-  visibility:hidden !important;
-}
-.goog-text-highlight{
-  background:none !important;
-  box-shadow:none !important;
-}
 </style>
 </head>
 <body>
@@ -734,11 +651,6 @@ body{
     <div class="sb-bottom">
       <div class="theme-switch" id="themeSwitch">
         <div class="theme-switch-label">Theme</div>
-      </div>
-
-      <div class="lang-switch">
-        <div class="theme-switch-label">Language</div>
-        <div id="google_translate_element" class="gt-widget"></div>
       </div>
 
       <a class="sb-back" href="/">← Home</a>
@@ -2071,102 +1983,13 @@ body{
   }
 
   // ==================================================
-  // GOOGLE TRANSLATE — keep the selector, remove the legacy top banner
-  // ==================================================
-
-  function suppressGoogleTranslateBanner() {
-    const body = document.body;
-    if (body) {
-      body.style.setProperty("top", "0px", "important");
-      body.style.setProperty("margin-top", "0px", "important");
-      body.style.setProperty("position", "static", "important");
-    }
-
-    // Google may recreate the banner after every language change.
-    document.querySelectorAll(
-      ".goog-te-banner-frame, iframe.goog-te-banner-frame, " +
-      "iframe.goog-te-banner-frame.skiptranslate"
-    ).forEach(el => {
-      el.style.setProperty("display", "none", "important");
-      el.style.setProperty("visibility", "hidden", "important");
-      el.style.setProperty("opacity", "0", "important");
-      el.style.setProperty("height", "0px", "important");
-      el.style.setProperty("width", "0px", "important");
-      el.style.setProperty("pointer-events", "none", "important");
-    });
-
-    // Some versions wrap the iframe in a top-level .skiptranslate container.
-    document.querySelectorAll("body > .skiptranslate").forEach(wrapper => {
-      if (
-        wrapper.querySelector(".goog-te-banner-frame, iframe.goog-te-banner-frame")
-      ) {
-        wrapper.style.setProperty("display", "none", "important");
-        wrapper.style.setProperty("visibility", "hidden", "important");
-        wrapper.style.setProperty("height", "0px", "important");
-        wrapper.style.setProperty("max-height", "0px", "important");
-        wrapper.style.setProperty("overflow", "hidden", "important");
-        wrapper.style.setProperty("pointer-events", "none", "important");
-      }
-    });
-  }
-
-  // Google Translate is allowed to inject the banner asynchronously, so watch
-  // the document and immediately suppress it if Google adds it again.
-  function installGoogleTranslateGuard() {
-    suppressGoogleTranslateBanner();
-
-    if (window.__googleTranslateGuardInstalled) return;
-    window.__googleTranslateGuardInstalled = true;
-
-    const observer = new MutationObserver(() => {
-      suppressGoogleTranslateBanner();
-    });
-
-    observer.observe(document.documentElement, {
-      childList: true,
-      subtree: true,
-      attributes: true,
-      attributeFilter: ["style", "class"]
-    });
-
-    // Also run shortly after initialization/language changes.
-    [50, 250, 750, 1500, 3000].forEach(ms => {
-      setTimeout(suppressGoogleTranslateBanner, ms);
-    });
-  }
-
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", installGoogleTranslateGuard, { once: true });
-  } else {
-    installGoogleTranslateGuard();
-  }
-
-  // ==================================================
   // TRANSLATION (fallback for the raw prompt before generation)
   // ==================================================
-
-  async function translateToEnglish(text) {
-    if (!text) return { text: "" };
-    try {
-      const url = "https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=en&dt=t&q=" + encodeURIComponent(text);
-      const res = await fetch(url);
-      if (!res.ok) throw new Error("translation unavailable");
-      const data = await res.json();
-      return { text: data[0].map(c => c[0]).join("") };
-    } catch (err) {
+catch (err) {
       console.warn("Translation failed:", err);
       return { text };
     }
   }
-
-  // Re-apply the guard after Google changes the selected language.
-  document.addEventListener("change", event => {
-    if (event.target && event.target.classList.contains("goog-te-combo")) {
-      [0, 50, 250, 750, 1500].forEach(ms => {
-        setTimeout(suppressGoogleTranslateBanner, ms);
-      });
-    }
-  }, true);
 
   // ==================================================
   // MAIN SEND BUTTON — routing by active mode / state
