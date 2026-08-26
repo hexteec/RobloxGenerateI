@@ -508,13 +508,9 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 .msg-avatar{ width:28px; height:28px; border-radius:8px; flex-shrink:0; display:flex; align-items:center; justify-content:center; overflow:hidden; }
 .msg-user .msg-avatar{ background: var(--soft); border:1px solid var(--border); }
 .msg-user .msg-avatar img{ width:100%; height:100%; object-fit:cover; }
-.msg-bot .msg-avatar{
-    background: var(--ink);
-}
-.msg-bot .msg-avatar img{
-     width:100%; height:100%; object-fit:cover; 
-  content: url("mode-image.png");
-}
+.msg-bot .msg-avatar{ background: var(--ink); }
+.msg-bot .msg-avatar svg{ width:14px; height:14px; }
+
 .msg-bubble{ max-width:78%; }
 .msg-user .msg-bubble{ background: var(--ink); color:#fff; border-radius: 14px 14px 3px 14px; padding: 11px 15px; font-size:13.8px; line-height:1.55; }
 .msg-user .msg-meta{ font-size:10.5px; color: rgba(255,255,255,0.6); margin-top:6px; display:flex; gap:8px; justify-content:flex-end; }
@@ -1285,6 +1281,7 @@ body{ top:0 !important; position:static !important; }
     eye: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z"/><circle cx="12" cy="12" r="3"/></svg>`,
     up: `<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 5 4 19h16Z"/></svg>`,
     down: `<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 19 4 5h16Z"/></svg>`,
+    bot: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="12" rx="2"/><path d="M12 8V4M8 14v1M16 14v1"/><circle cx="12" cy="4" r="1.4" fill="#fff" stroke="none"/></svg>`
   };
 
   const WORKER_URL = "https://robloxgenerate.hexteec.workers.dev";
@@ -1958,7 +1955,7 @@ body{ top:0 !important; position:static !important; }
       body.innerHTML = imageFrameHtml(m.thumbnail, m.template || "square", categoryLabel(m.category), isLatest, m.category === "thumbnail");
     }
 
-    botMsg.innerHTML = `<div class="msg-avatar"><img></div><div class="msg-bubble"></div>`;
+    botMsg.innerHTML = `<div class="msg-avatar">${ICONS.bot}</div><div class="msg-bubble"></div>`;
     botMsg.querySelector(".msg-bubble").appendChild(body);
     inner.appendChild(botMsg);
 
@@ -2097,7 +2094,7 @@ body{ top:0 !important; position:static !important; }
     const inner = document.getElementById("feedInner");
     const el = document.createElement("div");
     el.className = "msg msg-bot";
-    el.innerHTML = `<div class="msg-avatar"><img></div><div class="msg-bubble"><div class="bot-body">${loaderHtml(text)}</div></div>`;
+    el.innerHTML = `<div class="msg-avatar">${ICONS.bot}</div><div class="msg-bubble"><div class="bot-body">${loaderHtml(text)}</div></div>`;
     inner.appendChild(el);
     scrollFeedToBottom();
     return el;
