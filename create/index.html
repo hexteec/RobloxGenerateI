@@ -492,7 +492,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
    same flex line as the composer, adding/removing Live Stats cards never
    changes how the composer itself is centered/wrapped — it stays put.
 ------------------------------------------------------------------ */
-.composer-wrap{ background: transparent; flex-shrink:0; padding: 0 0 22; position:relative; }
+.composer-wrap{ background: transparent; flex-shrink:0; padding: 0 0 22px; position:relative; }
 
 .composer-wrap::before{
   content:"";
@@ -501,11 +501,12 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
   top:-190px; height:190px;
   background: linear-gradient(
     to bottom,
-    color-mix(in srgb, var(--bg) 0%, transparent) 0%,
-    color-mix(in srgb, var(--bg) 0%, transparent) 8%,
-    color-mix(in srgb, var(--bg) 35%, transparent) 35%,
+    transparent 0%,
+    color-mix(in srgb, var(--bg) 8%, transparent) 15%,
+    color-mix(in srgb, var(--bg) 25%, transparent) 30%,
+    color-mix(in srgb, var(--bg) 45%, transparent) 45%,
     color-mix(in srgb, var(--bg) 70%, transparent) 65%,
-    var(--bg) 92%,
+    color-mix(in srgb, var(--bg) 90%, transparent) 82%,
     var(--bg) 100%
   );
   pointer-events:none;
