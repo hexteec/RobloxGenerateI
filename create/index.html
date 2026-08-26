@@ -476,24 +476,41 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
 .m3d-steps{ display:flex; justify-content:space-between; font-size:10.3px; color: var(--ink-faint); font-family: var(--font-mono); }
 .m3d-cost{ font-size:13px; font-weight:700; color: var(--ink); background: var(--soft); border-radius:10px; padding:9px 13px; text-align:center; border:1px solid var(--border); }
 
-/* ---------- composer ---------- */
+/* ---------- composer ----------
+   NOTE ON THE FIX:
+   The dock is now a COLUMN: the widgets row (Live Stats cards) sits in its
+   own full-width flex line above, and the "+ Live Stats" button + the
+   composer box live together in a separate, independently centered row
+   (.composer-main-row). Because the widgets row is no longer sharing the
+   same flex line as the composer, adding/removing Live Stats cards never
+   changes how the composer itself is centered/wrapped — it stays put.
+------------------------------------------------------------------ */
 .composer-wrap{ background: transparent; flex-shrink:0; padding: 14px 20px 22px; }
 
-.composer-dock{ display:flex; align-items:flex-end; justify-content:center; gap:10px; max-width:100%; flex-wrap:wrap; }
+.composer-dock{
+  display:flex; flex-direction:column; align-items:center; gap:10px;
+  max-width:100%;
+}
 
-.widgets-row{ display:flex; align-items:flex-end; gap:10px; flex-wrap:wrap; order:3; }
+/* Row 1: Live Stats widget cards — independent flex line, full width,
+   centered content. Growing/shrinking this never affects row 2 below. */
+.widgets-row{ display:flex; align-items:flex-end; gap:10px; flex-wrap:wrap; justify-content:center; width:100%; }
+
+/* Row 2: the "+ Live Stats" add-button + the actual composer box.
+   This is its own centered flex row, isolated from .widgets-row above. */
+.composer-main-row{ display:flex; align-items:flex-end; justify-content:center; gap:10px; width:100%; }
 
 .composer{
   background: var(--card); border:1px solid var(--border); border-radius:18px;
   box-shadow: var(--shadow-md); padding:12px 14px 14px; width:auto; max-width:680px;
-  flex:1 1 560px; min-width:0; order:2;
+  flex:1 1 560px; min-width:0;
 }
 
 .widget-add-btn{
   display:flex; align-items:center; gap:7px; flex-shrink:0; background: var(--card);
   border:1px dashed var(--border); border-radius:16px; padding:12px 16px; cursor:pointer;
   color: var(--ink-muted); font-size:12.3px; font-weight:600; box-shadow: var(--shadow-sm);
-  height:44px; align-self:flex-end; margin-bottom:2px; white-space:nowrap; order:1;
+  height:44px; align-self:flex-end; margin-bottom:2px; white-space:nowrap;
   transition: border-color .15s ease, color .15s ease, background .15s ease;
 }
 .widget-add-btn:hover{ border-color: var(--accent); color: var(--accent-deep); background: var(--accent-wash); }
@@ -646,10 +663,9 @@ button:focus-visible, textarea:focus-visible, input:focus-visible{ outline: 2px 
   .welcome h2{ font-size:18px; }
   .msg-bubble{ max-width: 88%; }
   .composer-wrap{ padding: 12px 16px 16px; }
-  .composer-dock{ flex-direction:column; align-items:stretch; }
-  .widgets-row{ order:1; justify-content:center; }
-  .widget-add-btn{ order:2; align-self:center; }
-  .composer{ order:3; flex:1 1 auto; }
+  .composer-main-row{ flex-direction:column; align-items:stretch; }
+  .widget-add-btn{ align-self:center; }
+  .composer{ flex:1 1 auto; }
   .force-mode-bar{ gap:6px; }
   .fm-pill{ padding:8px 12px; font-size:12px; }
   .dropzone-row{ flex-direction: column; }
@@ -793,66 +809,75 @@ body{ top:0 !important; position:static !important; }
 
     <div class="composer-wrap">
       <div class="composer-dock">
-        <button class="widget-add-btn" id="widgetAddBtn" onclick="openGameWidgetModal()">
-          <span class="wab-icon"></span><span>Live Stats</span>
-        </button>
 
-      <div class="composer">
-
-        <!-- Forced mode bar -->
-        <div class="force-mode-bar" id="forceModeBar">
-          <div class="fm-pill active" data-force="chat"><span class="fm-icon"></span>Chat</div>
-          <div class="fm-pill" data-force="icon"><span class="fm-icon"></span>Icon</div>
-          <div class="fm-pill" data-force="thumbnail"><span class="fm-icon"></span>Thumbnail</div>
-          <div class="fm-pill" data-force="model3d"><span class="fm-icon"></span>Model 3D</div>
-          <div class="fm-pill" data-force="ui2lua"><span class="fm-icon"></span>UI → Lua</div>
-        </div>
-
-        <div class="dropzone-row" id="dropzoneRow" style="display:none;">
-          <div class="dropzone" id="dzMain">
-            <input type="file" id="mainImageInput" accept="image/png,image/jpeg,image/webp">
-            <div class="dz-empty" id="dzMainEmpty"><span class="dz-tag">01</span><span id="dzMainLabel">Image</span></div>
-            <div class="dz-filled" id="dzMainFilled">
-              <img id="dzMainPreview" alt="">
-              <span class="dz-name" id="dzMainName"></span>
-              <button class="dz-remove" onclick="clearMainImage(event)"></button>
-            </div>
-          </div>
-          <div class="dropzone" id="dzRef" style="display:none;">
-            <input type="file" id="refImageInput" accept="image/png,image/jpeg,image/webp">
-            <div class="dz-empty" id="dzRefEmpty"><span class="dz-tag">02</span> Reference Image</div>
-            <div class="dz-filled" id="dzRefFilled">
-              <img id="dzRefPreview" alt="">
-              <span class="dz-name" id="dzRefName"></span>
-              <button class="dz-remove" onclick="clearRefImage(event)"></button>
-            </div>
-          </div>
-        </div>
-
-        <div class="pending-attachments" id="pendingAttachments"></div>
-
-        <div class="prompt-box" id="promptBox">
-          <button class="attach-btn" id="attachBtn" onclick="triggerAttachPicker()" title="Add attachment" type="button"></button>
-          <input type="file" id="chatAttachInput" multiple accept="image/*,.pdf,.txt,.doc,.docx,.zip" style="display:none;">
-          <textarea id="prompt" rows="1" placeholder="Write a message…"></textarea>
-          <div class="composer-btns">
-            <button class="enhance-btn" id="enhanceBtn" onclick="enhancePrompt()" style="display:none;">
-              <span id="enhanceIcon"></span><span id="enhanceLabel">Enhance</span>
-            </button>
-            <button class="send-btn" id="generateBtn" onclick="onSendClick()">
-              <span id="sendIcon"></span>
-            </button>
-          </div>
-        </div>
-
-        <div class="composer-footrow">
-          <span class="char-count" id="charCount">0 characters</span>
-        </div>
-
-        <div class="composer-hint" id="composerHint">Tell me what you need — I'll figure out the intent.</div>
-      </div>
-
+        <!-- Row 1 (own flex line): Live Stats widget cards.
+             Adding/removing cards here never touches row 2 below,
+             so the composer never shifts sideways. -->
         <div class="widgets-row" id="widgetsRow"></div>
+
+        <!-- Row 2 (own flex line): "+ Live Stats" button + the composer box,
+             always centered together regardless of how many widgets exist above. -->
+        <div class="composer-main-row">
+          <button class="widget-add-btn" id="widgetAddBtn" onclick="openGameWidgetModal()">
+            <span class="wab-icon"></span><span>Live Stats</span>
+          </button>
+
+          <div class="composer">
+
+            <!-- Forced mode bar -->
+            <div class="force-mode-bar" id="forceModeBar">
+              <div class="fm-pill active" data-force="chat"><span class="fm-icon"></span>Chat</div>
+              <div class="fm-pill" data-force="icon"><span class="fm-icon"></span>Icon</div>
+              <div class="fm-pill" data-force="thumbnail"><span class="fm-icon"></span>Thumbnail</div>
+              <div class="fm-pill" data-force="model3d"><span class="fm-icon"></span>Model 3D</div>
+              <div class="fm-pill" data-force="ui2lua"><span class="fm-icon"></span>UI → Lua</div>
+            </div>
+
+            <div class="dropzone-row" id="dropzoneRow" style="display:none;">
+              <div class="dropzone" id="dzMain">
+                <input type="file" id="mainImageInput" accept="image/png,image/jpeg,image/webp">
+                <div class="dz-empty" id="dzMainEmpty"><span class="dz-tag">01</span><span id="dzMainLabel">Image</span></div>
+                <div class="dz-filled" id="dzMainFilled">
+                  <img id="dzMainPreview" alt="">
+                  <span class="dz-name" id="dzMainName"></span>
+                  <button class="dz-remove" onclick="clearMainImage(event)"></button>
+                </div>
+              </div>
+              <div class="dropzone" id="dzRef" style="display:none;">
+                <input type="file" id="refImageInput" accept="image/png,image/jpeg,image/webp">
+                <div class="dz-empty" id="dzRefEmpty"><span class="dz-tag">02</span> Reference Image</div>
+                <div class="dz-filled" id="dzRefFilled">
+                  <img id="dzRefPreview" alt="">
+                  <span class="dz-name" id="dzRefName"></span>
+                  <button class="dz-remove" onclick="clearRefImage(event)"></button>
+                </div>
+              </div>
+            </div>
+
+            <div class="pending-attachments" id="pendingAttachments"></div>
+
+            <div class="prompt-box" id="promptBox">
+              <button class="attach-btn" id="attachBtn" onclick="triggerAttachPicker()" title="Add attachment" type="button"></button>
+              <input type="file" id="chatAttachInput" multiple accept="image/*,.pdf,.txt,.doc,.docx,.zip" style="display:none;">
+              <textarea id="prompt" rows="1" placeholder="Write a message…"></textarea>
+              <div class="composer-btns">
+                <button class="enhance-btn" id="enhanceBtn" onclick="enhancePrompt()" style="display:none;">
+                  <span id="enhanceIcon"></span><span id="enhanceLabel">Enhance</span>
+                </button>
+                <button class="send-btn" id="generateBtn" onclick="onSendClick()">
+                  <span id="sendIcon"></span>
+                </button>
+              </div>
+            </div>
+
+            <div class="composer-footrow">
+              <span class="char-count" id="charCount">0 characters</span>
+            </div>
+
+            <div class="composer-hint" id="composerHint">Tell me what you need — I'll figure out the intent.</div>
+          </div>
+        </div>
+
       </div>
     </div>
   </main>
