@@ -757,19 +757,24 @@ buy.Text = <span class="c-str">"Buy"</span>
         return { holder, radius: sphere.radius };
     }
 
-    function addBody(holder, radius){
+    function addBody(holder, radius, startX){
         scene.add(holder);
         const body = {
             holder,
             radius,
-            pos: new THREE.Vector3(0, 8, 0), // Leci z góry
-            velX: (Math.random() < 0.5 ? 1 : -1) * 0.15, // Początkowy rzut w bok
+            pos: new THREE.Vector3(startX, 8, 0), // Zaczynamy z trochę wyżej, żeby ładniej spadł
             velY: 0,
+            landed: false,
 
             squash: 0,
             squashVel: 0,
             wobble: 0,
             wobbleVel: 0,
+
+            baseX: startX,
+            driftPhase: Math.random() * Math.PI * 2,
+            driftFreq: 0.12 + Math.random() * 0.06,
+            driftAmp: 0.35 + Math.random() * 0.25,
 
             spinSpeed: 0.16 + Math.random() * 0.08,
             tiltPhaseX: Math.random() * Math.PI * 2,
@@ -792,18 +797,17 @@ buy.Text = <span class="c-str">"Buy"</span>
             }
         });
         const { holder, radius } = normalize(root, 2.1);
-        addBody(holder, radius);
+        addBody(holder, radius, 0.0);
     }, undefined, (err) => console.error('roblox-bacon-hair.glb failed to load', err));
 
-    // NOWA, PRAWDZIWA FIZYKA ODBIĆ
-    const GRAVITY = -0.015;   // Zmniejszona grawitacja dla dłuższego lotu
-    const BOUNCE_Y = -0.65;   // Siła odbicia od podłogi/sufitu
-    const BOUNCE_X = -0.7;    // Siła odbicia od ścian
-    const SPRING_K = 100;     
-    const SPRING_D = 4;       // Bardzo elastyczne tłumienie (galareta)
+    // BARDZIEJ ELASTYCZNE USTAWIENIA FIZYKI (Mniej tłumienia, bardziej jelly)
+    const GRAVITY = -0.028;  
+    const SPRING_K = 100;     // Sztywność squasha
+    const SPRING_D = 5;       // Zmniejszone tłumienie -> więcej "galarety" i odbić (wcześniej 15)
     const WOBBLE_K = 80;      
-    const WOBBLE_D = 3;       
+    const WOBBLE_D = 4;       // Mniej tłumienia obrotów -> chybocze się dłużej po upadku
 
+    // ZMIENNE DO OBSŁUGI SCROLLA
     let targetScrollY = window.scrollY || 0;
     let currentScrollY = targetScrollY;
     
@@ -814,13 +818,6 @@ buy.Text = <span class="c-str">"Buy"</span>
     let last = performance.now();
     let clock = 0;
 
-    function triggerImpact(body, impact) {
-        // Funkcja wywołująca zgniecenie galarety przy zderzeniu z każdą ścianą
-        const clampedImpact = Math.min(impact, 2.5);
-        body.squashVel = clampedImpact * 12; // Mocny squash
-        body.wobbleVel = clampedImpact * 5 * (Math.random() < 0.5 ? -1 : 1);
-    }
-
     function tick(now){
         requestAnimationFrame(tick);
         const dtMs = Math.min(now - last, 42); 
@@ -830,85 +827,67 @@ buy.Text = <span class="c-str">"Buy"</span>
         clock += dtSec;
 
         const b = viewBounds();
-        const maxX = b.halfW - bodies[0]?.radius || 1;
-        const floorY = -b.halfH + bodies[0]?.radius || 1;
-        const ceilY = b.halfH - bodies[0]?.radius || 1;
+        const maxX = b.halfW - 1.1;
 
-        // Zamieniamy scroll na siłę (pęd), która popycha obiekt!
-        const scrollDelta = targetScrollY - currentScrollY;
-        currentScrollY += scrollDelta * 0.15; 
-        
+        // Płynna interpolacja scrolla (z opóźnieniem)
+        const scrollDiff = targetScrollY - currentScrollY;
+        currentScrollY += scrollDiff * 0.08; 
+        // Wartość przesunięcia modelu w osi Y na podstawie scrolla
+        // Zmień 0.01 na większe/mniejsze, by dopasować intensywność odlatywania do góry
+        const scrollOffsetY = currentScrollY * 0.01; 
+
         bodies.forEach((body) => {
-            // Dodajemy pęd ze scrolla (+ grawitację)
-            // Kiedy scrollujesz w dół, zawartość idzie do góry -> podrzucamy model do góry
-            const scrollForce = scrollDelta * 0.006; 
-            body.velY += GRAVITY * dt + scrollForce;
+            const floorY = -b.halfH + body.radius;
 
-            // Jeśli scroll jest mocny, dorzucamy trochę chaotycznego pędu w bok
-            if (Math.abs(scrollDelta) > 5) {
-                body.velX += (Math.random() - 0.5) * Math.abs(scrollDelta) * 0.001;
-            }
-
-            // Tarcie powietrza (spowalnia ruch w poziomie z czasem)
-            body.velX *= Math.pow(0.99, dt);
-
-            // Aplikowanie prędkości do pozycji
-            body.pos.y += body.velY * dt;
-            body.pos.x += body.velX * dt;
-
-            // --- KOLIZJE Z EKRANEM ---
-
-            // 1. Podłoga
-            if (body.pos.y <= floorY) {
-                body.pos.y = floorY;
-                if (Math.abs(body.velY) < 0.15) {
-                    body.velY = 0; // Usypianie mikroskoków, żeby nie drgał
-                } else {
-                    triggerImpact(body, Math.abs(body.velY));
-                    body.velY *= BOUNCE_Y; // Odbicie w górę
+            if (!body.landed){
+                body.velY += GRAVITY * dt;
+                body.pos.y += body.velY * dt;
+                if (body.pos.y <= floorY){
+                    body.pos.y = floorY;
+                    body.landed = true;
+                    // Bardziej agresywny transfer pędu w squash przy uderzeniu
+                    const impact = Math.min(Math.abs(body.velY), 2.0);
+                    body.squashVel = impact * 10; // Zwiększone dla mocniejszego zgniecenia (wcześniej 6)
+                    body.wobbleVel = impact * 4 * (Math.random() < 0.5 ? -1 : 1);
+                    body.velY = 0;
                 }
-            } 
-            // 2. Sufit
-            else if (body.pos.y >= ceilY) {
-                body.pos.y = ceilY;
-                triggerImpact(body, Math.abs(body.velY));
-                body.velY *= BOUNCE_Y; // Odbicie w dół
+            } else {
+                // Relaksacyjne unoszenie się
+                body.pos.y = floorY + Math.sin(clock * 0.9 + body.driftPhase) * 0.05;
             }
 
-            // 3. Ściany boczne (lewo/prawo)
-            if (body.pos.x <= -maxX) {
-                body.pos.x = -maxX;
-                triggerImpact(body, Math.abs(body.velX));
-                body.velX *= BOUNCE_X;
-            } else if (body.pos.x >= maxX) {
-                body.pos.x = maxX;
-                triggerImpact(body, Math.abs(body.velX));
-                body.velX *= BOUNCE_X;
-            }
+            // Sway lewo/prawo
+            const driftTarget = body.baseX + Math.sin(clock * body.driftFreq + body.driftPhase) * body.driftAmp;
+            body.pos.x += (driftTarget - body.pos.x) * Math.min(1, 0.06 * dt);
+            if (body.pos.x > maxX) body.pos.x = maxX;
+            if (body.pos.x < -maxX) body.pos.x = -maxX;
 
-            // --- SPRĘŻYNY GALARETY ---
+            // Sprężyna squasha
             const squashForce = -SPRING_K * body.squash - SPRING_D * body.squashVel;
             body.squashVel += squashForce * dtSec;
             body.squash += body.squashVel * dtSec;
             
+            // Sprężyna wobbla
             const wobbleForce = -WOBBLE_K * body.wobble - WOBBLE_D * body.wobbleVel;
             body.wobbleVel += wobbleForce * dtSec;
             body.wobble += body.wobbleVel * dtSec;
 
-            // Skalowanie: Zgniecenie (squash) + Rozciągnięcie od prędkości locie (velocityStretch)
-            const velocityStretch = body.velY * 0.08; // Im szybciej leci w pionie, tym bardziej się wydłuża
-            const scaleY = THREE.MathUtils.clamp(1 - body.squash * 0.6 + velocityStretch, 0.4, 1.8);
-            const scaleXZ = THREE.MathUtils.clamp(1 + body.squash * 0.3 - velocityStretch * 0.5, 0.5, 1.6);
+            // Obliczanie skali z uwzględnieniem "squasha" z fizyki upadku oraz
+            // rozciągania wynikającego z pędu scrollowania (tworzy ekstra efekt galarety!)
+            const velocityStretch = scrollDiff * 0.0015; 
+            const scaleY = THREE.MathUtils.clamp(1 - body.squash * 0.6 + velocityStretch, 0.4, 1.6);
+            const scaleXZ = THREE.MathUtils.clamp(1 + body.squash * 0.3 - velocityStretch * 0.5, 0.5, 1.5);
             
             body.holder.scale.set(scaleXZ, scaleY, scaleXZ);
 
-            // Obrót i chybotanie
+            // Powolne kręcenie + wpływ wobbli
             body.holder.rotation.y += body.spinSpeed * dtSec;
             body.holder.rotation.x = Math.sin(clock * 0.6 + body.tiltPhaseX) * 0.12 + body.wobble * 0.4;
             body.holder.rotation.z = Math.sin(clock * 0.5 + body.tiltPhaseZ) * 0.1 + body.wobble * 0.3;
 
-            // Przypisanie finalnej pozycji
+            // Przypisanie pozycji (bazowa pozycja + parallax ze scrolla)
             body.holder.position.copy(body.pos);
+            body.holder.position.y += scrollOffsetY;
         });
 
         renderer.render(scene, camera);
