@@ -766,6 +766,13 @@ buy.Text = <span class="c-str">"Buy"</span>
       return { holder, radius: sphere.radius };
     }
 
+    // ---------------------------------------------------------------
+    // "Pillow" physics: each body falls smoothly under gravity, then on
+    // landing converts its impact speed into a soft, decaying squash +
+    // rotational wobble driven by damped springs — instead of a hard
+    // velocity bounce with random kicks. Once settled, it gently
+    // breathes/floats and slowly tumbles at a constant, pleasant rate.
+    // ---------------------------------------------------------------
     function addBody(holder, radius, startX){
       scene.add(holder);
       const shadow = makeShadow();
@@ -774,10 +781,27 @@ buy.Text = <span class="c-str">"Buy"</span>
         shadow,
         radius,
         pos: new THREE.Vector3(startX, 6, 0),
-        vel: new THREE.Vector3((Math.random()-0.5)*0.5, 0, 0),
-        spin: new THREE.Vector3(0.006 + Math.random()*0.006, 0.009 + Math.random()*0.007, 0.004 + Math.random()*0.005),
-        restitution: 0.55 + Math.random()*0.08,
-        resting: false
+        velY: 0,
+        landed: false,
+
+        // landing squash spring (pillow squish, no bounce)
+        squash: 0,
+        squashVel: 0,
+
+        // rotational wobble spring, decays after landing
+        wobble: 0,
+        wobbleVel: 0,
+
+        // gentle deterministic horizontal sway (no random velocity kicks)
+        baseX: startX,
+        driftPhase: Math.random() * Math.PI * 2,
+        driftFreq: 0.12 + Math.random() * 0.06,
+        driftAmp: 0.35 + Math.random() * 0.25,
+
+        // slow constant tumble + soft tilt sway
+        spinSpeed: 0.16 + Math.random() * 0.08,
+        tiltPhaseX: Math.random() * Math.PI * 2,
+        tiltPhaseZ: Math.random() * Math.PI * 2,
       };
       bodies.push(body);
     }
@@ -820,64 +844,79 @@ buy.Text = <span class="c-str">"Buy"</span>
       addBody(holder, radius, 3.0);
     }, undefined, (err) => console.error('roblox-bacon-hair.glb failed to load', err));
 
-    const gravity = -0.017;
-    const airDrag = 0.999;
-    const maxSpin = 0.045;
-    const spinDamping = 0.985; // spin bleeds off over time instead of building up forever
+    const GRAVITY = -0.028;   // smooth fall acceleration while airborne
+    const SPRING_K = 120;     // landing squash spring stiffness (higher = snappier)
+    const SPRING_D = 15;      // landing squash spring damping (higher = less overshoot)
+    const WOBBLE_K = 70;      // rotational wobble spring stiffness
+    const WOBBLE_D = 9;       // rotational wobble spring damping
     let last = performance.now();
+    let clock = 0;
 
     function tick(now){
       requestAnimationFrame(tick);
-      const dt = Math.min((now - last) / 16.67, 2.5);
+      const dtMs = Math.min(now - last, 42); // clamp big jumps (tab switches, lag spikes)
       last = now;
+      const dt = dtMs / 16.67;   // frame-equivalent step for the fall integration
+      const dtSec = dtMs / 1000; // real seconds, for the spring math
+      clock += dtSec;
+
       const b = viewBounds();
       const maxX = b.halfW - 1.1;
 
       bodies.forEach((body) => {
         const floorY = -b.halfH + body.radius;
-        body.vel.y += gravity * dt;
-        body.pos.addScaledVector(body.vel, dt);
-        body.vel.x *= airDrag;
 
-        if (body.pos.y < floorY){
-          body.pos.y = floorY;
-          const bounceVel = Math.abs(body.vel.y) * body.restitution;
-          body.vel.y = bounceVel;
-          body.vel.x += (Math.random() - 0.5) * 0.04;
-          // Only add spin proportional to impact speed, so gentle settles stay gentle.
-          const kick = Math.min(bounceVel, 0.6);
-          body.spin.x += (Math.random() - 0.5) * 0.01 * kick;
-          body.spin.z += (Math.random() - 0.5) * 0.01 * kick;
-          // Let it actually come to rest instead of forcing a perpetual re-hop.
-          if (bounceVel < 0.03){
-            body.vel.y = 0;
-            body.resting = true;
-          } else {
-            body.resting = false;
+        if (!body.landed){
+          // simple, smooth fall — no chaotic acceleration
+          body.velY += GRAVITY * dt;
+          body.pos.y += body.velY * dt;
+          if (body.pos.y <= floorY){
+            body.pos.y = floorY;
+            body.landed = true;
+            // impact becomes a soft squash + a small rotational wobble,
+            // rather than a hard velocity bounce
+            const impact = Math.min(Math.abs(body.velY), 1.4);
+            body.squashVel = impact * 6;
+            body.wobbleVel = impact * 3 * (Math.random() < 0.5 ? -1 : 1);
+            body.velY = 0;
           }
+        } else {
+          // resting — a subtle perpetual float, like sitting on a soft cushion
+          body.pos.y = floorY + Math.sin(clock * 0.9 + body.driftPhase) * 0.05;
         }
-        if (body.pos.x > maxX){ body.pos.x = maxX; body.vel.x = -Math.abs(body.vel.x); }
-        if (body.pos.x < -maxX){ body.pos.x = -maxX; body.vel.x = Math.abs(body.vel.x); }
 
-        // Cap and damp spin so it can never accelerate into a chaotic blur.
-        body.spin.x = THREE.MathUtils.clamp(body.spin.x * spinDamping, -maxSpin, maxSpin);
-        body.spin.y = THREE.MathUtils.clamp(body.spin.y * spinDamping + 0.0009, -maxSpin, maxSpin);
-        body.spin.z = THREE.MathUtils.clamp(body.spin.z * spinDamping, -maxSpin, maxSpin);
-        if (body.resting){
-          body.spin.x *= 0.9;
-          body.spin.z *= 0.9;
-        }
+        // gentle horizontal sway toward a slowly moving target (eased, not snapped)
+        const driftTarget = body.baseX + Math.sin(clock * body.driftFreq + body.driftPhase) * body.driftAmp;
+        body.pos.x += (driftTarget - body.pos.x) * Math.min(1, 0.06 * dt);
+        if (body.pos.x > maxX) body.pos.x = maxX;
+        if (body.pos.x < -maxX) body.pos.x = -maxX;
+
+        // pillow squash spring: relaxes back to neutral with a light, single overshoot
+        const squashForce = -SPRING_K * body.squash - SPRING_D * body.squashVel;
+        body.squashVel += squashForce * dtSec;
+        body.squash += body.squashVel * dtSec;
+        const squashY = THREE.MathUtils.clamp(1 - body.squash * 0.35, 0.72, 1.18);
+        const squashXZ = THREE.MathUtils.clamp(1 + body.squash * 0.18, 0.85, 1.15);
+        body.holder.scale.set(squashXZ, squashY, squashXZ);
+
+        // rotational wobble spring: same soft settle, decays fully to zero
+        const wobbleForce = -WOBBLE_K * body.wobble - WOBBLE_D * body.wobbleVel;
+        body.wobbleVel += wobbleForce * dtSec;
+        body.wobble += body.wobbleVel * dtSec;
+
+        // slow constant tumble + gentle tilt sway — pleasant, never accelerates into chaos
+        body.holder.rotation.y += body.spinSpeed * dtSec;
+        body.holder.rotation.x = Math.sin(clock * 0.6 + body.tiltPhaseX) * 0.12 + body.wobble * 0.4;
+        body.holder.rotation.z = Math.sin(clock * 0.5 + body.tiltPhaseZ) * 0.1 + body.wobble * 0.3;
 
         body.holder.position.copy(body.pos);
-        body.holder.rotation.x += body.spin.x * dt;
-        body.holder.rotation.y += body.spin.y * dt;
-        body.holder.rotation.z += body.spin.z * dt;
 
-        body.shadow.sprite.position.set(body.pos.x, floorY - body.radius*0.7, -0.3);
+        // soft shadow follows, fading and shrinking while airborne
         const height = Math.max(0, body.pos.y - floorY);
-        const s = Math.max(0.5, 1.3 - height*0.16);
+        const s = Math.max(0.55, 1.25 - height * 0.14);
+        body.shadow.sprite.position.set(body.pos.x, floorY - body.radius*0.7, -0.3);
         body.shadow.sprite.scale.set(2.0*s, 2.0*s, 1);
-        body.shadow.mat.opacity = Math.max(0.12, 0.65 - height*0.08);
+        body.shadow.mat.opacity = Math.max(0.12, 0.6 - height*0.07);
       });
 
       renderer.render(scene, camera);
