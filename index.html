@@ -20,8 +20,8 @@
     --bg: #E8E7E1;
     --surface: #FFFFFF;
     --surface-2: #F1F0EA;
-    --border: #D9D7CD;
-    --border-soft: #E3E1D8;
+    --border: #cecbba;
+    --border-soft: #b8b4a4;
     --ink: #1C1C1E;
     --ink-muted: #5B5B57;
     --ink-faint: #98978C;
@@ -52,12 +52,43 @@
   html{ scroll-behavior:smooth; }
   body{
     margin:0; color:var(--ink); font-family:var(--font-body); line-height:1.55; -webkit-font-smoothing:antialiased;
-    background-color:var(--bg);
-    background-image:
-      linear-gradient(var(--bg) 0%, var(--bg) 100%),
-      repeating-linear-gradient(0deg, rgba(76,122,59,0.10) 0 1px, transparent 1px 64px),
-      repeating-linear-gradient(90deg, rgba(76,122,59,0.10) 0 1px, transparent 1px 64px);
-    background-size: 100% 100%, 64px 64px, 64px 64px;
+background-color: #FAFAF9;
+
+  background-image:
+
+    /* Drobna siatka — pozioma */
+    linear-gradient(
+      rgba(70, 68, 64, 0.055) 1px,
+      transparent 1px
+    ),
+
+    /* Drobna siatka — pionowa */
+    linear-gradient(
+      90deg,
+      rgba(70, 68, 64, 0.055) 1px,
+      transparent 1px
+    ),
+
+    /* Subtelna szachownica */
+    conic-gradient(
+      #F5F4F1 90deg,
+      #FAFAF9 90deg 180deg,
+      #F5F4F1 180deg 270deg,
+      #FAFAF9 270deg
+    );
+
+  background-size:
+    30px 30px,
+    30px 30px,
+    240px 240px;
+
+  background-position:
+    0 0,
+    0 0,
+    0 0;
+
+  margin: 0;
+  min-height: 100vh;
   }
   ::selection{ background:var(--accent-wash); color:var(--accent-deep); }
   a{ color:inherit; text-decoration:none; }
@@ -83,9 +114,14 @@
   .nav-brand{ display:flex; align-items:center; gap:9px; font-family:var(--font-display); font-weight:800; font-size:17px; letter-spacing:-0.01em; }
   .nav-brand .mark{ width:24px; height:24px; border-radius:5px; background:var(--ink); position:relative; flex-shrink:0; }
   .nav-brand .mark::before{ content:""; position:absolute; top:3px; left:3px; width:4px; height:4px; border-radius:50%; background:var(--accent); box-shadow:10px 0 var(--accent), 0 10px var(--accent), 10px 10px var(--accent); }
-  .nav-links{ display:flex; align-items:center; gap:28px;}
-  .nav-links a.navlink{ font-size:13.5px; color:var(--ink-muted); transition:color .15s ease; }
-  .nav-links a.navlink:hover{ color:var(--ink); }
+  .nav-links{ display:flex; align-items:center; gap:28px; border-radius: 50vh; padding: 4px 15px;
+   background: rgba(255, 255, 255, 0);
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  }
+
+  .nav-links a.navlink{ font-size:13.5px; color:var(--ink-faint); transition:color .15s ease; }
+  .nav-links a.navlink:hover{ color:var(--ink-muted); }
 
   .btn-google{ display:inline-flex; align-items:center; gap:9px; background:var(--surface); border:1px solid var(--border); color:var(--ink);
     font-size:13px; font-weight:600; padding:9px 16px 9px 12px; border-radius:999px; cursor:pointer; transition:border-color .15s ease, background .15s ease, transform .12s ease; }
@@ -125,18 +161,128 @@
 
   /* ---------- studio mockup ---------- */
   .studio-wrap{ width:100%; max-width:1100px; margin:0 auto; padding:0 24px 100px; animation:fadeUp .7s ease .26s both; }
-  .studio{ position:relative; border-radius:var(--radius-xl); overflow:hidden; background:var(--surface); border:1px solid var(--border); box-shadow:var(--shadow-lg); }
-  .studio-chrome{ display:flex; align-items:center; gap:8px; padding:12px 16px; border-bottom:1px solid var(--border); }
+  .studio{ position:relative; border-radius:var(--radius-xl); overflow:hidden; border:1px solid var(--border); box-shadow:var(--shadow-lg); }
+  .studio-chrome{ display:flex; align-items:center; gap:8px; padding:12px 16px; border-bottom:1px solid var(--border); background:var(--surface);}
   .sc-dot{ width:8px; height:8px; border-radius:50%; background:var(--border); }
   .sc-url{ flex:1; text-align:center; font-family:var(--font-mono); font-size:11px; color:var(--ink-faint); background:var(--surface-2); border:1px solid var(--border-soft); border-radius:999px; padding:5px 14px; margin:0 26px; }
 
-  .studio-media{ background:var(--surface-2); }
+.studio-media {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+
+  background: rgba(255, 255, 255, 0.5);
+
+  backdrop-filter: blur(20px) saturate(125%);
+  -webkit-backdrop-filter: blur(20px) saturate(125%);
+
+  border: 1px solid rgba(255, 255, 255, 0.7);
+
+  box-shadow:
+    0 25px 80px rgba(153, 125, 255, 0.18),
+    0 10px 30px rgba(208, 138, 255, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.studio-media::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  inset: -40%;
+
+  background:
+    radial-gradient(
+      circle at 20% 25%,
+      rgba(193, 100, 255, 0.55),
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at 75% 15%,
+      rgba(255, 170, 109, 0.42),
+      transparent 30%
+    ),
+    radial-gradient(
+      circle at 85% 75%,
+      rgba(255, 128, 119, 0.38),
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at 25% 85%,
+      rgba(252, 194, 159, 0.35),
+      transparent 30%
+    );
+
+  filter: blur(75px);
+
+  animation: warmGlow 9s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+
+.studio-media::after {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  inset: -30%;
+
+  background:
+    radial-gradient(
+      ellipse at center,
+      rgba(247, 247, 247, 0.16),
+      transparent 55%
+    );
+
+  filter: blur(100px);
+
+  animation: warmGlow2 13s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+
+.studio-media > * {
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes warmGlow {
+  0% {
+    transform: translate(-10%, -5%) scale(.9) rotate(0deg);
+  }
+
+  25% {
+    transform: translate(8%, 8%) scale(1.08) rotate(4deg);
+  }
+
+  50% {
+    transform: translate(-5%, 15%) scale(1.18) rotate(-3deg);
+  }
+
+  75% {
+    transform: translate(15%, -5%) scale(1) rotate(5deg);
+  }
+
+  100% {
+    transform: translate(-8%, 10%) scale(1.12) rotate(-2deg);
+  }
+}
+
+@keyframes warmGlow2 {
+  0% {
+    transform: translate(-12%, 8%) scale(.85);
+  }
+
+  50% {
+    transform: translate(10%, -10%) scale(1.15);
+  }
+
+  100% {
+    transform: translate(-5%, 5%) scale(.95);
+  }
+}
   .studio-media img{ width:100%; height:auto; display:block; }
 
   @media (max-width:760px){ .sc-url{ display:none; } }
 
   /* ---------- section shell ---------- */
-  section{ position:relative; max-width:1140px; margin:0 auto; padding:74px 32px; }
+  section{ position:relative; max-width:1140px; margin:0 auto; padding:74px 32px; backdrop-filter: blur(5px) saturate(110%);}
   .section-head{ max-width:640px; margin:0 auto 46px; text-align:center; }
   .section-head.left{ margin:0 0 46px; text-align:left; }
   .section-kicker{ font-family:var(--font-mono); font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--accent-deep); margin:0 0 10px; }
@@ -252,7 +398,7 @@
   .faq-a p{ font-size:13.5px; color:var(--ink-muted); padding:0 4px 20px; margin:0; line-height:1.65; max-width:640px; }
 
   /* ---------- final CTA ---------- */
-  .cta-band{ max-width:1140px; margin:10px auto 90px; padding:64px 40px; border-radius:var(--radius-xl); background:var(--ink); color:#fff; text-align:center; position:relative; overflow:hidden; }
+  .cta-band{ max-width:1140px; margin:10px auto 90px; padding:64px 40px; background:var(--ink); color:#fff; text-align:center; position:relative; overflow:hidden; }
   .cta-band::before{ content:""; position:absolute; inset:0; background:radial-gradient(circle at 20% 20%, rgba(225,75,42,0.22), transparent 55%); }
   .cta-band h3{ font-family:var(--font-display); font-weight:800; font-size:clamp(26px,4vw,38px); margin:0 0 10px; position:relative; letter-spacing:-0.02em; }
   .cta-band p{ color:rgba(255,255,255,0.65); margin:0 0 28px; font-size:15px; position:relative; }
@@ -275,9 +421,68 @@
     #brickCanvas{ opacity:0.85; }
   }
 
-  .LogoImage{
-    width: 30%;
+.logo-animation {
+  position: relative;
+  width: 30%;
+  padding: 10px;
+}
+
+.LogoImage {
+  width: 100%;
+  display: block;
+}
+
+/* Pierwszy stan */
+.logo-multiply {
+  padding: 5px;
+  border-radius: 7px;
+  background: black;
+  mix-blend-mode: multiply;
+
+  animation: multiply 7s ease-in-out infinite;
+}
+
+/* Drugi stan — DOKŁADNIE w tym samym miejscu */
+.logo-black {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+
+  width: calc(100% - 20px);
+
+  filter: brightness(0);
+
+  animation: black 7s ease-in-out infinite;
+}
+
+@keyframes multiply {
+  0%, 60% {
+    opacity: 0;
   }
+
+  70%, 90% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes black {
+  0%, 60% {
+    opacity: 1;
+  }
+
+  70%, 90% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -303,17 +508,20 @@
     <div class="user-chip" id="userChip">
       <img class="user-avatar" id="userAvatar" alt="">
       <span class="user-name" id="userName"></span>
-      <button class="btn-primary" onclick="goToCreate()">Open Studio →</button>
+      <button class="btn-primary" onclick="goToCreate()">Open Studio</button>
     </div>
   </div>
 </nav>
 
 <!-- HERO -->
 <div class="hero">
-  <img class="LogoImage" src="LogoIcon.png">
+  <div class="logo-animation">
+  <img class="logo-multiply" src="LogoIcon.png">
+  <img class="logo-black" src="LogoIcon.png">
+</div>
   <h1>Your AI Studio<br>for <span class="accent">Roblox</span>.</h1>
   <div class="hero-ctas">
-    <button class="btn-primary" onclick="goToCreate()">Open Studio →</button>
+    <button class="btn-primary" onclick="goToCreate()" id="btnStudio">[ Open Studio ]</button>
     <a class="btn-ghost" href="#assistant">Explore features</a>
   </div>
   <div class="powered-by">
@@ -634,6 +842,15 @@ buy.Text = <span class="c-str">"Buy"</span>
   function goToCreate() {
     window.location.href = "/create";
   }
+
+  const btnStudio = document.querySelector('#btnStudio');
+
+  setInterval(() => {
+    btnStudio.textContent =
+      btnStudio.textContent.trim() === '[ Open Studio ]'
+        ? '‎ ‎ ‎ Open Studio ‎ ‎ ‎'
+        : '[ Open Studio ]';
+  }, 1000);
 
   // scroll reveal
   const revealEls = document.querySelectorAll('.reveal');
