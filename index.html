@@ -712,6 +712,8 @@ buy.Text = <span class="c-str">"Buy"</span>
     const bodies = [];
 
     // Normalize any loaded model to a consistent on-screen size and center its pivot.
+    // Returns the bounding-SPHERE radius too, since that's what stays correct
+    // as the object rotates (a box's half-height only works at rotation 0).
     function normalize(root, targetSize){
       const box = new THREE.Box3().setFromObject(root);
       const size = new THREE.Vector3();
@@ -724,20 +726,22 @@ buy.Text = <span class="c-str">"Buy"</span>
       root.position.sub(center);
       root.scale.setScalar(scale);
       holder.add(root);
-      return holder;
+      const sphere = new THREE.Box3().setFromObject(holder).getBoundingSphere(new THREE.Sphere());
+      return { holder, radius: sphere.radius };
     }
 
-    function addBody(holder, startX, halfHeight){
+    function addBody(holder, radius, startX){
       scene.add(holder);
       const shadow = makeShadow();
       const body = {
         holder,
         shadow,
-        halfHeight,
+        radius,
         pos: new THREE.Vector3(startX, 6, 0),
-        vel: new THREE.Vector3((Math.random()-0.5)*0.6, 0, 0),
-        spin: new THREE.Vector3(0.010 + Math.random()*0.01, 0.016 + Math.random()*0.012, 0.006 + Math.random()*0.008),
-        restitution: 0.6 + Math.random()*0.08
+        vel: new THREE.Vector3((Math.random()-0.5)*0.5, 0, 0),
+        spin: new THREE.Vector3(0.006 + Math.random()*0.006, 0.009 + Math.random()*0.007, 0.004 + Math.random()*0.005),
+        restitution: 0.55 + Math.random()*0.08,
+        resting: false
       };
       bodies.push(body);
     }
@@ -750,8 +754,8 @@ buy.Text = <span class="c-str">"Buy"</span>
           child.material = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.55, metalness: 0.04 });
         }
       });
-      const holder = normalize(root, 1.7);
-      addBody(holder, -3.2, 0.85);
+      const { holder, radius } = normalize(root, 1.7);
+      addBody(holder, radius, -3.2);
     }, undefined, (err) => console.error('logo.glb failed to load', err));
 
     // 2) Fully textured Roblox character model, materials kept as-is (embedded textures)
@@ -763,12 +767,14 @@ buy.Text = <span class="c-str">"Buy"</span>
           if (child.material) child.material.roughness = Math.min(child.material.roughness ?? 0.6, 0.75);
         }
       });
-      const holder = normalize(root, 2.1);
-      addBody(holder, 3.0, 1.05);
+      const { holder, radius } = normalize(root, 2.1);
+      addBody(holder, radius, 3.0);
     }, undefined, (err) => console.error('roblox-bacon-hair.glb failed to load', err));
 
     const gravity = -0.017;
     const airDrag = 0.999;
+    const maxSpin = 0.045;
+    const spinDamping = 0.985; // spin bleeds off over time instead of building up forever
     let last = performance.now();
 
     function tick(now){
@@ -779,27 +785,46 @@ buy.Text = <span class="c-str">"Buy"</span>
       const maxX = b.halfW - 1.1;
 
       bodies.forEach((body) => {
-        const floorY = -b.halfH + body.halfHeight;
+        const floorY = -b.halfH + body.radius;
         body.vel.y += gravity * dt;
         body.pos.addScaledVector(body.vel, dt);
         body.vel.x *= airDrag;
 
         if (body.pos.y < floorY){
           body.pos.y = floorY;
-          body.vel.y = Math.abs(body.vel.y) * body.restitution;
-          body.vel.x += (Math.random() - 0.5) * 0.05;
-          body.spin.x += (Math.random() - 0.5) * 0.008;
-          if (Math.abs(body.vel.y) < 0.02) body.vel.y = 0.3 + Math.random()*0.15;
+          const bounceVel = Math.abs(body.vel.y) * body.restitution;
+          body.vel.y = bounceVel;
+          body.vel.x += (Math.random() - 0.5) * 0.04;
+          // Only add spin proportional to impact speed, so gentle settles stay gentle.
+          const kick = Math.min(bounceVel, 0.6);
+          body.spin.x += (Math.random() - 0.5) * 0.01 * kick;
+          body.spin.z += (Math.random() - 0.5) * 0.01 * kick;
+          // Let it actually come to rest instead of forcing a perpetual re-hop.
+          if (bounceVel < 0.03){
+            body.vel.y = 0;
+            body.resting = true;
+          } else {
+            body.resting = false;
+          }
         }
         if (body.pos.x > maxX){ body.pos.x = maxX; body.vel.x = -Math.abs(body.vel.x); }
         if (body.pos.x < -maxX){ body.pos.x = -maxX; body.vel.x = Math.abs(body.vel.x); }
+
+        // Cap and damp spin so it can never accelerate into a chaotic blur.
+        body.spin.x = THREE.MathUtils.clamp(body.spin.x * spinDamping, -maxSpin, maxSpin);
+        body.spin.y = THREE.MathUtils.clamp(body.spin.y * spinDamping + 0.0009, -maxSpin, maxSpin);
+        body.spin.z = THREE.MathUtils.clamp(body.spin.z * spinDamping, -maxSpin, maxSpin);
+        if (body.resting){
+          body.spin.x *= 0.9;
+          body.spin.z *= 0.9;
+        }
 
         body.holder.position.copy(body.pos);
         body.holder.rotation.x += body.spin.x * dt;
         body.holder.rotation.y += body.spin.y * dt;
         body.holder.rotation.z += body.spin.z * dt;
 
-        body.shadow.sprite.position.set(body.pos.x, floorY - body.halfHeight*0.75, -0.3);
+        body.shadow.sprite.position.set(body.pos.x, floorY - body.radius*0.7, -0.3);
         const height = Math.max(0, body.pos.y - floorY);
         const s = Math.max(0.5, 1.3 - height*0.16);
         body.shadow.sprite.scale.set(2.0*s, 2.0*s, 1);
