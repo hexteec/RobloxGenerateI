@@ -683,35 +683,35 @@ buy.Text = <span class="c-str">"Buy"</span>
         const c = document.createElement('canvas');
         c.width = 512; c.height = 256;
         const ctx = c.getContext('2d');
-        
+
         const g = ctx.createLinearGradient(0, 0, 0, 256);
         g.addColorStop(0, '#E8EEF3');
         g.addColorStop(0.45, '#C9D5DC');
         g.addColorStop(0.55, '#9EAFB8');
         g.addColorStop(1, '#52745E');
-        
+
         ctx.fillStyle = g;
         ctx.fillRect(0, 0, 512, 256);
-        
+
         const sun = ctx.createRadialGradient(360, 60, 10, 360, 60, 140);
         sun.addColorStop(0, 'rgba(220,240,255,0.9)');
         sun.addColorStop(1, 'rgba(220,240,255,0)');
-        
+
         ctx.fillStyle = sun;
         ctx.fillRect(0, 0, 512, 256);
-        
+
         const tex = new THREE.CanvasTexture(c);
         tex.mapping = THREE.EquirectangularReflectionMapping;
         tex.colorSpace = THREE.SRGBColorSpace || THREE.sRGBEncoding;
-        
+
         const pmrem = new THREE.PMREMGenerator(renderer);
         pmrem.compileEquirectangularShader();
-        
+
         const envMap = pmrem.fromEquirectangular(tex).texture;
-        
+
         tex.dispose();
         pmrem.dispose();
-        
+
         return envMap;
     }
     const envMap = buildEnvironment();
@@ -724,7 +724,7 @@ buy.Text = <span class="c-str">"Buy"</span>
         const width = height * camera.aspect;
         return { halfW: width/2, halfH: height/2 };
     }
-    
+
     function resize(){
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
@@ -740,19 +740,19 @@ buy.Text = <span class="c-str">"Buy"</span>
         const box = new THREE.Box3().setFromObject(root);
         const center = box.getCenter(new THREE.Vector3());
         const size = box.getSize(new THREE.Vector3());
-        
+
         const maxDim = Math.max(size.x, size.y, size.z) || 1;
         const scale = targetSize / maxDim;
-        
+
         root.position.set(-center.x, -center.y, -center.z);
-        
+
         const wrapper = new THREE.Group();
         wrapper.add(root);
         wrapper.scale.setScalar(scale);
-        
+
         const holder = new THREE.Group();
         holder.add(wrapper);
-        
+
         const sphere = new THREE.Box3().setFromObject(holder).getBoundingSphere(new THREE.Sphere());
         return { holder, radius: sphere.radius };
     }
@@ -762,7 +762,7 @@ buy.Text = <span class="c-str">"Buy"</span>
         const body = {
             holder,
             radius,
-            pos: new THREE.Vector3(startX, 8, 0), // Zaczynamy z trochę wyżej, żeby ładniej spadł
+            pos: new THREE.Vector3(startX, 8, 0),
             velY: 0,
             landed: false,
 
@@ -774,7 +774,9 @@ buy.Text = <span class="c-str">"Buy"</span>
             baseX: startX,
             driftPhase: Math.random() * Math.PI * 2,
             driftFreq: 0.12 + Math.random() * 0.06,
-            driftAmp: 0.35 + Math.random() * 0.25,
+            
+            // TUTAJ ZMIANA: Zwiększona amplituda (z 0.35 na 1.0), by postać latała szerzej na boki
+            driftAmp: 1.0 + Math.random() * 0.4, 
 
             spinSpeed: 0.16 + Math.random() * 0.08,
             tiltPhaseX: Math.random() * Math.PI * 2,
@@ -800,17 +802,15 @@ buy.Text = <span class="c-str">"Buy"</span>
         addBody(holder, radius, 0.0);
     }, undefined, (err) => console.error('roblox-bacon-hair.glb failed to load', err));
 
-    // BARDZIEJ ELASTYCZNE USTAWIENIA FIZYKI (Mniej tłumienia, bardziej jelly)
     const GRAVITY = -0.028;  
-    const SPRING_K = 100;     // Sztywność squasha
-    const SPRING_D = 5;       // Zmniejszone tłumienie -> więcej "galarety" i odbić (wcześniej 15)
+    const SPRING_K = 100;     
+    const SPRING_D = 5;       
     const WOBBLE_K = 80;      
-    const WOBBLE_D = 4;       // Mniej tłumienia obrotów -> chybocze się dłużej po upadku
+    const WOBBLE_D = 4;       
 
-    // ZMIENNE DO OBSŁUGI SCROLLA
     let targetScrollY = window.scrollY || 0;
     let currentScrollY = targetScrollY;
-    
+
     window.addEventListener('scroll', () => {
         targetScrollY = window.scrollY;
     });
@@ -829,11 +829,8 @@ buy.Text = <span class="c-str">"Buy"</span>
         const b = viewBounds();
         const maxX = b.halfW - 1.1;
 
-        // Płynna interpolacja scrolla (z opóźnieniem)
         const scrollDiff = targetScrollY - currentScrollY;
         currentScrollY += scrollDiff * 0.08; 
-        // Wartość przesunięcia modelu w osi Y na podstawie scrolla
-        // Zmień 0.01 na większe/mniejsze, by dopasować intensywność odlatywania do góry
         const scrollOffsetY = currentScrollY * 0.01; 
 
         bodies.forEach((body) => {
@@ -845,47 +842,41 @@ buy.Text = <span class="c-str">"Buy"</span>
                 if (body.pos.y <= floorY){
                     body.pos.y = floorY;
                     body.landed = true;
-                    // Bardziej agresywny transfer pędu w squash przy uderzeniu
                     const impact = Math.min(Math.abs(body.velY), 2.0);
-                    body.squashVel = impact * 10; // Zwiększone dla mocniejszego zgniecenia (wcześniej 6)
+                    body.squashVel = impact * 10; 
                     body.wobbleVel = impact * 4 * (Math.random() < 0.5 ? -1 : 1);
                     body.velY = 0;
                 }
             } else {
-                // Relaksacyjne unoszenie się
                 body.pos.y = floorY + Math.sin(clock * 0.9 + body.driftPhase) * 0.05;
             }
 
-            // Sway lewo/prawo
+            // Sway lewo/prawo z nową, większą amplitudą
             const driftTarget = body.baseX + Math.sin(clock * body.driftFreq + body.driftPhase) * body.driftAmp;
             body.pos.x += (driftTarget - body.pos.x) * Math.min(1, 0.06 * dt);
+            
+            // Ograniczenie, by model nie wyleciał za ekran
             if (body.pos.x > maxX) body.pos.x = maxX;
             if (body.pos.x < -maxX) body.pos.x = -maxX;
 
-            // Sprężyna squasha
             const squashForce = -SPRING_K * body.squash - SPRING_D * body.squashVel;
             body.squashVel += squashForce * dtSec;
             body.squash += body.squashVel * dtSec;
-            
-            // Sprężyna wobbla
+
             const wobbleForce = -WOBBLE_K * body.wobble - WOBBLE_D * body.wobbleVel;
             body.wobbleVel += wobbleForce * dtSec;
             body.wobble += body.wobbleVel * dtSec;
 
-            // Obliczanie skali z uwzględnieniem "squasha" z fizyki upadku oraz
-            // rozciągania wynikającego z pędu scrollowania (tworzy ekstra efekt galarety!)
             const velocityStretch = scrollDiff * 0.0015; 
             const scaleY = THREE.MathUtils.clamp(1 - body.squash * 0.6 + velocityStretch, 0.4, 1.6);
             const scaleXZ = THREE.MathUtils.clamp(1 + body.squash * 0.3 - velocityStretch * 0.5, 0.5, 1.5);
-            
+
             body.holder.scale.set(scaleXZ, scaleY, scaleXZ);
 
-            // Powolne kręcenie + wpływ wobbli
             body.holder.rotation.y += body.spinSpeed * dtSec;
             body.holder.rotation.x = Math.sin(clock * 0.6 + body.tiltPhaseX) * 0.12 + body.wobble * 0.4;
             body.holder.rotation.z = Math.sin(clock * 0.5 + body.tiltPhaseZ) * 0.1 + body.wobble * 0.3;
 
-            // Przypisanie pozycji (bazowa pozycja + parallax ze scrolla)
             body.holder.position.copy(body.pos);
             body.holder.position.y += scrollOffsetY;
         });
