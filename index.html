@@ -757,14 +757,14 @@ buy.Text = <span class="c-str">"Buy"</span>
         return { holder, radius: sphere.radius };
     }
 
-    function addBody(holder, radius, startX){
+    function addBody(holder, radius){
         scene.add(holder);
         const body = {
             holder,
             radius,
-            pos: new THREE.Vector3(startX, 8, 0), // Start z góry
+            pos: new THREE.Vector3(0, 8, 0), // Leci z góry
+            velX: (Math.random() < 0.5 ? 1 : -1) * 0.15, // Początkowy rzut w bok
             velY: 0,
-            velX: (Math.random() > 0.5 ? 1 : -1) * 0.12, // Prędkość pozioma (jak w DVD)
 
             squash: 0,
             squashVel: 0,
@@ -792,20 +792,20 @@ buy.Text = <span class="c-str">"Buy"</span>
             }
         });
         const { holder, radius } = normalize(root, 2.1);
-        addBody(holder, radius, 0.0);
+        addBody(holder, radius);
     }, undefined, (err) => console.error('roblox-bacon-hair.glb failed to load', err));
 
-    // DYNAMICZNA FIZYKA GALARETY
-    const GRAVITY = -0.015;   // Wolniejsza grawitacja dla dłuższego lotu
+    // NOWA, PRAWDZIWA FIZYKA ODBIĆ
+    const GRAVITY = -0.015;   // Zmniejszona grawitacja dla dłuższego lotu
+    const BOUNCE_Y = -0.65;   // Siła odbicia od podłogi/sufitu
+    const BOUNCE_X = -0.7;    // Siła odbicia od ścian
     const SPRING_K = 100;     
-    const SPRING_D = 4;       // Ekstremalnie mało tłumienia = długie "trzęsienie"
+    const SPRING_D = 4;       // Bardzo elastyczne tłumienie (galareta)
     const WOBBLE_K = 80;      
     const WOBBLE_D = 3;       
 
-    // ZMIENNE SCROLLA DO NADAWANIA PĘDU
     let targetScrollY = window.scrollY || 0;
     let currentScrollY = targetScrollY;
-    let lastScrollY = targetScrollY;
     
     window.addEventListener('scroll', () => {
         targetScrollY = window.scrollY;
@@ -813,6 +813,13 @@ buy.Text = <span class="c-str">"Buy"</span>
 
     let last = performance.now();
     let clock = 0;
+
+    function triggerImpact(body, impact) {
+        // Funkcja wywołująca zgniecenie galarety przy zderzeniu z każdą ścianą
+        const clampedImpact = Math.min(impact, 2.5);
+        body.squashVel = clampedImpact * 12; // Mocny squash
+        body.wobbleVel = clampedImpact * 5 * (Math.random() < 0.5 ? -1 : 1);
+    }
 
     function tick(now){
         requestAnimationFrame(tick);
@@ -823,66 +830,63 @@ buy.Text = <span class="c-str">"Buy"</span>
         clock += dtSec;
 
         const b = viewBounds();
-        // Mnożnik * 0.75 wpuszcza model lekko "w ścianę" przy zderzeniu, potęgując efekt wgniecenia
-        const boundMargin = body => body.radius * 0.75; 
+        const maxX = b.halfW - bodies[0]?.radius || 1;
+        const floorY = -b.halfH + bodies[0]?.radius || 1;
+        const ceilY = b.halfH - bodies[0]?.radius || 1;
 
-        // Wyliczamy pęd ze scrolla (płynnie by nie szarpało za mocno)
-        currentScrollY += (targetScrollY - currentScrollY) * 0.15; 
-        const scrollForce = currentScrollY - lastScrollY;
-        lastScrollY = currentScrollY;
-
+        // Zamieniamy scroll na siłę (pęd), która popycha obiekt!
+        const scrollDelta = targetScrollY - currentScrollY;
+        currentScrollY += scrollDelta * 0.15; 
+        
         bodies.forEach((body) => {
-            const maxX = b.halfW - boundMargin(body);
-            const maxY = b.halfH - boundMargin(body);
+            // Dodajemy pęd ze scrolla (+ grawitację)
+            // Kiedy scrollujesz w dół, zawartość idzie do góry -> podrzucamy model do góry
+            const scrollForce = scrollDelta * 0.006; 
+            body.velY += GRAVITY * dt + scrollForce;
 
-            // Aplikacja grawitacji i pędu scrollowania
-            body.velY += GRAVITY * dt;
-            // Kiedy jedziesz scrollem w dół (wartość rośnie), scrollForce jest dodatnie -> wywala postać w kosmos (sufit)
-            body.velY += scrollForce * 0.08; 
+            // Jeśli scroll jest mocny, dorzucamy trochę chaotycznego pędu w bok
+            if (Math.abs(scrollDelta) > 5) {
+                body.velX += (Math.random() - 0.5) * Math.abs(scrollDelta) * 0.001;
+            }
 
-            body.pos.x += body.velX * dt;
+            // Tarcie powietrza (spowalnia ruch w poziomie z czasem)
+            body.velX *= Math.pow(0.99, dt);
+
+            // Aplikowanie prędkości do pozycji
             body.pos.y += body.velY * dt;
+            body.pos.x += body.velX * dt;
 
-            // --- KOLIZJE Z ODBICIEM (Ping-Pong Fizyka) ---
+            // --- KOLIZJE Z EKRANEM ---
 
-            // PODŁOGA (Dół ekranu)
-            if (body.pos.y <= -maxY) {
-                body.pos.y = -maxY;
-                if (body.velY < -0.15) { // Odbicie
-                    const impact = Math.abs(body.velY);
-                    body.velY = impact * 0.75; // Strata 25% energii na odbicie
-                    body.squashVel = impact * 8;
-                    body.wobbleVel = impact * 3 * (Math.random() < 0.5 ? -1 : 1);
-                } else { // Uspokojenie (leży)
-                    body.velY = 0;
+            // 1. Podłoga
+            if (body.pos.y <= floorY) {
+                body.pos.y = floorY;
+                if (Math.abs(body.velY) < 0.15) {
+                    body.velY = 0; // Usypianie mikroskoków, żeby nie drgał
+                } else {
+                    triggerImpact(body, Math.abs(body.velY));
+                    body.velY *= BOUNCE_Y; // Odbicie w górę
                 }
-            }
-            
-            // SUFIT (Góra ekranu) - świetne przy dynamicznym powrocie scrollem
-            if (body.pos.y >= maxY) {
-                body.pos.y = maxY;
-                const impact = Math.abs(body.velY);
-                body.velY = -impact * 0.75; // Odbij w dół
-                body.squashVel = impact * 8; 
-                body.wobbleVel = impact * 3 * (Math.random() < 0.5 ? -1 : 1);
-            }
-
-            // Prawa Ściana
-            if (body.pos.x >= maxX) {
-                body.pos.x = maxX;
-                body.velX = -Math.abs(body.velX); // Zawróć
-                body.wobbleVel = 12 * (body.velY > 0 ? 1 : -1); // Zakręć mocno wokół własnej osi po uderzeniu bokiem
-                body.squashVel = -3; // Lekkie ugięcie
             } 
-            // Lewa Ściana
-            else if (body.pos.x <= -maxX) {
-                body.pos.x = -maxX;
-                body.velX = Math.abs(body.velX); // Zawróć
-                body.wobbleVel = -12 * (body.velY > 0 ? 1 : -1);
-                body.squashVel = -3;
+            // 2. Sufit
+            else if (body.pos.y >= ceilY) {
+                body.pos.y = ceilY;
+                triggerImpact(body, Math.abs(body.velY));
+                body.velY *= BOUNCE_Y; // Odbicie w dół
             }
 
-            // Obliczanie sprężyn
+            // 3. Ściany boczne (lewo/prawo)
+            if (body.pos.x <= -maxX) {
+                body.pos.x = -maxX;
+                triggerImpact(body, Math.abs(body.velX));
+                body.velX *= BOUNCE_X;
+            } else if (body.pos.x >= maxX) {
+                body.pos.x = maxX;
+                triggerImpact(body, Math.abs(body.velX));
+                body.velX *= BOUNCE_X;
+            }
+
+            // --- SPRĘŻYNY GALARETY ---
             const squashForce = -SPRING_K * body.squash - SPRING_D * body.squashVel;
             body.squashVel += squashForce * dtSec;
             body.squash += body.squashVel * dtSec;
@@ -891,18 +895,19 @@ buy.Text = <span class="c-str">"Buy"</span>
             body.wobbleVel += wobbleForce * dtSec;
             body.wobble += body.wobbleVel * dtSec;
 
-            // Efekt rozciągania wynikający z prędkości osi Y (pędu lotu)
-            const velocityStretch = body.velY * 0.05; 
+            // Skalowanie: Zgniecenie (squash) + Rozciągnięcie od prędkości locie (velocityStretch)
+            const velocityStretch = body.velY * 0.08; // Im szybciej leci w pionie, tym bardziej się wydłuża
             const scaleY = THREE.MathUtils.clamp(1 - body.squash * 0.6 + velocityStretch, 0.4, 1.8);
             const scaleXZ = THREE.MathUtils.clamp(1 + body.squash * 0.3 - velocityStretch * 0.5, 0.5, 1.6);
             
             body.holder.scale.set(scaleXZ, scaleY, scaleXZ);
 
-            // Stały obrót + mocne wstrząsy przy zderzeniach (wobble)
+            // Obrót i chybotanie
             body.holder.rotation.y += body.spinSpeed * dtSec;
             body.holder.rotation.x = Math.sin(clock * 0.6 + body.tiltPhaseX) * 0.12 + body.wobble * 0.4;
             body.holder.rotation.z = Math.sin(clock * 0.5 + body.tiltPhaseZ) * 0.1 + body.wobble * 0.3;
 
+            // Przypisanie finalnej pozycji
             body.holder.position.copy(body.pos);
         });
 
