@@ -12,6 +12,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://unpkg.com/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 
 <style>
   :root{
@@ -650,14 +651,15 @@ buy.Text = <span class="c-str">"Buy"</span>
   });
 
   /* =========================================================
-     Falling Roblox brick — fixed to the VIEWPORT, not the page.
-     Physics: gravity + floor/wall bounce with restitution + spin.
+     Two falling 3D models — fixed to the VIEWPORT, not the page.
+     One rendered plain white (no texture), one with its own
+     embedded GLB texture. Independent gravity/bounce physics.
      Skipped entirely if the user prefers reduced motion.
   ========================================================= */
   (function(){
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const canvas = document.getElementById('brickCanvas');
-    if (reduceMotion || !window.THREE || !canvas) return;
+    if (reduceMotion || !window.THREE || !window.THREE.GLTFLoader || !canvas) return;
 
     const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
@@ -666,7 +668,7 @@ buy.Text = <span class="c-str">"Buy"</span>
     const camera = new THREE.PerspectiveCamera(38, window.innerWidth / window.innerHeight, 0.1, 100);
     camera.position.set(0, 0, 14);
 
-    scene.add(new THREE.AmbientLight(0xffffff, 0.65));
+    scene.add(new THREE.AmbientLight(0xffffff, 0.7));
     const key = new THREE.DirectionalLight(0xffffff, 0.9);
     key.position.set(4, 6, 8);
     scene.add(key);
@@ -674,72 +676,23 @@ buy.Text = <span class="c-str">"Buy"</span>
     rim.position.set(-5, -3, -4);
     scene.add(rim);
 
-    // Build a "studded brick" texture on a canvas — a plastic red top, grey sides.
-    function studTexture(base, isTop){
+    function makeShadow(){
       const c = document.createElement('canvas');
-      c.width = 256; c.height = 256;
+      c.width = c.height = 128;
       const ctx = c.getContext('2d');
-      ctx.fillStyle = base;
-      ctx.fillRect(0,0,256,256);
-      if (isTop){
-        const rows = 3;
-        const pad = 256/rows/2;
-        for (let y=0; y<rows; y++){
-          for (let x=0; x<rows; x++){
-            const cx = pad + x*(256/rows);
-            const cy = pad + y*(256/rows);
-            const grad = ctx.createRadialGradient(cx-8,cy-8,4,cx,cy,34);
-            grad.addColorStop(0, 'rgba(255,255,255,0.35)');
-            grad.addColorStop(1, 'rgba(0,0,0,0.12)');
-            ctx.fillStyle = grad;
-            ctx.beginPath();
-            ctx.arc(cx, cy, 30, 0, Math.PI*2);
-            ctx.fill();
-          }
-        }
-      } else {
-        const grad = ctx.createLinearGradient(0,0,0,256);
-        grad.addColorStop(0, 'rgba(255,255,255,0.18)');
-        grad.addColorStop(0.5, 'rgba(0,0,0,0)');
-        grad.addColorStop(1, 'rgba(0,0,0,0.22)');
-        ctx.fillStyle = grad;
-        ctx.fillRect(0,0,256,256);
-      }
+      const g = ctx.createRadialGradient(64,64,4,64,64,60);
+      g.addColorStop(0, 'rgba(0,0,0,0.35)');
+      g.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = g;
+      ctx.fillRect(0,0,128,128);
       const tex = new THREE.CanvasTexture(c);
-      tex.needsUpdate = true;
-      return tex;
+      const mat = new THREE.SpriteMaterial({ map: tex, transparent:true, depthWrite:false });
+      const sprite = new THREE.Sprite(mat);
+      sprite.scale.set(2.2, 2.2, 1);
+      scene.add(sprite);
+      return { sprite, mat };
     }
 
-    const redTop = studTexture('#E14B2A', true);
-    const redSide = studTexture('#D2441F', false);
-    const materials = [
-      new THREE.MeshStandardMaterial({ map: redSide, roughness:0.55, metalness:0.05 }), // +x
-      new THREE.MeshStandardMaterial({ map: redSide, roughness:0.55, metalness:0.05 }), // -x
-      new THREE.MeshStandardMaterial({ map: redTop,  roughness:0.4,  metalness:0.05 }), // +y top
-      new THREE.MeshStandardMaterial({ map: redSide, roughness:0.55, metalness:0.05 }), // -y
-      new THREE.MeshStandardMaterial({ map: redSide, roughness:0.55, metalness:0.05 }), // +z
-      new THREE.MeshStandardMaterial({ map: redSide, roughness:0.55, metalness:0.05 })  // -z
-    ];
-    const geo = new THREE.BoxGeometry(1.6, 1.1, 1.6);
-    const brick = new THREE.Mesh(geo, materials);
-    scene.add(brick);
-
-    // soft contact-shadow sprite beneath the brick
-    const shadowCanvas = document.createElement('canvas');
-    shadowCanvas.width = shadowCanvas.height = 128;
-    const sctx = shadowCanvas.getContext('2d');
-    const sgrad = sctx.createRadialGradient(64,64,4,64,64,60);
-    sgrad.addColorStop(0, 'rgba(0,0,0,0.35)');
-    sgrad.addColorStop(1, 'rgba(0,0,0,0)');
-    sctx.fillStyle = sgrad;
-    sctx.fillRect(0,0,128,128);
-    const shadowTex = new THREE.CanvasTexture(shadowCanvas);
-    const shadowMat = new THREE.SpriteMaterial({ map: shadowTex, transparent:true, depthWrite:false });
-    const shadowSprite = new THREE.Sprite(shadowMat);
-    shadowSprite.scale.set(2.4, 2.4, 1);
-    scene.add(shadowSprite);
-
-    // world bounds in view-space at z=0, derived from camera fov
     function viewBounds(){
       const dist = camera.position.z;
       const vFov = camera.fov * Math.PI / 180;
@@ -747,7 +700,6 @@ buy.Text = <span class="c-str">"Buy"</span>
       const width = height * camera.aspect;
       return { halfW: width/2, halfH: height/2 };
     }
-
     function resize(){
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
@@ -756,49 +708,103 @@ buy.Text = <span class="c-str">"Buy"</span>
     window.addEventListener('resize', resize);
     resize();
 
-    // physics state
-    let b = viewBounds();
-    const floorY = () => -b.halfH + 0.75;
-    let pos = new THREE.Vector3(b.halfW * 0.45, b.halfH * 0.6, 0);
-    let vel = new THREE.Vector3(1.1, 0, 0);
-    let spin = new THREE.Vector3(0.014, 0.021, 0.009);
-    const gravity = -0.017;
-    const restitution = 0.62;
-    const airDrag = 0.999;
+    const loader = new THREE.GLTFLoader();
+    const bodies = [];
 
+    // Normalize any loaded model to a consistent on-screen size and center its pivot.
+    function normalize(root, targetSize){
+      const box = new THREE.Box3().setFromObject(root);
+      const size = new THREE.Vector3();
+      box.getSize(size);
+      const center = new THREE.Vector3();
+      box.getCenter(center);
+      const maxDim = Math.max(size.x, size.y, size.z) || 1;
+      const scale = targetSize / maxDim;
+      const holder = new THREE.Group();
+      root.position.sub(center);
+      root.scale.setScalar(scale);
+      holder.add(root);
+      return holder;
+    }
+
+    function addBody(holder, startX, halfHeight){
+      scene.add(holder);
+      const shadow = makeShadow();
+      const body = {
+        holder,
+        shadow,
+        halfHeight,
+        pos: new THREE.Vector3(startX, 6, 0),
+        vel: new THREE.Vector3((Math.random()-0.5)*0.6, 0, 0),
+        spin: new THREE.Vector3(0.010 + Math.random()*0.01, 0.016 + Math.random()*0.012, 0.006 + Math.random()*0.008),
+        restitution: 0.6 + Math.random()*0.08
+      };
+      bodies.push(body);
+    }
+
+    // 1) White, texture-less version of the logo model
+    loader.load('assets/logo.glb', (gltf) => {
+      const root = gltf.scene;
+      root.traverse((child) => {
+        if (child.isMesh){
+          child.material = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.55, metalness: 0.04 });
+        }
+      });
+      const holder = normalize(root, 1.7);
+      addBody(holder, -3.2, 0.85);
+    }, undefined, (err) => console.error('logo.glb failed to load', err));
+
+    // 2) Fully textured Roblox character model, materials kept as-is (embedded textures)
+    loader.load('assets/roblox-bacon-hair.glb', (gltf) => {
+      const root = gltf.scene;
+      root.traverse((child) => {
+        if (child.isMesh){
+          child.castShadow = false;
+          if (child.material) child.material.roughness = Math.min(child.material.roughness ?? 0.6, 0.75);
+        }
+      });
+      const holder = normalize(root, 2.1);
+      addBody(holder, 3.0, 1.05);
+    }, undefined, (err) => console.error('roblox-bacon-hair.glb failed to load', err));
+
+    const gravity = -0.017;
+    const airDrag = 0.999;
     let last = performance.now();
+
     function tick(now){
       requestAnimationFrame(tick);
       const dt = Math.min((now - last) / 16.67, 2.5);
       last = now;
-      b = viewBounds();
+      const b = viewBounds();
+      const maxX = b.halfW - 1.1;
 
-      vel.y += gravity * dt;
-      pos.addScaledVector(vel, dt);
-      vel.x *= airDrag;
+      bodies.forEach((body) => {
+        const floorY = -b.halfH + body.halfHeight;
+        body.vel.y += gravity * dt;
+        body.pos.addScaledVector(body.vel, dt);
+        body.vel.x *= airDrag;
 
-      const fy = floorY();
-      if (pos.y < fy){
-        pos.y = fy;
-        vel.y = Math.abs(vel.y) * restitution;
-        vel.x += (Math.random() - 0.5) * 0.05;
-        spin.x += (Math.random() - 0.5) * 0.01;
-        if (Math.abs(vel.y) < 0.02) vel.y = 0.34 + Math.random()*0.15; // gentle re-hop so it keeps living
-      }
-      const maxX = b.halfW - 0.9;
-      if (pos.x > maxX){ pos.x = maxX; vel.x = -Math.abs(vel.x); }
-      if (pos.x < -maxX){ pos.x = -maxX; vel.x = Math.abs(vel.x); }
+        if (body.pos.y < floorY){
+          body.pos.y = floorY;
+          body.vel.y = Math.abs(body.vel.y) * body.restitution;
+          body.vel.x += (Math.random() - 0.5) * 0.05;
+          body.spin.x += (Math.random() - 0.5) * 0.008;
+          if (Math.abs(body.vel.y) < 0.02) body.vel.y = 0.3 + Math.random()*0.15;
+        }
+        if (body.pos.x > maxX){ body.pos.x = maxX; body.vel.x = -Math.abs(body.vel.x); }
+        if (body.pos.x < -maxX){ body.pos.x = -maxX; body.vel.x = Math.abs(body.vel.x); }
 
-      brick.position.copy(pos);
-      brick.rotation.x += spin.x * dt;
-      brick.rotation.y += spin.y * dt;
-      brick.rotation.z += spin.z * dt;
+        body.holder.position.copy(body.pos);
+        body.holder.rotation.x += body.spin.x * dt;
+        body.holder.rotation.y += body.spin.y * dt;
+        body.holder.rotation.z += body.spin.z * dt;
 
-      shadowSprite.position.set(pos.x, fy - 0.65, -0.3);
-      const height = Math.max(0, pos.y - fy);
-      const s = Math.max(0.55, 1.4 - height*0.18);
-      shadowSprite.scale.set(2.2*s, 2.2*s, 1);
-      shadowMat.opacity = Math.max(0.15, 0.7 - height*0.09);
+        body.shadow.sprite.position.set(body.pos.x, floorY - body.halfHeight*0.75, -0.3);
+        const height = Math.max(0, body.pos.y - floorY);
+        const s = Math.max(0.5, 1.3 - height*0.16);
+        body.shadow.sprite.scale.set(2.0*s, 2.0*s, 1);
+        body.shadow.mat.opacity = Math.max(0.12, 0.65 - height*0.08);
+      });
 
       renderer.render(scene, camera);
     }
