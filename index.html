@@ -775,7 +775,6 @@ buy.Text = <span class="c-str">"Buy"</span>
             driftPhase: Math.random() * Math.PI * 2,
             driftFreq: 0.12 + Math.random() * 0.06,
             
-            // TUTAJ ZMIANA: Zwiększona amplituda (z 0.35 na 1.0), by postać latała szerzej na boki
             driftAmp: 1.0 + Math.random() * 0.4, 
 
             spinSpeed: 0.16 + Math.random() * 0.08,
@@ -785,6 +784,7 @@ buy.Text = <span class="c-str">"Buy"</span>
         bodies.push(body);
     }
 
+    // SPRAW, BY MODELE SPAWNOWAŁY SIĘ OBOK SIEBIE (-1.5)
     loader.load('assets/roblox-bacon-hair.glb', (gltf) => {
         const root = gltf.scene;
         root.traverse((child) => {
@@ -799,10 +799,11 @@ buy.Text = <span class="c-str">"Buy"</span>
             }
         });
         const { holder, radius } = normalize(root, 2.1);
-        addBody(holder, radius, 0.0);
+        addBody(holder, radius, -1.5); // <--- Przesunięto w lewo
     }, undefined, (err) => console.error('roblox-bacon-hair.glb failed to load', err));
 
-        loader.load('assets/roblox_noob.glb', (gltf) => {
+    // SPRAW, BY MODELE SPAWNOWAŁY SIĘ OBOK SIEBIE (1.5)
+    loader.load('assets/roblox_noob.glb', (gltf) => {
         const root = gltf.scene;
         root.traverse((child) => {
             if (child.isMesh){
@@ -816,7 +817,7 @@ buy.Text = <span class="c-str">"Buy"</span>
             }
         });
         const { holder, radius } = normalize(root, 2.1);
-        addBody(holder, radius, 0.0);
+        addBody(holder, radius, 1.5); // <--- Przesunięto w prawo
     }, undefined, (err) => console.error('roblox_noob.glb failed to load', err));
 
     const GRAVITY = -0.028;  
@@ -850,6 +851,7 @@ buy.Text = <span class="c-str">"Buy"</span>
         currentScrollY += scrollDiff * 0.08; 
         const scrollOffsetY = currentScrollY * 0.01; 
 
+        // KROK 1: Obliczamy pozycje bazowe dla każdego modelu
         bodies.forEach((body) => {
             const floorY = -b.halfH + body.radius;
 
@@ -868,13 +870,60 @@ buy.Text = <span class="c-str">"Buy"</span>
                 body.pos.y = floorY + Math.sin(clock * 0.9 + body.driftPhase) * 0.05;
             }
 
-            // Sway lewo/prawo z nową, większą amplitudą
             const driftTarget = body.baseX + Math.sin(clock * body.driftFreq + body.driftPhase) * body.driftAmp;
             body.pos.x += (driftTarget - body.pos.x) * Math.min(1, 0.06 * dt);
+        });
+
+        // KROK 2: SYSTEM KOLIZJI - Zapobiega przenikaniu modeli
+        for (let i = 0; i < bodies.length; i++) {
+            for (let j = i + 1; j < bodies.length; j++) {
+                const b1 = bodies[i];
+                const b2 = bodies[j];
+
+                const dx = b2.pos.x - b1.pos.x;
+                const dy = b2.pos.y - b1.pos.y;
+                // Unikamy dzielenia przez 0
+                const distanceSq = dx * dx + dy * dy || 0.001;
+                const distance = Math.sqrt(distanceSq);
+                
+                // Mnożnik 0.85 sprawia, że box kolizji jest minimalnie mniejszy niż renderowany model, 
+                // dzięki czemu mają "miękki" punkt styku
+                const minDistance = (b1.radius + b2.radius) * 0.85;
+
+                if (distance < minDistance) {
+                    const overlap = minDistance - distance;
+                    const nx = dx / distance;
+                    const ny = dy / distance;
+
+                    // Siła, z jaką się odpychają
+                    const pushX = nx * overlap * 0.5;
+                    const pushY = ny * overlap * 0.5;
+
+                    // Rozdzielamy pozycje
+                    b1.pos.x -= pushX;
+                    b1.pos.y -= pushY;
+                    b2.pos.x += pushX;
+                    b2.pos.y += pushY;
+
+                    // Dodajemy wobble (chybotanie) wywołane siłą zderzenia!
+                    b1.wobbleVel -= overlap * 5;
+                    b2.wobbleVel += overlap * 5;
+                    
+                    // Odpychamy również ich "punkt przyciągania", aby nie napierały ciągle na siebie
+                    b1.baseX -= pushX * 0.05;
+                    b2.baseX += pushX * 0.05;
+                }
+            }
+        }
+
+        // KROK 3: Aktualizujemy sprężyny po rozwiązaniu fizyki & aplikujemy pozycje
+        bodies.forEach((body) => {
+            const floorY = -b.halfH + body.radius;
             
-            // Ograniczenie, by model nie wyleciał za ekran
+            // Jeszcze jedno wymuszenie granic po dodaniu kolizji (na wypadek, gdyby model wypchnięto za ekran)
             if (body.pos.x > maxX) body.pos.x = maxX;
             if (body.pos.x < -maxX) body.pos.x = -maxX;
+            if (body.pos.y < floorY) body.pos.y = floorY;
 
             const squashForce = -SPRING_K * body.squash - SPRING_D * body.squashVel;
             body.squashVel += squashForce * dtSec;
