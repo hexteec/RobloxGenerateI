@@ -820,23 +820,6 @@ buy.Text = <span class="c-str">"Buy"</span>
         addBody(holder, radius, 1.5); // <--- Przesunięto w prawo
     }, undefined, (err) => console.error('roblox_noob.glb failed to load', err));
 
-        loader.load('assets/logo.glb', (gltf) => {
-        const root = gltf.scene;
-        root.traverse((child) => {
-            if (child.isMesh){
-                child.castShadow = false;
-                if (child.material){
-                    child.material.roughness = Math.min(child.material.roughness ?? 0.6, 0.7);
-                    child.material.envMap = envMap;
-                    child.material.envMapIntensity = 0.9;
-                    child.material.needsUpdate = true;
-                }
-            }
-        });
-        const { holder, radius } = normalize(root, 2.1);
-        addBody(holder, radius, 0); 
-    }, undefined, (err) => console.error('logo.glb failed to load', err));
-
     const GRAVITY = -0.028;  
     const SPRING_K = 100;     
     const SPRING_D = 5;       
