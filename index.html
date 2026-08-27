@@ -799,7 +799,7 @@ buy.Text = <span class="c-str">"Buy"</span>
             }
         });
         const { holder, radius } = normalize(root, 2.1);
-        addBody(holder, radius, -1.5); // <--- Przesunięto w lewo
+        addBody(holder, radius, -8.5); // <--- Przesunięto w lewo
     }, undefined, (err) => console.error('roblox-bacon-hair.glb failed to load', err));
 
     // SPRAW, BY MODELE SPAWNOWAŁY SIĘ OBOK SIEBIE (1.5)
@@ -817,7 +817,7 @@ buy.Text = <span class="c-str">"Buy"</span>
             }
         });
         const { holder, radius } = normalize(root, 2.1);
-        addBody(holder, radius, 1.5); // <--- Przesunięto w prawo
+        addBody(holder, radius, 8.5); // <--- Przesunięto w prawo
     }, undefined, (err) => console.error('roblox_noob.glb failed to load', err));
 
     const GRAVITY = -0.028;  
