@@ -1576,6 +1576,7 @@ body{ top:0 !important; position:static !important; }
 
   let flowState = "idle";
   let model3dGeneratedImageDataUrl = null;
+  let pendingChoiceMessage = null;
 
   let pendingAttachments = [];
   let attachmentSeq = 0;
@@ -2032,9 +2033,12 @@ body{ top:0 !important; position:static !important; }
     const userMsg = document.createElement("div");
     userMsg.className = "msg msg-user";
     const promptText = (m.prompt || "").trim();
+    const hasInputImage = !!m.inputThumbnail;
+    const imageChip = hasInputImage ? `<div class="msg-attach-grid"><div class="ag-item"><img src="${m.inputThumbnail}" alt=""></div></div>` : "";
     userMsg.innerHTML = `
       <div class="msg-avatar"><img src="${currentUser && currentUser.photoURL ? currentUser.photoURL : ""}" alt=""></div>
       <div class="msg-bubble">
+        ${imageChip}
         ${promptText ? `<div>${escapeHtml(promptText)}</div>` : ""}
         <div class="msg-meta"><span>${historyBadge(m)}</span></div>
       </div>
@@ -2773,9 +2777,19 @@ body{ top:0 !important; position:static !important; }
       refreshBalance();
 
       const thumbnail = await createThumbnail(blobUrl);
+      let inputThumbnail = null;
+      if (mainImage) inputThumbnail = await createThumbnail(mainImage);
+      else if (refImage) inputThumbnail = await createThumbnail(refImage);
+
+      if (pendingChoiceMessage && pendingChoiceMessage.chatId === chatId) {
+        await persistMessage(chatId, pendingChoiceMessage.payload);
+        pendingChoiceMessage = null;
+      }
+
       await persistMessage(chatId, {
         type: "generation",
         thumbnail,
+        inputThumbnail,
         prompt: raw,
         mode: METHOD_INFO[currentMethod].api,
         template: currentTemplate,
@@ -2901,10 +2915,16 @@ body{ top:0 !important; position:static !important; }
         updateTokenPill();
         refreshBalance();
 
+        if (pendingChoiceMessage && pendingChoiceMessage.chatId === chatId) {
+          await persistMessage(chatId, pendingChoiceMessage.payload);
+          pendingChoiceMessage = null;
+        }
+
         const thumbnail = await createThumbnail(action.image);
         await persistMessage(chatId, {
           type: "generation",
           thumbnail,
+          inputThumbnail: null,
           prompt: raw,
           mode: "text2img",
           template: "square",
@@ -2912,16 +2932,19 @@ body{ top:0 !important; position:static !important; }
         });
 
       } else if (action.type === "need_image_method") {
+        pendingChoiceMessage = { chatId, payload: { type: "text", prompt: raw, reply: data.reply || "" } };
         setForceMode(action.category, { skipAutoChooser: true });
         flowState = "choose_method";
         appendModeChooser(action.category, pendingEl);
 
       } else if (action.type === "need_3d_method") {
+        pendingChoiceMessage = { chatId, payload: { type: "text", prompt: raw, reply: data.reply || "" } };
         setForceMode("model3d", { skipAutoChooser: true });
         flowState = "choose_method";
         appendModeChooser("model3d", pendingEl);
 
       } else if (action.type === "need_3d_settings") {
+        pendingChoiceMessage = { chatId, payload: { type: "text", prompt: raw, reply: data.reply || "" } };
         setForceMode("model3d", { skipAutoChooser: true });
         model3DSettings = { ...MODEL3D_PRESETS.standard, preset: "standard" };
         pending3DInput = action.useAttachedImage
@@ -3083,8 +3106,13 @@ body{ top:0 !important; position:static !important; }
       const data = await res.json();
       refreshBalance();
 
+      let inputThumbnail = null;
+      if (pending3DInput.kind === "image" && pending3DInput.image) {
+        inputThumbnail = await createThumbnail(pending3DInput.image);
+      }
+
       pending3DInput = null;
-      pollTripoTask(panelEl, data.taskId, "", chatId);
+      pollTripoTask(panelEl, data.taskId, promptPayload, chatId, inputThumbnail);
 
     } catch (e) {
       console.error(e);
@@ -3095,7 +3123,7 @@ body{ top:0 !important; position:static !important; }
     }
   }
 
-  function pollTripoTask(el, taskId, promptText, chatId) {
+  function pollTripoTask(el, taskId, promptText, chatId, inputThumbnail) {
     let attempts = 0;
     const tick = async () => {
       attempts++;
@@ -3121,11 +3149,16 @@ body{ top:0 !important; position:static !important; }
         setBotBody(el, modelFrameHtml(data.modelUrl, data.thumbnailUrl, true));
         markNewLastLarge(el);
         if (chatId) {
+          if (pendingChoiceMessage && pendingChoiceMessage.chatId === chatId) {
+            await persistMessage(chatId, pendingChoiceMessage.payload);
+            pendingChoiceMessage = null;
+          }
           persistMessage(chatId, {
             type: "model3d",
             prompt: promptText || "",
             modelUrl: data.modelUrl,
             thumbnailUrl: data.thumbnailUrl || "",
+            inputThumbnail: inputThumbnail || "",
             taskType: "tripo"
           });
         }
