@@ -2915,19 +2915,16 @@ body{ top:0 !important; position:static !important; }
         });
 
       } else if (action.type === "need_image_method") {
-        await persistMessage(chatId, { type: "text", prompt: raw, reply: data.reply || "" });
         setForceMode(action.category, { skipAutoChooser: true });
         flowState = "choose_method";
         appendModeChooser(action.category, pendingEl);
 
       } else if (action.type === "need_3d_method") {
-        await persistMessage(chatId, { type: "text", prompt: raw, reply: data.reply || "" });
         setForceMode("model3d", { skipAutoChooser: true });
         flowState = "choose_method";
         appendModeChooser("model3d", pendingEl);
 
       } else if (action.type === "need_3d_settings") {
-        await persistMessage(chatId, { type: "text", prompt: raw, reply: data.reply || "" });
         setForceMode("model3d", { skipAutoChooser: true });
         model3DSettings = { ...MODEL3D_PRESETS.standard, preset: "standard" };
         pending3DInput = action.useAttachedImage
@@ -2940,7 +2937,6 @@ body{ top:0 !important; position:static !important; }
         applyFlowComposerState();
 
       } else if (action.type === "need_tokens") {
-        await persistMessage(chatId, { type: "text", prompt: raw, reply: data.reply || "" });
         openBuyModal();
       }
 
