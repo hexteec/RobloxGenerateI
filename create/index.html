@@ -2031,10 +2031,14 @@ body{ top:0 !important; position:static !important; }
 
     const userMsg = document.createElement("div");
     userMsg.className = "msg msg-user";
+    const promptText = (m.prompt || "").trim();
+    const hasImage = (m.type === "generation" || m.type === "model3d") && m.thumbnail;
+    const imageChip = hasImage ? `<div class="msg-attach-grid"><div class="ag-item"><img src="${m.thumbnail}" alt=""></div></div>` : "";
     userMsg.innerHTML = `
       <div class="msg-avatar"><img src="${currentUser && currentUser.photoURL ? currentUser.photoURL : ""}" alt=""></div>
       <div class="msg-bubble">
-        <div>${escapeHtml(m.prompt || "_")}</div>
+        ${imageChip}
+        ${promptText ? `<div>${escapeHtml(promptText)}</div>` : ""}
         <div class="msg-meta"><span>${historyBadge(m)}</span></div>
       </div>
     `;
@@ -2095,11 +2099,12 @@ body{ top:0 !important; position:static !important; }
     const el = document.createElement("div");
     el.className = "msg msg-user";
     const gallery = attachmentsGridHtml(attachments);
+    const trimmed = (text || "").trim();
     el.innerHTML = `
       <div class="msg-avatar"><img src="${currentUser && currentUser.photoURL ? currentUser.photoURL : ""}" alt=""></div>
       <div class="msg-bubble">
         ${gallery}
-        <div>${escapeHtml(text || "_")}</div>
+        ${trimmed ? `<div>${escapeHtml(trimmed)}</div>` : ""}
       </div>
     `;
     inner.appendChild(el);
