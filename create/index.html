@@ -2952,7 +2952,7 @@ body{ top:0 !important; position:static !important; }
     const s = model3DSettings;
     const cost = calcModel3DCost(s);
     const presetBtn = (key,label) => `<button class="m3d-preset ${s.preset===key?'active':''}" onclick="applyModel3DPreset('${key}')">${label}</button>`;
-    const toggleBtn = (field, val, label) => `<button class="m3d-toggle ${s[field]===val?'active':''}" onclick="setModel3DField('${field}', ${JSON.stringify(val)})">${label}</button>`;
+    const toggleBtn = (field, val, label) => `<button class="m3d-toggle ${s[field]===val?'active':''}" onclick='setModel3DField("${field}", ${JSON.stringify(val)})'>${label}</button>`;
     const polyIndex = POLY_STEPS.indexOf(s.polygonCount);
 
     return `
