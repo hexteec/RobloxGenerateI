@@ -2032,12 +2032,9 @@ body{ top:0 !important; position:static !important; }
     const userMsg = document.createElement("div");
     userMsg.className = "msg msg-user";
     const promptText = (m.prompt || "").trim();
-    const hasImage = (m.type === "generation" || m.type === "model3d") && m.thumbnail;
-    const imageChip = hasImage ? `<div class="msg-attach-grid"><div class="ag-item"><img src="${m.thumbnail}" alt=""></div></div>` : "";
     userMsg.innerHTML = `
       <div class="msg-avatar"><img src="${currentUser && currentUser.photoURL ? currentUser.photoURL : ""}" alt=""></div>
       <div class="msg-bubble">
-        ${imageChip}
         ${promptText ? `<div>${escapeHtml(promptText)}</div>` : ""}
         <div class="msg-meta"><span>${historyBadge(m)}</span></div>
       </div>
