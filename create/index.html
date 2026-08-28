@@ -673,14 +673,17 @@ background-image:
 .m3d-preset.active, .m3d-toggle.active{ border-color: var(--accent); background: var(--accent-wash); color: var(--accent-deep); }
 .m3d-slider{
   -webkit-appearance:none; width:100%; height:4px; border-radius:4px; background: var(--soft-2); outline:none; cursor:pointer;
-  transition: background .2s ease;
+  margin:8px 0 4px;
 }
+.m3d-slider::-webkit-slider-runnable-track{ height:4px; border-radius:4px; background: var(--soft-2); }
 .m3d-slider::-webkit-slider-thumb{
   -webkit-appearance:none; width:16px; height:16px; border-radius:50%; background: var(--accent); border:3px solid #fff;
   box-shadow: 0 1px 4px rgba(32,31,28,0.3); cursor:pointer; transition: transform .12s ease;
+  margin-top:-6px;
 }
-.m3d-slider::-webkit-slider-thumb:hover{ transform: scale(1.1); }
-.m3d-slider::-moz-range-thumb{ width:14px; height:14px; border-radius:50%; background: var(--accent); border:3px solid #fff; cursor:pointer; }
+.m3d-slider::-webkit-slider-thumb:hover{ transform: scale(1.15); }
+.m3d-slider::-moz-range-track{ height:4px; border-radius:4px; background: var(--soft-2); border:none; }
+.m3d-slider::-moz-range-thumb{ width:14px; height:14px; border-radius:50%; background: var(--accent); border:3px solid #fff; cursor:pointer; box-shadow: 0 1px 4px rgba(32,31,28,0.3); }
 .m3d-steps{ display:flex; justify-content:space-between; font-size:10.3px; color: var(--ink-faint); font-family: var(--font-mono); }
 .m3d-cost{ font-size:13px; font-weight:700; color: var(--ink); background: var(--soft); border-radius:10px; padding:9px 13px; text-align:center; border:1px solid var(--border); }
 
@@ -2963,7 +2966,7 @@ body{ top:0 !important; position:static !important; }
       </div>
       <div class="m3d-section">
         <div class="m3d-label">Polygon Count <span class="m3d-val">${formatCount(s.polygonCount)}</span></div>
-        <input type="range" min="0" max="${POLY_STEPS.length-1}" step="1" value="${polyIndex}" class="m3d-slider" oninput="setModel3DPolyIndex(this.value)">
+        <input type="range" min="0" max="${POLY_STEPS.length-1}" step="1" value="${polyIndex}" class="m3d-slider" oninput="updatePolySliderLive(this.value)" onchange="setModel3DPolyIndex(this.value)">
         <div class="m3d-steps">${POLY_STEPS.map(v=>`<span>${formatCount(v)}</span>`).join("")}</div>
       </div>
       <div class="m3d-section">
@@ -3006,6 +3009,23 @@ body{ top:0 !important; position:static !important; }
     model3DSettings[field] = val;
     model3DSettings.preset = null;
     rerenderModel3DPanel();
+  }
+
+  function updatePolySliderLive(idx) {
+    model3DSettings.polygonCount = POLY_STEPS[idx];
+    model3DSettings.preset = null;
+    const panel = document.getElementById("model3dPanel");
+    if (!panel) return;
+    const valSpan = panel.querySelector(".m3d-val");
+    if (valSpan) valSpan.textContent = formatCount(POLY_STEPS[idx]);
+    const costEl = panel.querySelector(".m3d-cost b");
+    const genBtn = panel.querySelector(".btn-newchat");
+    if (costEl || genBtn) {
+      const cost = calcModel3DCost(model3DSettings);
+      if (costEl) costEl.textContent = cost + " tokens";
+      if (genBtn) genBtn.textContent = "Generate 3D model (" + cost + " tokens)";
+    }
+    panel.querySelectorAll(".m3d-preset").forEach(b => b.classList.remove("active"));
   }
 
   function setModel3DPolyIndex(idx) {
