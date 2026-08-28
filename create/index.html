@@ -3247,6 +3247,11 @@ body{ top:0 !important; position:static !important; }
 
       refreshBalance();
 
+      if (pendingChoiceMessage && pendingChoiceMessage.chatId === chatId) {
+        await persistMessage(chatId, pendingChoiceMessage.payload);
+        pendingChoiceMessage = null;
+      }
+
       const thumbnail = await createThumbnail(blobUrl);
       await persistMessage(chatId, { type: "generation", thumbnail, prompt: raw, mode: "text2img", template: "square", category: "icon" });
 
