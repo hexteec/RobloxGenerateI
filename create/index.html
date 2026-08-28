@@ -13,6 +13,8 @@
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
 <script type="module" src="https://unpkg.com/@google/model-viewer@3.5.0/dist/model-viewer.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/languages/lua.min.js"></script>
 <script type="text/javascript">
   function googleTranslateElementInit() {
     new google.translate.TranslateElement(
@@ -1120,6 +1122,43 @@ body{ top:0 !important; position:static !important; }
 .lang-opt:hover{ background: var(--soft); }
 .lang-opt.active{ background: var(--accent-wash); color: var(--accent-deep); font-weight:600; }
 .lang-opt .lo-flag{ font-size:14px; flex-shrink:0; }
+
+/* ===================== SYNTAX HIGHLIGHTING ===================== */
+.code-block pre code.hljs{ background:transparent; padding:0; overflow:visible; }
+.code-block .hljs{ color:#EAE8E4; }
+.code-block .hljs-keyword,
+.code-block .hljs-selector-tag,
+.code-block .hljs-built_in_constant{ color:#E08350; font-weight:500; }
+.code-block .hljs-built_in{ color:#E17A63; }
+.code-block .hljs-type,
+.code-block .hljs-class,
+.code-block .hljs-title{ color:#C0ADC9; }
+.code-block .hljs-function .hljs-title,
+.code-block .hljs-title.function_,
+.code-block .hljs-title.class_{ color:#C0ADC9; }
+.code-block .hljs-string,
+.code-block .hljs-template-string,
+.code-block .hljs-regexp{ color:#5FAE8A; }
+.code-block .hljs-number,
+.code-block .hljs-literal{ color:#D3A657; }
+.code-block .hljs-comment{ color:#6E6C75; font-style:italic; }
+.code-block .hljs-variable,
+.code-block .hljs-attr{ color:#EAE8E4; }
+.code-block .hljs-params{ color:#C0ADC9; }
+.code-block .hljs-operator,
+.code-block .hljs-punctuation{ color:#A19FA8; }
+.code-block .hljs-meta,
+.code-block .hljs-meta .hljs-keyword{ color:#E08350; }
+.code-block .hljs-tag{ color:#E17A63; }
+.code-block .hljs-name{ color:#E17A63; }
+.code-block .hljs-attribute{ color:#D3A657; }
+.code-block .hljs-selector-class,
+.code-block .hljs-selector-id{ color:#C0ADC9; }
+.code-block .hljs-property{ color:#E17A63; }
+.code-block .hljs-symbol{ color:#D3A657; }
+.code-block .hljs-addition{ color:#5FAE8A; background:rgba(95,174,138,0.1); }
+.code-block .hljs-deletion{ color:#E17A63; background:rgba(225,122,99,0.1); }
+
 </style>
 </head>
 <body>
@@ -2079,6 +2118,18 @@ body{ top:0 !important; position:static !important; }
             <div class="progress-track"><div class="progress-fill" style="width:${Math.max(4, progress || 0)}%"></div></div>`;
   }
 
+  function highlightCode(code, lang) {
+    if (typeof hljs !== 'undefined') {
+      try {
+        if (lang && lang !== 'text' && hljs.getLanguage(lang)) {
+          return hljs.highlight(code, { language: lang }).value;
+        }
+        return hljs.highlightAuto(code).value;
+      } catch(e) { /* fallback to plain */ }
+    }
+    return escapeHtml(code);
+  }
+
   function renderMarkdown(raw) {
     if (!raw) return "";
     const parts = String(raw).split(/```(\w*)\n?([\s\S]*?)```/g);
@@ -2102,7 +2153,7 @@ body{ top:0 !important; position:static !important; }
                 <button class="cb-btn" onclick="copyCodeBlock('${id}', this)">${ICONS.copy} Copy</button>
               </div>
             </div>
-            <pre><code>${escapeHtml(code.trim())}</code></pre>
+            <pre><code class="hljs">${highlightCode(code.trim(), langLabel)}</code></pre>
           </div>`;
       }
     }
