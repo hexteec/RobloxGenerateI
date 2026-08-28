@@ -631,6 +631,14 @@ background-image:
 .md-content strong{ font-weight:700; }
 .md-content .md-p{ margin: 0 0 8px; font-size:13.8px; line-height:1.6; color: var(--ink); }
 .md-content .md-p:last-child{ margin-bottom:0; }
+.md-content h1,.md-content h2,.md-content h3,.md-content h4{ font-family: var(--font-body); color: var(--ink); margin:0 0 6px; line-height:1.35; }
+.md-content h1{ font-size:17px; font-weight:700; }
+.md-content h2{ font-size:15.5px; font-weight:700; }
+.md-content h3{ font-size:14.5px; font-weight:700; }
+.md-content h4{ font-size:13.8px; font-weight:700; }
+.md-content ul,.md-content ol{ margin:0 0 8px; padding-left:20px; font-size:13.8px; line-height:1.6; color: var(--ink); }
+.md-content li{ margin-bottom:3px; }
+.md-content li:last-child{ margin-bottom:0; }
 
 .ui2lua-hint-box{ background: var(--soft); border:1px solid var(--border); border-radius: var(--radius-sm); padding:10px 13px; margin-bottom:12px; font-size:12.4px; line-height:1.55; color: var(--ink-muted); }
 
@@ -2161,15 +2169,71 @@ body{ top:0 !important; position:static !important; }
     return html;
   }
 
+  function inlineFormat(str) {
+    let s = escapeHtml(str);
+    s = s.replace(/`([^`]+)`/g, '<code class="inline">$1</code>');
+    s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+    return s;
+  }
+
   function renderInlineMarkdown(text) {
-    return text.split(/\n{2,}/).map(paragraph => {
-      if (!paragraph.trim()) return "";
-      let esc = escapeHtml(paragraph.trim());
-      esc = esc.replace(/`([^`]+)`/g, '<code class="inline">$1</code>');
-      esc = esc.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
-      esc = esc.replace(/\n/g, "<br>");
-      return `<div class="md-p">${esc}</div>`;
-    }).join("");
+    const blocks = text.split(/\n{2,}/);
+    let html = "";
+    for (const block of blocks) {
+      if (!block.trim()) continue;
+      const lines = block.trim().split("\n");
+
+      // Heading
+      const h = lines[0].match(/^(#{1,4})\s+(.+)/);
+      if (h && lines.length === 1) {
+        const lvl = h[1].length;
+        html += `<h${lvl}>${inlineFormat(h[2])}</h${lvl}>`;
+        continue;
+      }
+
+      // Ordered list
+      if (lines.every(l => /^\d+[\.\)]\s/.test(l.trim()))) {
+        html += "<ol>" + lines.map(l => {
+          const t = l.trim().replace(/^\d+[\.\)]\s+/, "");
+          return `<li>${inlineFormat(t)}</li>`;
+        }).join("") + "</ol>";
+        continue;
+      }
+
+      // Unordered list
+      if (lines.every(l => /^[-*]\s/.test(l.trim()))) {
+        html += "<ul>" + lines.map(l => {
+          const t = l.trim().replace(/^[-*]\s+/, "");
+          return `<li>${inlineFormat(t)}</li>`;
+        }).join("") + "</ul>";
+        continue;
+      }
+
+      // Mixed block: heading at top + list below (e.g. ### Title\n1. item...)
+      if (h) {
+        const lvl = h[1].length;
+        html += `<h${lvl}>${inlineFormat(h[2])}</h${lvl}>`;
+        const rest = lines.slice(1);
+        if (rest.length && rest.every(l => /^\d+[\.\)]\s/.test(l.trim()))) {
+          html += "<ol>" + rest.map(l => {
+            const t = l.trim().replace(/^\d+[\.\)]\s+/, "");
+            return `<li>${inlineFormat(t)}</li>`;
+          }).join("") + "</ol>";
+        } else if (rest.length && rest.every(l => /^[-*]\s/.test(l.trim()))) {
+          html += "<ul>" + rest.map(l => {
+            const t = l.trim().replace(/^[-*]\s+/, "");
+            return `<li>${inlineFormat(t)}</li>`;
+          }).join("") + "</ul>";
+        } else {
+          html += `<div class="md-p">${inlineFormat(rest.join("\n")).replace(/\n/g, "<br>")}</div>`;
+        }
+        continue;
+      }
+
+      // Plain paragraph
+      html += `<div class="md-p">${inlineFormat(block.trim()).replace(/\n/g, "<br>")}</div>`;
+    }
+    return html;
   }
 
   function copyCodeBlock(id, btnEl) {
