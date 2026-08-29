@@ -3188,12 +3188,17 @@ body{ top:0 !important; position:static !important; }
 
   function pollTripoTask(el, taskId, promptText, chatId, inputThumbnail) {
     let attempts = 0;
+    let currentTaskId = taskId;
     const tick = async () => {
       attempts++;
       try {
-        const res = await authedFetch(`/tripo/status?id=${encodeURIComponent(taskId)}`);
+        const res = await authedFetch(`/tripo/status?id=${encodeURIComponent(currentTaskId)}`);
         if (!res.ok) throw new Error(await extractError(res));
         const data = await res.json();
+
+        if (data.taskId && data.taskId !== currentTaskId) {
+            currentTaskId = data.taskId;
+        }
 
         if (data.status === "FAILED" || data.status === "CANCELED") {
           setBotBody(el, errorHtml("3D model generation failed" + (data.errorMessage ? (": " + data.errorMessage) : ".")));
