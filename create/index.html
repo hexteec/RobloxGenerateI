@@ -3197,7 +3197,7 @@ body{ top:0 !important; position:static !important; }
         const data = await res.json();
 
         if (data.taskId && data.taskId !== currentTaskId) {
-            currentTaskId = data.taskId;
+            currentTaskId = data.taskId; // przeszliśmy do zadania konwersji
         }
 
         if (data.status === "FAILED" || data.status === "CANCELED") {
