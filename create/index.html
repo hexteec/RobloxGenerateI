@@ -2086,19 +2086,20 @@ body{ top:0 !important; position:static !important; }
       const isModel = m.category === "model3d";
       const introText = isModel ? "How do you want to create the 3D model?" : (m.category === "thumbnail" ? "How do you want to create the thumbnail?" : "How do you want to create the icon?");
       let html;
+      const sel = m.selectedOption;
       if (isModel) {
         html = `
-          <div class="chooser-3d" style="opacity: 0.7; pointer-events: none;">
-            <button><span class="c3-icon">${ICONS.edit}</span><span>Describe in text<span class="c3-sub">Short object description → 3D model</span></span></button>
-            <button><span class="c3-icon">${ICONS.upload}</span><span>Upload a reference image<span class="c3-sub">Object photo → 3D model</span></span></button>
-            <button><span class="c3-icon">${ICONS.wand}</span><span>Generate an image first<span class="c3-sub">Describe it, AI generates an image, then the 3D model</span></span></button>
+          <div class="chooser-3d" style="opacity: 0.9; pointer-events: none;">
+            <button ${sel === 'describe' ? 'class="chosen"' : (sel ? 'disabled' : '')}><span class="c3-icon">${ICONS.edit}</span><span>Describe in text<span class="c3-sub">Short object description → 3D model</span></span></button>
+            <button ${sel === 'image' ? 'class="chosen"' : (sel ? 'disabled' : '')}><span class="c3-icon">${ICONS.upload}</span><span>Upload a reference image<span class="c3-sub">Object photo → 3D model</span></span></button>
+            <button ${sel === 'generate' ? 'class="chosen"' : (sel ? 'disabled' : '')}><span class="c3-icon">${ICONS.wand}</span><span>Generate an image first<span class="c3-sub">Describe it, AI generates an image, then the 3D model</span></span></button>
           </div>`;
       } else {
         html = `
-          <div class="chooser-3d" style="opacity: 0.7; pointer-events: none;">
-            <button><span class="c3-icon">${METHOD_INFO.text.icon}</span><span>${METHOD_INFO.text.label}<span class="c3-sub">${METHOD_INFO.text.sub}</span></span></button>
-            <button><span class="c3-icon">${METHOD_INFO.image.icon}</span><span>${METHOD_INFO.image.label}<span class="c3-sub">${METHOD_INFO.image.sub}</span></span></button>
-            <button><span class="c3-icon">${METHOD_INFO.style.icon}</span><span>${METHOD_INFO.style.label}<span class="c3-sub">${METHOD_INFO.style.sub}</span></span></button>
+          <div class="chooser-3d" style="opacity: 0.9; pointer-events: none;">
+            <button ${sel === 'text' ? 'class="chosen"' : (sel ? 'disabled' : '')}><span class="c3-icon">${METHOD_INFO.text.icon}</span><span>${METHOD_INFO.text.label}<span class="c3-sub">${METHOD_INFO.text.sub}</span></span></button>
+            <button ${sel === 'image' ? 'class="chosen"' : (sel ? 'disabled' : '')}><span class="c3-icon">${METHOD_INFO.image.icon}</span><span>${METHOD_INFO.image.label}<span class="c3-sub">${METHOD_INFO.image.sub}</span></span></button>
+            <button ${sel === 'style' ? 'class="chosen"' : (sel ? 'disabled' : '')}><span class="c3-icon">${METHOD_INFO.style.icon}</span><span>${METHOD_INFO.style.label}<span class="c3-sub">${METHOD_INFO.style.sub}</span></span></button>
           </div>`;
       }
       body.innerHTML = renderInlineMarkdown(introText) + html;
@@ -2559,6 +2560,7 @@ body{ top:0 !important; position:static !important; }
   }
 
   function chooseImageMethod(mode, method, btnEl) {
+    if (pendingChoiceMessage) pendingChoiceMessage.payload.selectedOption = method;
     const group = btnEl.closest(".chooser-3d");
     group.querySelectorAll("button").forEach(b => { b.disabled = true; b.classList.remove("chosen"); });
     btnEl.classList.add("chosen");
@@ -3265,6 +3267,7 @@ body{ top:0 !important; position:static !important; }
   }
 
   function chooseModel3DMethod(choice, btnEl) {
+    if (pendingChoiceMessage) pendingChoiceMessage.payload.selectedOption = choice;
     const group = btnEl.closest(".chooser-3d");
     group.querySelectorAll("button").forEach(b => { b.disabled = true; b.classList.remove("chosen"); });
     btnEl.classList.add("chosen");
