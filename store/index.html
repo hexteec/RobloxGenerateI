@@ -3862,56 +3862,64 @@
 
       <!-- LIBRARY TAB -->
       <div id="tab-library" class="tab-content" style="display:none;">
-        <h2 style="font-family:var(--font-display); margin-bottom:20px; color:var(--ink);">My Library</h2>
-        <p style="color:var(--ink-muted); font-size:14px; margin-bottom:24px;">Models you have purchased or generated.
-        </p>
-        <div class="asset-grid" id="libraryGrid"></div>
+        <div class="store-content-inner">
+          <div style="background: linear-gradient(135deg, rgba(225,75,42,0.08) 0%, transparent 100%); border-radius: 24px; padding: 40px; margin-bottom: 32px; border: 1px solid rgba(225,75,42,0.1); position: relative; overflow: hidden;">
+            <div style="position: relative; z-index: 2;">
+              <h2 style="font-family:var(--font-display); font-size: 32px; font-weight: 800; margin: 0 0 8px; color:var(--ink); letter-spacing: -0.02em;">My Library</h2>
+              <p style="color:var(--ink-muted); font-size:16px; margin: 0; max-width: 500px;">Access and manage your personal collection of generated and purchased 3D models.</p>
+            </div>
+            <svg style="position: absolute; right: 20px; top: -20px; width: 160px; height: 160px; color: var(--accent); opacity: 0.05;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+          </div>
+          <div class="asset-grid" id="libraryGrid"></div>
+        </div>
       </div>
 
       <!-- DASHBOARD TAB -->
       <div id="tab-dashboard" class="tab-content" style="display:none;">
-        <h2 style="font-family:var(--font-display); margin-bottom:24px; color:var(--ink);">Creator Dashboard</h2>
+        <div class="store-content-inner">
+          <h2 style="font-family:var(--font-display); font-size: 32px; font-weight: 800; margin: 0 0 32px; color:var(--ink); letter-spacing: -0.02em;">Creator Dashboard</h2>
 
-        <div style="display:flex; gap:24px; margin-bottom:40px; flex-wrap:wrap;">
-          <div style="flex:1; min-width:220px; background: linear-gradient(135deg, rgba(62,122,95,0.1) 0%, rgba(62,122,95,0.02) 100%); border:1px solid rgba(62,122,95,0.2); border-radius: 20px; padding: 24px; position: relative; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.02);">
-            <div style="color:var(--mint); font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing: .05em;">Total Earned</div>
-            <div style="color:var(--mint); font-size:36px; font-family: var(--font-display); font-weight:800; margin-top:8px; display:flex; align-items:center; gap:8px;">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-              <span id="dashEarned">-</span>
+          <div style="display:flex; gap:24px; margin-bottom:40px; flex-wrap:wrap;">
+            <div style="flex:1; min-width:220px; background: linear-gradient(135deg, rgba(62,122,95,0.1) 0%, rgba(62,122,95,0.02) 100%); border:1px solid rgba(62,122,95,0.2); border-radius: 20px; padding: 24px; position: relative; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.02);">
+              <div style="color:var(--mint); font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing: .05em;">Total Earned</div>
+              <div style="color:var(--mint); font-size:36px; font-family: var(--font-display); font-weight:800; margin-top:8px; display:flex; align-items:center; gap:8px;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                <span id="dashEarned">-</span>
+              </div>
+              <svg style="position:absolute; right:-20px; bottom:-20px; width:120px; height:120px; opacity:0.05; color:var(--mint);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle></svg>
             </div>
-            <svg style="position:absolute; right:-20px; bottom:-20px; width:120px; height:120px; opacity:0.05; color:var(--mint);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle></svg>
+            
+            <div style="flex:1; min-width:220px; background: linear-gradient(135deg, rgba(28,28,30,0.04) 0%, rgba(28,28,30,0.01) 100%); border:1px solid var(--border); border-radius: 20px; padding: 24px; position: relative; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.02);">
+              <div style="color:var(--ink-muted); font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing: .05em;">Total Sales</div>
+              <div style="color:var(--ink); font-size:36px; font-family: var(--font-display); font-weight:800; margin-top:8px;" id="dashSales">-</div>
+              <svg style="position:absolute; right:-20px; bottom:-20px; width:120px; height:120px; opacity:0.03; color:var(--ink);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+            </div>
+            
+            <div style="flex:1; min-width:220px; background: linear-gradient(135deg, rgba(225,75,42,0.05) 0%, rgba(225,75,42,0.01) 100%); border:1px solid rgba(225,75,42,0.15); border-radius: 20px; padding: 24px; position: relative; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.02);">
+              <div style="color:var(--accent); font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing: .05em;">Published Models</div>
+              <div style="color:var(--ink); font-size:36px; font-family: var(--font-display); font-weight:800; margin-top:8px;" id="dashPublished">-</div>
+              <svg style="position:absolute; right:-20px; bottom:-20px; width:120px; height:120px; opacity:0.03; color:var(--accent);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+            </div>
           </div>
-          
-          <div style="flex:1; min-width:220px; background: linear-gradient(135deg, rgba(28,28,30,0.04) 0%, rgba(28,28,30,0.01) 100%); border:1px solid var(--border); border-radius: 20px; padding: 24px; position: relative; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.02);">
-            <div style="color:var(--ink-muted); font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing: .05em;">Total Sales</div>
-            <div style="color:var(--ink); font-size:36px; font-family: var(--font-display); font-weight:800; margin-top:8px;" id="dashSales">-</div>
-            <svg style="position:absolute; right:-20px; bottom:-20px; width:120px; height:120px; opacity:0.03; color:var(--ink);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
-          </div>
-          
-          <div style="flex:1; min-width:220px; background: linear-gradient(135deg, rgba(225,75,42,0.05) 0%, rgba(225,75,42,0.01) 100%); border:1px solid rgba(225,75,42,0.15); border-radius: 20px; padding: 24px; position: relative; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.02);">
-            <div style="color:var(--accent); font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing: .05em;">Published Models</div>
-            <div style="color:var(--ink); font-size:36px; font-family: var(--font-display); font-weight:800; margin-top:8px;" id="dashPublished">-</div>
-            <svg style="position:absolute; right:-20px; bottom:-20px; width:120px; height:120px; opacity:0.03; color:var(--accent);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-          </div>
-        </div>
 
-        <h3 style="font-family:var(--font-display); margin-bottom:16px; color:var(--ink);">Your Assets</h3>
-        <div
-          style="background:var(--card); border:1px solid var(--border); border-radius:var(--radius-md); overflow-x:auto;">
-          <table class="list-table">
-            <thead>
-              <tr>
-                <th>Model</th>
-                <th>Status</th>
-                <th>Price</th>
-                <th>Sales</th>
-                <th>Earned</th>
-                <th>Likes</th>
-                <th>Date</th>
-              </tr>
-            </thead>
-            <tbody id="dashTableBody"></tbody>
-          </table>
+          <h3 style="font-family:var(--font-display); margin-bottom:16px; color:var(--ink);">Your Assets</h3>
+          <div
+            style="background:var(--card); border:1px solid var(--border); border-radius:var(--radius-md); overflow-x:auto;">
+            <table class="list-table">
+              <thead>
+                <tr>
+                  <th>Model</th>
+                  <th>Status</th>
+                  <th>Price</th>
+                  <th>Sales</th>
+                  <th>Earned</th>
+                  <th>Likes</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody id="dashTableBody"></tbody>
+            </table>
+          </div>
         </div>
       </div>
 
