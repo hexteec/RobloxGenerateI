@@ -3045,6 +3045,10 @@ body{ top:0 !important; position:static !important; }
         <div class="m3d-row">${toggleBtn('geometryQuality','standard','Standard')}${toggleBtn('geometryQuality','detailed','Detailed +10')}</div>
       </div>
       <div class="m3d-section">
+        <div class="m3d-label">Low Poly</div>
+        <div class="m3d-row">${toggleBtn('lowPoly',false,'OFF')}${toggleBtn('lowPoly',true,'ON −3')}</div>
+      </div>
+      <div class="m3d-section">
         <div class="m3d-label">Textures</div>
         <div class="m3d-row">${toggleBtn('textures',false,'OFF')}${toggleBtn('textures',true,'ON +15')}</div>
       </div>
@@ -3184,12 +3188,17 @@ body{ top:0 !important; position:static !important; }
 
   function pollTripoTask(el, taskId, promptText, chatId, inputThumbnail) {
     let attempts = 0;
+    let currentTaskId = taskId;
     const tick = async () => {
       attempts++;
       try {
-        const res = await authedFetch(`/tripo/status?id=${encodeURIComponent(taskId)}`);
+        const res = await authedFetch(`/tripo/status?id=${encodeURIComponent(currentTaskId)}`);
         if (!res.ok) throw new Error(await extractError(res));
         const data = await res.json();
+
+        if (data.taskId && data.taskId !== currentTaskId) {
+            currentTaskId = data.taskId; // przeszliśmy do zadania konwersji
+        }
 
         if (data.status === "FAILED" || data.status === "CANCELED") {
           setBotBody(el, errorHtml("3D model generation failed" + (data.errorMessage ? (": " + data.errorMessage) : ".")));
