@@ -33,6 +33,7 @@
           || (node.id && node.id.indexOf(":") === 0 && node.tagName === "IFRAME");
       }
       function stripBanner(node) {
+        if (!document.body) return;
         node.style.setProperty("display", "none", "important");
         node.style.setProperty("visibility", "hidden", "important");
         node.style.setProperty("height", "0", "important");
@@ -43,7 +44,7 @@
         for (const m of mutations) {
           m.addedNodes.forEach((node) => { if (isBanner(node)) stripBanner(node); });
         }
-        if (document.body.style.top && document.body.style.top !== "0px") {
+        if (document.body && document.body.style.top && document.body.style.top !== "0px") {
           document.body.style.top = "0px";
           document.body.style.position = "static";
         }
@@ -4063,8 +4064,9 @@
     }
 
     // --- Explore (Store) ---
-    let currentPage = 1;
+    let currentExplorePage = 1;
     let allAssets = [];
+    let isLoading = false;
     async function fetchAssets(append = false) {
       if (isLoading) return;
       isLoading = true;
