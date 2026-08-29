@@ -1953,6 +1953,7 @@ body{ top:0 !important; position:static !important; }
     if (!currentUser) { document.getElementById("signInBtn").click(); return; }
     activeChatId = null;
     lastLargeFrame = null;
+    pendingChoiceMessage = null;
     document.getElementById("chatTitle").textContent = "New chat";
     setForceMode("chat");
     resetComposer();
@@ -1964,6 +1965,7 @@ body{ top:0 !important; position:static !important; }
   async function openChat(chatId) {
     activeChatId = chatId;
     lastLargeFrame = null;
+    pendingChoiceMessage = null;
     const chat = chatsCache.find(c => c.id === chatId);
     document.getElementById("chatTitle").textContent = chat ? chat.title : "Chat";
     renderChatList();
@@ -2468,7 +2470,10 @@ body{ top:0 !important; position:static !important; }
 
     if (flowState !== "busy") {
       flowState = "choose_method";
-      if (!opts.skipAutoChooser) appendModeChooser(mode);
+      if (!opts.skipAutoChooser) {
+        appendModeChooser(mode);
+        pendingChoiceMessage = { chatId: activeChatId, payload: { type: "chooser", category: mode, prompt: "" } };
+      }
       applyFlowComposerState();
     }
   }
@@ -2840,7 +2845,7 @@ body{ top:0 !important; position:static !important; }
       if (mainImage) inputThumbnail = await createThumbnail(mainImage);
       else if (refImage) inputThumbnail = await createThumbnail(refImage);
 
-      if (pendingChoiceMessage && pendingChoiceMessage.chatId === chatId) {
+      if (pendingChoiceMessage && (pendingChoiceMessage.chatId === chatId || pendingChoiceMessage.chatId === null)) {
         await persistMessage(chatId, pendingChoiceMessage.payload);
         pendingChoiceMessage = null;
       }
@@ -2974,7 +2979,7 @@ body{ top:0 !important; position:static !important; }
         updateTokenPill();
         refreshBalance();
 
-        if (pendingChoiceMessage && pendingChoiceMessage.chatId === chatId) {
+        if (pendingChoiceMessage && (pendingChoiceMessage.chatId === chatId || pendingChoiceMessage.chatId === null)) {
           await persistMessage(chatId, pendingChoiceMessage.payload);
           pendingChoiceMessage = null;
         }
@@ -3228,7 +3233,7 @@ body{ top:0 !important; position:static !important; }
         setBotBody(el, modelFrameHtml(data.modelUrl, data.thumbnailUrl, true));
         markNewLastLarge(el);
         if (chatId) {
-          if (pendingChoiceMessage && pendingChoiceMessage.chatId === chatId) {
+          if (pendingChoiceMessage && (pendingChoiceMessage.chatId === chatId || pendingChoiceMessage.chatId === null)) {
             await persistMessage(chatId, pendingChoiceMessage.payload);
             pendingChoiceMessage = null;
           }
@@ -3331,7 +3336,7 @@ body{ top:0 !important; position:static !important; }
 
       refreshBalance();
 
-      if (pendingChoiceMessage && pendingChoiceMessage.chatId === chatId) {
+      if (pendingChoiceMessage && (pendingChoiceMessage.chatId === chatId || pendingChoiceMessage.chatId === null)) {
         await persistMessage(chatId, pendingChoiceMessage.payload);
         pendingChoiceMessage = null;
       }
