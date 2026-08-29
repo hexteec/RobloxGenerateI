@@ -631,6 +631,14 @@ background-image:
 .md-content strong{ font-weight:700; }
 .md-content .md-p{ margin: 0 0 8px; font-size:13.8px; line-height:1.6; color: var(--ink); }
 .md-content .md-p:last-child{ margin-bottom:0; }
+.md-content h1,.md-content h2,.md-content h3,.md-content h4{ font-family: var(--font-body); color: var(--ink); margin:0 0 6px; line-height:1.35; }
+.md-content h1{ font-size:17px; font-weight:700; }
+.md-content h2{ font-size:15.5px; font-weight:700; }
+.md-content h3{ font-size:14.5px; font-weight:700; }
+.md-content h4{ font-size:13.8px; font-weight:700; }
+.md-content ul,.md-content ol{ margin:0 0 8px; padding-left:20px; font-size:13.8px; line-height:1.6; color: var(--ink); }
+.md-content li{ margin-bottom:3px; }
+.md-content li:last-child{ margin-bottom:0; }
 
 .ui2lua-hint-box{ background: var(--soft); border:1px solid var(--border); border-radius: var(--radius-sm); padding:10px 13px; margin-bottom:12px; font-size:12.4px; line-height:1.55; color: var(--ink-muted); }
 
@@ -665,16 +673,41 @@ background-image:
 .m3d-preset.active, .m3d-toggle.active{ border-color: var(--accent); background: var(--accent-wash); color: var(--accent-deep); }
 .m3d-slider{
   -webkit-appearance:none; width:100%; height:4px; border-radius:4px; background: var(--soft-2); outline:none; cursor:pointer;
-  transition: background .2s ease;
+  margin:8px 0 4px;
 }
+.m3d-slider::-webkit-slider-runnable-track{ height:4px; border-radius:4px; background: var(--soft-2); }
 .m3d-slider::-webkit-slider-thumb{
   -webkit-appearance:none; width:16px; height:16px; border-radius:50%; background: var(--accent); border:3px solid #fff;
   box-shadow: 0 1px 4px rgba(32,31,28,0.3); cursor:pointer; transition: transform .12s ease;
+  margin-top:-6px;
 }
-.m3d-slider::-webkit-slider-thumb:hover{ transform: scale(1.1); }
-.m3d-slider::-moz-range-thumb{ width:14px; height:14px; border-radius:50%; background: var(--accent); border:3px solid #fff; cursor:pointer; }
+.m3d-slider::-webkit-slider-thumb:hover{ transform: scale(1.15); }
+.m3d-slider::-moz-range-track{ height:4px; border-radius:4px; background: var(--soft-2); border:none; }
+.m3d-slider::-moz-range-thumb{ width:14px; height:14px; border-radius:50%; background: var(--accent); border:3px solid #fff; cursor:pointer; box-shadow: 0 1px 4px rgba(32,31,28,0.3); }
 .m3d-steps{ display:flex; justify-content:space-between; font-size:10.3px; color: var(--ink-faint); font-family: var(--font-mono); }
 .m3d-cost{ font-size:13px; font-weight:700; color: var(--ink); background: var(--soft); border-radius:10px; padding:9px 13px; text-align:center; border:1px solid var(--border); }
+.m3d-badge-discount{ font-size:10.5px; font-weight:700; color: var(--mint); background:var(--mint-wash); padding:2px 7px; border-radius:6px; margin-left:6px; letter-spacing:0; text-transform:none; }
+.m3d-desc{ font-size:11.5px; color:var(--ink-faint); margin-top:-2px; line-height:1.45; }
+.m3d-cost-breakdown{ display:flex; flex-direction:column; gap:4px; font-size:12.5px; background:var(--soft); border:1px solid var(--border); border-radius:10px; padding:10px 14px; }
+.m3d-cost-row{ display:flex; justify-content:space-between; align-items:center; }
+.m3d-cost-row.discount{ color:var(--mint); }
+.m3d-cost-row.total{ font-weight:700; padding-top:6px; border-top:1px solid var(--border); margin-top:4px; }
+.m3d-cost-breakdown hr{ border:none; border-top:1px solid var(--border); margin:2px 0; display:none; }
+
+/* Publish dialog */
+.publish-overlay{ position:fixed; inset:0; z-index:200; background:rgba(0,0,0,0.35); display:flex; align-items:center; justify-content:center; backdrop-filter:blur(4px); }
+.publish-card{ background:var(--card); border:1px solid var(--border); border-radius:var(--radius-lg); padding:28px; width:90%; max-width:420px; box-shadow:var(--shadow-lg); }
+.publish-card h3{ font-family:var(--font-display); font-size:17px; margin:0 0 6px; font-weight:700; }
+.publish-card p{ font-size:13px; color:var(--ink-muted); margin:0 0 16px; line-height:1.5; }
+.publish-field{ margin-bottom:14px; }
+.publish-field label{ display:block; font-size:11.5px; font-weight:700; color:var(--ink-muted); text-transform:uppercase; letter-spacing:.04em; margin-bottom:5px; }
+.publish-field input, .publish-field select, .publish-field textarea{ width:100%; padding:9px 12px; font-size:13px; font-family:var(--font-body); border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--soft); color:var(--ink); outline:none; transition:border-color .15s; box-sizing:border-box; }
+.publish-field input:focus, .publish-field select:focus, .publish-field textarea:focus{ border-color:var(--accent); }
+.publish-field textarea{ resize:vertical; min-height:60px; }
+.publish-btns{ display:flex; gap:10px; margin-top:18px; }
+.publish-btns .btn-newchat{ flex:1; }
+.publish-btn-cancel{ flex:1; padding:10px 16px; border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--soft); color:var(--ink); font-size:13px; font-weight:600; cursor:pointer; transition:background .15s; }
+.publish-btn-cancel:hover{ background:var(--soft-2); }
 
 /* ---------- composer overlay + new desktop/mobile widgets layout ---------- */
 .composer-wrap{
@@ -1192,6 +1225,7 @@ body{ top:0 !important; position:static !important; }
         <div id="google_translate_element"></div>
       </div>
 
+      <a class="sb-back" href="/create/store.html" style="margin-bottom:6px; color:var(--accent);">🏪 Community Store</a>
       <a class="sb-back" href="/">← Home</a>
 
       <div class="auth-block">
@@ -1430,7 +1464,11 @@ body{ top:0 !important; position:static !important; }
     return Math.max(cost, 5);
   }
 
-  let model3DSettings = { ...MODEL3D_PRESETS.standard, preset: "standard" };
+  let model3DSettings = { ...MODEL3D_PRESETS.standard, preset: "standard", shareSell: false };
+  let pendingTripoTaskId = null;
+  let pendingShareSell = false;
+
+  const STORE_CATEGORIES = ["props","buildings","vehicles","characters","environment","nature","roblox","weapons","other"];
   let pending3DInput = null;
   let pendingModel3DPanelEl = null;
   const HISTORY_THUMB_SIZE = 480;
@@ -1565,6 +1603,7 @@ body{ top:0 !important; position:static !important; }
 
   let flowState = "idle";
   let model3dGeneratedImageDataUrl = null;
+  let pendingChoiceMessage = null;
 
   let pendingAttachments = [];
   let attachmentSeq = 0;
@@ -2020,10 +2059,14 @@ body{ top:0 !important; position:static !important; }
 
     const userMsg = document.createElement("div");
     userMsg.className = "msg msg-user";
+    const promptText = (m.prompt || "").trim();
+    const hasInputImage = !!m.inputThumbnail;
+    const imageChip = hasInputImage ? `<div class="msg-attach-grid"><div class="ag-item"><img src="${m.inputThumbnail}" alt=""></div></div>` : "";
     userMsg.innerHTML = `
       <div class="msg-avatar"><img src="${currentUser && currentUser.photoURL ? currentUser.photoURL : ""}" alt=""></div>
       <div class="msg-bubble">
-        <div>${escapeHtml(m.prompt || "_")}</div>
+        ${imageChip}
+        ${promptText ? `<div>${escapeHtml(promptText)}</div>` : ""}
         <div class="msg-meta"><span>${historyBadge(m)}</span></div>
       </div>
     `;
@@ -2036,11 +2079,32 @@ body{ top:0 !important; position:static !important; }
 
     const isModel3d = m.type === "model3d" || !!m.modelUrl;
     const isImageGen = !isModel3d && (m.type === "generation" || !!m.thumbnail);
-    const isTextReply = !isModel3d && !isImageGen;
+    const isChooser = m.type === "chooser";
+    const isTextReply = !isModel3d && !isImageGen && !isChooser;
 
     if (isTextReply) {
       const replyText = m.reply ?? m.content ?? m.text ?? "";
       body.innerHTML = renderMarkdown(replyText);
+    } else if (isChooser) {
+      const isModel = m.category === "model3d";
+      const introText = isModel ? "How do you want to create the 3D model?" : (m.category === "thumbnail" ? "How do you want to create the thumbnail?" : "How do you want to create the icon?");
+      let html;
+      if (isModel) {
+        html = `
+          <div class="chooser-3d" style="opacity: 0.7; pointer-events: none;">
+            <button><span class="c3-icon">${ICONS.edit}</span><span>Describe in text<span class="c3-sub">Short object description → 3D model</span></span></button>
+            <button><span class="c3-icon">${ICONS.upload}</span><span>Upload a reference image<span class="c3-sub">Object photo → 3D model</span></span></button>
+            <button><span class="c3-icon">${ICONS.wand}</span><span>Generate an image first<span class="c3-sub">Describe it, AI generates an image, then the 3D model</span></span></button>
+          </div>`;
+      } else {
+        html = `
+          <div class="chooser-3d" style="opacity: 0.7; pointer-events: none;">
+            <button><span class="c3-icon">${METHOD_INFO.text.icon}</span><span>${METHOD_INFO.text.label}<span class="c3-sub">${METHOD_INFO.text.sub}</span></span></button>
+            <button><span class="c3-icon">${METHOD_INFO.image.icon}</span><span>${METHOD_INFO.image.label}<span class="c3-sub">${METHOD_INFO.image.sub}</span></span></button>
+            <button><span class="c3-icon">${METHOD_INFO.style.icon}</span><span>${METHOD_INFO.style.label}<span class="c3-sub">${METHOD_INFO.style.sub}</span></span></button>
+          </div>`;
+      }
+      body.innerHTML = renderInlineMarkdown(introText) + html;
     } else if (isModel3d) {
       body.innerHTML = modelFrameHtml(m.modelUrl, m.thumbnailUrl, isLatest);
     } else {
@@ -2084,11 +2148,12 @@ body{ top:0 !important; position:static !important; }
     const el = document.createElement("div");
     el.className = "msg msg-user";
     const gallery = attachmentsGridHtml(attachments);
+    const trimmed = (text || "").trim();
     el.innerHTML = `
       <div class="msg-avatar"><img src="${currentUser && currentUser.photoURL ? currentUser.photoURL : ""}" alt=""></div>
       <div class="msg-bubble">
         ${gallery}
-        <div>${escapeHtml(text || "_")}</div>
+        ${trimmed ? `<div>${escapeHtml(trimmed)}</div>` : ""}
       </div>
     `;
     inner.appendChild(el);
@@ -2161,15 +2226,71 @@ body{ top:0 !important; position:static !important; }
     return html;
   }
 
+  function inlineFormat(str) {
+    let s = escapeHtml(str);
+    s = s.replace(/`([^`]+)`/g, '<code class="inline">$1</code>');
+    s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+    return s;
+  }
+
   function renderInlineMarkdown(text) {
-    return text.split(/\n{2,}/).map(paragraph => {
-      if (!paragraph.trim()) return "";
-      let esc = escapeHtml(paragraph.trim());
-      esc = esc.replace(/`([^`]+)`/g, '<code class="inline">$1</code>');
-      esc = esc.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
-      esc = esc.replace(/\n/g, "<br>");
-      return `<div class="md-p">${esc}</div>`;
-    }).join("");
+    const blocks = text.split(/\n{2,}/);
+    let html = "";
+    for (const block of blocks) {
+      if (!block.trim()) continue;
+      const lines = block.trim().split("\n");
+
+      // Heading
+      const h = lines[0].match(/^(#{1,4})\s+(.+)/);
+      if (h && lines.length === 1) {
+        const lvl = h[1].length;
+        html += `<h${lvl}>${inlineFormat(h[2])}</h${lvl}>`;
+        continue;
+      }
+
+      // Ordered list
+      if (lines.every(l => /^\d+[\.\)]\s/.test(l.trim()))) {
+        html += "<ol>" + lines.map(l => {
+          const t = l.trim().replace(/^\d+[\.\)]\s+/, "");
+          return `<li>${inlineFormat(t)}</li>`;
+        }).join("") + "</ol>";
+        continue;
+      }
+
+      // Unordered list
+      if (lines.every(l => /^[-*]\s/.test(l.trim()))) {
+        html += "<ul>" + lines.map(l => {
+          const t = l.trim().replace(/^[-*]\s+/, "");
+          return `<li>${inlineFormat(t)}</li>`;
+        }).join("") + "</ul>";
+        continue;
+      }
+
+      // Mixed block: heading at top + list below (e.g. ### Title\n1. item...)
+      if (h) {
+        const lvl = h[1].length;
+        html += `<h${lvl}>${inlineFormat(h[2])}</h${lvl}>`;
+        const rest = lines.slice(1);
+        if (rest.length && rest.every(l => /^\d+[\.\)]\s/.test(l.trim()))) {
+          html += "<ol>" + rest.map(l => {
+            const t = l.trim().replace(/^\d+[\.\)]\s+/, "");
+            return `<li>${inlineFormat(t)}</li>`;
+          }).join("") + "</ol>";
+        } else if (rest.length && rest.every(l => /^[-*]\s/.test(l.trim()))) {
+          html += "<ul>" + rest.map(l => {
+            const t = l.trim().replace(/^[-*]\s+/, "");
+            return `<li>${inlineFormat(t)}</li>`;
+          }).join("") + "</ul>";
+        } else {
+          html += `<div class="md-p">${inlineFormat(rest.join("\n")).replace(/\n/g, "<br>")}</div>`;
+        }
+        continue;
+      }
+
+      // Plain paragraph
+      html += `<div class="md-p">${inlineFormat(block.trim()).replace(/\n/g, "<br>")}</div>`;
+    }
+    return html;
   }
 
   function copyCodeBlock(id, btnEl) {
@@ -2704,9 +2825,19 @@ body{ top:0 !important; position:static !important; }
       refreshBalance();
 
       const thumbnail = await createThumbnail(blobUrl);
+      let inputThumbnail = null;
+      if (mainImage) inputThumbnail = await createThumbnail(mainImage);
+      else if (refImage) inputThumbnail = await createThumbnail(refImage);
+
+      if (pendingChoiceMessage && pendingChoiceMessage.chatId === chatId) {
+        await persistMessage(chatId, pendingChoiceMessage.payload);
+        pendingChoiceMessage = null;
+      }
+
       await persistMessage(chatId, {
         type: "generation",
         thumbnail,
+        inputThumbnail,
         prompt: raw,
         mode: METHOD_INFO[currentMethod].api,
         template: currentTemplate,
@@ -2832,10 +2963,16 @@ body{ top:0 !important; position:static !important; }
         updateTokenPill();
         refreshBalance();
 
+        if (pendingChoiceMessage && pendingChoiceMessage.chatId === chatId) {
+          await persistMessage(chatId, pendingChoiceMessage.payload);
+          pendingChoiceMessage = null;
+        }
+
         const thumbnail = await createThumbnail(action.image);
         await persistMessage(chatId, {
           type: "generation",
           thumbnail,
+          inputThumbnail: null,
           prompt: raw,
           mode: "text2img",
           template: "square",
@@ -2843,19 +2980,19 @@ body{ top:0 !important; position:static !important; }
         });
 
       } else if (action.type === "need_image_method") {
-        await persistMessage(chatId, { type: "text", prompt: raw, reply: data.reply || "" });
+        pendingChoiceMessage = { chatId, payload: { type: "chooser", category: action.category, prompt: raw } };
         setForceMode(action.category, { skipAutoChooser: true });
         flowState = "choose_method";
         appendModeChooser(action.category, pendingEl);
 
       } else if (action.type === "need_3d_method") {
-        await persistMessage(chatId, { type: "text", prompt: raw, reply: data.reply || "" });
+        pendingChoiceMessage = { chatId, payload: { type: "chooser", category: "model3d", prompt: raw } };
         setForceMode("model3d", { skipAutoChooser: true });
         flowState = "choose_method";
         appendModeChooser("model3d", pendingEl);
 
       } else if (action.type === "need_3d_settings") {
-        await persistMessage(chatId, { type: "text", prompt: raw, reply: data.reply || "" });
+        pendingChoiceMessage = null; // Do not save settings menu
         setForceMode("model3d", { skipAutoChooser: true });
         model3DSettings = { ...MODEL3D_PRESETS.standard, preset: "standard" };
         pending3DInput = action.useAttachedImage
@@ -2868,7 +3005,6 @@ body{ top:0 !important; position:static !important; }
         applyFlowComposerState();
 
       } else if (action.type === "need_tokens") {
-        await persistMessage(chatId, { type: "text", prompt: raw, reply: data.reply || "" });
         openBuyModal();
       }
 
@@ -2886,9 +3022,11 @@ body{ top:0 !important; position:static !important; }
 
   function model3DSettingsPanelHtml() {
     const s = model3DSettings;
-    const cost = calcModel3DCost(s);
+    const baseCost = calcModel3DCost(s);
+    const discount = s.shareSell ? 1 : 0;
+    const finalCost = Math.max(0, baseCost - discount);
     const presetBtn = (key,label) => `<button class="m3d-preset ${s.preset===key?'active':''}" onclick="applyModel3DPreset('${key}')">${label}</button>`;
-    const toggleBtn = (field, val, label) => `<button class="m3d-toggle ${s[field]===val?'active':''}" onclick="setModel3DField('${field}', ${JSON.stringify(val)})">${label}</button>`;
+    const toggleBtn = (field, val, label) => `<button class="m3d-toggle ${s[field]===val?'active':''}" onclick='setModel3DField("${field}", ${JSON.stringify(val)})'>${label}</button>`;
     const polyIndex = POLY_STEPS.indexOf(s.polygonCount);
 
     return `
@@ -2899,7 +3037,7 @@ body{ top:0 !important; position:static !important; }
       </div>
       <div class="m3d-section">
         <div class="m3d-label">Polygon Count <span class="m3d-val">${formatCount(s.polygonCount)}</span></div>
-        <input type="range" min="0" max="${POLY_STEPS.length-1}" step="1" value="${polyIndex}" class="m3d-slider" oninput="setModel3DPolyIndex(this.value)">
+        <input type="range" min="0" max="${POLY_STEPS.length-1}" step="1" value="${polyIndex}" class="m3d-slider" oninput="updatePolySliderLive(this.value)" onchange="setModel3DPolyIndex(this.value)">
         <div class="m3d-steps">${POLY_STEPS.map(v=>`<span>${formatCount(v)}</span>`).join("")}</div>
       </div>
       <div class="m3d-section">
@@ -2922,8 +3060,17 @@ body{ top:0 !important; position:static !important; }
         <div class="m3d-label">Texture Quality</div>
         <div class="m3d-row">${toggleBtn('textureQuality','standard','Standard +0')}${toggleBtn('textureQuality','detailed','Detailed +10')}${toggleBtn('textureQuality','extreme','Extreme +20')}</div>
       </div>
-      <div class="m3d-cost">Cost: <b>${cost} tokens</b></div>
-      <button class="btn-newchat" style="margin-top:2px;" onclick="confirmModel3DGeneration()">Generate 3D model (${cost} tokens)</button>
+      <div class="m3d-section" style="border-top:1px solid var(--border); padding-top:12px; margin-top:4px;">
+        <div class="m3d-label">Share & Sell <span class="m3d-badge-discount">−1 Token</span></div>
+        <div class="m3d-desc">Publish to Community Store. Earn tokens when purchased.</div>
+        <div class="m3d-row">${toggleBtn('shareSell',false,'OFF')}${toggleBtn('shareSell',true,'ON')}</div>
+      </div>
+      <div class="m3d-cost-breakdown">
+        <div class="m3d-cost-row"><span>Generation</span><span>${baseCost} Tokens</span></div>
+        ${s.shareSell ? '<div class="m3d-cost-row discount"><span>Share & Sell</span><span>−1 Token</span></div>' : ''}
+        <div class="m3d-cost-row total"><span>Total</span><span>${finalCost} Tokens</span></div>
+      </div>
+      <button class="btn-newchat" style="margin-top:2px;" onclick="confirmModel3DGeneration()">Generate 3D model (${finalCost} tokens)</button>
     </div>`;
   }
 
@@ -2944,6 +3091,23 @@ body{ top:0 !important; position:static !important; }
     rerenderModel3DPanel();
   }
 
+  function updatePolySliderLive(idx) {
+    model3DSettings.polygonCount = POLY_STEPS[idx];
+    model3DSettings.preset = null;
+    const panel = document.getElementById("model3dPanel");
+    if (!panel) return;
+    const valSpan = panel.querySelector(".m3d-val");
+    if (valSpan) valSpan.textContent = formatCount(POLY_STEPS[idx]);
+    const costEl = panel.querySelector(".m3d-cost b");
+    const genBtn = panel.querySelector(".btn-newchat");
+    if (costEl || genBtn) {
+      const cost = calcModel3DCost(model3DSettings);
+      if (costEl) costEl.textContent = cost + " tokens";
+      if (genBtn) genBtn.textContent = "Generate 3D model (" + cost + " tokens)";
+    }
+    panel.querySelectorAll(".m3d-preset").forEach(b => b.classList.remove("active"));
+  }
+
   function setModel3DPolyIndex(idx) {
     model3DSettings.polygonCount = POLY_STEPS[idx];
     model3DSettings.preset = null;
@@ -2952,7 +3116,7 @@ body{ top:0 !important; position:static !important; }
 
   function presentModel3DSettingsStep(userText, attachments, imageForPending) {
     appendUserBubble(userText, attachments || []);
-    model3DSettings = { ...MODEL3D_PRESETS.standard, preset: "standard" };
+    model3DSettings = { ...MODEL3D_PRESETS.standard, preset: "standard", shareSell: false };
     pending3DInput = imageForPending
       ? { kind: "image", text: userText, image: imageForPending }
       : { kind: "text", text: userText };
@@ -2985,13 +3149,15 @@ body{ top:0 !important; position:static !important; }
         promptPayload = text || pending3DInput.text;
       }
 
+      const shareSellEnabled = !!model3DSettings.shareSell;
       const res = await authedFetch("/tripo/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           prompt: promptPayload,
           image: imagePayload,
-          settings: model3DSettings
+          settings: model3DSettings,
+          shareSell: shareSellEnabled
         })
       });
       if (!res.ok) {
@@ -2999,10 +3165,17 @@ body{ top:0 !important; position:static !important; }
         throw new Error(await extractError(res));
       }
       const data = await res.json();
+      pendingTripoTaskId = data.taskId;
+      pendingShareSell = data.shareSell || false;
       refreshBalance();
 
+      let inputThumbnail = null;
+      if (pending3DInput.kind === "image" && pending3DInput.image) {
+        inputThumbnail = await createThumbnail(pending3DInput.image);
+      }
+
       pending3DInput = null;
-      pollTripoTask(panelEl, data.taskId, "", chatId);
+      pollTripoTask(panelEl, data.taskId, promptPayload, chatId, inputThumbnail);
 
     } catch (e) {
       console.error(e);
@@ -3013,14 +3186,19 @@ body{ top:0 !important; position:static !important; }
     }
   }
 
-  function pollTripoTask(el, taskId, promptText, chatId) {
+  function pollTripoTask(el, taskId, promptText, chatId, inputThumbnail) {
     let attempts = 0;
+    let currentTaskId = taskId;
     const tick = async () => {
       attempts++;
       try {
-        const res = await authedFetch(`/tripo/status?id=${encodeURIComponent(taskId)}`);
+        const res = await authedFetch(`/tripo/status?id=${encodeURIComponent(currentTaskId)}`);
         if (!res.ok) throw new Error(await extractError(res));
         const data = await res.json();
+
+        if (data.taskId && data.taskId !== currentTaskId) {
+            currentTaskId = data.taskId;
+        }
 
         if (data.status === "FAILED" || data.status === "CANCELED") {
           setBotBody(el, errorHtml("3D model generation failed" + (data.errorMessage ? (": " + data.errorMessage) : ".")));
@@ -3039,14 +3217,24 @@ body{ top:0 !important; position:static !important; }
         setBotBody(el, modelFrameHtml(data.modelUrl, data.thumbnailUrl, true));
         markNewLastLarge(el);
         if (chatId) {
+          if (pendingChoiceMessage && pendingChoiceMessage.chatId === chatId) {
+            await persistMessage(chatId, pendingChoiceMessage.payload);
+            pendingChoiceMessage = null;
+          }
           persistMessage(chatId, {
             type: "model3d",
             prompt: promptText || "",
             modelUrl: data.modelUrl,
             thumbnailUrl: data.thumbnailUrl || "",
+            inputThumbnail: inputThumbnail || "",
             taskType: "tripo"
           });
         }
+        
+        if (pendingShareSell) {
+            showPublishDialog(data.modelUrl, data.thumbnailUrl, promptText);
+        }
+
         flowState = "choose_method";
         applyFlowComposerState();
 
@@ -3132,6 +3320,11 @@ body{ top:0 !important; position:static !important; }
 
       refreshBalance();
 
+      if (pendingChoiceMessage && pendingChoiceMessage.chatId === chatId) {
+        await persistMessage(chatId, pendingChoiceMessage.payload);
+        pendingChoiceMessage = null;
+      }
+
       const thumbnail = await createThumbnail(blobUrl);
       await persistMessage(chatId, { type: "generation", thumbnail, prompt: raw, mode: "text2img", template: "square", category: "icon" });
 
@@ -3162,13 +3355,74 @@ body{ top:0 !important; position:static !important; }
 
   function confirmGeneratedImageFor3D(btnEl, chatId, raw) {
     if (!model3dGeneratedImageDataUrl) return;
-    model3DSettings = { ...MODEL3D_PRESETS.standard, preset: "standard" };
+    model3DSettings = { ...MODEL3D_PRESETS.standard, preset: "standard", shareSell: false };
     pending3DInput = { kind: "image", text: raw, image: model3dGeneratedImageDataUrl };
     const bubbleEl = btnEl.closest(".msg-bot");
     setBotBody(bubbleEl, renderInlineMarkdown("Set up the 3D model before generating:") + model3DSettingsPanelHtml());
     pendingModel3DPanelEl = bubbleEl;
     flowState = "choose_method";
     applyFlowComposerState();
+  }
+
+  // --- Publish Dialog ---
+  let publishPayload = null;
+
+  function showPublishDialog(modelUrl, thumbnailUrl, promptText) {
+    publishPayload = { modelUrl, thumbnailUrl, taskId: pendingTripoTaskId };
+    document.getElementById("publishTitle").value = promptText || "";
+    document.getElementById("publishDesc").value = "";
+    document.getElementById("publishCategory").value = "other";
+    document.getElementById("publishStatus").className = "modal-status";
+    document.getElementById("publishStatus").textContent = "";
+    document.getElementById("publishModal").style.display = "flex";
+  }
+
+  function closePublishDialog() {
+    document.getElementById("publishModal").style.display = "none";
+    publishPayload = null;
+  }
+
+  async function submitPublish() {
+    if (!publishPayload) return;
+    const title = document.getElementById("publishTitle").value.trim();
+    if (!title) {
+        document.getElementById("publishStatus").className = "modal-status error";
+        document.getElementById("publishStatus").textContent = "Title is required.";
+        return;
+    }
+    const description = document.getElementById("publishDesc").value.trim();
+    const category = document.getElementById("publishCategory").value;
+    
+    document.getElementById("publishStatus").className = "modal-status";
+    document.getElementById("publishStatus").textContent = "Publishing to Community Store...";
+    document.getElementById("publishSubmitBtn").disabled = true;
+
+    try {
+        const res = await authedFetch("/store/publish", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                taskId: publishPayload.taskId,
+                title,
+                description,
+                category,
+                modelUrl: publishPayload.modelUrl,
+                thumbnailUrl: publishPayload.thumbnailUrl
+            })
+        });
+        if (!res.ok) throw new Error(await extractError(res));
+        
+        document.getElementById("publishStatus").textContent = "Published successfully! 🎉";
+        document.getElementById("publishStatus").style.color = "var(--mint)";
+        setTimeout(() => {
+            closePublishDialog();
+            document.getElementById("publishSubmitBtn").disabled = false;
+        }, 2000);
+    } catch (e) {
+        document.getElementById("publishStatus").className = "modal-status error";
+        document.getElementById("publishStatus").textContent = "Error: " + e.message;
+        document.getElementById("publishSubmitBtn").disabled = false;
+    }
   }
 
   async function blobUrlToDataUrl(blobUrl) {
@@ -3293,6 +3547,45 @@ body{ top:0 !important; position:static !important; }
 
   init();
 </script>
+
+<div class="publish-overlay" id="publishModal" style="display:none;">
+  <div class="publish-card">
+    <h3>Publish to Community Store</h3>
+    <p>Your 3D model has been generated. Give it a title and description to list it on the marketplace.</p>
+    
+    <div class="publish-field">
+      <label>Title</label>
+      <input type="text" id="publishTitle" placeholder="e.g. Low Poly Sword">
+    </div>
+    
+    <div class="publish-field">
+      <label>Category</label>
+      <select id="publishCategory">
+        <option value="props">Props</option>
+        <option value="buildings">Buildings</option>
+        <option value="vehicles">Vehicles</option>
+        <option value="characters">Characters</option>
+        <option value="environment">Environment</option>
+        <option value="nature">Nature</option>
+        <option value="roblox">Roblox Specific</option>
+        <option value="weapons">Weapons</option>
+        <option value="other">Other</option>
+      </select>
+    </div>
+    
+    <div class="publish-field">
+      <label>Description (Optional)</label>
+      <textarea id="publishDesc" placeholder="Describe your model..."></textarea>
+    </div>
+    
+    <div class="modal-status" id="publishStatus"></div>
+    
+    <div class="publish-btns">
+      <button class="publish-btn-cancel" onclick="closePublishDialog()">Skip</button>
+      <button class="btn-newchat" id="publishSubmitBtn" onclick="submitPublish()">Publish</button>
+    </div>
+  </div>
+</div>
 
 </body>
 </html>
