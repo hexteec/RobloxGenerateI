@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Buy Tokens — RoPeak</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800;900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+    rel="stylesheet">
+
+  <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+  
+  <style>
+    :root {
+      --bg: #FAFAF9;
+      --card: #FFFFFF;
+      --surface: #FFFFFF;
+      --surface-2: #F1F0EA;
+      --border: #cecbba;
+      --border-soft: #b8b4a4;
+      --ink: #1C1C1E;
+      --ink-muted: #5B5B57;
+      --ink-faint: #98978C;
+
+      --accent: #E14B2A;
+      --accent-deep: #B93A1F;
+      --accent-wash: #FCEAE3;
+      --mint: #3E7A5F;
+      --mint-wash: #EAF3EE;
+
+      --radius-xl: 20px;
+      --radius-lg: 14px;
+      --radius-md: 10px;
+      --radius-sm: 6px;
+
+      --shadow-sm: 0 1px 2px rgba(20, 20, 15, 0.06);
+      --shadow-md: 0 10px 26px rgba(20, 20, 15, 0.09);
+      --shadow-lg: 0 32px 70px rgba(20, 20, 15, 0.16);
+
+      --font-display: 'Archivo', sans-serif;
+      --font-body: 'Inter', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * { box-sizing: border-box; }
+    
+    body {
+      margin: 0;
+      color: var(--ink);
+      font-family: var(--font-body);
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+      background-color: #FAFAF9;
+      background-image:
+        linear-gradient(rgba(70, 68, 64, 0.055) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(70, 68, 64, 0.055) 1px, transparent 1px),
+        conic-gradient(#F5F4F1 90deg, #FAFAF9 90deg 180deg, #F5F4F1 180deg 270deg, #FAFAF9 270deg);
+      background-size: 30px 30px, 30px 30px, 240px 240px;
+      background-position: 0 0, 0 0, 0 0;
+      min-height: 100vh;
+    }
+
+    a { text-decoration: none; color: inherit; }
+    
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 32px;
+      background: rgba(250, 250, 249, 0.8);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-soft);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 18px;
+      cursor: pointer;
+    }
+
+    .nav-brand .mark {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      background: var(--ink);
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .nav-brand .mark::before {
+      content: "";
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 12px 0 var(--accent), 0 12px var(--accent), 12px 12px var(--accent);
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .token-balance {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--mint);
+      background: var(--mint-wash);
+      padding: 8px 16px;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid rgba(62, 122, 95, 0.2);
+    }
+
+    .page-header {
+      text-align: center;
+      padding: 60px 20px 40px;
+    }
+
+    .page-title {
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: clamp(28px, 4vw, 42px);
+      margin: 0 0 12px;
+      letter-spacing: -0.02em;
+    }
+
+    .page-sub {
+      color: var(--ink-muted);
+      font-size: 16px;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .packages-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+      max-width: 1000px;
+      margin: 0 auto 80px;
+      padding: 0 24px;
+    }
+
+    .pkg-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      padding: 32px 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      position: relative;
+      transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+      cursor: pointer;
+    }
+
+    .pkg-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+      border-color: var(--ink-faint);
+    }
+
+    .pkg-card.best {
+      border-color: var(--accent);
+      box-shadow: 0 10px 30px rgba(225, 75, 42, 0.12);
+    }
+
+    .pkg-card.best::before {
+      content: "Most Popular";
+      position: absolute;
+      top: -12px;
+      background: var(--accent);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      padding: 4px 12px;
+      border-radius: 999px;
+    }
+
+    .p-tag {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--ink-faint);
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      margin-bottom: 12px;
+    }
+
+    .p-tokens {
+      font-family: var(--font-display);
+      font-size: 32px;
+      font-weight: 800;
+      color: var(--ink);
+      margin-bottom: 4px;
+    }
+
+    .p-price {
+      font-size: 16px;
+      color: var(--ink-muted);
+      margin-bottom: 24px;
+    }
+
+    .p-btn {
+      width: 100%;
+      padding: 12px;
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      font-weight: 700;
+      font-family: var(--font-display);
+      cursor: pointer;
+      border: none;
+      transition: background .2s ease;
+    }
+
+    .pkg-card .p-btn {
+      background: var(--surface-2);
+      color: var(--ink);
+    }
+    .pkg-card:hover .p-btn {
+      background: var(--border);
+    }
+    .pkg-card.best .p-btn {
+      background: var(--accent);
+      color: #fff;
+    }
+    .pkg-card.best:hover .p-btn {
+      background: var(--accent-deep);
+    }
+
+  </style>
+</head>
+<body>
+
+  <nav class="nav">
+    <div class="nav-brand" onclick="window.location.href='/create/index.html'">
+      <div class="mark"></div>
+      RoPeak
+    </div>
+    <div class="user-info">
+      <div class="token-balance" id="topNavTokenBalance">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+        <span id="navTokenCount">Loading...</span>
+      </div>
+    </div>
+  </nav>
+
+  <div class="page-header">
+    <h1 class="page-title">Top up tokens</h1>
+    <p class="page-sub">1 Image = 2 tokens. A 3D model costs 25-35 tokens. UI to Lua costs 2 tokens per script. Payment via Stripe.</p>
+  </div>
+
+  <div class="packages-grid" id="packagesContainer">
+    <!-- Rendered via JS -->
+  </div>
+
+  <script>
+    const packages = [
+      { id: "starter", tokens: 50, price: "$1.49", tag: "trial" },
+      { id: "basic", tokens: 110, price: "$2.99", tag: "good start" },
+      { id: "creator", tokens: 290, price: "$6.99", tag: "most popular", best: true },
+      { id: "pro", tokens: 620, price: "$13.99", tag: "best value" },
+      { id: "studio", tokens: 1300, price: "$27.99", tag: "power user" }
+    ];
+
+    function renderPackages() {
+      const container = document.getElementById("packagesContainer");
+      container.innerHTML = "";
+      
+      packages.forEach(pkg => {
+        const card = document.createElement("div");
+        card.className = "pkg-card" + (pkg.best ? " best" : "");
+        card.innerHTML = `
+          <div class="p-tag">${pkg.tag}</div>
+          <div class="p-tokens">${pkg.tokens} Tokens</div>
+          <div class="p-price">${pkg.price}</div>
+          <button class="p-btn" onclick="buyPackage('${pkg.id}')">Select Package</button>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function buyPackage(pkgId) {
+      alert("Redirecting to Stripe checkout for package: " + pkgId);
+      // Actual integration will route to Stripe using your worker
+      /*
+      authedFetch("/buy", {
+        method: "POST",
+        body: JSON.stringify({ package: pkgId })
+      }).then(res => res.json()).then(data => {
+        if (data.url) window.location.href = data.url;
+      });
+      */
+    }
+
+    renderPackages();
+
+    // Firebase Auth logic to sync token balance
+    const firebaseConfig = {
+      apiKey: "fake-api-key",
+      authDomain: "ropeak.firebaseapp.com",
+      projectId: "ropeak",
+      storageBucket: "ropeak.appspot.com",
+      messagingSenderId: "123",
+      appId: "1:123:web:123"
+    };
+
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+    
+    let tokenBalance = 0;
+    const workerUrl = "https://ropeak.cloudflareworkers.com"; // Adjust according to your environment
+
+    async function authedFetch(path, options = {}) {
+      const user = firebase.auth().currentUser;
+      if (!user) return null;
+      const token = await user.getIdToken();
+      if (!options.headers) options.headers = {};
+      options.headers["Authorization"] = "Bearer " + token;
+      return fetch(workerUrl + path, options);
+    }
+
+    async function fetchBalance() {
+      try {
+        const res = await authedFetch("/me");
+        if (res && res.ok) {
+          const data = await res.json();
+          tokenBalance = data.tokens || 0;
+          document.getElementById("navTokenCount").textContent = tokenBalance + " Tokens";
+        }
+      } catch (err) {
+        console.error("Failed to fetch balance", err);
+      }
+    }
+
+    firebase.auth().onAuthStateChanged(user => {
+      if (user) {
+        fetchBalance();
+      } else {
+        // Redirect to login if not authenticated
+        window.location.href = "/";
+      }
+    });
+
+  </script>
+</body>
+</html>
