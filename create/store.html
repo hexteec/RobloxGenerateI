@@ -1603,7 +1603,7 @@ body{ top:0 !important; position:static !important; }
     document.getElementById("detailTitle").textContent = "Loading...";
     document.getElementById("detailCreator").textContent = "";
     document.getElementById("detailDesc").textContent = "";
-    document.getElementById("detailModelViewer").src = "";
+    document.getElementById("detailModelViewer").removeAttribute("src");
     document.getElementById("detailBuyBtn").disabled = true;
     document.getElementById("buyStatus").textContent = "";
     
@@ -1625,7 +1625,8 @@ body{ top:0 !important; position:static !important; }
       if (asset.liked) likeBtn.classList.add("liked");
       else likeBtn.classList.remove("liked");
       
-      document.getElementById("detailModelViewer").src = asset.modelUrl;
+      // Proxy-load model to bypass CORS
+      proxyLoadStoreModel(asset.modelUrl);
       
       const buyBtn = document.getElementById("detailBuyBtn");
       if (!currentUser) {
@@ -1645,6 +1646,18 @@ body{ top:0 !important; position:static !important; }
     } catch (e) {
       document.getElementById("detailTitle").textContent = "Error loading asset.";
       console.error(e);
+    }
+  }
+
+  async function proxyLoadStoreModel(modelUrl) {
+    try {
+      const res = await apiFetch("/proxy-download?url=" + encodeURIComponent(modelUrl) + "&filename=model.glb");
+      if (!res.ok) throw new Error("Proxy fetch failed: " + res.status);
+      const blob = await res.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      document.getElementById("detailModelViewer").src = blobUrl;
+    } catch (e) {
+      console.error("Failed to proxy-load store model:", e);
     }
   }
 
