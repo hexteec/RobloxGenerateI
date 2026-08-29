@@ -260,9 +260,13 @@
       RoPeak
     </div>
     <div class="user-info">
-      <div class="token-balance" id="topNavTokenBalance">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-        <span id="navTokenCount">Loading...</span>
+      <button id="signInBtn" style="display:none; padding: 8px 16px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 999px; cursor: pointer; font-weight: 600; font-size: 14px;" onclick="signInWithGoogle()">Sign in with Google</button>
+      <div id="userMenu" style="display:none; align-items: center; gap: 12px;">
+        <div class="token-balance" id="topNavTokenBalance">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+          <span id="navTokenCount">Loading...</span>
+        </div>
+        <button onclick="signOutUser()" style="padding: 6px 12px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 999px; cursor: pointer; font-size: 12px; font-weight: 600;">Sign out</button>
       </div>
     </div>
   </nav>
@@ -357,12 +361,25 @@
       }
     }
 
+    function signInWithGoogle() {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      firebase.auth().signInWithPopup(provider).catch(e => console.error(e));
+    }
+
+    function signOutUser() {
+      firebase.auth().signOut();
+    }
+
     firebase.auth().onAuthStateChanged(user => {
+      const signInBtn = document.getElementById("signInBtn");
+      const userMenu = document.getElementById("userMenu");
       if (user) {
+        signInBtn.style.display = "none";
+        userMenu.style.display = "flex";
         fetchBalance();
       } else {
-        // Redirect to login if not authenticated
-        window.location.href = "/";
+        signInBtn.style.display = "block";
+        userMenu.style.display = "none";
       }
     });
 
