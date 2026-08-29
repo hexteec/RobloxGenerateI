@@ -1447,8 +1447,8 @@ body{ top:0 !important; position:static !important; }
     standard: { label:"Standard",     polygonCount:10000, geometryQuality:"standard", lowPoly:false, textures:true,  pbr:false, textureQuality:"standard" },
     high:     { label:"High Quality", polygonCount:50000, geometryQuality:"detailed", lowPoly:false, textures:true,  pbr:true,  textureQuality:"detailed" }
   };
-  const POLY_STEPS = [1000,2000,5000,10000,25000,50000,75000,100000];
-  const POLY_TIER_COST = {1000:0,2000:0,5000:2,10000:4,25000:8,50000:14,75000:20,100000:26};
+  const POLY_STEPS = [500,1000,2000,5000,10000,15000,20000];
+  const POLY_TIER_COST = {500:0, 1000:0, 2000:0, 5000:2, 10000:4, 15000:6, 20000:8};
   const TEXTURE_QUALITY_COST = { standard:0, detailed:10, extreme:20 };
 
   function calcModel3DCost(s) {
