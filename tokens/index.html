@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,72 +10,124 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
-    href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800;900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
     rel="stylesheet">
 
   <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
-  
+
   <style>
     :root {
       --bg: #FAFAF9;
       --card: #FFFFFF;
-      --surface: #FFFFFF;
-      --surface-2: #F1F0EA;
-      --border: #cecbba;
-      --border-soft: #b8b4a4;
-      --ink: #1C1C1E;
-      --ink-muted: #5B5B57;
-      --ink-faint: #98978C;
+      --soft: #F4F3F1;
+      --soft-2: #EAE8E4;
+      --border: #E5E3DF;
+      --ink: #201F1C;
+      --ink-2: #2b2a2a;
+      --ink-muted: #6B6862;
+      --ink-faint: #A6A29A;
 
-      --accent: #E14B2A;
-      --accent-deep: #B93A1F;
-      --accent-wash: #FCEAE3;
+      --gridColor: rgba(70, 68, 64, 0.055);
+      --Check-1: #f5f4f2;
+      --Check-2: #fafaf9;
+
+      --accent: #B45A34;
+      --accent-deep: #954A2A;
+      --accent-wash: #FBEEE7;
+
       --mint: #3E7A5F;
       --mint-wash: #EAF3EE;
+      --coral: #B9482F;
+      --amber: #A87A2A;
+      --amber-wash: #F7F0E2;
 
-      --radius-xl: 20px;
-      --radius-lg: 14px;
-      --radius-md: 10px;
-      --radius-sm: 6px;
+      --radius-lg: 16px;
+      --radius-md: 12px;
+      --radius-sm: 9px;
 
-      --shadow-sm: 0 1px 2px rgba(20, 20, 15, 0.06);
-      --shadow-md: 0 10px 26px rgba(20, 20, 15, 0.09);
-      --shadow-lg: 0 32px 70px rgba(20, 20, 15, 0.16);
+      --shadow-sm: 0 1px 2px rgba(32, 31, 28, 0.05);
+      --shadow-md: 0 6px 20px rgba(32, 31, 28, 0.06);
+      --shadow-lg: 0 16px 40px rgba(32, 31, 28, 0.10);
 
-      --font-display: 'Archivo', sans-serif;
+      --font-display: 'Sora', sans-serif;
       --font-body: 'Inter', sans-serif;
       --font-mono: 'JetBrains Mono', monospace;
     }
 
+    [data-theme="dark"] {
+      --bg: #17161A; --card: #1F1E23; --soft: #26252B; --soft-2: #333138; --border: #35333A;
+      --ink: #C0ADC9; --ink-2: #cfc2d3; --ink-muted: #A19FA8; --ink-faint: #6E6C75;
+      --gridColor: rgba(78, 78, 80, 0.164); --Check-1: #242224; --Check-2: rgb(32, 31, 32);
+      --accent: #E08350; --accent-deep: #F0996A; --accent-wash: #3A2A20;
+      --mint: #5FAE8A; --mint-wash: #1E2E27; --coral: #E17A63; --amber: #D3A657; --amber-wash: #332A1A;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,.25); --shadow-md: 0 6px 20px rgba(0,0,0,.3); --shadow-lg: 0 16px 40px rgba(0,0,0,.45);
+    }
+
+    [data-theme="sea"] {
+      --bg: #F3F7F9; --card: #FFFFFF; --soft: #E7EFF3; --soft-2: #D8E5EB; --border: #D3E1E8;
+      --ink: #172A32; --ink-2: #20333b; --ink-muted: #556E78; --ink-faint: #93A9B1;
+      --gridColor: rgba(64, 68, 70, 0.055); --Check-1: #f1f4f5; --Check-2: #f9fafa;
+      --accent: #1E7A8C; --accent-deep: #16606F; --accent-wash: #DFF0F3;
+      --mint: #2E8F72; --mint-wash: #E1F3EC; --coral: #C25A45; --amber: #B08A2E; --amber-wash: #F3EDDD;
+      --shadow-sm: 0 1px 2px rgba(20,50,60,.06); --shadow-md: 0 6px 20px rgba(20,50,60,.08); --shadow-lg: 0 16px 40px rgba(20,50,60,.12);
+    }
+
+    [data-theme="forest"] {
+      --bg: #F5F7F2; --card: #FFFFFF; --soft: #EAEEE3; --soft-2: #DCE3D2; --border: #D8E0CD;
+      --ink: #232B1D; --ink-2: #343b2e; --ink-muted: #5F6B54; --ink-faint: #97A188;
+      --gridColor: rgba(64, 70, 65, 0.055); --Check-1: #f1f5f1; --Check-2: #f9faf9;
+      --accent: #4C7A3F; --accent-deep: #3B6130; --accent-wash: #E6EEE0;
+      --mint: #397A63; --mint-wash: #E2F0EA; --coral: #B0553A; --amber: #A8842C; --amber-wash: #F2ECDA;
+      --shadow-sm: 0 1px 2px rgba(30,40,20,.06); --shadow-md: 0 6px 20px rgba(30,40,20,.08); --shadow-lg: 0 16px 40px rgba(30,40,20,.12);
+    }
+
+    [data-theme="sun"] {
+      --bg: #FCF8F1; --card: #FFFFFF; --soft: #F5EDDC; --soft-2: #EEE1C6; --border: #EBDFC4;
+      --ink: #2C2210; --ink-2: #3d321e; --ink-muted: #75674C; --ink-faint: #AB9C7C;
+      --gridColor: rgba(70, 68, 64, 0.055); --Check-1: #f5f3f1; --Check-2: #faf9f9;
+      --accent: #C97A25; --accent-deep: #A6621A; --accent-wash: #F8E9D2;
+      --mint: #3E7A5F; --mint-wash: #E7F1EA; --coral: #C1502F; --amber: #C1911F; --amber-wash: #F7EBCE;
+      --shadow-sm: 0 1px 2px rgba(60,45,10,.06); --shadow-md: 0 6px 20px rgba(60,45,10,.08); --shadow-lg: 0 16px 40px rgba(60,45,10,.12);
+    }
+
     * { box-sizing: border-box; }
-    
+    html { scroll-behavior: smooth; }
+
     body {
       margin: 0;
+      min-height: 100vh;
       color: var(--ink);
+      background: var(--bg);
       font-family: var(--font-body);
       line-height: 1.55;
       -webkit-font-smoothing: antialiased;
-      background-color: #FAFAF9;
+      transition: background-color .2s ease, color .2s ease;
       background-image:
-        linear-gradient(rgba(70, 68, 64, 0.055) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(70, 68, 64, 0.055) 1px, transparent 1px),
-        conic-gradient(#F5F4F1 90deg, #FAFAF9 90deg 180deg, #F5F4F1 180deg 270deg, #FAFAF9 270deg);
+        linear-gradient(var(--gridColor) 1px, transparent 1px),
+        linear-gradient(90deg, var(--gridColor) 1px, transparent 1px),
+        conic-gradient(var(--Check-1) 90deg, var(--Check-2) 90deg 180deg, var(--Check-1) 180deg 270deg, var(--Check-2) 270deg);
       background-size: 30px 30px, 30px 30px, 240px 240px;
       background-position: 0 0, 0 0, 0 0;
-      min-height: 100vh;
     }
 
-    a { text-decoration: none; color: inherit; }
-    
+    a { color: inherit; text-decoration: none; }
+    svg { display: block; }
+    button { font-family: inherit; }
+    button:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+    @keyframes floatUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes popIn { 0% { opacity: 0; transform: scale(.97); } 100% { opacity: 1; transform: scale(1); } }
+    @media (prefers-reduced-motion: reduce) { * { animation-duration: .001ms !important; animation-iteration-count: 1 !important; } }
+
+    /* ---------------- Top nav ---------------- */
     .nav {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 20px 32px;
-      background: rgba(250, 250, 249, 0.8);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--border-soft);
+      padding: 18px 32px;
+      background: transparent;
+      border-bottom: 1px solid transparent;
       position: sticky;
       top: 0;
       z-index: 50;
@@ -83,245 +136,422 @@
     .nav-brand {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 9px;
       font-family: var(--font-display);
-      font-weight: 800;
-      font-size: 18px;
+      font-weight: 700;
+      font-size: 15px;
+      letter-spacing: -0.01em;
       cursor: pointer;
+      color: var(--ink);
     }
 
-    .nav-brand .mark {
-      width: 28px;
-      height: 28px;
-      border-radius: 6px;
-      background: var(--ink);
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    
-    .nav-brand .mark::before {
-      content: "";
-      position: absolute;
-      top: 4px;
-      left: 4px;
-      width: 5px;
-      height: 5px;
-      border-radius: 50%;
-      background: var(--accent);
-      box-shadow: 12px 0 var(--accent), 0 12px var(--accent), 12px 12px var(--accent);
-    }
+    .nav-brand .mark { width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; color: var(--accent); }
+    .nav-brand .mark svg { width: 26px; height: 26px; }
 
-    .user-info {
+    .nav-right { display: flex; align-items: center; gap: 10px; }
+
+    .nav-back {
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--ink-muted);
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 6px;
+      padding: 8px 6px;
+      transition: color .15s ease;
+    }
+    .nav-back:hover { color: var(--ink); }
+    .nav-back svg { width: 14px; height: 14px; }
+
+    .btn-google-nav {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--soft);
+      border: 1px solid var(--border);
+      color: var(--ink);
+      font-size: 12.5px;
+      font-weight: 600;
+      padding: 9px 15px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: border-color .15s ease, background .15s ease;
+    }
+    .btn-google-nav:hover { border-color: var(--ink-faint); background: var(--soft-2); }
+    .btn-google-nav svg { width: 14px; height: 14px; }
+
+    .user-row-nav { display: none; align-items: center; gap: 10px; }
+    .user-row-nav.show { display: flex; }
+
+    .u-avatar-nav {
+      width: 30px; height: 30px; border-radius: 50%; object-fit: cover; border: 1px solid var(--border);
     }
 
     .token-balance {
-      font-size: 14px;
-      font-weight: 700;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 600;
       color: var(--mint);
       background: var(--mint-wash);
-      padding: 8px 16px;
+      padding: 7px 13px 7px 11px;
       border-radius: 999px;
       display: flex;
       align-items: center;
       gap: 6px;
-      border: 1px solid rgba(62, 122, 95, 0.2);
+      border: 1px solid color-mix(in srgb, var(--mint) 28%, transparent);
+      cursor: default;
     }
+    .token-balance svg { width: 14px; height: 14px; }
 
-    .page-header {
+    .btn-signout {
+      width: 32px; height: 32px;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--soft);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      color: var(--ink-faint);
+      cursor: pointer;
+      transition: color .15s ease, border-color .15s ease;
+    }
+    .btn-signout:hover { color: var(--coral); border-color: var(--coral); }
+    .btn-signout svg { width: 14px; height: 14px; }
+
+    /* ---------------- Header ---------------- */
+    .hero {
+      max-width: 720px;
+      margin: 0 auto;
       text-align: center;
-      padding: 60px 20px 40px;
+      padding: 68px 24px 40px;
+      position: relative;
     }
 
-    .page-title {
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+      background: var(--soft);
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+      border-radius: 999px;
+      margin-bottom: 20px;
+    }
+    .hero-eyebrow svg { width: 12px; height: 12px; color: var(--accent); }
+
+    .hero h1 {
       font-family: var(--font-display);
-      font-weight: 800;
-      font-size: clamp(28px, 4vw, 42px);
-      margin: 0 0 12px;
+      font-weight: 700;
+      font-size: clamp(28px, 4vw, 38px);
       letter-spacing: -0.02em;
+      margin: 0 0 12px;
+      color: var(--ink);
     }
 
-    .page-sub {
+    .hero p {
       color: var(--ink-muted);
-      font-size: 16px;
-      max-width: 600px;
+      font-size: 14.5px;
+      line-height: 1.6;
+      max-width: 480px;
       margin: 0 auto;
     }
 
-    .packages-grid {
+    /* ---------------- Rate strip ---------------- */
+    .rate-strip {
+      max-width: 780px;
+      margin: 30px auto 0;
+      padding: 0 24px;
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 24px;
-      max-width: 1000px;
-      margin: 0 auto 80px;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .rate-item {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .rate-item .ri-icon {
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      background: var(--soft);
+      color: var(--accent);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .rate-item .ri-icon svg { width: 15px; height: 15px; }
+
+    .rate-item .ri-text { min-width: 0; }
+    .rate-item .ri-label { font-size: 11px; color: var(--ink-faint); font-weight: 600; text-transform: uppercase; letter-spacing: .03em; }
+    .rate-item .ri-value { font-family: var(--font-mono); font-size: 13px; font-weight: 600; color: var(--ink); margin-top: 2px; }
+
+    /* ---------------- Packages ---------------- */
+    .packages-wrap {
+      max-width: 720px;
+      margin: 46px auto 0;
       padding: 0 24px;
     }
 
-    .pkg-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-xl);
-      padding: 32px 24px;
-      display: flex;
-      flex-direction: column;
+    .packages-list {
+      border-top: 1px solid var(--border);
+    }
+
+    .pkg-row {
+      display: grid;
+      grid-template-columns: 28px 1fr auto auto;
       align-items: center;
-      text-align: center;
-      position: relative;
-      transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+      column-gap: 18px;
+      padding: 16px 4px;
+      border-bottom: 1px solid var(--border);
       cursor: pointer;
+      position: relative;
+      transition: background .15s ease;
+      animation: floatUp .28s ease both;
     }
 
-    .pkg-card:hover {
-      transform: translateY(-4px);
-      box-shadow: var(--shadow-lg);
-      border-color: var(--ink-faint);
-    }
+    .pkg-row:nth-child(1) { animation-delay: .0s; }
+    .pkg-row:nth-child(2) { animation-delay: .03s; }
+    .pkg-row:nth-child(3) { animation-delay: .06s; }
+    .pkg-row:nth-child(4) { animation-delay: .09s; }
+    .pkg-row:nth-child(5) { animation-delay: .12s; }
 
-    .pkg-card.best {
-      border-color: var(--accent);
-      box-shadow: 0 10px 30px rgba(225, 75, 42, 0.12);
-    }
+    .pkg-row:hover { background: var(--soft); }
 
-    .pkg-card.best::before {
-      content: "Most Popular";
-      position: absolute;
-      top: -12px;
-      background: var(--accent);
-      color: #fff;
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: .05em;
-      padding: 4px 12px;
-      border-radius: 999px;
+    .pkg-row.best {
+      background: color-mix(in srgb, var(--accent-wash) 55%, transparent);
     }
+    .pkg-row.best:hover { background: var(--accent-wash); }
 
-    .p-tag {
+    .pr-mark {
       font-family: var(--font-mono);
       font-size: 11px;
       color: var(--ink-faint);
-      text-transform: uppercase;
-      letter-spacing: .05em;
-      margin-bottom: 12px;
+      text-align: right;
     }
+    .pkg-row.best .pr-mark { color: var(--accent); }
 
-    .p-tokens {
+    .pr-main { min-width: 0; }
+
+    .pr-tokens {
       font-family: var(--font-display);
-      font-size: 32px;
-      font-weight: 800;
-      color: var(--ink);
-      margin-bottom: 4px;
-    }
-
-    .p-price {
-      font-size: 16px;
-      color: var(--ink-muted);
-      margin-bottom: 24px;
-    }
-
-    .p-btn {
-      width: 100%;
-      padding: 12px;
-      border-radius: var(--radius-sm);
-      font-size: 14px;
+      font-size: 16.5px;
       font-weight: 700;
-      font-family: var(--font-display);
-      cursor: pointer;
-      border: none;
-      transition: background .2s ease;
-    }
-
-    .pkg-card .p-btn {
-      background: var(--surface-2);
       color: var(--ink);
+      letter-spacing: -0.01em;
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      flex-wrap: wrap;
     }
-    .pkg-card:hover .p-btn {
-      background: var(--border);
+    .pr-tokens .unit { font-family: var(--font-body); font-size: 12px; font-weight: 500; color: var(--ink-faint); }
+    .pr-tokens .pr-tag {
+      font-size: 10.5px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      color: var(--ink-faint);
+      background: var(--soft-2);
+      padding: 2px 7px;
+      border-radius: 5px;
     }
-    .pkg-card.best .p-btn {
-      background: var(--accent);
-      color: #fff;
-    }
-    .pkg-card.best:hover .p-btn {
-      background: var(--accent-deep);
+    .pkg-row.best .pr-tag { color: var(--accent-deep); background: color-mix(in srgb, var(--accent) 16%, var(--card)); }
+
+    .pr-rate {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--ink-faint);
+      margin-top: 3px;
     }
 
+    .pr-price {
+      font-family: var(--font-mono);
+      font-size: 14.5px;
+      font-weight: 600;
+      color: var(--ink);
+      white-space: nowrap;
+    }
+
+    .pr-go {
+      justify-self: end;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--ink-muted);
+      padding: 7px 10px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      transition: border-color .15s ease, color .15s ease, background .15s ease;
+    }
+    .pr-go svg { width: 12px; height: 12px; transition: transform .15s ease; }
+    .pkg-row:hover .pr-go { border-color: var(--border); background: var(--card); color: var(--ink); }
+    .pkg-row:hover .pr-go svg { transform: translateX(2px); }
+    .pkg-row.best .pr-go { color: var(--accent-deep); }
+    .pkg-row.best:hover .pr-go { border-color: var(--accent); background: var(--card); }
+
+    /* ---------------- FAQ / note ---------------- */
+    .note-row {
+      max-width: 1040px;
+      margin: 40px auto 90px;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      color: var(--ink-faint);
+      font-size: 12px;
+      text-align: center;
+    }
+    .note-row svg { width: 13px; height: 13px; flex-shrink: 0; }
+
+    /* ---------------- Toast / status ---------------- */
+    .status-toast {
+      position: fixed;
+      bottom: 22px;
+      left: 50%;
+      transform: translateX(-50%) translateY(12px);
+      background: var(--ink);
+      color: #fff;
+      font-size: 12.5px;
+      font-weight: 600;
+      padding: 11px 18px;
+      border-radius: 999px;
+      box-shadow: var(--shadow-lg);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .2s ease, transform .2s ease;
+      z-index: 90;
+    }
+    .status-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
+    .status-toast.error { background: var(--coral); }
+
+    /* ---------------- Theme dots (subtle, in nav) ---------------- */
+    .theme-switch { display: flex; align-items: center; gap: 5px; margin-right: 4px; }
+    .theme-dot {
+      width: 18px; height: 18px; border-radius: 50%;
+      border: 1.5px solid var(--border);
+      cursor: pointer; padding: 0; position: relative; flex-shrink: 0;
+      transition: transform .12s ease, border-color .15s ease;
+    }
+    .theme-dot:hover { transform: scale(1.12); }
+    .theme-dot.active::after {
+      content: ""; position: absolute; inset: -3px; border: 1.5px solid var(--accent); border-radius: 50%;
+    }
+    .theme-dot[data-theme-id="light"] { background: linear-gradient(135deg, #FAFAF9 50%, #B45A34 50%); }
+    .theme-dot[data-theme-id="dark"] { background: linear-gradient(135deg, #17161A 50%, #E08350 50%); }
+    .theme-dot[data-theme-id="sea"] { background: linear-gradient(135deg, #F3F7F9 50%, #1E7A8C 50%); }
+    .theme-dot[data-theme-id="forest"] { background: linear-gradient(135deg, #F5F7F2 50%, #4C7A3F 50%); }
+    .theme-dot[data-theme-id="sun"] { background: linear-gradient(135deg, #FCF8F1 50%, #C97A25 50%); }
+
+    /* ---------------- Responsive ---------------- */
+    @media (max-width: 980px) {
+      .rate-strip { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 620px) {
+      .nav { padding: 14px 18px; }
+      .theme-switch { display: none; }
+      .hero { padding: 46px 20px 30px; }
+      .packages-wrap { margin-top: 34px; }
+      .pkg-row {
+        grid-template-columns: 22px 1fr auto;
+        row-gap: 8px;
+      }
+      .pr-go { display: none; }
+      .pr-mark { font-size: 10px; }
+    }
   </style>
 </head>
+
 <body>
 
   <nav class="nav">
     <div class="nav-brand" onclick="window.location.href='/create/index.html'">
-      <div class="mark"></div>
+      <div class="mark" id="brandMark"></div>
       RoPeak
     </div>
-    <div class="user-info">
-      <button id="signInBtn" style="display:none; padding: 8px 16px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 999px; cursor: pointer; font-weight: 600; font-size: 14px;" onclick="signInWithGoogle()">Sign in with Google</button>
-      <div id="userMenu" style="display:none; align-items: center; gap: 12px;">
+    <div class="nav-right">
+      <div class="theme-switch" id="themeSwitch"></div>
+      <a class="nav-back" href="/create/index.html"><span id="backIcon"></span>Back to app</a>
+      <button class="btn-google-nav" id="signInBtn" onclick="signInWithGoogle()">
+        <svg viewBox="0 0 48 48">
+          <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.9 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 8 3l5.7-5.7C34.6 6.1 29.6 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.7-.4-3.5z" />
+          <path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.6 15.9 18.9 13 24 13c3.1 0 5.8 1.1 8 3l5.7-5.7C34.6 6.1 29.6 4 24 4 16.3 4 9.7 8.3 6.3 14.7z" />
+          <path fill="#4CAF50" d="M24 44c5.5 0 10.4-1.9 14.2-5.1l-6.6-5.4C29.6 35.4 26.9 36 24 36c-5.3 0-9.7-3.1-11.3-7.6l-6.6 5.1C9.6 39.6 16.2 44 24 44z" />
+          <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.3-4.2 5.6l6.6 5.4C41.5 36 44 30.5 44 24c0-1.3-.1-2.7-.4-3.5z" />
+        </svg>
+        Sign in with Google
+      </button>
+      <div class="user-row-nav" id="userMenu">
         <div class="token-balance" id="topNavTokenBalance">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-          <span id="navTokenCount">Loading...</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+          <span id="navTokenCount">–</span>
         </div>
-        <button onclick="signOutUser()" style="padding: 6px 12px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 999px; cursor: pointer; font-size: 12px; font-weight: 600;">Sign out</button>
+        <img class="u-avatar-nav" id="userAvatar" alt="">
+        <button class="btn-signout" onclick="signOutUser()" title="Sign out"><span id="signOutIcon"></span></button>
       </div>
     </div>
   </nav>
 
-  <div class="page-header">
-    <h1 class="page-title">Top up tokens</h1>
-    <p class="page-sub">1 Image = 2 tokens. A 3D model costs 25-35 tokens. UI to Lua costs 2 tokens per script. Payment via Stripe.</p>
+  <div class="hero">
+    <h1>Fuel your next generation</h1>
+    <p>Buy tokens once, spend them on icons, thumbnails, 3D models or UI‑to‑Lua conversions — whenever you need them. No subscription, nothing expires.</p>
   </div>
 
-  <div class="packages-grid" id="packagesContainer">
-    <!-- Rendered via JS -->
+  <div class="rate-strip">
+    <div class="rate-item">
+      <div class="ri-icon" id="rateIconImage"></div>
+      <div class="ri-text"><div class="ri-label">Image</div><div class="ri-value">2 tokens</div></div>
+    </div>
+    <div class="rate-item">
+      <div class="ri-icon" id="rateIconModel"></div>
+      <div class="ri-text"><div class="ri-label">3D model</div><div class="ri-value">25–35 tokens</div></div>
+    </div>
+    <div class="rate-item">
+      <div class="ri-icon" id="rateIconLua"></div>
+      <div class="ri-text"><div class="ri-label">UI → Lua</div><div class="ri-value">2 tokens / script</div></div>
+    </div>
   </div>
+
+  <div class="packages-wrap">
+    <div class="packages-list" id="packagesContainer"></div>
+  </div>
+
+  <div class="note-row"><span id="noteIcon"></span>Secure checkout via Stripe. Tokens are added to your account instantly after payment.</div>
+
+  <div class="status-toast" id="statusToast"></div>
 
   <script>
-    const packages = [
-      { id: "starter", tokens: 50, price: "$1.49", tag: "trial" },
-      { id: "basic", tokens: 110, price: "$2.99", tag: "good start" },
-      { id: "creator", tokens: 290, price: "$6.99", tag: "most popular", best: true },
-      { id: "pro", tokens: 620, price: "$13.99", tag: "best value" },
-      { id: "studio", tokens: 1300, price: "$27.99", tag: "power user" }
-    ];
+    const ICONS = {
+      chevronRight: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>`,
+      spark: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v6M12 16v6M4.9 4.9l4.2 4.2M14.9 14.9l4.2 4.2M2 12h6M16 12h6M4.9 19.1l4.2-4.2M14.9 9.1l4.2-4.2"/></svg>`,
+      coin: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 15.2c.5.7 1.4 1.1 2.5 1.1 1.8 0 2.9-.9 2.9-2.1 0-3-5.8-1.4-5.8-4.3 0-1.2 1.1-2.1 2.9-2.1 1.1 0 2 .4 2.5 1.1"/><path d="M12 6.5v11"/></svg>`,
+      pack: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-6-3.46a2 2 0 0 0-2 0l-6 3.46A2 2 0 0 0 5 8v8a2 2 0 0 0 1 1.73l6 3.46a2 2 0 0 0 2 0l6-3.46A2 2 0 0 0 21 16Z"/><path d="M3.27 6.96 12 12l8.73-5.04M12 22.08V12"/></svg>`,
+      crate: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8V21H3V8"/><path d="M1 4h22v4H1z"/><path d="M10 12h4"/></svg>`,
+      gem: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12l4 6-10 12L2 9Z"/><path d="M2 9h20M12 3 8 9l4 12 4-12-4-6"/></svg>`,
+      crown: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m2 8 4 3 6-8 6 8 4-3-2 12H4Z"/></svg>`,
+      image: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg>`,
+      cube: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-6-3.46a2 2 0 0 0-2 0l-6 3.46A2 2 0 0 0 5 8v8a2 2 0 0 0 1 1.73l6 3.46a2 2 0 0 0 2 0l6-3.46A2 2 0 0 0 21 16Z"/><path d="M3.27 6.96 12 12l8.73-5.04M12 22.08V12"/></svg>`,
+      layout: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>`,
+      lock: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`,
+      arrowLeft: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7M5 12h14"/></svg>`,
+      power: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v8"/><path d="M18.4 6.6a9 9 0 1 1-12.8 0"/></svg>`,
+      ropeak: `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g transform="translate(0 5.6239) scale(0.034188)"><path fill="currentColor" d="M 450.5 7 Q 463.2 6.3 468 13.5 L 549 354.5 Q 548.1 361.6 542.5 364 L 474 365 L 323 142.5 L 327 140 L 443.5 10 L 450.5 7 Z"/><path fill="currentColor" d="M 585.5 40 Q 596.3 40.3 600 47.5 Q 645.5 200.5 696 348.5 L 696 356.5 L 691.5 363 L 688.5 365 L 573.5 365 L 566 358.5 L 500 85.5 L 585.5 40 Z"/><path fill="currentColor" d="M 258.5 86 Q 268.6 86.4 272 93.5 L 446 348.5 L 447 357.5 L 440.5 365 L 301.5 365 L 299 362.5 L 254 295 L 247.5 294 L 244 296.5 L 232 311 L 228 314.5 L 180.5 365 L 12.5 365 L 6 359.5 L 5 351.5 L 16 337.5 L 250.5 89 L 258.5 86 Z"/></g></svg>`,
+    };
 
-    function renderPackages() {
-      const container = document.getElementById("packagesContainer");
-      container.innerHTML = "";
-      
-      packages.forEach(pkg => {
-        const card = document.createElement("div");
-        card.className = "pkg-card" + (pkg.best ? " best" : "");
-        card.innerHTML = `
-          <div class="p-tag">${pkg.tag}</div>
-          <div class="p-tokens">${pkg.tokens} Tokens</div>
-          <div class="p-price">${pkg.price}</div>
-          <button class="p-btn" onclick="buyPackage('${pkg.id}')">Select Package</button>
-        `;
-        container.appendChild(card);
-      });
-    }
+    const WORKER_URL = "https://robloxgenerate.hexteec.workers.dev";
 
-    function buyPackage(pkgId) {
-      alert("Redirecting to Stripe checkout for package: " + pkgId);
-      // Actual integration will route to Stripe using your worker
-      /*
-      authedFetch("/buy", {
-        method: "POST",
-        body: JSON.stringify({ package: pkgId })
-      }).then(res => res.json()).then(data => {
-        if (data.url) window.location.href = data.url;
-      });
-      */
-    }
-
-    renderPackages();
-
-    // Firebase Auth logic to sync token balance
     const firebaseConfig = {
       apiKey: "AIzaSyApNxOtHiib8fTDo5hJVN-igvt-nodGo0Q",
       authDomain: "icon-lab-622fd.firebaseapp.com",
@@ -332,57 +562,175 @@
       measurementId: "G-XS6Z6BMBYH"
     };
 
-    if (!firebase.apps.length) {
+    // Icons chosen to read as a small progression of value, not a generic "best/pro/premium" ladder.
+    const PACKAGES = [
+      { id: "starter", tokens: 50, price: "$1.49", tag: "try it out", icon: ICONS.coin },
+      { id: "basic", tokens: 110, price: "$2.99", tag: "good start", icon: ICONS.pack },
+      { id: "creator", tokens: 290, price: "$6.99", tag: "most popular", icon: ICONS.crate, best: true },
+      { id: "pro", tokens: 620, price: "$13.99", tag: "best value", icon: ICONS.gem },
+      { id: "studio", tokens: 1300, price: "$27.99", tag: "power user", icon: ICONS.crown },
+    ];
+
+    let auth = null;
+    let currentUser = null;
+    let tokenBalance = null;
+    let toastTimer = null;
+
+    function init() {
+      document.getElementById("brandMark").innerHTML = ICONS.ropeak;
+      document.getElementById("backIcon").innerHTML = ICONS.arrowLeft;
+      document.getElementById("signOutIcon").innerHTML = ICONS.power;
+      document.getElementById("eyebrowIcon").innerHTML = ICONS.spark;
+      document.getElementById("noteIcon").innerHTML = ICONS.lock;
+      document.getElementById("rateIconImage").innerHTML = ICONS.image;
+      document.getElementById("rateIconModel").innerHTML = ICONS.cube;
+      document.getElementById("rateIconLua").innerHTML = ICONS.layout;
+
+      initThemeSwitch();
+      renderPackages();
+
       firebase.initializeApp(firebaseConfig);
+      auth = firebase.auth();
+      auth.onAuthStateChanged(onAuthChange);
+
+      if (location.search.includes("paid=1")) {
+        showToast("Payment received — updating your balance…");
+        pollBalanceAfterPurchase();
+        window.history.replaceState(null, "", location.pathname);
+      }
     }
-    
-    let tokenBalance = 0;
-    const workerUrl = "https://robloxgenerate.hexteec.workers.dev"; // Adjust according to your environment
+
+    /* ---------- theme ---------- */
+    const THEMES = [
+      { id: "light", label: "Light" },
+      { id: "dark", label: "Dark" },
+      { id: "sea", label: "Sea" },
+      { id: "forest", label: "Forest" },
+      { id: "sun", label: "Sun" }
+    ];
+    const THEME_STORAGE_KEY = "ropeak-theme";
+
+    function applyTheme(themeId, opts) {
+      opts = opts || {};
+      const valid = THEMES.some(t => t.id === themeId) ? themeId : "light";
+      if (valid === "light") document.documentElement.removeAttribute("data-theme");
+      else document.documentElement.setAttribute("data-theme", valid);
+      document.querySelectorAll(".theme-dot").forEach(d => d.classList.toggle("active", d.dataset.themeId === valid));
+      if (!opts.skipSave) { try { localStorage.setItem(THEME_STORAGE_KEY, valid); } catch (e) {} }
+    }
+
+    function initThemeSwitch() {
+      const wrap = document.getElementById("themeSwitch");
+      THEMES.forEach(t => {
+        const dot = document.createElement("button");
+        dot.className = "theme-dot";
+        dot.type = "button";
+        dot.dataset.themeId = t.id;
+        dot.title = t.label;
+        dot.addEventListener("click", () => applyTheme(t.id));
+        wrap.appendChild(dot);
+      });
+      let saved = "light";
+      try { saved = localStorage.getItem(THEME_STORAGE_KEY) || "light"; } catch (e) {}
+      applyTheme(saved, { skipSave: true });
+    }
+
+    /* ---------- packages ---------- */
+    function renderPackages() {
+      const container = document.getElementById("packagesContainer");
+      container.innerHTML = "";
+      PACKAGES.forEach((pkg, i) => {
+        const row = document.createElement("div");
+        row.className = "pkg-row" + (pkg.best ? " best" : "");
+        const perToken = (parseFloat(pkg.price.replace("$", "")) / pkg.tokens * 100).toFixed(2);
+        row.innerHTML = `
+          <div class="pr-mark">${String(i + 1).padStart(2, "0")}</div>
+          <div class="pr-main">
+            <div class="pr-tokens">${pkg.tokens}<span class="unit">tokens</span><span class="pr-tag">${pkg.tag}</span></div>
+            <div class="pr-rate">${perToken}¢ / token</div>
+          </div>
+          <div class="pr-price">${pkg.price}</div>
+          <div class="pr-go">Select ${ICONS.chevronRight}</div>
+        `;
+        row.addEventListener("click", () => buyPackage(pkg.id));
+        container.appendChild(row);
+      });
+    }
+
+    /* ---------- auth ---------- */
+    function signInWithGoogle() {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      auth.signInWithPopup(provider).catch(e => { console.error(e); showToast("Sign‑in failed.", true); });
+    }
+    function signOutUser() { auth.signOut(); }
+
+    async function onAuthChange(user) {
+      currentUser = user;
+      const signInBtn = document.getElementById("signInBtn");
+      const row = document.getElementById("userMenu");
+      if (user) {
+        signInBtn.style.display = "none";
+        row.classList.add("show");
+        document.getElementById("userAvatar").src = user.photoURL || "";
+        await refreshBalance();
+      } else {
+        signInBtn.style.display = "flex";
+        row.classList.remove("show");
+        tokenBalance = null;
+      }
+    }
 
     async function authedFetch(path, options = {}) {
-      const user = firebase.auth().currentUser;
-      if (!user) return null;
-      const token = await user.getIdToken();
-      if (!options.headers) options.headers = {};
-      options.headers["Authorization"] = "Bearer " + token;
-      return fetch(workerUrl + path, options);
+      if (!currentUser) return null;
+      const token = await currentUser.getIdToken();
+      const headers = Object.assign({ "Authorization": "Bearer " + token }, options.headers || {});
+      return fetch(WORKER_URL + path, Object.assign({}, options, { headers }));
     }
 
-    async function fetchBalance() {
+    async function refreshBalance() {
       try {
         const res = await authedFetch("/me");
         if (res && res.ok) {
           const data = await res.json();
           tokenBalance = data.tokens || 0;
-          document.getElementById("navTokenCount").textContent = tokenBalance + " Tokens";
+          document.getElementById("navTokenCount").textContent = tokenBalance;
         }
-      } catch (err) {
-        console.error("Failed to fetch balance", err);
+      } catch (err) { console.error("Failed to fetch balance", err); }
+    }
+
+    async function pollBalanceAfterPurchase(attempt = 0) {
+      await refreshBalance();
+      if (attempt < 6) setTimeout(() => pollBalanceAfterPurchase(attempt + 1), 1500);
+    }
+
+    /* ---------- checkout ---------- */
+    async function buyPackage(pkgId) {
+      if (!currentUser) { showToast("Sign in first to buy tokens."); document.getElementById("signInBtn").click(); return; }
+      showToast("Redirecting to checkout…");
+      try {
+        const res = await authedFetch("/create-checkout-session", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ package: pkgId })
+        });
+        const data = await res.json();
+        if (!res.ok || !data.url) throw new Error(data.error || "Failed to start checkout.");
+        window.location.href = data.url;
+      } catch (e) {
+        showToast("Error: " + e.message, true);
       }
     }
 
-    function signInWithGoogle() {
-      const provider = new firebase.auth.GoogleAuthProvider();
-      firebase.auth().signInWithPopup(provider).catch(e => console.error(e));
+    function showToast(text, isError) {
+      const el = document.getElementById("statusToast");
+      el.textContent = text;
+      el.className = "status-toast show" + (isError ? " error" : "");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => el.classList.remove("show"), 3200);
     }
 
-    function signOutUser() {
-      firebase.auth().signOut();
-    }
-
-    firebase.auth().onAuthStateChanged(user => {
-      const signInBtn = document.getElementById("signInBtn");
-      const userMenu = document.getElementById("userMenu");
-      if (user) {
-        signInBtn.style.display = "none";
-        userMenu.style.display = "flex";
-        fetchBalance();
-      } else {
-        signInBtn.style.display = "block";
-        userMenu.style.display = "none";
-      }
-    });
-
+    init();
   </script>
 </body>
+
 </html>
