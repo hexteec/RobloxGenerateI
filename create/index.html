@@ -1358,7 +1358,7 @@ body{ top:0 !important; position:static !important; }
   <div class="modal-card">
     <button class="modal-close" onclick="closeBuyModal()"></button>
     <p class="modal-title">Top up tokens</p>
-    <p class="modal-sub">1 token = 1 image. A 3D model costs several tokens (shape stage + textures). UI → Lua costs several tokens per script. Payment via Stripe.</p>
+    <p class="modal-sub">1 Image = 2 tokens. A 3D model costs 25-35 tokens (depending on textures and source). UI to Lua costs 2 tokens per script. Payment via Stripe.</p>
     <div class="package-grid" id="packageGrid"></div>
     <div class="modal-status" id="modalStatus"></div>
   </div>
@@ -1423,9 +1423,11 @@ body{ top:0 !important; position:static !important; }
   };
 
   const PACKAGES = [
-    { id: "p10",  tokens: 10,  price: "9,99 zł",   tag: "trial" },
-    { id: "p50",  tokens: 50,  price: "39,99 zł",  tag: "most popular", best: true },
-    { id: "p200", tokens: 200, price: "129,99 zł", tag: "best price / token" }
+    { id: "starter", tokens: 50, price: "$1.49", tag: "trial" },
+    { id: "basic", tokens: 110, price: "$2.99", tag: "good start" },
+    { id: "creator", tokens: 290, price: "$6.99", tag: "most popular", best: true },
+    { id: "pro", tokens: 620, price: "$13.99", tag: "best value" },
+    { id: "studio", tokens: 1300, price: "$27.99", tag: "power user" }
   ];
 
   const FORCE_MODE_INFO = {
@@ -1448,20 +1450,13 @@ body{ top:0 !important; position:static !important; }
     high:     { label:"High Quality", polygonCount:50000, geometryQuality:"detailed", lowPoly:false, textures:true,  pbr:true,  textureQuality:"detailed" }
   };
   const POLY_STEPS = [500,1000,2000,5000,10000,15000,20000];
-  const POLY_TIER_COST = {500:0, 1000:0, 2000:0, 5000:2, 10000:4, 15000:6, 20000:8};
-  const TEXTURE_QUALITY_COST = { standard:0, detailed:10, extreme:20 };
 
   function calcModel3DCost(s) {
-    let cost = 10;
-    if (s.geometryQuality === "detailed") cost += 10;
-    if (s.lowPoly) cost -= 3;
-    cost += POLY_TIER_COST[s.polygonCount] ?? 0;
-    if (s.textures) {
-      cost += 15;
-      if (s.pbr) cost += 10;
-      cost += TEXTURE_QUALITY_COST[s.textureQuality] ?? 0;
+    const isImage = pending3DInput && pending3DInput.kind === "image";
+    if (isImage) {
+        return s.textures ? 35 : 30;
     }
-    return Math.max(cost, 5);
+    return s.textures ? 30 : 25;
   }
 
   let model3DSettings = { ...MODEL3D_PRESETS.standard, preset: "standard", shareSell: false };
@@ -1480,7 +1475,7 @@ body{ top:0 !important; position:static !important; }
     { id: "forest", label: "Forest" },
     { id: "sun",    label: "Sun" }
   ];
-  const THEME_STORAGE_KEY = "iconlab-theme";
+  const THEME_STORAGE_KEY = "ropeak-theme";
 
   function applyTheme(themeId, opts) {
     opts = opts || {};
@@ -1524,7 +1519,7 @@ body{ top:0 !important; position:static !important; }
     { code: "ja", label: "日本語",      flag: "🇯🇵" },
     { code: "zh-CN", label: "中文",     flag: "🇨🇳" }
   ];
-  const LANG_STORAGE_KEY = "iconlab-lang";
+  const LANG_STORAGE_KEY = "ropeak-lang";
 
   function initLangSwitch() {
     const menu = document.getElementById("langMenu");
@@ -1891,7 +1886,7 @@ body{ top:0 !important; position:static !important; }
 
   function updateTokenPill() {
     document.getElementById("tokenCount").textContent = tokenBalance ?? "–";
-    document.getElementById("tokenPill").classList.toggle("low", (tokenBalance ?? 0) < 1);
+    document.getElementById("tokenPill").classList.toggle("low", (tokenBalance ?? 0) < 2);
   }
 
   async function pollBalanceAfterPurchase(attempt = 0) {
@@ -2768,7 +2763,7 @@ body{ top:0 !important; position:static !important; }
       alert("The “Transfer style” method requires an image to edit AND a style reference image.");
       return;
     }
-    if ((tokenBalance ?? 0) < 1) { openBuyModal(); return; }
+    if ((tokenBalance ?? 0) < 2) { openBuyModal(); return; }
 
     const sendBtn = document.getElementById("generateBtn");
     const sendIcon = document.getElementById("sendIcon");
@@ -2820,7 +2815,7 @@ body{ top:0 !important; position:static !important; }
       setBotBody(pendingEl, imageFrameHtml(blobUrl, currentTemplate, templateLabel(category === "thumbnail" ? "wide" : currentTemplate), true, category === "thumbnail"));
       markNewLastLarge(pendingEl);
 
-      if (tokenBalance != null) tokenBalance -= 1;
+      if (tokenBalance != null) tokenBalance -= 2;
       updateTokenPill();
       refreshBalance();
 
@@ -2865,7 +2860,7 @@ body{ top:0 !important; position:static !important; }
   async function sendUiToLua() {
     if (!currentUser) { document.getElementById("signInBtn").click(); return; }
     if (!mainImage) { alert("First upload a UI screenshot you want to recreate as a script."); return; }
-    if ((tokenBalance ?? 0) < 1) { openBuyModal(); return; }
+    if ((tokenBalance ?? 0) < 2) { openBuyModal(); return; }
 
     const promptEl = document.getElementById("prompt");
     const raw = promptEl.value.trim();
@@ -2959,7 +2954,7 @@ body{ top:0 !important; position:static !important; }
       } else if (action.type === "generated_image") {
         appendBotBody(pendingEl, imageFrameHtml(action.image, "square", categoryLabel(action.category), true, action.category === "thumbnail"));
         markNewLastLarge(pendingEl);
-        if (tokenBalance != null) tokenBalance -= 1;
+        if (tokenBalance != null) tokenBalance -= 2;
         updateTokenPill();
         refreshBalance();
 
@@ -3130,7 +3125,7 @@ body{ top:0 !important; position:static !important; }
 
   async function confirmModel3DGeneration() {
     if (!pending3DInput || !pendingModel3DPanelEl) return;
-    if ((tokenBalance ?? 0) < 1) { openBuyModal(); return; }
+    if ((tokenBalance ?? 0) < 2) { openBuyModal(); return; }
 
     const panelEl = pendingModel3DPanelEl;
     setBotBody(panelEl, loaderHtml("Starting 3D model generation…"));
@@ -3290,7 +3285,7 @@ body{ top:0 !important; position:static !important; }
 
   async function generateImageForModel3D(raw) {
     if (!currentUser) { document.getElementById("signInBtn").click(); return; }
-    if ((tokenBalance ?? 0) < 1) { openBuyModal(); return; }
+    if ((tokenBalance ?? 0) < 2) { openBuyModal(); return; }
 
     flowState = "busy";
     applyFlowComposerState();
