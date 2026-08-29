@@ -686,6 +686,28 @@ background-image:
 .m3d-slider::-moz-range-thumb{ width:14px; height:14px; border-radius:50%; background: var(--accent); border:3px solid #fff; cursor:pointer; box-shadow: 0 1px 4px rgba(32,31,28,0.3); }
 .m3d-steps{ display:flex; justify-content:space-between; font-size:10.3px; color: var(--ink-faint); font-family: var(--font-mono); }
 .m3d-cost{ font-size:13px; font-weight:700; color: var(--ink); background: var(--soft); border-radius:10px; padding:9px 13px; text-align:center; border:1px solid var(--border); }
+.m3d-badge-discount{ font-size:10.5px; font-weight:700; color: var(--mint); background:var(--mint-wash); padding:2px 7px; border-radius:6px; margin-left:6px; letter-spacing:0; text-transform:none; }
+.m3d-desc{ font-size:11.5px; color:var(--ink-faint); margin-top:-2px; line-height:1.45; }
+.m3d-cost-breakdown{ display:flex; flex-direction:column; gap:4px; font-size:12.5px; background:var(--soft); border:1px solid var(--border); border-radius:10px; padding:10px 14px; }
+.m3d-cost-row{ display:flex; justify-content:space-between; align-items:center; }
+.m3d-cost-row.discount{ color:var(--mint); }
+.m3d-cost-row.total{ font-weight:700; padding-top:6px; border-top:1px solid var(--border); margin-top:4px; }
+.m3d-cost-breakdown hr{ border:none; border-top:1px solid var(--border); margin:2px 0; display:none; }
+
+/* Publish dialog */
+.publish-overlay{ position:fixed; inset:0; z-index:200; background:rgba(0,0,0,0.35); display:flex; align-items:center; justify-content:center; backdrop-filter:blur(4px); }
+.publish-card{ background:var(--card); border:1px solid var(--border); border-radius:var(--radius-lg); padding:28px; width:90%; max-width:420px; box-shadow:var(--shadow-lg); }
+.publish-card h3{ font-family:var(--font-display); font-size:17px; margin:0 0 6px; font-weight:700; }
+.publish-card p{ font-size:13px; color:var(--ink-muted); margin:0 0 16px; line-height:1.5; }
+.publish-field{ margin-bottom:14px; }
+.publish-field label{ display:block; font-size:11.5px; font-weight:700; color:var(--ink-muted); text-transform:uppercase; letter-spacing:.04em; margin-bottom:5px; }
+.publish-field input, .publish-field select, .publish-field textarea{ width:100%; padding:9px 12px; font-size:13px; font-family:var(--font-body); border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--soft); color:var(--ink); outline:none; transition:border-color .15s; box-sizing:border-box; }
+.publish-field input:focus, .publish-field select:focus, .publish-field textarea:focus{ border-color:var(--accent); }
+.publish-field textarea{ resize:vertical; min-height:60px; }
+.publish-btns{ display:flex; gap:10px; margin-top:18px; }
+.publish-btns .btn-newchat{ flex:1; }
+.publish-btn-cancel{ flex:1; padding:10px 16px; border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--soft); color:var(--ink); font-size:13px; font-weight:600; cursor:pointer; transition:background .15s; }
+.publish-btn-cancel:hover{ background:var(--soft-2); }
 
 /* ---------- composer overlay + new desktop/mobile widgets layout ---------- */
 .composer-wrap{
@@ -1203,6 +1225,7 @@ body{ top:0 !important; position:static !important; }
         <div id="google_translate_element"></div>
       </div>
 
+      <a class="sb-back" href="/create/store.html" style="margin-bottom:6px; color:var(--accent);">🏪 Community Store</a>
       <a class="sb-back" href="/">← Home</a>
 
       <div class="auth-block">
@@ -1441,7 +1464,11 @@ body{ top:0 !important; position:static !important; }
     return Math.max(cost, 5);
   }
 
-  let model3DSettings = { ...MODEL3D_PRESETS.standard, preset: "standard" };
+  let model3DSettings = { ...MODEL3D_PRESETS.standard, preset: "standard", shareSell: false };
+  let pendingTripoTaskId = null;
+  let pendingShareSell = false;
+
+  const STORE_CATEGORIES = ["props","buildings","vehicles","characters","environment","nature","roblox","weapons","other"];
   let pending3DInput = null;
   let pendingModel3DPanelEl = null;
   const HISTORY_THUMB_SIZE = 480;
@@ -2995,7 +3022,9 @@ body{ top:0 !important; position:static !important; }
 
   function model3DSettingsPanelHtml() {
     const s = model3DSettings;
-    const cost = calcModel3DCost(s);
+    const baseCost = calcModel3DCost(s);
+    const discount = s.shareSell ? 1 : 0;
+    const finalCost = Math.max(0, baseCost - discount);
     const presetBtn = (key,label) => `<button class="m3d-preset ${s.preset===key?'active':''}" onclick="applyModel3DPreset('${key}')">${label}</button>`;
     const toggleBtn = (field, val, label) => `<button class="m3d-toggle ${s[field]===val?'active':''}" onclick='setModel3DField("${field}", ${JSON.stringify(val)})'>${label}</button>`;
     const polyIndex = POLY_STEPS.indexOf(s.polygonCount);
@@ -3031,8 +3060,17 @@ body{ top:0 !important; position:static !important; }
         <div class="m3d-label">Texture Quality</div>
         <div class="m3d-row">${toggleBtn('textureQuality','standard','Standard +0')}${toggleBtn('textureQuality','detailed','Detailed +10')}${toggleBtn('textureQuality','extreme','Extreme +20')}</div>
       </div>
-      <div class="m3d-cost">Cost: <b>${cost} tokens</b></div>
-      <button class="btn-newchat" style="margin-top:2px;" onclick="confirmModel3DGeneration()">Generate 3D model (${cost} tokens)</button>
+      <div class="m3d-section" style="border-top:1px solid var(--border); padding-top:12px; margin-top:4px;">
+        <div class="m3d-label">Share & Sell <span class="m3d-badge-discount">−1 Token</span></div>
+        <div class="m3d-desc">Publish to Community Store. Earn tokens when purchased.</div>
+        <div class="m3d-row">${toggleBtn('shareSell',false,'OFF')}${toggleBtn('shareSell',true,'ON')}</div>
+      </div>
+      <div class="m3d-cost-breakdown">
+        <div class="m3d-cost-row"><span>Generation</span><span>${baseCost} Tokens</span></div>
+        ${s.shareSell ? '<div class="m3d-cost-row discount"><span>Share & Sell</span><span>−1 Token</span></div>' : ''}
+        <div class="m3d-cost-row total"><span>Total</span><span>${finalCost} Tokens</span></div>
+      </div>
+      <button class="btn-newchat" style="margin-top:2px;" onclick="confirmModel3DGeneration()">Generate 3D model (${finalCost} tokens)</button>
     </div>`;
   }
 
@@ -3078,7 +3116,7 @@ body{ top:0 !important; position:static !important; }
 
   function presentModel3DSettingsStep(userText, attachments, imageForPending) {
     appendUserBubble(userText, attachments || []);
-    model3DSettings = { ...MODEL3D_PRESETS.standard, preset: "standard" };
+    model3DSettings = { ...MODEL3D_PRESETS.standard, preset: "standard", shareSell: false };
     pending3DInput = imageForPending
       ? { kind: "image", text: userText, image: imageForPending }
       : { kind: "text", text: userText };
@@ -3111,13 +3149,15 @@ body{ top:0 !important; position:static !important; }
         promptPayload = text || pending3DInput.text;
       }
 
+      const shareSellEnabled = !!model3DSettings.shareSell;
       const res = await authedFetch("/tripo/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           prompt: promptPayload,
           image: imagePayload,
-          settings: model3DSettings
+          settings: model3DSettings,
+          shareSell: shareSellEnabled
         })
       });
       if (!res.ok) {
@@ -3125,6 +3165,8 @@ body{ top:0 !important; position:static !important; }
         throw new Error(await extractError(res));
       }
       const data = await res.json();
+      pendingTripoTaskId = data.taskId;
+      pendingShareSell = data.shareSell || false;
       refreshBalance();
 
       let inputThumbnail = null;
@@ -3183,6 +3225,11 @@ body{ top:0 !important; position:static !important; }
             taskType: "tripo"
           });
         }
+        
+        if (pendingShareSell) {
+            showPublishDialog(data.modelUrl, data.thumbnailUrl, promptText);
+        }
+
         flowState = "choose_method";
         applyFlowComposerState();
 
@@ -3303,13 +3350,74 @@ body{ top:0 !important; position:static !important; }
 
   function confirmGeneratedImageFor3D(btnEl, chatId, raw) {
     if (!model3dGeneratedImageDataUrl) return;
-    model3DSettings = { ...MODEL3D_PRESETS.standard, preset: "standard" };
+    model3DSettings = { ...MODEL3D_PRESETS.standard, preset: "standard", shareSell: false };
     pending3DInput = { kind: "image", text: raw, image: model3dGeneratedImageDataUrl };
     const bubbleEl = btnEl.closest(".msg-bot");
     setBotBody(bubbleEl, renderInlineMarkdown("Set up the 3D model before generating:") + model3DSettingsPanelHtml());
     pendingModel3DPanelEl = bubbleEl;
     flowState = "choose_method";
     applyFlowComposerState();
+  }
+
+  // --- Publish Dialog ---
+  let publishPayload = null;
+
+  function showPublishDialog(modelUrl, thumbnailUrl, promptText) {
+    publishPayload = { modelUrl, thumbnailUrl, taskId: pendingTripoTaskId };
+    document.getElementById("publishTitle").value = promptText || "";
+    document.getElementById("publishDesc").value = "";
+    document.getElementById("publishCategory").value = "other";
+    document.getElementById("publishStatus").className = "modal-status";
+    document.getElementById("publishStatus").textContent = "";
+    document.getElementById("publishModal").style.display = "flex";
+  }
+
+  function closePublishDialog() {
+    document.getElementById("publishModal").style.display = "none";
+    publishPayload = null;
+  }
+
+  async function submitPublish() {
+    if (!publishPayload) return;
+    const title = document.getElementById("publishTitle").value.trim();
+    if (!title) {
+        document.getElementById("publishStatus").className = "modal-status error";
+        document.getElementById("publishStatus").textContent = "Title is required.";
+        return;
+    }
+    const description = document.getElementById("publishDesc").value.trim();
+    const category = document.getElementById("publishCategory").value;
+    
+    document.getElementById("publishStatus").className = "modal-status";
+    document.getElementById("publishStatus").textContent = "Publishing to Community Store...";
+    document.getElementById("publishSubmitBtn").disabled = true;
+
+    try {
+        const res = await authedFetch("/store/publish", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                taskId: publishPayload.taskId,
+                title,
+                description,
+                category,
+                modelUrl: publishPayload.modelUrl,
+                thumbnailUrl: publishPayload.thumbnailUrl
+            })
+        });
+        if (!res.ok) throw new Error(await extractError(res));
+        
+        document.getElementById("publishStatus").textContent = "Published successfully! 🎉";
+        document.getElementById("publishStatus").style.color = "var(--mint)";
+        setTimeout(() => {
+            closePublishDialog();
+            document.getElementById("publishSubmitBtn").disabled = false;
+        }, 2000);
+    } catch (e) {
+        document.getElementById("publishStatus").className = "modal-status error";
+        document.getElementById("publishStatus").textContent = "Error: " + e.message;
+        document.getElementById("publishSubmitBtn").disabled = false;
+    }
   }
 
   async function blobUrlToDataUrl(blobUrl) {
@@ -3434,6 +3542,45 @@ body{ top:0 !important; position:static !important; }
 
   init();
 </script>
+
+<div class="publish-overlay" id="publishModal" style="display:none;">
+  <div class="publish-card">
+    <h3>Publish to Community Store</h3>
+    <p>Your 3D model has been generated. Give it a title and description to list it on the marketplace.</p>
+    
+    <div class="publish-field">
+      <label>Title</label>
+      <input type="text" id="publishTitle" placeholder="e.g. Low Poly Sword">
+    </div>
+    
+    <div class="publish-field">
+      <label>Category</label>
+      <select id="publishCategory">
+        <option value="props">Props</option>
+        <option value="buildings">Buildings</option>
+        <option value="vehicles">Vehicles</option>
+        <option value="characters">Characters</option>
+        <option value="environment">Environment</option>
+        <option value="nature">Nature</option>
+        <option value="roblox">Roblox Specific</option>
+        <option value="weapons">Weapons</option>
+        <option value="other">Other</option>
+      </select>
+    </div>
+    
+    <div class="publish-field">
+      <label>Description (Optional)</label>
+      <textarea id="publishDesc" placeholder="Describe your model..."></textarea>
+    </div>
+    
+    <div class="modal-status" id="publishStatus"></div>
+    
+    <div class="publish-btns">
+      <button class="publish-btn-cancel" onclick="closePublishDialog()">Skip</button>
+      <button class="btn-newchat" id="publishSubmitBtn" onclick="submitPublish()">Publish</button>
+    </div>
+  </div>
+</div>
 
 </body>
 </html>
