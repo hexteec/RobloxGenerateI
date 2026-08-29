@@ -1409,6 +1409,9 @@ body{ top:0 !important; position:static !important; }
         <button class="detail-buy-btn" id="detailBuyBtn" onclick="buyAsset()">
           Buy Model
         </button>
+        <button class="detail-buy-btn" id="detailDownloadBtn" onclick="downloadStoreModel()" style="display:none; background:var(--mint); color:#fff;">
+          ⬇ Download GLB
+        </button>
         <div id="buyStatus" style="font-size:13px; text-align:center; min-height:20px;"></div>
       </div>
     </div>
@@ -1629,18 +1632,29 @@ body{ top:0 !important; position:static !important; }
       proxyLoadStoreModel(asset.modelUrl);
       
       const buyBtn = document.getElementById("detailBuyBtn");
+      const dlBtn = document.getElementById("detailDownloadBtn");
+      dlBtn.style.display = "none";
+      
+      const canDownload = asset.owned || (currentUser && asset.creatorId === currentUser.uid);
+      
       if (!currentUser) {
         buyBtn.textContent = "Sign in to Buy";
         buyBtn.disabled = false;
+        buyBtn.style.display = "";
       } else if (asset.creatorId === currentUser.uid) {
         buyBtn.textContent = "Your Asset";
         buyBtn.disabled = true;
+        buyBtn.style.display = "";
+        dlBtn.style.display = "";
       } else if (asset.owned) {
         buyBtn.textContent = "✓ Owned";
         buyBtn.disabled = true;
+        buyBtn.style.display = "";
+        dlBtn.style.display = "";
       } else {
         buyBtn.textContent = `Buy for ${asset.priceTokens} Tokens`;
         buyBtn.disabled = false;
+        buyBtn.style.display = "";
       }
       
     } catch (e) {
@@ -1658,6 +1672,33 @@ body{ top:0 !important; position:static !important; }
       document.getElementById("detailModelViewer").src = blobUrl;
     } catch (e) {
       console.error("Failed to proxy-load store model:", e);
+    }
+  }
+
+  async function downloadStoreModel() {
+    if (!currentAsset || !currentAsset.modelUrl) return;
+    const btn = document.getElementById("detailDownloadBtn");
+    const original = btn.innerHTML;
+    btn.disabled = true;
+    btn.textContent = "Downloading…";
+    try {
+      const res = await apiFetch("/proxy-download?url=" + encodeURIComponent(currentAsset.modelUrl) + "&filename=model.glb");
+      if (!res.ok) throw new Error("Download failed: " + res.status);
+      const blob = await res.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = blobUrl;
+      a.download = (currentAsset.title || "model").replace(/[^\w\s.-]/g, "").trim().replace(/\s+/g, "_") + ".glb";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(blobUrl);
+    } catch (e) {
+      console.error("Download failed:", e);
+      alert("Failed to download the model.");
+    } finally {
+      btn.innerHTML = original;
+      btn.disabled = false;
     }
   }
 
