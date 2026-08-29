@@ -319,12 +319,13 @@
 
     // Firebase Auth logic to sync token balance
     const firebaseConfig = {
-      apiKey: "fake-api-key",
-      authDomain: "ropeak.firebaseapp.com",
-      projectId: "ropeak",
-      storageBucket: "ropeak.appspot.com",
-      messagingSenderId: "123",
-      appId: "1:123:web:123"
+      apiKey: "AIzaSyApNxOtHiib8fTDo5hJVN-igvt-nodGo0Q",
+      authDomain: "icon-lab-622fd.firebaseapp.com",
+      projectId: "icon-lab-622fd",
+      storageBucket: "icon-lab-622fd.firebasestorage.app",
+      messagingSenderId: "757756598032",
+      appId: "1:757756598032:web:938b366449268558e13795",
+      measurementId: "G-XS6Z6BMBYH"
     };
 
     if (!firebase.apps.length) {
@@ -332,7 +333,7 @@
     }
     
     let tokenBalance = 0;
-    const workerUrl = "https://ropeak.cloudflareworkers.com"; // Adjust according to your environment
+    const workerUrl = "https://robloxgenerate.hexteec.workers.dev"; // Adjust according to your environment
 
     async function authedFetch(path, options = {}) {
       const user = firebase.auth().currentUser;
