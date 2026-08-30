@@ -3753,9 +3753,9 @@
     }
 
     const MODEL3D_PRESETS = {
-      low: { label: "Low Poly", polygonCount: 2000, geometryQuality: "standard", lowPoly: true, textures: false, pbr: false, textureQuality: "standard" },
-      standard: { label: "Standard", polygonCount: 10000, geometryQuality: "standard", lowPoly: false, textures: true, pbr: false, textureQuality: "standard" },
-      high: { label: "High Quality", polygonCount: 50000, geometryQuality: "detailed", lowPoly: false, textures: true, pbr: true, textureQuality: "detailed" }
+      low: { label: "Low Poly", polygonCount: 2000, textures: false, pbr: false, textureQuality: "standard" },
+      standard: { label: "Standard", polygonCount: 10000, textures: true, pbr: false, textureQuality: "standard" },
+      high: { label: "High Quality", polygonCount: 20000, textures: true, pbr: true, textureQuality: "detailed" }
     };
     const POLY_STEPS = [500, 1000, 2000, 5000, 10000, 15000, 20000];
 
@@ -5378,24 +5378,16 @@
         <div class="m3d-steps">${POLY_STEPS.map(v => `<span>${formatCount(v)}</span>`).join("")}</div>
       </div>
       <div class="m3d-section">
-        <div class="m3d-label">Geometry Quality</div>
-        <div class="m3d-row">${toggleBtn('geometryQuality', 'standard', 'Standard')}${toggleBtn('geometryQuality', 'detailed', 'Detailed +10')}</div>
-      </div>
-      <div class="m3d-section">
-        <div class="m3d-label">Low Poly</div>
-        <div class="m3d-row">${toggleBtn('lowPoly', false, 'OFF')}${toggleBtn('lowPoly', true, 'ON -3')}</div>
-      </div>
-      <div class="m3d-section">
         <div class="m3d-label">Textures</div>
-        <div class="m3d-row">${toggleBtn('textures', false, 'OFF')}${toggleBtn('textures', true, 'ON +15')}</div>
+        <div class="m3d-row">${toggleBtn('textures', false, 'OFF')}${toggleBtn('textures', true, 'ON +5')}</div>
       </div>
       <div class="m3d-section" style="${s.textures ? '' : 'opacity:.4;pointer-events:none;'}">
         <div class="m3d-label">PBR</div>
-        <div class="m3d-row">${toggleBtn('pbr', false, 'OFF')}${toggleBtn('pbr', true, 'ON +10')}</div>
+        <div class="m3d-row">${toggleBtn('pbr', false, 'OFF')}${toggleBtn('pbr', true, 'ON')}</div>
       </div>
       <div class="m3d-section" style="${s.textures ? '' : 'opacity:.4;pointer-events:none;'}">
         <div class="m3d-label">Texture Quality</div>
-        <div class="m3d-row">${toggleBtn('textureQuality', 'standard', 'Standard +0')}${toggleBtn('textureQuality', 'detailed', 'Detailed +10')}${toggleBtn('textureQuality', 'extreme', 'Extreme +20')}</div>
+        <div class="m3d-row">${toggleBtn('textureQuality', 'standard', 'Standard')}${toggleBtn('textureQuality', 'detailed', 'Detailed')}${toggleBtn('textureQuality', 'extreme', 'Extreme')}</div>
       </div>
       <div class="m3d-section" style="border-top:1px solid var(--border); padding-top:12px; margin-top:4px;">
         <div class="m3d-label">Share & Sell <span class="m3d-badge-discount">−1 Token</span></div>
