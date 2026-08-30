@@ -36,14 +36,16 @@
         node.style.setProperty("display", "none", "important");
         node.style.setProperty("visibility", "hidden", "important");
         node.style.setProperty("height", "0", "important");
-        document.body.style.top = "0px";
-        document.body.style.position = "static";
+        if (document.body) {
+          document.body.style.top = "0px";
+          document.body.style.position = "static";
+        }
       }
       const observer = new MutationObserver((mutations) => {
         for (const m of mutations) {
           m.addedNodes.forEach((node) => { if (isBanner(node)) stripBanner(node); });
         }
-        if (document.body.style.top && document.body.style.top !== "0px") {
+        if (document.body && document.body.style.top && document.body.style.top !== "0px") {
           document.body.style.top = "0px";
           document.body.style.position = "static";
         }
@@ -4391,62 +4393,18 @@
     function modelFrameHtml(modelUrl, thumbnailUrl, isLatest) {
       demoteIfLatest(isLatest);
       const uid = 'mv_' + Math.random().toString(36).slice(2, 10);
-      // Kick off proxied fetch after render
-      setTimeout(() => proxyLoadModel(uid, modelUrl), 0);
       return `
       <div class="result-frame-wrap">
         <div class="model-frame">
-          <model-viewer id="${uid}" poster="${escapeHtml(thumbnailUrl || "")}" camera-controls auto-rotate shadow-intensity="1" exposure="1" style="background:transparent;" loading="eager"></model-viewer>
+          <model-viewer id="${uid}" src="${escapeHtml(modelUrl || "")}" poster="${escapeHtml(thumbnailUrl || "")}" camera-controls auto-rotate shadow-intensity="1" exposure="1" style="background:transparent;" loading="eager"></model-viewer>
         </div>
         <div class="result-meta">
           <span class="r-tag">Model 3D (.glb)</span>
           <div class="result-actions">
-            <button class="dl-glb-btn" data-model-url="${escapeHtml(modelUrl)}" onclick="downloadModelGlb(this)">${ICONS.download} Download GLB</button>
+            <a href="${escapeHtml(modelUrl || "")}" download="ropeak-model.glb" class="dl-glb-btn" style="text-decoration:none;">${ICONS.download} Download GLB</a>
           </div>
         </div>
       </div>`;
-    }
-
-    async function proxyLoadModel(elementId, modelUrl) {
-      try {
-        const res = await authedFetch("/proxy-download?url=" + encodeURIComponent(modelUrl) + "&filename=model.glb");
-        if (!res.ok) throw new Error("Proxy fetch failed: " + res.status);
-        const blob = await res.blob();
-        const blobUrl = URL.createObjectURL(blob);
-        const el = document.getElementById(elementId);
-        if (el) el.setAttribute("src", blobUrl);
-      } catch (e) {
-        console.error("Failed to proxy-load 3D model:", e);
-      }
-    }
-
-    async function downloadModelGlb(btnEl) {
-      const modelUrl = btnEl.dataset.modelUrl;
-      if (!modelUrl || modelUrl === "null" || modelUrl === "undefined") {
-        alert("The model file link is unavailable for this generated model (backend did not return a URL).");
-        return;
-      }
-      const original = btnEl.innerHTML;
-      btnEl.disabled = true;
-      btnEl.textContent = "Downloading…";
-      try {
-        const res = await authedFetch("/proxy-download?url=" + encodeURIComponent(modelUrl) + "&filename=" + encodeURIComponent("icon-lab-model.glb"));
-        if (!res.ok) throw new Error(await extractError(res));
-        const blob = await res.blob();
-        const blobUrl = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = blobUrl;
-        a.download = "icon-lab-model.glb";
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        setTimeout(() => URL.revokeObjectURL(blobUrl), 4000);
-      } catch (e) {
-        alert("Failed to download the model: " + e.message);
-      } finally {
-        btnEl.disabled = false;
-        btnEl.innerHTML = original;
-      }
     }
 
     function demoteIfLatest(isLatest) {
