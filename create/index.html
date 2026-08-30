@@ -4151,7 +4151,7 @@
       } else if (isModel3d) {
         body.innerHTML = modelFrameHtml(m.modelUrl, m.thumbnailUrl, isLatest);
       } else {
-        body.innerHTML = imageFrameHtml(m.thumbnail, m.template || "square", categoryLabel(m.category), isLatest, m.category === "thumbnail");
+        body.innerHTML = imageFrameHtml(m.imageUrl || m.thumbnail, m.template || "square", categoryLabel(m.category), isLatest, m.category === "thumbnail");
       }
 
       botMsg.innerHTML = `<div class="msg-avatar">${ICONS.ropeak}</div><div class="msg-bubble"></div>`;
@@ -4385,7 +4385,7 @@
         <div class="${frameClass}"><img src="${src}" alt=""></div>
         <div class="result-meta">
           <span class="r-tag">${escapeHtml(tagText)}</span>
-          ${isLatest ? `<div class="result-actions"><a href="${src}" download="icon-lab.png">${ICONS.download} Download PNG</a></div>` : ""}
+          ${src ? `<div class="result-actions"><a href="${src}" download="ropeak-image.png">${ICONS.download} Download PNG</a></div>` : ""}
         </div>
       </div>`;
     }
@@ -4834,6 +4834,7 @@
         }
 
         const blob = await res.blob();
+        const imageUrl = res.headers.get("X-Image-Url") || null;
         const blobUrl = URL.createObjectURL(blob);
 
         setBotBody(pendingEl, imageFrameHtml(blobUrl, currentTemplate, templateLabel(category === "thumbnail" ? "wide" : currentTemplate), true, category === "thumbnail"));
@@ -4843,7 +4844,6 @@
         updateTokenPill();
         refreshBalance();
 
-        const thumbnail = await createThumbnail(blobUrl);
         let inputThumbnail = null;
         if (mainImage) inputThumbnail = await createThumbnail(mainImage);
         else if (refImage) inputThumbnail = await createThumbnail(refImage);
@@ -4855,7 +4855,7 @@
 
         await persistMessage(chatId, {
           type: "generation",
-          thumbnail,
+          imageUrl: imageUrl || "",
           inputThumbnail,
           prompt: raw,
           mode: METHOD_INFO[currentMethod].api,
@@ -5334,6 +5334,7 @@
         }
 
         const blob = await res.blob();
+        const imageUrl = res.headers.get("X-Image-Url") || null;
         const blobUrl = URL.createObjectURL(blob);
         const dataUrl = await blobUrlToDataUrl(blobUrl);
         model3dGeneratedImageDataUrl = dataUrl;
@@ -5345,8 +5346,7 @@
           pendingChoiceMessage = null;
         }
 
-        const thumbnail = await createThumbnail(blobUrl);
-        await persistMessage(chatId, { type: "generation", thumbnail, prompt: raw, mode: "text2img", template: "square", category: "icon" });
+        await persistMessage(chatId, { type: "generation", imageUrl: imageUrl || "", prompt: raw, mode: "text2img", template: "square", category: "icon" });
 
         setBotBody(pendingEl,
           imageFrameHtml(blobUrl, "square", "Obraz referencyjny", true, false) +
