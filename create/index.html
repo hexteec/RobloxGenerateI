@@ -888,7 +888,7 @@
     .feed {
       flex: 1;
       overflow-y: auto;
-      padding: 28px 0 240px;
+      padding: 28px 0 160px;
       position: relative;
       isolation: isolate;
     }
@@ -2379,85 +2379,132 @@
       align-items: center;
     }
     
-    .image-type-grid {
-      display: none;
-      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-      gap: 8px;
-      margin-bottom: 12px;
-    }
-    .image-type-grid.show { display: grid; }
-    .it-opt {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      padding: 10px;
-      text-align: left;
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--ink-faint);
-      cursor: pointer;
+    .image-type-bar {
       display: flex;
       align-items: center;
       gap: 6px;
-      transition: all .15s ease;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      padding-bottom: 3px;
+      margin-bottom: 10px;
+      scrollbar-width: thin;
     }
-    .it-opt:hover { border-color: var(--ink-faint); color: var(--ink); }
-    .it-opt.active { background: var(--ink); border-color: var(--ink); color: #fff; }
+    .image-type-bar::-webkit-scrollbar { height: 5px; }
+    .image-type-bar::-webkit-scrollbar-thumb { background: var(--soft-2); border-radius: 3px; }
     
-    .more-types-dropdown {
-      display: none;
-      position: relative;
-      margin-bottom: 12px;
-    }
-    .more-types-dropdown.show { display: block; }
-    .more-types-dropdown button {
-      background: transparent;
-      border: 1px dashed var(--border);
-      border-radius: var(--radius-sm);
+    .it-opt {
+      flex: 0 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 6px;
       padding: 8px 12px;
-      font-size: 13px;
-      color: var(--ink-faint);
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--soft);
+      font-size: 12.2px;
+      font-weight: 600;
+      color: var(--ink-muted);
       cursor: pointer;
-      width: 100%;
-      text-align: left;
+      white-space: nowrap;
+      transition: border-color .15s ease, background .15s ease, color .15s ease, transform .12s ease;
     }
-    .more-types-menu {
+    .it-opt svg { width: 13px; height: 13px; flex-shrink: 0; }
+    .it-opt:hover { border-color: var(--ink-faint); }
+    .it-opt.active {
+      border-color: var(--accent);
+      background: var(--accent-wash);
+      color: var(--accent-deep);
+    }
+    
+    .it-opt.featured {
+      padding: 8px 15px;
+      font-weight: 700;
+      border-color: color-mix(in srgb, var(--accent) 32%, var(--border));
+      background: color-mix(in srgb, var(--accent-wash) 45%, var(--card));
+    }
+    .it-opt.featured.active {
+      border-color: var(--accent);
+      background: var(--accent-wash);
+      box-shadow: 0 0 0 1px var(--accent) inset;
+    }
+    
+    .it-divider {
+      width: 1px;
+      align-self: stretch;
+      background: var(--border);
+      margin: 2px 3px;
+      flex: 0 0 auto;
+    }
+    
+    .it-more-wrap { position: relative; flex: 0 0 auto; }
+    .it-more-btn {
+      display: flex; align-items: center; gap: 5px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px dashed var(--border);
+      background: var(--card);
+      font-size: 12.2px; font-weight: 600;
+      color: var(--ink-muted);
+      cursor: pointer; white-space: nowrap;
+    }
+    .it-more-btn:hover { border-color: var(--ink-faint); }
+    .it-more-btn.has-selection { border-style: solid; border-color: var(--accent); color: var(--accent-deep); background: var(--accent-wash); }
+    .it-more-btn .chev { transition: transform .15s ease; display: flex; }
+    .it-more-btn.open .chev { transform: rotate(180deg); }
+    
+    .it-more-menu {
       display: none;
       position: absolute;
-      top: 100%; left: 0; right: 0;
+      bottom: calc(100% + 6px);
+      left: 0;
+      min-width: 190px;
+      max-height: 260px;
+      overflow-y: auto;
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: var(--radius-sm);
-      margin-top: 4px;
-      max-height: 200px;
-      overflow-y: auto;
-      z-index: 10;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      box-shadow: var(--shadow-lg);
+      padding: 5px;
+      z-index: 40;
     }
-    .more-types-menu.show { display: block; }
+    .it-more-menu.show { display: block; }
     .it-more-opt {
-      padding: 8px 12px;
-      font-size: 13px;
-      color: var(--ink-faint);
+      padding: 8px 10px;
+      border-radius: 7px;
+      font-size: 12.4px;
+      color: var(--ink);
       cursor: pointer;
     }
-    .it-more-opt:hover { background: var(--soft); color: var(--ink); }
+    .it-more-opt:hover { background: var(--soft); }
     .it-more-opt.active { background: var(--accent-wash); color: var(--accent-deep); font-weight: 600; }
     
-    .normal-image-opt {
-      display: none;
-      padding: 12px;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      margin-bottom: 12px;
-      cursor: pointer;
-      transition: all .15s;
+    .it-normal {
+      flex: 0 0 auto;
+      display: flex; align-items: center; gap: 6px;
+      padding: 8px 13px;
+      border-radius: 999px;
+      border: 1px dashed var(--border);
+      background: var(--card);
+      font-size: 12.2px; font-weight: 600;
+      color: var(--ink-muted);
+      cursor: pointer; white-space: nowrap;
+      margin-left: auto;
     }
-    .normal-image-opt.show { display: block; }
-    .normal-image-opt:hover { border-color: var(--ink-faint); }
-    .normal-image-opt.active { border-color: var(--accent); background: var(--accent-wash); }
-    .normal-image-opt span { display: block; font-weight: 600; font-size: 14px; margin-bottom: 4px; color: var(--ink); }
-    .normal-image-opt small { display: block; font-size: 12px; color: var(--ink-faint); }
+    .it-normal:hover { border-color: var(--ink-faint); }
+    .it-normal.active {
+      border-style: solid;
+      border-color: var(--mint);
+      background: var(--mint-wash);
+      color: var(--mint);
+    }
+    .image-type-hint {
+      display: none;
+      font-size: 11.3px;
+      color: var(--ink-faint);
+      margin: -4px 0 10px 2px;
+    }
+    .image-type-hint.show { display: block; }
+    .image-type-bar.show { display: flex; }
 
     .attach-btn {
       width: 32px;
@@ -3408,15 +3455,8 @@
                   <div class="fm-pill" data-force="ui2lua"><span class="fm-icon"></span>UI → Lua</div>
                 </div>
 
-                <div class="image-type-grid" id="imageTypeGrid"></div>
-                <div class="more-types-dropdown" id="moreTypesDropdown">
-                  <button onclick="toggleMoreTypes(event)">More types ▾</button>
-                  <div class="more-types-menu" id="moreTypesMenu"></div>
-                </div>
-                <div class="normal-image-opt" id="normalImageOpt" onclick="selectImageType('normal')">
-                  <span>✨ Normal Image</span>
-                  <small>Generate an image without a predefined purpose or style.</small>
-                </div>
+                <div class="image-type-bar" id="imageTypeBar" style="display:none;"></div>
+                <div class="image-type-hint" id="imageTypeHint"></div>
 
                 <div class="dropzone-row" id="dropzoneRow" style="display:none;">
                   <div class="dropzone" id="dzMain">
@@ -3605,45 +3645,75 @@
 
     let selectedImageType = "normal";
 
-    function renderImageTypeGrid() {
-      const grid = document.getElementById("imageTypeGrid");
-      if (grid) {
-        grid.innerHTML = Object.entries(imagePresets)
-          .filter(([,p]) => p.group === "quick")
-          .map(([key,p]) => `<button class="it-opt ${selectedImageType===key?'active':''}" onclick="selectImageType('${key}')">${p.icon||''} ${p.label}</button>`)
-          .join("");
+    function renderImageTypeBar() {
+      const bar = document.getElementById("imageTypeBar");
+      if (!bar) return;
+      const featuredKeys = ["icon", "thumbnail"];
+      const quickKeys = Object.entries(imagePresets)
+        .filter(([k, p]) => p.group === "quick" && !featuredKeys.includes(k))
+        .map(([k]) => k);
+      const moreKeys = Object.entries(imagePresets)
+        .filter(([, p]) => p.group === "more")
+        .map(([k]) => k);
+
+      const optHtml = (key, featured) => {
+        const p = imagePresets[key];
+        return `<button class="it-opt${featured ? " featured" : ""}${selectedImageType === key ? " active" : ""}"
+                  onclick="selectImageType('${key}')">${p.icon || ""}<span>${p.label}</span></button>`;
+      };
+
+      const moreSelected = moreKeys.includes(selectedImageType) ? imagePresets[selectedImageType].label : "More types";
+
+      bar.innerHTML =
+        featuredKeys.map(k => optHtml(k, true)).join("") +
+        `<div class="it-divider"></div>` +
+        quickKeys.map(k => optHtml(k, false)).join("") +
+        `<div class="it-divider"></div>` +
+        `<div class="it-more-wrap">
+           <button class="it-more-btn${moreKeys.includes(selectedImageType) ? " has-selection" : ""}" id="itMoreBtn" onclick="toggleMoreTypes(event)">
+             <span>${moreSelected}</span><span class="chev">${ICONS.chevronDown}</span>
+           </button>
+           <div class="it-more-menu" id="itMoreMenu">
+             ${moreKeys.map(k => `<div class="it-more-opt${selectedImageType === k ? " active" : ""}" onclick="selectImageType('${k}')">${imagePresets[k].label}</div>`).join("")}
+           </div>
+         </div>` +
+        `<button class="it-normal${selectedImageType === "normal" ? " active" : ""}" onclick="selectImageType('normal')">✨ Normal Image</button>`;
+
+      const hintEl = document.getElementById("imageTypeHint");
+      if (hintEl) {
+        hintEl.textContent =
+          selectedImageType === "normal"
+            ? "Generate an image without a predefined purpose or style."
+            : (imagePresets[selectedImageType].hint || "");
       }
 
-      const more = document.getElementById("moreTypesMenu");
-      if (more) {
-        more.innerHTML = Object.entries(imagePresets)
-          .filter(([,p]) => p.group === "more")
-          .map(([key,p]) => `<div class="it-more-opt ${selectedImageType===key?'active':''}" onclick="selectImageType('${key}')">${p.label}</div>`)
-          .join("");
+      if (document.getElementById("uiSubtypeRow")) {
+        document.getElementById("uiSubtypeRow").style.display = selectedImageType === "ui" ? "flex" : "none";
       }
-
-      const normalOpt = document.getElementById("normalImageOpt");
-      if (normalOpt) normalOpt.classList.toggle("active", selectedImageType === "normal");
     }
 
     function selectImageType(key) {
       selectedImageType = key;
-      renderImageTypeGrid();
+      renderImageTypeBar();
       const preset = imagePresets[key];
       currentTemplate = preset.backendCategory === "thumbnail" ? "wide" : "square";
-      const moreMenu = document.getElementById("moreTypesMenu");
+      const moreMenu = document.getElementById("itMoreMenu");
       if (moreMenu) moreMenu.classList.remove("show");
     }
 
     function toggleMoreTypes(e) {
-      const moreMenu = document.getElementById("moreTypesMenu");
+      const moreMenu = document.getElementById("itMoreMenu");
+      const moreBtn = document.getElementById("itMoreBtn");
       if (moreMenu) moreMenu.classList.toggle("show");
+      if (moreBtn) moreBtn.classList.toggle("open");
       if (e) e.stopPropagation();
     }
 
-    document.addEventListener("click", () => {
-      const menu = document.getElementById("moreTypesMenu");
-      if (menu && menu.classList.contains("show")) menu.classList.remove("show");
+    document.addEventListener("click", (e) => {
+      if (!e.target.closest(".it-more-wrap")) {
+        document.getElementById("itMoreMenu")?.classList.remove("show");
+        document.getElementById("itMoreBtn")?.classList.remove("open");
+      }
     });
 
     const MODEL3D_PRESETS = {
@@ -3832,6 +3902,7 @@
     function init() {
       document.getElementById("brandMark").innerHTML = ICONS.ropeak;
       document.getElementById("newChatIcon").innerHTML = ICONS.plus;
+      initComposerHeightSync();
 
       const widgetBtnDesktop = document.getElementById("widgetAddBtnDesktop");
       const widgetBtnMobile = document.getElementById("widgetAddBtnMobile");
@@ -4336,13 +4407,33 @@
     function methodShortLabel(m) {
       return { text2img: "From scratch", image2img: "Edit photo", reference2img: "Transfer style" }[m] || m;
     }
-    function templateLabel(t) {
-      return { square: "Game icon", pass: "Gamepass", hex: "Badge", circle: "Group icon", wide: "Thumbnail" }[t] || "Game icon";
+    function initComposerHeightSync() {
+      const composerWrap = document.querySelector(".composer-wrap");
+      const feed = document.getElementById("feed");
+      if (!composerWrap || !feed) return;
+
+      const sync = () => {
+        const h = composerWrap.offsetHeight;
+        feed.style.paddingBottom = (h + 48) + "px";
+      };
+
+      sync();
+      const ro = new ResizeObserver(sync);
+      ro.observe(composerWrap);
+      window.addEventListener("resize", sync);
     }
 
     function scrollFeedToBottom() {
       const feed = document.getElementById("feed");
-      requestAnimationFrame(() => { feed.scrollTop = feed.scrollHeight; });
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          feed.scrollTop = feed.scrollHeight;
+        });
+      });
+    }
+
+    function templateLabel(t) {
+      return { square: "Game icon", pass: "Gamepass", hex: "Badge", circle: "Group icon", wide: "Thumbnail" }[t] || "Game icon";
     }
 
     function appendUserBubble(text, attachments) {
@@ -4531,8 +4622,18 @@
     }
 
     function botBody(el) { return el.querySelector(".bot-body"); }
-    function setBotBody(el, html) { botBody(el).innerHTML = html; scrollFeedToBottom(); }
-    function appendBotBody(el, html) { botBody(el).insertAdjacentHTML("beforeend", html); scrollFeedToBottom(); }
+    function setBotBody(el, html) { 
+      botBody(el).innerHTML = html; 
+      scrollFeedToBottom(); 
+      const mv = el.querySelector("model-viewer");
+      if (mv) mv.addEventListener("load", scrollFeedToBottom, { once: true });
+    }
+    function appendBotBody(el, html) { 
+      botBody(el).insertAdjacentHTML("beforeend", html); 
+      scrollFeedToBottom(); 
+      const mv = el.querySelector("model-viewer");
+      if (mv) mv.addEventListener("load", scrollFeedToBottom, { once: true });
+    }
 
     function demoteLastLarge() {
       if (lastLargeFrame) lastLargeFrame.classList.remove("latest");
@@ -4635,15 +4736,13 @@
       clearRefImage();
       
       const isImg = mode === "image";
-      const grid = document.getElementById("imageTypeGrid");
-      const drop = document.getElementById("moreTypesDropdown");
-      const norm = document.getElementById("normalImageOpt");
-      if(grid) grid.classList.toggle("show", isImg);
-      if(drop) drop.classList.toggle("show", isImg);
-      if(norm) norm.classList.toggle("show", isImg);
+      const bar = document.getElementById("imageTypeBar");
+      const hint = document.getElementById("imageTypeHint");
+      if(bar) bar.style.display = isImg ? "flex" : "none";
+      if(hint) hint.classList.toggle("show", isImg);
       
       if (isImg && !document.querySelector(".it-opt")) {
-        renderImageTypeGrid();
+        renderImageTypeBar();
       }
 
       if (flowState !== "busy") {
