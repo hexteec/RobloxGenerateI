@@ -1736,7 +1736,11 @@
         
         const setDownloadLink = () => {
             dlBtn.style.display = "";
-            dlBtn.href = asset.modelUrl || "";
+            let dlUrl = asset.modelUrl || "";
+            if (dlUrl && !dlUrl.startsWith("blob:")) {
+                dlUrl += (dlUrl.includes("?") ? "&download=1" : "?download=1");
+            }
+            dlBtn.href = dlUrl;
             dlBtn.download = (asset.title || "model").replace(/[^\w\s.-]/g, "").trim().replace(/\s+/g, "_") + ".glb";
         };
 
