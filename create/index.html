@@ -4736,6 +4736,9 @@
       document.getElementById("modeBadgeIcon").innerHTML = info.icon;
       document.getElementById("modeBadgeText").textContent = info.label;
 
+      const wrap = document.getElementById("imageTypeWrap");
+      if(wrap) wrap.classList.toggle("show", mode === "image");
+
       const dropzoneRow = document.getElementById("dropzoneRow");
       const dzRef = document.getElementById("dzRef");
 
@@ -4772,8 +4775,6 @@
       clearRefImage();
       
       const isImg = mode === "image";
-      const wrap = document.getElementById("imageTypeWrap");
-      if(wrap) wrap.classList.toggle("show", isImg);
       
       if (isImg && !document.querySelector(".it-opt")) {
         renderImageTypeBar();
