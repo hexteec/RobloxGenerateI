@@ -4380,12 +4380,13 @@
     function imageFrameHtml(src, template, tagText, isLatest, wide) {
       demoteIfLatest(isLatest);
       const frameClass = "result-frame " + (wide ? "t-wide" : "t-" + template) + (isLatest ? " latest" : "");
+      const dlHref = src ? (src.startsWith("blob:") ? src : (src.includes("?") ? src + "&download=1" : src + "?download=1")) : "";
       return `
       <div class="result-frame-wrap">
         <div class="${frameClass}"><img src="${src}" alt=""></div>
         <div class="result-meta">
           <span class="r-tag">${escapeHtml(tagText)}</span>
-          ${src ? `<div class="result-actions"><a href="${src}" download="ropeak-image.png">${ICONS.download} Download PNG</a></div>` : ""}
+          ${src ? `<div class="result-actions"><a href="${dlHref}" download="ropeak-image.png">${ICONS.download} Download PNG</a></div>` : ""}
         </div>
       </div>`;
     }
@@ -4393,6 +4394,7 @@
     function modelFrameHtml(modelUrl, thumbnailUrl, isLatest) {
       demoteIfLatest(isLatest);
       const uid = 'mv_' + Math.random().toString(36).slice(2, 10);
+      const dlHref = modelUrl ? (modelUrl.startsWith("blob:") ? modelUrl : (modelUrl.includes("?") ? modelUrl + "&download=1" : modelUrl + "?download=1")) : "";
       return `
       <div class="result-frame-wrap">
         <div class="model-frame">
@@ -4401,7 +4403,7 @@
         <div class="result-meta">
           <span class="r-tag">Model 3D (.glb)</span>
           <div class="result-actions">
-            <a href="${escapeHtml(modelUrl || "")}" download="ropeak-model.glb" class="dl-glb-btn" style="text-decoration:none;">${ICONS.download} Download GLB</a>
+            <a href="${escapeHtml(dlHref)}" download="ropeak-model.glb" class="dl-glb-btn" style="text-decoration:none;">${ICONS.download} Download GLB</a>
           </div>
         </div>
       </div>`;
