@@ -5315,10 +5315,12 @@
           });
 
         } else if (action.type === "need_image_method") {
-          pendingChoiceMessage = { chatId, payload: { type: "chooser", category: action.category, prompt: raw } };
-          setForceMode(action.category, { skipAutoChooser: true });
+          const presetCat = imagePresets[action.category] ? action.category : "normal";
+          pendingChoiceMessage = { chatId, payload: { type: "chooser", category: presetCat, prompt: raw } };
+          selectImageType(presetCat);
+          setForceMode("image", { skipAutoChooser: true });
           flowState = "choose_method";
-          appendModeChooser(action.category, pendingEl);
+          appendModeChooser(presetCat, pendingEl);
 
         } else if (action.type === "need_3d_method") {
           pendingChoiceMessage = { chatId, payload: { type: "chooser", category: "model3d", prompt: raw } };
