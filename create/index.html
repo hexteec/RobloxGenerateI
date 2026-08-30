@@ -2378,6 +2378,86 @@
       padding-bottom: 5px;
       align-items: center;
     }
+    
+    .image-type-grid {
+      display: none;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .image-type-grid.show { display: grid; }
+    .it-opt {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px;
+      text-align: left;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--ink-faint);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all .15s ease;
+    }
+    .it-opt:hover { border-color: var(--ink-faint); color: var(--ink); }
+    .it-opt.active { background: var(--ink); border-color: var(--ink); color: #fff; }
+    
+    .more-types-dropdown {
+      display: none;
+      position: relative;
+      margin-bottom: 12px;
+    }
+    .more-types-dropdown.show { display: block; }
+    .more-types-dropdown button {
+      background: transparent;
+      border: 1px dashed var(--border);
+      border-radius: var(--radius-sm);
+      padding: 8px 12px;
+      font-size: 13px;
+      color: var(--ink-faint);
+      cursor: pointer;
+      width: 100%;
+      text-align: left;
+    }
+    .more-types-menu {
+      display: none;
+      position: absolute;
+      top: 100%; left: 0; right: 0;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      margin-top: 4px;
+      max-height: 200px;
+      overflow-y: auto;
+      z-index: 10;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+    .more-types-menu.show { display: block; }
+    .it-more-opt {
+      padding: 8px 12px;
+      font-size: 13px;
+      color: var(--ink-faint);
+      cursor: pointer;
+    }
+    .it-more-opt:hover { background: var(--soft); color: var(--ink); }
+    .it-more-opt.active { background: var(--accent-wash); color: var(--accent-deep); font-weight: 600; }
+    
+    .normal-image-opt {
+      display: none;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      margin-bottom: 12px;
+      cursor: pointer;
+      transition: all .15s;
+    }
+    .normal-image-opt.show { display: block; }
+    .normal-image-opt:hover { border-color: var(--ink-faint); }
+    .normal-image-opt.active { border-color: var(--accent); background: var(--accent-wash); }
+    .normal-image-opt span { display: block; font-weight: 600; font-size: 14px; margin-bottom: 4px; color: var(--ink); }
+    .normal-image-opt small { display: block; font-size: 12px; color: var(--ink-faint); }
 
     .attach-btn {
       width: 32px;
@@ -3323,10 +3403,19 @@
 
                 <div class="force-mode-bar" id="forceModeBar">
                   <div class="fm-pill active" data-force="chat"><span class="fm-icon"></span>Chat</div>
-                  <div class="fm-pill" data-force="icon"><span class="fm-icon"></span>Icon</div>
-                  <div class="fm-pill" data-force="thumbnail"><span class="fm-icon"></span>Thumbnail</div>
+                  <div class="fm-pill" data-force="image"><span class="fm-icon"></span>Image</div>
                   <div class="fm-pill" data-force="model3d"><span class="fm-icon"></span>Model 3D</div>
                   <div class="fm-pill" data-force="ui2lua"><span class="fm-icon"></span>UI → Lua</div>
+                </div>
+
+                <div class="image-type-grid" id="imageTypeGrid"></div>
+                <div class="more-types-dropdown" id="moreTypesDropdown">
+                  <button onclick="toggleMoreTypes(event)">More types ▾</button>
+                  <div class="more-types-menu" id="moreTypesMenu"></div>
+                </div>
+                <div class="normal-image-opt" id="normalImageOpt" onclick="selectImageType('normal')">
+                  <span>✨ Normal Image</span>
+                  <small>Generate an image without a predefined purpose or style.</small>
                 </div>
 
                 <div class="dropzone-row" id="dropzoneRow" style="display:none;">
@@ -3471,9 +3560,8 @@
     ];
 
     const FORCE_MODE_INFO = {
-      chat: { label: "Chat", icon: ICONS.chat, hint: "Tell me what you need — I'll figure out the intent and suggest a generation." },
-      icon: { label: "Icon", icon: ICONS.icon, hint: "Choose a creation method in the message below." },
-      thumbnail: { label: "Thumbnail", icon: ICONS.thumb, hint: "Choose a creation method in the message below." },
+      chat: { label: "Chat", icon: ICONS.chat, hint: "Tell me what you need - I'll figure out the intent and suggest a generation." },
+      image: { label: "Image", icon: ICONS.spark, hint: "Choose a creation method in the message below." },
       model3d: { label: "3D Model", icon: ICONS.cube, hint: "Choose how you want to create the 3D model." },
       ui2lua: { label: "UI → Lua", icon: ICONS.layout, hint: "Upload a Roblox UI screenshot — I'll create a responsive LUA script that recreates it." }
     };
@@ -3481,8 +3569,82 @@
     const METHOD_INFO = {
       text: { api: "text2img", label: "From scratch", icon: ICONS.wand, sub: "Describe the idea — the rest is chosen automatically.", hint: "Describe the idea — the rest is chosen automatically." },
       image: { api: "image2img", label: "Edit photo", icon: ICONS.edit, sub: "Upload a photo and describe what to change.", hint: "Upload a photo and describe what to change." },
-      style: { api: "reference2img", label: "Transfer style", icon: ICONS.upload, sub: "Upload an image to edit and a separate style reference.", hint: "Upload an image to edit and a style reference. Description is optional." }
+      style: { api: "image2img", label: "Transfer style", icon: ICONS.spark, sub: "Upload image and reference style.", hint: "Upload image and reference style." }
     };
+
+    const imagePresets = {
+      normal: { label: "Normal Image", group: "special", icon: ICONS.spark, description: "Generate an image without a predefined purpose or style.", backendCategory: "icon", promptPrefix: "", injectStyle: false },
+      icon: { label: "Icon", group: "quick", icon: ICONS.icon, backendCategory: "icon", promptPrefix: "Roblox game icon: centered subject, clean readable silhouette at small size, strong composition, eye-catching icon-style rendering.", injectStyle: true },
+      thumbnail: { label: "Thumbnail", group: "quick", icon: ICONS.thumb, backendCategory: "thumbnail", promptPrefix: "Roblox game thumbnail: wide cinematic key-art composition, dynamic scene, clear focal subject, dramatic use of space.", injectStyle: true },
+      particle: { label: "Particle", group: "quick", icon: ICONS.spark, backendCategory: "icon", promptPrefix: "Single particle effect asset: one isolated effect (smoke/fire/spark/dust/magic as described), clean readable silhouette, simple background suited for a particle texture.", injectStyle: true },
+      ui: { label: "UI", group: "quick", icon: ICONS.layout, backendCategory: "icon", promptPrefix: "Roblox game UI element.", injectStyle: true, subtypes: ["Button","Panel","Frame","Background","HUD","Inventory","Menu","Shop","Other"] },
+      background: { label: "Background", group: "quick", icon: ICONS.layout, backendCategory: "thumbnail", promptPrefix: "Background artwork: composition-focused, leaves clean space for UI/text overlay, no unnecessary central subject, appropriate level of detail.", injectStyle: true },
+      logo: { label: "Logo", group: "quick", icon: ICONS.wand, backendCategory: "icon", promptPrefix: "Logo design: simple recognizable form, strong clean silhouette, branding-focused, no unnecessary elements.", injectStyle: true },
+      gamepass: { label:"Gamepass", group:"more", backendCategory:"icon", promptPrefix:"Roblox gamepass icon: bold clear subject, instantly recognizable at small size.", injectStyle:true },
+      badge:    { label:"Badge",    group:"more", backendCategory:"icon", promptPrefix:"Roblox badge icon: emblem-style, celebratory, clear silhouette.", injectStyle:true },
+      item:     { label:"Item",     group:"more", backendCategory:"icon", promptPrefix:"Game item icon: single object, product-style lighting, centered.", injectStyle:true },
+      weapon:   { label:"Weapon",   group:"more", backendCategory:"icon", promptPrefix:"Game weapon icon/art: clean angle, readable shape, dramatic lighting.", injectStyle:true },
+      ability:  { label:"Ability",  group:"more", backendCategory:"icon", promptPrefix:"Game ability/skill icon: symbolic, glowing accent if relevant, clear at small size.", injectStyle:true },
+      vehicle:  { label:"Vehicle",  group:"more", backendCategory:"thumbnail", promptPrefix:"Vehicle showcase render: three-quarter angle, clean studio or scene lighting.", injectStyle:true },
+      npc:      { label:"NPC",      group:"more", backendCategory:"icon", promptPrefix:"NPC character portrait/icon: clear facial read, centered.", injectStyle:true },
+      character:{ label:"Character",group:"more", backendCategory:"icon", promptPrefix:"Character render: full or bust view, clean readable pose.", injectStyle:true },
+      map:      { label:"Map",      group:"more", backendCategory:"thumbnail", promptPrefix:"Top-down or isometric game map artwork.", injectStyle:true },
+      environment:{label:"Environment",group:"more", backendCategory:"thumbnail", promptPrefix:"Environment concept art: wide scene, atmosphere, depth.", injectStyle:true },
+      texture:  { label:"Texture",  group:"more", backendCategory:"icon", promptPrefix:"Seamless/tileable texture swatch.", injectStyle:true },
+      decal:    { label:"Decal",    group:"more", backendCategory:"icon", promptPrefix:"Roblox decal graphic: flat, clean edges, transparent-friendly subject.", injectStyle:true },
+      banner:   { label:"Banner",   group:"more", backendCategory:"thumbnail", promptPrefix:"Wide promotional banner artwork.", injectStyle:true },
+      loadingscreen:{label:"Loading Screen",group:"more", backendCategory:"thumbnail", promptPrefix:"Full-screen loading screen artwork, atmospheric, leaves room for a loading bar/logo.", injectStyle:true },
+      shop:     { label:"Shop",     group:"more", backendCategory:"icon", promptPrefix:"Shop/store UI icon or panel graphic.", injectStyle:true },
+      quest:    { label:"Quest",    group:"more", backendCategory:"icon", promptPrefix:"Quest icon: symbolic, clear at small size.", injectStyle:true },
+      rank:     { label:"Rank",     group:"more", backendCategory:"icon", promptPrefix:"Rank/tier emblem: symmetrical, medal-like.", injectStyle:true },
+      emote:    { label:"Emote",    group:"more", backendCategory:"icon", promptPrefix:"Emote icon: expressive, simple, readable tiny.", injectStyle:true },
+      avatar:   { label:"Avatar",   group:"more", backendCategory:"icon", promptPrefix:"Avatar/profile picture: centered subject, clean background.", injectStyle:true },
+      ugc:      { label:"UGC",      group:"more", backendCategory:"icon", promptPrefix:"Roblox UGC item catalog render: studio lighting, centered.", injectStyle:true },
+      gameui:   { label:"Game UI",  group:"more", backendCategory:"icon", promptPrefix:"General Roblox game UI graphic.", injectStyle:true }
+    };
+
+    let selectedImageType = "normal";
+
+    function renderImageTypeGrid() {
+      const grid = document.getElementById("imageTypeGrid");
+      if (grid) {
+        grid.innerHTML = Object.entries(imagePresets)
+          .filter(([,p]) => p.group === "quick")
+          .map(([key,p]) => `<button class="it-opt ${selectedImageType===key?'active':''}" onclick="selectImageType('${key}')">${p.icon||''} ${p.label}</button>`)
+          .join("");
+      }
+
+      const more = document.getElementById("moreTypesMenu");
+      if (more) {
+        more.innerHTML = Object.entries(imagePresets)
+          .filter(([,p]) => p.group === "more")
+          .map(([key,p]) => `<div class="it-more-opt ${selectedImageType===key?'active':''}" onclick="selectImageType('${key}')">${p.label}</div>`)
+          .join("");
+      }
+
+      const normalOpt = document.getElementById("normalImageOpt");
+      if (normalOpt) normalOpt.classList.toggle("active", selectedImageType === "normal");
+    }
+
+    function selectImageType(key) {
+      selectedImageType = key;
+      renderImageTypeGrid();
+      const preset = imagePresets[key];
+      currentTemplate = preset.backendCategory === "thumbnail" ? "wide" : "square";
+      const moreMenu = document.getElementById("moreTypesMenu");
+      if (moreMenu) moreMenu.classList.remove("show");
+    }
+
+    function toggleMoreTypes(e) {
+      const moreMenu = document.getElementById("moreTypesMenu");
+      if (moreMenu) moreMenu.classList.toggle("show");
+      if (e) e.stopPropagation();
+    }
+
+    document.addEventListener("click", () => {
+      const menu = document.getElementById("moreTypesMenu");
+      if (menu && menu.classList.contains("show")) menu.classList.remove("show");
+    });
 
     const MODEL3D_PRESETS = {
       low: { label: "Low Poly", polygonCount: 2000, geometryQuality: "standard", lowPoly: true, textures: false, pbr: false, textureQuality: "standard" },
@@ -4468,9 +4630,21 @@
 
       dropzoneRow.style.display = "none";
       dzRef.style.display = "none";
-      document.getElementById("enhanceBtn").style.display = (mode === "icon" || mode === "thumbnail") ? "flex" : "none";
+      document.getElementById("enhanceBtn").style.display = (mode === "image") ? "flex" : "none";
       clearMainImage();
       clearRefImage();
+      
+      const isImg = mode === "image";
+      const grid = document.getElementById("imageTypeGrid");
+      const drop = document.getElementById("moreTypesDropdown");
+      const norm = document.getElementById("normalImageOpt");
+      if(grid) grid.classList.toggle("show", isImg);
+      if(drop) drop.classList.toggle("show", isImg);
+      if(norm) norm.classList.toggle("show", isImg);
+      
+      if (isImg && !document.querySelector(".it-opt")) {
+        renderImageTypeGrid();
+      }
 
       if (flowState !== "busy") {
         flowState = "choose_method";
@@ -4509,7 +4683,7 @@
 
       const introText = mode === "model3d"
         ? "How do you want to create the 3D model?"
-        : (mode === "thumbnail" ? "How do you want to create the thumbnail?" : "How do you want to create the icon?");
+        : "How do you want to create the image?";
 
       if (existingEl) {
         appendBotBody(existingEl, html);
@@ -4697,7 +4871,9 @@
       const raw = promptEl.value.trim();
       const btn = document.getElementById("enhanceBtn");
       const icon = document.getElementById("enhanceIcon");
-      const category = activeForceMode === "thumbnail" ? "thumbnail" : "icon";
+      
+      const preset = imagePresets[selectedImageType] || imagePresets.normal;
+      const category = preset.backendCategory;
 
       const usingAnalyze = (currentMethod === "image" && mainImage) || (currentMethod === "style" && refImage);
       if (!raw && !usingAnalyze) return;
@@ -4759,7 +4935,7 @@
 
     function onSendClick() {
       if (activeForceMode === "chat") sendChatMessage();
-      else if (activeForceMode === "icon" || activeForceMode === "thumbnail") handleImageFlowSend();
+      else if (activeForceMode === "image") handleImageFlowSend();
       else if (activeForceMode === "model3d") handleModel3DSend();
       else if (activeForceMode === "ui2lua") sendUiToLua();
     }
@@ -4778,7 +4954,8 @@
 
       const promptEl = document.getElementById("prompt");
       const raw = promptEl.value.trim();
-      const category = activeForceMode === "thumbnail" ? "thumbnail" : "icon";
+      const preset = imagePresets[selectedImageType] || imagePresets.normal;
+      const category = preset.backendCategory;
 
       if (currentMethod === "text" && !raw) return;
       if (currentMethod === "image" && (!mainImage || !raw)) {
@@ -4803,15 +4980,18 @@
       if (mainImage) attachPreview.push({ kind: "image", dataUrl: mainImage });
       if (refImage) attachPreview.push({ kind: "image", dataUrl: refImage });
       appendUserBubble(raw, attachPreview);
-      const pendingEl = appendBotPlaceholder(activeForceMode === "icon" ? "Generating icon…" : "Generating thumbnail…");
+      const pendingEl = appendBotPlaceholder(`Generating ${preset.label}…`);
 
       try {
-        const chatId = await ensureActiveChat(raw || (currentMethod === "style" ? "Reference style edit" : (category === "icon" ? "Icon" : "Thumbnail")));
+        const chatId = await ensureActiveChat(raw || (currentMethod === "style" ? "Reference style edit" : preset.label));
 
         let finalPrompt = raw;
         if (raw) {
           const { text } = await translateToEnglish(raw);
           finalPrompt = text;
+        }
+        if (preset.injectStyle && preset.promptPrefix) {
+          finalPrompt = preset.promptPrefix + " " + finalPrompt;
         }
         if (currentMethod === "image" && mainImage) {
           finalPrompt = "Using the attached image as the base, keep its main subject, character, and pose recognizable. Apply this edit: " + finalPrompt;
