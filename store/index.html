@@ -1737,11 +1737,12 @@
         const setDownloadLink = () => {
             dlBtn.style.display = "";
             let dlUrl = asset.modelUrl || "";
+            let filename = (asset.title || "model").replace(/[^\w\s.-]/g, "").trim().replace(/\s+/g, "_") + ".glb";
             if (dlUrl && !dlUrl.startsWith("blob:")) {
-                dlUrl += (dlUrl.includes("?") ? "&download=1" : "?download=1");
+                dlUrl += (dlUrl.includes("?") ? "&download=" : "?download=") + encodeURIComponent(filename);
             }
             dlBtn.href = dlUrl;
-            dlBtn.download = (asset.title || "model").replace(/[^\w\s.-]/g, "").trim().replace(/\s+/g, "_") + ".glb";
+            dlBtn.download = filename;
         };
 
         if (!currentUser) {
