@@ -3528,6 +3528,7 @@
                   <div class="fm-pill" data-force="image"><span class="fm-icon"></span>Image</div>
                   <div class="fm-pill" data-force="model3d"><span class="fm-icon"></span>Model 3D</div>
                   <div class="fm-pill" data-force="ui2lua"><span class="fm-icon"></span>UI → Lua</div>
+                  <div class="fm-pill" data-force="code"><span class="fm-icon"></span>Code</div>
                 </div>
 
                 <div class="image-type-wrap" id="imageTypeWrap">
@@ -3691,7 +3692,8 @@
       chat: { label: "Chat", icon: ICONS.chat, hint: "Tell me what you need - I'll figure out the intent and suggest a generation." },
       image: { label: "Image", icon: ICONS.icon, hint: "Choose a creation method in the message below." },
       model3d: { label: "3D Model", icon: ICONS.cube, hint: "Choose how you want to create the 3D model." },
-      ui2lua: { label: "UI → Lua", icon: ICONS.layout, hint: "Upload a Roblox UI screenshot — I'll create a responsive LUA script that recreates it." }
+      ui2lua: { label: "UI → Lua", icon: ICONS.layout, hint: "Upload a Roblox UI screenshot — I'll create a responsive LUA script that recreates it." },
+      code: { label: "Code", icon: ICONS.wand, hint: "Describe what the script should do. I can also add functions to existing code." }
     };
 
     const METHOD_INFO = {
@@ -3954,6 +3956,8 @@
     let currentTemplate = "square";
     let mainImage = null;
     let refImage = null;
+    
+    let currentCodeState = { code: null, language: null, chatId: null };
 
     let flowState = "idle";
     let model3dGeneratedImageDataUrl = null;
@@ -4398,6 +4402,7 @@
       const inner = document.getElementById("feedInner");
       inner.innerHTML = "";
       lastLargeFrame = null;
+      currentCodeState = { code: null, language: null, chatId: activeChatId };
 
       if (!messages || messages.length === 0) {
         inner.appendChild(buildWelcomeNode());
@@ -4442,11 +4447,23 @@
       const isModel3d = m.type === "model3d" || !!m.modelUrl;
       const isImageGen = !isModel3d && (m.type === "generation" || !!m.thumbnail);
       const isChooser = m.type === "chooser";
-      const isTextReply = !isModel3d && !isImageGen && !isChooser;
+      const isCode = m.type === "code";
+      const isTextReply = !isModel3d && !isImageGen && !isChooser && !isCode;
 
-      if (isTextReply) {
+      if (isTextReply || isCode) {
         const replyText = m.reply ?? m.content ?? m.text ?? "";
         body.innerHTML = renderMarkdown(replyText);
+        
+        if (isCode) {
+          const match = replyText.match(/```(?:\w+)?\n([\s\S]*?)```/);
+          if (match) {
+            currentCodeState = { code: match[1].trim(), language: m.language || "lua", chatId: activeChatId };
+          }
+          if (isLatest) {
+            // Need to defer this slightly so the DOM is fully constructed
+            setTimeout(() => attachFixButtonToLastCodeBlock(botMsg, activeChatId), 10);
+          }
+        }
       } else if (isChooser) {
         const isModel = m.category === "model3d";
         const introText = isModel ? "How do you want to create the 3D model?" : (m.category === "thumbnail" ? "How do you want to create the thumbnail?" : "How do you want to create the icon?");
@@ -4819,6 +4836,23 @@
         return;
       }
 
+      if (mode === "code") {
+        document.getElementById("composerHint").textContent = currentCodeState.code
+          ? "I remember your code — you can ask to add a function, modify, or refactor."
+          : info.hint;
+        document.getElementById("prompt").placeholder = currentCodeState.code
+          ? "e.g. add a save function, add validation…"
+          : "Describe what script/code you want to generate…";
+        document.getElementById("enhanceBtn").style.display = "none";
+        dropzoneRow.style.display = "none";
+        dzRef.style.display = "none";
+        clearMainImage();
+        clearRefImage();
+        flowState = "idle";
+        setPromptBoxEnabled(true);
+        return;
+      }
+
       dropzoneRow.style.display = "none";
       dzRef.style.display = "none";
       document.getElementById("enhanceBtn").style.display = (mode === "image") ? "flex" : "none";
@@ -5123,6 +5157,7 @@
       else if (activeForceMode === "image") handleImageFlowSend();
       else if (activeForceMode === "model3d") handleModel3DSend();
       else if (activeForceMode === "ui2lua") sendUiToLua();
+      else if (activeForceMode === "code") sendCodeMessage();
     }
 
     function setPromptBoxEnabled(enabled) {
@@ -5292,6 +5327,115 @@
         sendBtn.disabled = false;
         sendIcon.innerHTML = ICONS.send;
       }
+    }
+
+    async function sendCodeMessage(instructionOverride = null, isFix = false) {
+      if (!currentUser) { document.getElementById("signInBtn").click(); return; }
+      
+      const promptEl = document.getElementById("prompt");
+      const raw = instructionOverride || promptEl.value.trim();
+      if (!raw) return;
+      
+      const sendBtn = document.getElementById("generateBtn");
+      const sendIcon = document.getElementById("sendIcon");
+      sendBtn.disabled = true;
+      sendIcon.innerHTML = ICONS.spinner;
+      sendIcon.querySelector("svg").classList.add("spin");
+      
+      appendUserBubble(raw);
+      const pendingEl = appendBotPlaceholder(isFix ? "Analizowanie błędu i poprawianie kodu " : "Generowanie kodu ");
+      
+      try {
+        const chatId = await ensureActiveChat(raw || "Code Gen");
+        currentCodeState.chatId = chatId;
+        
+        const payload = {
+          instruction: raw,
+          previousCode: currentCodeState.code,
+          previousLanguage: currentCodeState.language,
+          isFix
+        };
+        
+        const res = await authedFetch("/generate-code", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        
+        if (!res.ok) {
+          if (res.status === 402) openBuyModal();
+          throw new Error(await extractError(res));
+        }
+        
+        const data = await res.json();
+        const replyText = (data.description ? data.description + "\n\n" : "") + "```" + (data.language || "lua") + "\n" + data.code + "\n```";
+        
+        setBotBody(pendingEl, renderMarkdown(replyText));
+        attachFixButtonToLastCodeBlock(pendingEl, chatId);
+        
+        currentCodeState = { code: data.code, language: data.language || "lua", chatId };
+        document.getElementById("composerHint").textContent = "Mam zapamiętany Twój kod — możesz poprosić o dodanie funkcji, zmianę, refaktor.";
+        document.getElementById("prompt").placeholder = "np. dodaj funkcję do zapisu stanu, dodaj walidację…";
+        
+        refreshBalance();
+        await persistMessage(chatId, { type: "code", prompt: raw, reply: replyText, language: data.language });
+        if (!instructionOverride) resetComposerAfterSend();
+        
+      } catch (e) {
+        console.error(e);
+        setBotBody(pendingEl, errorHtml("Error: " + e.message));
+      } finally {
+        sendBtn.disabled = false;
+        sendIcon.innerHTML = ICONS.send;
+      }
+    }
+
+    function attachFixButtonToLastCodeBlock(botEl, chatId) {
+      const codeBlocks = botEl.querySelectorAll(".code-block");
+      if (codeBlocks.length === 0) return;
+      const lastCb = codeBlocks[codeBlocks.length - 1];
+      const btnsRow = lastCb.querySelector(".cb-btns");
+      if (!btnsRow) return;
+      
+      const fixBtn = document.createElement("button");
+      fixBtn.className = "cb-btn";
+      fixBtn.style.color = "var(--warn)";
+      fixBtn.style.borderColor = "var(--warn-faint)";
+      fixBtn.innerHTML = "⚠ Fix";
+      fixBtn.onclick = () => promptFixCode(chatId, lastCb);
+      btnsRow.insertBefore(fixBtn, btnsRow.firstChild);
+    }
+    
+    function promptFixCode(chatId, cbElement) {
+      let existingForm = cbElement.querySelector(".inline-fix-form");
+      if (existingForm) {
+        existingForm.remove();
+        return;
+      }
+      const formHTML = `
+        <div class="inline-fix-form" style="margin-top: 10px; display: flex; gap: 8px; padding: 10px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px;">
+          <input type="text" class="fix-input" placeholder="Co nie działa? (np. błąd w linii 42)" style="flex: 1; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--soft); color: var(--ink); font-size: 13px;" />
+          <button class="fix-submit" style="padding: 6px 12px; border-radius: 6px; background: var(--warn); color: #fff; border: none; cursor: pointer; font-weight: 600; font-size: 13px;">Napraw</button>
+        </div>
+      `;
+      cbElement.insertAdjacentHTML("beforeend", formHTML);
+      const input = cbElement.querySelector(".fix-input");
+      const btn = cbElement.querySelector(".fix-submit");
+      input.focus();
+      
+      btn.onclick = () => {
+        const val = input.value.trim();
+        if (!val) return;
+        cbElement.querySelector(".inline-fix-form").remove();
+        sendCodeMessage(val, true);
+      };
+      
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          btn.click();
+        }
+      });
     }
 
     async function sendChatMessage() {
