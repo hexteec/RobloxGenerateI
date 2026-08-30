@@ -2379,21 +2379,23 @@
       align-items: center;
     }
     
-    .image-type-bar {
+    .image-type-wrap {
+      display: none;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .image-type-wrap.show { display: flex; }
+    
+    /* ── Row 1: quick types ── */
+    .image-type-row {
       display: flex;
       align-items: center;
       gap: 6px;
-      flex-wrap: nowrap;
-      overflow-x: auto;
-      padding-bottom: 3px;
-      margin-bottom: 10px;
-      scrollbar-width: thin;
+      flex-wrap: wrap;
     }
-    .image-type-bar::-webkit-scrollbar { height: 5px; }
-    .image-type-bar::-webkit-scrollbar-thumb { background: var(--soft-2); border-radius: 3px; }
     
     .it-opt {
-      flex: 0 0 auto;
       display: flex;
       align-items: center;
       gap: 6px;
@@ -2406,7 +2408,7 @@
       color: var(--ink-muted);
       cursor: pointer;
       white-space: nowrap;
-      transition: border-color .15s ease, background .15s ease, color .15s ease, transform .12s ease;
+      transition: border-color .15s ease, background .15s ease, color .15s ease;
     }
     .it-opt svg { width: 13px; height: 13px; flex-shrink: 0; }
     .it-opt:hover { border-color: var(--ink-faint); }
@@ -2416,6 +2418,7 @@
       color: var(--accent-deep);
     }
     
+    /* Icon + Thumbnail — lekko wyeksponowane */
     .it-opt.featured {
       padding: 8px 15px;
       font-weight: 700;
@@ -2428,35 +2431,80 @@
       box-shadow: 0 0 0 1px var(--accent) inset;
     }
     
-    .it-divider {
-      width: 1px;
-      align-self: stretch;
-      background: var(--border);
-      margin: 2px 3px;
-      flex: 0 0 auto;
+    /* ── Row 2: Normal Image (pełna szerokość) + More types (po prawej) ── */
+    .image-type-row-2 {
+      display: flex;
+      align-items: stretch;
+      gap: 8px;
+    }
+    
+    .it-normal {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 14px;
+      border-radius: var(--radius-sm);
+      border: 1px dashed var(--border);
+      background: var(--card);
+      cursor: pointer;
+      transition: border-color .15s ease, background .15s ease;
+      min-width: 0;
+    }
+    .it-normal:hover { border-color: var(--ink-faint); }
+    .it-normal.active {
+      border-style: solid;
+      border-color: var(--mint);
+      background: var(--mint-wash);
+    }
+    .it-normal .itn-title {
+      font-size: 12.6px;
+      font-weight: 700;
+      color: var(--ink);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .it-normal.active .itn-title { color: var(--mint); }
+    .it-normal .itn-desc {
+      font-size: 11px;
+      color: var(--ink-faint);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     
     .it-more-wrap { position: relative; flex: 0 0 auto; }
     .it-more-btn {
-      display: flex; align-items: center; gap: 5px;
-      padding: 8px 12px;
-      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      height: 100%;
+      padding: 9px 14px;
+      border-radius: var(--radius-sm);
       border: 1px dashed var(--border);
       background: var(--card);
-      font-size: 12.2px; font-weight: 600;
+      font-size: 12.3px;
+      font-weight: 600;
       color: var(--ink-muted);
-      cursor: pointer; white-space: nowrap;
+      cursor: pointer;
+      white-space: nowrap;
     }
     .it-more-btn:hover { border-color: var(--ink-faint); }
-    .it-more-btn.has-selection { border-style: solid; border-color: var(--accent); color: var(--accent-deep); background: var(--accent-wash); }
-    .it-more-btn .chev { transition: transform .15s ease; display: flex; }
+    .it-more-btn.has-selection {
+      border-style: solid;
+      border-color: var(--accent);
+      color: var(--accent-deep);
+      background: var(--accent-wash);
+    }
+    .it-more-btn .chev { display: flex; transition: transform .15s ease; }
     .it-more-btn.open .chev { transform: rotate(180deg); }
     
     .it-more-menu {
       display: none;
       position: absolute;
       bottom: calc(100% + 6px);
-      left: 0;
+      right: 0;
       min-width: 190px;
       max-height: 260px;
       overflow-y: auto;
@@ -2478,33 +2526,9 @@
     .it-more-opt:hover { background: var(--soft); }
     .it-more-opt.active { background: var(--accent-wash); color: var(--accent-deep); font-weight: 600; }
     
-    .it-normal {
-      flex: 0 0 auto;
-      display: flex; align-items: center; gap: 6px;
-      padding: 8px 13px;
-      border-radius: 999px;
-      border: 1px dashed var(--border);
-      background: var(--card);
-      font-size: 12.2px; font-weight: 600;
-      color: var(--ink-muted);
-      cursor: pointer; white-space: nowrap;
-      margin-left: auto;
+    @media (max-width: 480px) {
+      .it-normal .itn-desc { display: none; }
     }
-    .it-normal:hover { border-color: var(--ink-faint); }
-    .it-normal.active {
-      border-style: solid;
-      border-color: var(--mint);
-      background: var(--mint-wash);
-      color: var(--mint);
-    }
-    .image-type-hint {
-      display: none;
-      font-size: 11.3px;
-      color: var(--ink-faint);
-      margin: -4px 0 10px 2px;
-    }
-    .image-type-hint.show { display: block; }
-    .image-type-bar.show { display: flex; }
 
     .attach-btn {
       width: 32px;
@@ -3455,8 +3479,21 @@
                   <div class="fm-pill" data-force="ui2lua"><span class="fm-icon"></span>UI → Lua</div>
                 </div>
 
-                <div class="image-type-bar" id="imageTypeBar" style="display:none;"></div>
-                <div class="image-type-hint" id="imageTypeHint"></div>
+                <div class="image-type-wrap" id="imageTypeWrap">
+                  <div class="image-type-row" id="imageTypeRow"></div>
+                  <div class="image-type-row-2">
+                    <button class="it-normal" id="itNormalBtn" onclick="selectImageType('normal')">
+                      <span class="itn-title">✨ Normal Image</span>
+                      <span class="itn-desc">Generate an image without a predefined purpose or style.</span>
+                    </button>
+                    <div class="it-more-wrap">
+                      <button class="it-more-btn" id="itMoreBtn" onclick="toggleMoreTypes()">
+                        <span id="itMoreLabel">More types</span><span class="chev" id="itMoreChev"></span>
+                      </button>
+                      <div class="it-more-menu" id="itMoreMenu"></div>
+                    </div>
+                  </div>
+                </div>
 
                 <div class="dropzone-row" id="dropzoneRow" style="display:none;">
                   <div class="dropzone" id="dzMain">
@@ -3646,8 +3683,6 @@
     let selectedImageType = "normal";
 
     function renderImageTypeBar() {
-      const bar = document.getElementById("imageTypeBar");
-      if (!bar) return;
       const featuredKeys = ["icon", "thumbnail"];
       const quickKeys = Object.entries(imagePresets)
         .filter(([k, p]) => p.group === "quick" && !featuredKeys.includes(k))
@@ -3662,51 +3697,43 @@
                   onclick="selectImageType('${key}')">${p.icon || ""}<span>${p.label}</span></button>`;
       };
 
-      const moreSelected = moreKeys.includes(selectedImageType) ? imagePresets[selectedImageType].label : "More types";
-
-      bar.innerHTML =
-        featuredKeys.map(k => optHtml(k, true)).join("") +
-        `<div class="it-divider"></div>` +
-        quickKeys.map(k => optHtml(k, false)).join("") +
-        `<div class="it-divider"></div>` +
-        `<div class="it-more-wrap">
-           <button class="it-more-btn${moreKeys.includes(selectedImageType) ? " has-selection" : ""}" id="itMoreBtn" onclick="toggleMoreTypes(event)">
-             <span>${moreSelected}</span><span class="chev">${ICONS.chevronDown}</span>
-           </button>
-           <div class="it-more-menu" id="itMoreMenu">
-             ${moreKeys.map(k => `<div class="it-more-opt${selectedImageType === k ? " active" : ""}" onclick="selectImageType('${k}')">${imagePresets[k].label}</div>`).join("")}
-           </div>
-         </div>` +
-        `<button class="it-normal${selectedImageType === "normal" ? " active" : ""}" onclick="selectImageType('normal')">✨ Normal Image</button>`;
-
-      const hintEl = document.getElementById("imageTypeHint");
-      if (hintEl) {
-        hintEl.textContent =
-          selectedImageType === "normal"
-            ? "Generate an image without a predefined purpose or style."
-            : (imagePresets[selectedImageType].hint || "");
+      const typeRow = document.getElementById("imageTypeRow");
+      if (typeRow) {
+        typeRow.innerHTML =
+          featuredKeys.map(k => optHtml(k, true)).join("") +
+          quickKeys.map(k => optHtml(k, false)).join("");
       }
 
-      if (document.getElementById("uiSubtypeRow")) {
-        document.getElementById("uiSubtypeRow").style.display = selectedImageType === "ui" ? "flex" : "none";
+      const isNormal = selectedImageType === "normal";
+      const itNormalBtn = document.getElementById("itNormalBtn");
+      if (itNormalBtn) itNormalBtn.classList.toggle("active", isNormal);
+
+      const moreSelected = moreKeys.includes(selectedImageType);
+      const itMoreBtn = document.getElementById("itMoreBtn");
+      if (itMoreBtn) itMoreBtn.classList.toggle("has-selection", moreSelected);
+      
+      const itMoreLabel = document.getElementById("itMoreLabel");
+      if (itMoreLabel) itMoreLabel.textContent = moreSelected ? imagePresets[selectedImageType].label : "More types";
+      
+      const itMoreChev = document.getElementById("itMoreChev");
+      if (itMoreChev) itMoreChev.innerHTML = ICONS.chevronDown;
+      
+      const itMoreMenu = document.getElementById("itMoreMenu");
+      if (itMoreMenu) {
+        itMoreMenu.innerHTML = moreKeys
+          .map(k => `<div class="it-more-opt${selectedImageType === k ? " active" : ""}" onclick="selectImageType('${k}')">${imagePresets[k].label}</div>`)
+          .join("");
       }
+
+      const uiRow = document.getElementById("uiSubtypeRow");
+      if (uiRow) uiRow.style.display = selectedImageType === "ui" ? "flex" : "none";
     }
 
-    function selectImageType(key) {
-      selectedImageType = key;
-      renderImageTypeBar();
-      const preset = imagePresets[key];
-      currentTemplate = preset.backendCategory === "thumbnail" ? "wide" : "square";
-      const moreMenu = document.getElementById("itMoreMenu");
-      if (moreMenu) moreMenu.classList.remove("show");
-    }
-
-    function toggleMoreTypes(e) {
+    function toggleMoreTypes() {
       const moreMenu = document.getElementById("itMoreMenu");
       const moreBtn = document.getElementById("itMoreBtn");
       if (moreMenu) moreMenu.classList.toggle("show");
       if (moreBtn) moreBtn.classList.toggle("open");
-      if (e) e.stopPropagation();
     }
 
     document.addEventListener("click", (e) => {
@@ -3715,6 +3742,15 @@
         document.getElementById("itMoreBtn")?.classList.remove("open");
       }
     });
+
+    function selectImageType(key) {
+      selectedImageType = key;
+      renderImageTypeBar();
+      document.getElementById("itMoreMenu")?.classList.remove("show");
+      document.getElementById("itMoreBtn")?.classList.remove("open");
+      const preset = imagePresets[key];
+      currentTemplate = preset.backendCategory === "thumbnail" ? "wide" : "square";
+    }
 
     const MODEL3D_PRESETS = {
       low: { label: "Low Poly", polygonCount: 2000, geometryQuality: "standard", lowPoly: true, textures: false, pbr: false, textureQuality: "standard" },
@@ -4736,10 +4772,8 @@
       clearRefImage();
       
       const isImg = mode === "image";
-      const bar = document.getElementById("imageTypeBar");
-      const hint = document.getElementById("imageTypeHint");
-      if(bar) bar.style.display = isImg ? "flex" : "none";
-      if(hint) hint.classList.toggle("show", isImg);
+      const wrap = document.getElementById("imageTypeWrap");
+      if(wrap) wrap.classList.toggle("show", isImg);
       
       if (isImg && !document.querySelector(".it-opt")) {
         renderImageTypeBar();
