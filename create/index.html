@@ -3530,6 +3530,12 @@
                   <div class="fm-pill" data-force="ui2lua"><span class="fm-icon"></span>UI → Lua</div>
                   <div class="fm-pill" data-force="code"><span class="fm-icon"></span>Code</div>
                 </div>
+                
+                <div class="force-mode-bar" id="codeModelBar" style="display:none; margin-top:-6px;">
+                  <div class="fm-pill active" data-codemodel="gemini">Gemini Flash 3.7</div>
+                  <div class="fm-pill" data-codemodel="deepseek">DeepSeek V4 Flash</div>
+                </div>
+
 
                 <div class="image-type-wrap" id="imageTypeWrap">
                   <div class="image-type-row" id="imageTypeRow"></div>
@@ -3956,8 +3962,9 @@
     let currentTemplate = "square";
     let mainImage = null;
     let refImage = null;
-
+    
     let currentCodeState = { code: null, language: null, chatId: null };
+    let selectedCodeModel = "gemini"; // "gemini" | "deepseek"
 
     let flowState = "idle";
     let model3dGeneratedImageDataUrl = null;
@@ -4016,6 +4023,7 @@
       initThemeSwitch();
       initLangSwitch();
       bindForceModeBar();
+      bindCodeModelBar();
       bindGwTypeBar();
       bindDropzones();
       bindAttachInput();
@@ -4453,7 +4461,7 @@
       if (isTextReply || isCode) {
         const replyText = m.reply ?? m.content ?? m.text ?? "";
         body.innerHTML = renderMarkdown(replyText);
-
+        
         if (isCode) {
           const match = replyText.match(/```(?:\w+)?\n([\s\S]*?)```/);
           if (match) {
@@ -4792,9 +4800,21 @@
       });
     }
 
+    function bindCodeModelBar() {
+      document.querySelectorAll("#codeModelBar .fm-pill").forEach(pill => {
+        pill.addEventListener("click", () => {
+          selectedCodeModel = pill.dataset.codemodel;
+          document.querySelectorAll("#codeModelBar .fm-pill").forEach(p =>
+            p.classList.toggle("active", p === pill)
+          );
+        });
+      });
+    }
+
     function setForceMode(mode, opts) {
       opts = opts || {};
       activeForceMode = mode;
+      document.getElementById("codeModelBar").style.display = mode === "code" ? "flex" : "none";
 
       document.querySelectorAll(".fm-pill").forEach(p => {
         if (p.dataset.force) p.classList.toggle("active", p.dataset.force === mode);
@@ -5328,59 +5348,61 @@
         sendIcon.innerHTML = ICONS.send;
       }
     }
+    }
 
     async function sendCodeMessage(instructionOverride = null, isFix = false) {
       if (!currentUser) { document.getElementById("signInBtn").click(); return; }
-
+      
       const promptEl = document.getElementById("prompt");
       const raw = instructionOverride || promptEl.value.trim();
       if (!raw) return;
-
+      
       const sendBtn = document.getElementById("generateBtn");
       const sendIcon = document.getElementById("sendIcon");
       sendBtn.disabled = true;
       sendIcon.innerHTML = ICONS.spinner;
       sendIcon.querySelector("svg").classList.add("spin");
-
+      
       appendUserBubble(raw);
       const pendingEl = appendBotPlaceholder(isFix ? "Analizowanie błędu i poprawianie kodu " : "Generowanie kodu ");
-
+      
       try {
         const chatId = await ensureActiveChat(raw || "Code Gen");
         currentCodeState.chatId = chatId;
-
+        
         const payload = {
           instruction: raw,
           previousCode: currentCodeState.code,
           previousLanguage: currentCodeState.language,
-          isFix
+          isFix,
+          model: selectedCodeModel
         };
-
+        
         const res = await authedFetch("/generate-code", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload)
         });
-
+        
         if (!res.ok) {
           if (res.status === 402) openBuyModal();
           throw new Error(await extractError(res));
         }
-
+        
         const data = await res.json();
         const replyText = (data.description ? data.description + "\n\n" : "") + "```" + (data.language || "lua") + "\n" + data.code + "\n```";
-
+        
         setBotBody(pendingEl, renderMarkdown(replyText));
         attachFixButtonToLastCodeBlock(pendingEl, chatId);
-
+        
         currentCodeState = { code: data.code, language: data.language || "lua", chatId };
         document.getElementById("composerHint").textContent = "Mam zapamiętany Twój kod — możesz poprosić o dodanie funkcji, zmianę, refaktor.";
         document.getElementById("prompt").placeholder = "np. dodaj funkcję do zapisu stanu, dodaj walidację…";
-
+        
         refreshBalance();
         await persistMessage(chatId, { type: "code", prompt: raw, reply: replyText, language: data.language });
         if (!instructionOverride) resetComposerAfterSend();
-
+        
       } catch (e) {
         console.error(e);
         setBotBody(pendingEl, errorHtml("Error: " + e.message));
@@ -5396,7 +5418,7 @@
       const lastCb = codeBlocks[codeBlocks.length - 1];
       const btnsRow = lastCb.querySelector(".cb-btns");
       if (!btnsRow) return;
-
+      
       const fixBtn = document.createElement("button");
       fixBtn.className = "cb-btn";
       fixBtn.style.color = "var(--warn)";
@@ -5405,7 +5427,7 @@
       fixBtn.onclick = () => promptFixCode(chatId, lastCb);
       btnsRow.insertBefore(fixBtn, btnsRow.firstChild);
     }
-
+    
     function promptFixCode(chatId, cbElement) {
       let existingForm = cbElement.querySelector(".inline-fix-form");
       if (existingForm) {
@@ -5422,14 +5444,14 @@
       const input = cbElement.querySelector(".fix-input");
       const btn = cbElement.querySelector(".fix-submit");
       input.focus();
-
+      
       btn.onclick = () => {
         const val = input.value.trim();
         if (!val) return;
         cbElement.querySelector(".inline-fix-form").remove();
         sendCodeMessage(val, true);
       };
-
+      
       input.addEventListener("keydown", (e) => {
         if (e.key === "Enter") {
           e.preventDefault();
@@ -5522,6 +5544,12 @@
           setForceMode("model3d", { skipAutoChooser: true });
           flowState = "choose_method";
           appendModeChooser("model3d", pendingEl);
+
+        } else if (action.type === "need_code_mode") {
+          setForceMode("code", { skipAutoChooser: true });
+          if (action.prompt) {
+            sendCodeMessage(action.prompt, false);
+          }
 
         } else if (action.type === "need_3d_settings") {
           pendingChoiceMessage = null; // Do not save settings menu
