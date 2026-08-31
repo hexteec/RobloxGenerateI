@@ -745,13 +745,64 @@
     }
 
     .user-row .u-signout {
-      background: none;
-      border: none;
-      color: var(--ink-faint);
+      color: var(--ink-muted);
+      border-radius: 6px;
       cursor: pointer;
       padding: 4px;
       display: flex;
     }
+
+    .roblox-card {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: var(--soft);
+      cursor: pointer;
+      transition: border-color .15s ease, background .15s ease;
+    }
+    .roblox-card:hover { border-color: var(--ink-faint); }
+    .roblox-card.linked {
+      border-color: var(--mint);
+      background: var(--mint-wash);
+    }
+    .roblox-card.unlinked {
+      border-color: color-mix(in srgb, var(--accent) 40%, var(--border));
+      background: var(--accent-wash);
+    }
+
+    .rc-icon {
+      width: 30px; height: 30px; border-radius: 8px;
+      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--card);
+      border: 1px solid var(--border);
+    }
+    .roblox-card.linked .rc-icon { color: var(--mint); border-color: var(--mint); }
+    .roblox-card.unlinked .rc-icon { color: var(--accent-deep); border-color: var(--accent); }
+
+    .rc-info { flex: 1; min-width: 0; }
+    .rc-title {
+      font-size: 12.5px; font-weight: 700; color: var(--ink);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .rc-sub { font-size: 11px; color: var(--ink-muted); margin-top: 1px; }
+
+    .rc-action {
+      flex-shrink: 0;
+      font-size: 11.5px; font-weight: 700;
+      padding: 6px 11px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--ink);
+      cursor: pointer;
+    }
+    .roblox-card.linked .rc-action { color: var(--coral); border-color: var(--coral); }
+    .roblox-card.unlinked .rc-action { background: var(--accent); border-color: var(--accent); color: #fff; }
 
     .user-row .u-signout svg {
       width: 15px;
@@ -3589,8 +3640,13 @@
               <div class="u-name" id="userName"></div>
               <div class="u-tokens" id="tokenPill" onclick="openBuyModal()"><span id="tokenCount">–</span> tokens · top
                 up</div>
-              <div class="u-tokens" id="robloxLinkRow" style="margin-top:4px; cursor:pointer;" onclick="connectRoblox()">
-                <span id="robloxLinkText">🔗 Połącz konto Roblox</span>
+              <div class="roblox-card" id="robloxCard" onclick="handleRobloxCardClick()">
+                <div class="rc-icon" id="robloxIcon">🔗</div>
+                <div class="rc-info">
+                  <div class="rc-title" id="robloxTitle">Connect Roblox account</div>
+                  <div class="rc-sub" id="robloxSub">Required for the Studio plugin</div>
+                </div>
+                <button class="rc-action" id="robloxAction" onclick="event.stopPropagation(); handleRobloxAction();">Connect</button>
               </div>
             </div>
             <button class="u-signout" onclick="signOutUser()" title="Sign out"></button>
@@ -4242,6 +4298,9 @@
         signInBtn.style.display = "flex";
         row.classList.remove("show");
         tokenBalance = null;
+        robloxLinked = false;
+        robloxUsername = null;
+        updateRobloxCard();
         chatsCache = [];
         gameWidgets = [];
         renderGameWidgets();
@@ -4424,14 +4483,64 @@
       return fetch(WORKER_URL + path, Object.assign({}, options, { headers }));
     }
 
+    let robloxLinked = false;
+    let robloxUsername = null;
+
     async function refreshBalance() {
       try {
         const res = await authedFetch("/me");
         if (!res.ok) throw new Error(await res.text());
         const data = await res.json();
         tokenBalance = data.tokens;
+        robloxLinked = !!data.robloxUserId;
+        robloxUsername = data.robloxUsername || null;
         updateTokenPill();
+        updateRobloxCard();
       } catch (e) { console.error("Balance:", e); }
+    }
+
+    function updateRobloxCard() {
+      const card = document.getElementById("robloxCard");
+      const icon = document.getElementById("robloxIcon");
+      const title = document.getElementById("robloxTitle");
+      const sub = document.getElementById("robloxSub");
+      const action = document.getElementById("robloxAction");
+      if (!card) return;
+
+      card.classList.toggle("linked", robloxLinked);
+      card.classList.toggle("unlinked", !robloxLinked);
+
+      if (robloxLinked) {
+        icon.innerHTML = "✅";
+        title.textContent = "@" + robloxUsername;
+        sub.textContent = "Roblox account connected";
+        action.textContent = "Disconnect";
+      } else {
+        icon.innerHTML = "🔗";
+        title.textContent = "Connect Roblox account";
+        sub.textContent = "Required for the Studio plugin";
+        action.textContent = "Connect";
+      }
+    }
+
+    function handleRobloxAction() {
+      robloxLinked ? disconnectRoblox() : connectRoblox();
+    }
+    function handleRobloxCardClick() {
+      handleRobloxAction();
+    }
+
+    async function disconnectRoblox() {
+      if (!confirm("Disconnect your Roblox account? You'll need to reconnect it to use the Studio plugin.")) return;
+      try {
+        const res = await authedFetch("/roblox/unlink");
+        if (!res.ok) throw new Error(await res.text());
+        robloxLinked = false;
+        robloxUsername = null;
+        updateRobloxCard();
+      } catch (e) {
+        alert("Error disconnecting: " + e.message);
+      }
     }
 
     function updateTokenPill() {
@@ -6355,11 +6464,10 @@
     window.addEventListener("DOMContentLoaded", () => {
         const params = new URLSearchParams(window.location.search);
         if (params.get("roblox_linked") === "1") {
-            alert("Konto Roblox zostało pomyślnie połączone!");
             const url = new URL(window.location);
             url.searchParams.delete("roblox_linked");
             window.history.replaceState({}, document.title, url);
-            // fetchUserData will handle the rest if called on load
+            refreshBalance();
         }
     });
   </script>
