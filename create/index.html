@@ -6334,12 +6334,22 @@
 
   <script>
     async function connectRoblox() {
-      if (!currentUser) {
-          alert("Zaloguj się najpierw!");
-          return;
+      if (!currentUser) { document.getElementById("signInBtn").click(); return; }
+      try {
+        const res = await authedFetch("/auth/roblox/start");
+        if (!res.ok) {
+            const errData = await res.json().catch(() => ({}));
+            throw new Error(errData.error || "Błąd podczas łączenia");
+        }
+        const data = await res.json();
+        if (data.redirectUrl) {
+          window.location.href = data.redirectUrl;
+        } else {
+          throw new Error("Brak redirectUrl w odpowiedzi.");
+        }
+      } catch (e) {
+        alert("Błąd łączenia z Roblox: " + e.message);
       }
-      const idToken = await getIdToken();
-      window.location.href = WORKER_URL + "/auth/roblox/start?_t=" + encodeURIComponent(idToken);
     }
     
     window.addEventListener("DOMContentLoaded", () => {
