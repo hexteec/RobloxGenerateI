@@ -3549,17 +3549,17 @@
                 </div>
                 
                 <div class="force-mode-bar" id="codeModelBar" style="display:none; margin-top:-6px;">
-                  <div class="fm-pill fm-pill-code active" data-codemodel="gemini">
+                  <div class="fm-pill fm-pill-code active" data-codemodel="luna">
+                    <span class="fm-pill-title">GPT-5.6 Luna</span>
+                    <span class="fm-pill-sub">Najwyższa jakość · świetny balans ceny i wydajności</span>
+                  </div>
+                  <div class="fm-pill fm-pill-code" data-codemodel="gemini">
                     <span class="fm-pill-title">Gemini 3.7 Flash</span>
-                    <span class="fm-pill-sub">Wyższa jakość kodu · trochę wolniejszy i droższy</span>
+                    <span class="fm-pill-sub">Wysoka jakość · szybkie działanie · średni koszt</span>
                   </div>
                   <div class="fm-pill fm-pill-code" data-codemodel="deepseek">
                     <span class="fm-pill-title">DeepSeek V4 Flash</span>
-                    <span class="fm-pill-sub">Szybszy i tańszy · nieco prostszy kod</span>
-                  </div>
-                  <div class="fm-pill fm-pill-code" data-codemodel="luna">
-                    <span class="fm-pill-title">GPT-5.6 Luna</span>
-                    <span class="fm-pill-sub">Najwyższa jakość · najwolniejszy i najdroższy</span>
+                    <span class="fm-pill-sub">Dobry stosunek jakości do ceny · bardzo szybki</span>
                   </div>
                 </div>
 
@@ -4031,7 +4031,7 @@
     let refImage = null;
     
     let currentCodeState = { code: null, language: null, chatId: null };
-    let selectedCodeModel = "gemini"; // "gemini" | "deepseek"
+    let selectedCodeModel = "luna"; // "luna" | "gemini" | "deepseek"
 
     let flowState = "idle";
     let model3dGeneratedImageDataUrl = null;
