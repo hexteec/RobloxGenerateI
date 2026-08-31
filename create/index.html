@@ -2190,6 +2190,19 @@
       margin-bottom: 12px;
       flex-wrap: wrap;
     }
+    
+    .mobile-code-model-select {
+      display: none;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--ink);
+      border-radius: 999px;
+      padding: 0 10px;
+      font-size: 12px;
+      outline: none;
+      font-weight: 600;
+      height: 33px;
+    }
 
     .fm-pill {
       display: flex;
@@ -3078,6 +3091,12 @@
       .force-mode-bar {
         gap: 6px;
       }
+      #codeModelBar {
+        display: none !important;
+      }
+      .mobile-code-model-select.active-mode {
+        display: block;
+      }
 
       .fm-pill {
         padding: 8px 12px;
@@ -3415,12 +3434,12 @@
     .code-model-tag{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:var(--ink-faint);margin-bottom:8px;}
     .code-model-tag svg{width:12px;height:12px;}
     
-    .fm-pill-code{flex-direction:column;align-items:flex-start;gap:2px;padding:8px 14px;}
+    .fm-pill-code{flex-direction:column;align-items:flex-start;gap:2px;padding:8px 14px; flex: 1;}
     .fm-pill-code.active .fm-pill-sub{color:var(--accent-deep);}
     .code-model-tag{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:var(--ink-faint);margin-bottom:8px;}
     .code-model-tag svg{width:12px;height:12px;}
     
-    .fm-pill-code{flex-direction:column;align-items:flex-start;gap:2px;padding:8px 14px;}
+    .fm-pill-code{flex-direction:column;align-items:flex-start;gap:2px;padding:8px 14px; flex: 1;}
     .fm-pill-code .fm-pill-title{font-weight:700;font-size:12.6px;}
     .fm-pill-code .fm-pill-sub{font-size:10.8px;color:var(--ink-faint);font-weight:500;}
     .fm-pill-code.active .fm-pill-sub{color:var(--accent-deep);}
@@ -3546,9 +3565,14 @@
                   <div class="fm-pill" data-force="model3d"><span class="fm-icon"></span>Model 3D</div>
                   <div class="fm-pill" data-force="ui2lua"><span class="fm-icon"></span>UI → Lua</div>
                   <div class="fm-pill" data-force="code"><span class="fm-icon"></span>Code</div>
+                  <select id="mobileCodeModelSelect" class="mobile-code-model-select">
+                    <option value="luna">GPT-5.6 Luna</option>
+                    <option value="gemini">Gemini 3.7 Flash</option>
+                    <option value="deepseek">DeepSeek V4 Flash</option>
+                  </select>
                 </div>
                 
-                <div class="force-mode-bar" id="codeModelBar" style="display:none; margin-top:-6px;">
+                <div class="force-mode-bar" id="codeModelBar" style="display:none; margin-top:-6px; flex-wrap: nowrap;">
                   <div class="fm-pill fm-pill-code active" data-codemodel="luna">
                     <span class="fm-pill-title">GPT-5.6 Luna</span>
                     <span class="fm-pill-sub">Najwyższa jakość · świetny balans ceny i wydajności</span>
@@ -4873,18 +4897,31 @@
     function bindCodeModelBar() {
       document.querySelectorAll("#codeModelBar .fm-pill").forEach(pill => {
         pill.addEventListener("click", () => {
-          selectedCodeModel = pill.dataset.codemodel;
-          document.querySelectorAll("#codeModelBar .fm-pill").forEach(p =>
-            p.classList.toggle("active", p === pill)
-          );
+          updateSelectedCodeModel(pill.dataset.codemodel);
         });
       });
+      document.getElementById("mobileCodeModelSelect").addEventListener("change", (e) => {
+        updateSelectedCodeModel(e.target.value);
+      });
+    }
+
+    function updateSelectedCodeModel(model) {
+      selectedCodeModel = model;
+      document.querySelectorAll("#codeModelBar .fm-pill").forEach(p =>
+        p.classList.toggle("active", p.dataset.codemodel === model)
+      );
+      document.getElementById("mobileCodeModelSelect").value = model;
     }
 
     function setForceMode(mode, opts) {
       opts = opts || {};
       activeForceMode = mode;
+      
+      // Desktop pills
       document.getElementById("codeModelBar").style.display = mode === "code" ? "flex" : "none";
+      
+      // Mobile select
+      document.getElementById("mobileCodeModelSelect").classList.toggle("active-mode", mode === "code");
 
       document.querySelectorAll(".fm-pill").forEach(p => {
         if (p.dataset.force) p.classList.toggle("active", p.dataset.force === mode);
