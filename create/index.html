@@ -3462,37 +3462,10 @@
     .fm-pill-code {
       flex-direction: column;
       align-items: flex-start;
-      gap: 2px;
-      padding: 8px 14px;
-      flex: 1;
-      border-radius: 20px;
-    }
-
-    .fm-pill-code.active .fm-pill-sub {
-      color: var(--accent-deep);
-    }
-
-    .code-model-tag {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--ink-faint);
-      margin-bottom: 8px;
-    }
-
-    .code-model-tag svg {
-      width: 12px;
-      height: 12px;
-    }
-
-    .fm-pill-code {
-      flex-direction: column;
-      align-items: flex-start;
       gap: 1px;
       padding: 5px 12px;
       flex: 1;
+      border-radius: 20px;
     }
 
     .fm-pill-code .fm-pill-title {
@@ -3506,8 +3479,34 @@
       font-weight: 500;
     }
 
-    .fm-pill-code.active .fm-pill-sub {
-      color: var(--accent-deep);
+    /* Gemini (Colorful) */
+    .fm-pill-code[data-codemodel="gemini"].active {
+      border-color: #A370F7;
+      background: linear-gradient(135deg, rgba(26,115,232,0.06), rgba(155,81,224,0.08), rgba(255,82,82,0.06));
+      color: #7b1fa2;
+    }
+    .fm-pill-code[data-codemodel="gemini"].active .fm-pill-sub {
+      color: #9c27b0;
+    }
+
+    /* GPT Luna (Mono) */
+    .fm-pill-code[data-codemodel="luna"].active {
+      border-color: var(--ink-2);
+      background: var(--soft);
+      color: var(--ink);
+    }
+    .fm-pill-code[data-codemodel="luna"].active .fm-pill-sub {
+      color: var(--ink-muted);
+    }
+
+    /* DeepSeek (Blueish) */
+    .fm-pill-code[data-codemodel="deepseek"].active {
+      border-color: #2b70f0;
+      background: rgba(43, 112, 240, 0.08);
+      color: #1754c6;
+    }
+    .fm-pill-code[data-codemodel="deepseek"].active .fm-pill-sub {
+      color: #2b70f0;
     }
 
     .code-model-note.off-peak {
