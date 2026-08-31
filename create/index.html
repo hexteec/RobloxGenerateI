@@ -4296,7 +4296,11 @@
 
     function signInWithGoogle() {
       const provider = new firebase.auth.GoogleAuthProvider();
-      auth.signInWithPopup(provider).catch(console.error);
+      auth.signInWithPopup(provider).catch(e => {
+        if (e.code !== 'auth/popup-closed-by-user') {
+          console.error(e);
+        }
+      });
     }
 
     function signOutUser() { auth.signOut(); }
