@@ -2190,7 +2190,7 @@
       margin-bottom: 12px;
       flex-wrap: wrap;
     }
-    
+
     .mobile-code-model-select {
       display: none;
       background: var(--bg);
@@ -3091,9 +3091,11 @@
       .force-mode-bar {
         gap: 6px;
       }
+
       #codeModelBar {
         display: none !important;
       }
+
       .mobile-code-model-select.active-mode {
         display: block;
       }
@@ -3102,10 +3104,12 @@
         padding: 6px 10px;
         font-size: 11.5px;
       }
+
       .fm-pill .fm-icon svg {
         width: 14px;
         height: 14px;
       }
+
       .mobile-code-model-select {
         padding: 0 6px;
         font-size: 11px;
@@ -3439,23 +3443,92 @@
       color: #E17A63;
       background: rgba(225, 122, 99, 0.1);
     }
-    .code-model-tag{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:var(--ink-faint);margin-bottom:8px;}
-    .code-model-tag svg{width:12px;height:12px;}
-    
-    .fm-pill-code{flex-direction:column;align-items:flex-start;gap:2px;padding:8px 14px; flex: 1;}
-    .fm-pill-code.active .fm-pill-sub{color:var(--accent-deep);}
-    .code-model-tag{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:var(--ink-faint);margin-bottom:8px;}
-    .code-model-tag svg{width:12px;height:12px;}
-    
-    .fm-pill-code{flex-direction:column;align-items:flex-start;gap:1px;padding:5px 12px; flex: 1;}
-    .fm-pill-code .fm-pill-title{font-weight:700;font-size:12.6px;}
-    .fm-pill-code .fm-pill-sub{font-size:10.8px;color:var(--ink-faint);font-weight:500;}
-    .fm-pill-code.active .fm-pill-sub{color:var(--accent-deep);}
-    
-    .code-model-note.off-peak{color:var(--mint);font-weight:700;}
-    .code-model-note.peak{color:var(--amber);font-weight:700;}
-    .fake-cursor{display:inline-block;animation:softPulse 0.8s step-start infinite;color:var(--accent);}
-    .code-block.fake-typing{opacity:0.92;}
+
+    .code-model-tag {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--ink-faint);
+      margin-bottom: 8px;
+    }
+
+    .code-model-tag svg {
+      width: 12px;
+      height: 12px;
+    }
+
+    .fm-pill-code {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 2px;
+      padding: 8px 14px;
+      flex: 1;
+      border-radius: 20px;
+    }
+
+    .fm-pill-code.active .fm-pill-sub {
+      color: var(--accent-deep);
+    }
+
+    .code-model-tag {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--ink-faint);
+      margin-bottom: 8px;
+    }
+
+    .code-model-tag svg {
+      width: 12px;
+      height: 12px;
+    }
+
+    .fm-pill-code {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1px;
+      padding: 5px 12px;
+      flex: 1;
+    }
+
+    .fm-pill-code .fm-pill-title {
+      font-weight: 700;
+      font-size: 12.6px;
+    }
+
+    .fm-pill-code .fm-pill-sub {
+      font-size: 10.8px;
+      color: var(--ink-faint);
+      font-weight: 500;
+    }
+
+    .fm-pill-code.active .fm-pill-sub {
+      color: var(--accent-deep);
+    }
+
+    .code-model-note.off-peak {
+      color: var(--mint);
+      font-weight: 700;
+    }
+
+    .code-model-note.peak {
+      color: var(--amber);
+      font-weight: 700;
+    }
+
+    .fake-cursor {
+      display: inline-block;
+      animation: softPulse 0.8s step-start infinite;
+      color: var(--accent);
+    }
+
+    .code-block.fake-typing {
+      opacity: 0.92;
+    }
   </style>
 </head>
 
@@ -3579,7 +3652,7 @@
                     <option value="deepseek">DeepSeek V4 Flash</option>
                   </select>
                 </div>
-                
+
                 <div class="force-mode-bar" id="codeModelBar" style="display:none; margin-top:-6px; flex-wrap: nowrap;">
                   <div class="fm-pill fm-pill-code active" data-codemodel="luna">
                     <span class="fm-pill-title">GPT-5.6 Luna</span>
@@ -3794,7 +3867,7 @@
         </div>`;
       setBotBody(el, html);
       const target = el.querySelector("#fakeTypeTarget");
-      if (!target) return () => {};
+      if (!target) return () => { };
 
       const interval = setInterval(() => {
         if (!target.isConnected) { clearInterval(interval); return; }
@@ -4061,7 +4134,7 @@
     let currentTemplate = "square";
     let mainImage = null;
     let refImage = null;
-    
+
     let currentCodeState = { code: null, language: null, chatId: null };
     let selectedCodeModel = "luna"; // "luna" | "gemini" | "deepseek"
 
@@ -4564,7 +4637,7 @@
       if (isTextReply || isCode) {
         const replyText = m.reply ?? m.content ?? m.text ?? "";
         body.innerHTML = (isCode ? codeModelBadgeHtml(m.model) : "") + renderMarkdown(replyText);
-        
+
         if (isCode) {
           const match = replyText.match(/```(?:\w+)?\n([\s\S]*?)```/);
           if (match) {
@@ -4924,10 +4997,10 @@
     function setForceMode(mode, opts) {
       opts = opts || {};
       activeForceMode = mode;
-      
+
       // Desktop pills
       document.getElementById("codeModelBar").style.display = mode === "code" ? "flex" : "none";
-      
+
       // Mobile select
       document.getElementById("mobileCodeModelSelect").classList.toggle("active-mode", mode === "code");
 
@@ -5466,25 +5539,25 @@
 
     async function sendCodeMessage(instructionOverride = null, isFix = false) {
       if (!currentUser) { document.getElementById("signInBtn").click(); return; }
-      
+
       const promptEl = document.getElementById("prompt");
       const raw = instructionOverride || promptEl.value.trim();
       if (!raw) return;
-      
+
       const sendBtn = document.getElementById("generateBtn");
       const sendIcon = document.getElementById("sendIcon");
       sendBtn.disabled = true;
       sendIcon.innerHTML = ICONS.spinner;
       sendIcon.querySelector("svg").classList.add("spin");
-      
+
       appendUserBubble(raw);
       const pendingEl = appendBotPlaceholder("");
       const stopTyping = startFakeCodeTyping(pendingEl);
-      
+
       try {
         const chatId = await ensureActiveChat(raw || "Code Gen");
         currentCodeState.chatId = chatId;
-        
+
         const payload = {
           instruction: raw,
           previousCode: currentCodeState.code,
@@ -5492,33 +5565,33 @@
           isFix,
           model: selectedCodeModel
         };
-        
+
         const res = await authedFetch("/generate-code", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload)
         });
-        
+
         if (!res.ok) {
           if (res.status === 402) openBuyModal();
           throw new Error(await extractError(res));
         }
-        
+
         const data = await res.json();
         const replyText = (data.description ? data.description + "\n\n" : "") + "```" + (data.language || "lua") + "\n" + data.code + "\n```";
-        
+
         stopTyping();
         setBotBody(pendingEl, codeModelBadgeHtml(data.model || selectedCodeModel, data.pricingNote) + renderMarkdown(replyText));
         attachFixButtonToLastCodeBlock(pendingEl, chatId);
-        
+
         currentCodeState = { code: data.code, language: data.language || "lua", chatId, model: data.model || selectedCodeModel };
         document.getElementById("composerHint").textContent = "Mam zapamiętany Twój kod — możesz poprosić o dodanie funkcji, zmianę, refaktor.";
         document.getElementById("prompt").placeholder = "np. dodaj funkcję do zapisu stanu, dodaj walidację…";
-        
+
         refreshBalance();
         await persistMessage(chatId, { type: "code", prompt: raw, reply: replyText, language: data.language, model: data.model || selectedCodeModel });
         if (!instructionOverride) resetComposerAfterSend();
-        
+
       } catch (e) {
         stopTyping();
         console.error(e);
@@ -5535,7 +5608,7 @@
       const lastCb = codeBlocks[codeBlocks.length - 1];
       const btnsRow = lastCb.querySelector(".cb-btns");
       if (!btnsRow) return;
-      
+
       const fixBtn = document.createElement("button");
       fixBtn.className = "cb-btn";
       fixBtn.style.color = "var(--warn)";
@@ -5544,7 +5617,7 @@
       fixBtn.onclick = () => promptFixCode(chatId, lastCb);
       btnsRow.insertBefore(fixBtn, btnsRow.firstChild);
     }
-    
+
     function promptFixCode(chatId, cbElement) {
       let existingForm = cbElement.querySelector(".inline-fix-form");
       if (existingForm) {
@@ -5561,14 +5634,14 @@
       const input = cbElement.querySelector(".fix-input");
       const btn = cbElement.querySelector(".fix-submit");
       input.focus();
-      
+
       btn.onclick = () => {
         const val = input.value.trim();
         if (!val) return;
         cbElement.querySelector(".inline-fix-form").remove();
         sendCodeMessage(val, true);
       };
-      
+
       input.addEventListener("keydown", (e) => {
         if (e.key === "Enter") {
           e.preventDefault();
