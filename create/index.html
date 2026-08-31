@@ -3589,6 +3589,9 @@
               <div class="u-name" id="userName"></div>
               <div class="u-tokens" id="tokenPill" onclick="openBuyModal()"><span id="tokenCount">–</span> tokens · top
                 up</div>
+              <div class="u-tokens" id="robloxLinkRow" style="margin-top:4px; cursor:pointer;" onclick="connectRoblox()">
+                <span id="robloxLinkText">🔗 Połącz konto Roblox</span>
+              </div>
             </div>
             <button class="u-signout" onclick="signOutUser()" title="Sign out"></button>
           </div>
@@ -6329,6 +6332,27 @@
     </div>
   </div>
 
+  <script>
+    async function connectRoblox() {
+      if (!currentUser) {
+          alert("Zaloguj się najpierw!");
+          return;
+      }
+      const idToken = await getIdToken();
+      window.location.href = WORKER_URL + "/auth/roblox/start?_t=" + encodeURIComponent(idToken);
+    }
+    
+    window.addEventListener("DOMContentLoaded", () => {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get("roblox_linked") === "1") {
+            alert("Konto Roblox zostało pomyślnie połączone!");
+            const url = new URL(window.location);
+            url.searchParams.delete("roblox_linked");
+            window.history.replaceState({}, document.title, url);
+            // fetchUserData will handle the rest if called on load
+        }
+    });
+  </script>
 </body>
 
 </html>
