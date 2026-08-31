@@ -3745,9 +3745,6 @@
       return `<div class="code-model-tag">${ICONS.wand}<span>Wygenerowano przez: ${escapeHtml(label)}${note}</span></div>`;
     }
 
-    const imagePresets = {
-      normal: { label: "Normal Image", group: "special", icon: ICONS.spark, description: "Generate an image without a predefined purpose or style.", backendCategory: "icon", promptPrefix: "", injectStyle: false },
-
     const FAKE_CODE_SNIPPETS = [
       `local function init()\n    print("Initializing module...")\n    local Players = game:GetService("Players")\n    local player = Players.LocalPlayer\nend`,
       `local function setupEvents()\n    for _, obj in ipairs(workspace:GetChildren()) do\n        if obj:IsA("BasePart") then\n            obj.Touched:Connect(function(hit)\n                -- handle collision\n            end)\n        end\n    end\nend`,
@@ -3770,13 +3767,16 @@
       const interval = setInterval(() => {
         if (!target.isConnected) { clearInterval(interval); return; }
         i += Math.random() < 0.15 ? 0 : Math.ceil(Math.random() * 3);
-        if (i > snippet.length) i = 0; // pętla, gdyby odpowiedź się długo generowała
+        if (i > snippet.length) i = 0;
         target.textContent = snippet.slice(0, i);
         target.innerHTML = highlightCode(snippet.slice(0, i), "lua") + '<span class="fake-cursor">▍</span>';
       }, 35);
 
       return () => clearInterval(interval);
     }
+
+    const imagePresets = {
+      normal: { label: "Normal Image", group: "special", icon: ICONS.spark, description: "Generate an image without a predefined purpose or style.", backendCategory: "icon", promptPrefix: "", injectStyle: false },
       icon: { label: "Icon", group: "quick", icon: ICONS.icon, backendCategory: "icon", promptPrefix: "Roblox game icon: centered subject, clean readable silhouette at small size, strong composition, eye-catching icon-style rendering.", injectStyle: true },
       thumbnail: { label: "Thumbnail", group: "quick", icon: ICONS.thumb, backendCategory: "thumbnail", promptPrefix: "Roblox game thumbnail: wide cinematic key-art composition, dynamic scene, clear focal subject, dramatic use of space.", injectStyle: true },
       particle: { label: "Particle", group: "quick", icon: ICONS.spark, backendCategory: "icon", promptPrefix: "Single particle effect asset: one isolated effect (smoke/fire/spark/dust/magic as described), clean readable silhouette, simple background suited for a particle texture.", injectStyle: true },
