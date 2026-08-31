@@ -3416,8 +3416,6 @@
     .code-model-tag svg{width:12px;height:12px;}
     
     .fm-pill-code{flex-direction:column;align-items:flex-start;gap:2px;padding:8px 14px;}
-    .fm-pill-code .fm-pill-title{font-weight:700;font-size:12.6px;}
-    .fm-pill-code .fm-pill-sub{font-size:10.8px;color:var(--ink-faint);font-weight:500;}
     .fm-pill-code.active .fm-pill-sub{color:var(--accent-deep);}
     .code-model-tag{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:var(--ink-faint);margin-bottom:8px;}
     .code-model-tag svg{width:12px;height:12px;}
@@ -3426,6 +3424,11 @@
     .fm-pill-code .fm-pill-title{font-weight:700;font-size:12.6px;}
     .fm-pill-code .fm-pill-sub{font-size:10.8px;color:var(--ink-faint);font-weight:500;}
     .fm-pill-code.active .fm-pill-sub{color:var(--accent-deep);}
+    
+    .code-model-note.off-peak{color:var(--mint);font-weight:700;}
+    .code-model-note.peak{color:var(--amber);font-weight:700;}
+    .fake-cursor{display:inline-block;animation:softPulse 0.8s step-start infinite;color:var(--accent);}
+    .code-block.fake-typing{opacity:0.92;}
   </style>
 </head>
 
@@ -3733,14 +3736,47 @@
     };
 
     const CODE_MODEL_LABELS = { gemini: "Gemini 3.7 Flash", deepseek: "DeepSeek V4 Flash", luna: "GPT-5.6 Luna" };
-    function codeModelBadgeHtml(model) {
+    function codeModelBadgeHtml(model, pricingNote) {
       if (!model) return "";
       const label = CODE_MODEL_LABELS[model] || model;
-      return `<div class="code-model-tag">${ICONS.wand}<span>Wygenerowano przez: ${escapeHtml(label)}</span></div>`;
+      const note = pricingNote
+        ? ` <span class="code-model-note ${pricingNote}">(${pricingNote === "off-peak" ? "tańsza taryfa" : "taryfa szczytowa"})</span>`
+        : "";
+      return `<div class="code-model-tag">${ICONS.wand}<span>Wygenerowano przez: ${escapeHtml(label)}${note}</span></div>`;
     }
 
     const imagePresets = {
       normal: { label: "Normal Image", group: "special", icon: ICONS.spark, description: "Generate an image without a predefined purpose or style.", backendCategory: "icon", promptPrefix: "", injectStyle: false },
+
+    const FAKE_CODE_SNIPPETS = [
+      `local function init()\n    print("Initializing module...")\n    local Players = game:GetService("Players")\n    local player = Players.LocalPlayer\nend`,
+      `local function setupEvents()\n    for _, obj in ipairs(workspace:GetChildren()) do\n        if obj:IsA("BasePart") then\n            obj.Touched:Connect(function(hit)\n                -- handle collision\n            end)\n        end\n    end\nend`,
+      `local TweenService = game:GetService("TweenService")\nlocal function animate(part, goal)\n    local tween = TweenService:Create(part, TweenInfo.new(0.3), goal)\n    tween:Play()\nend`
+    ];
+
+    function startFakeCodeTyping(el) {
+      const snippet = FAKE_CODE_SNIPPETS[Math.floor(Math.random() * FAKE_CODE_SNIPPETS.length)];
+      let i = 0;
+      const html = `
+        <div class="bot-status" style="margin-bottom:8px;"><span class="mini-loader"><span></span><span></span><span></span></span><span>Generowanie kodu…</span></div>
+        <div class="code-block fake-typing">
+          <div class="cb-head"><span class="cb-lang">lua</span></div>
+          <pre><code class="hljs" id="fakeTypeTarget"></code></pre>
+        </div>`;
+      setBotBody(el, html);
+      const target = el.querySelector("#fakeTypeTarget");
+      if (!target) return () => {};
+
+      const interval = setInterval(() => {
+        if (!target.isConnected) { clearInterval(interval); return; }
+        i += Math.random() < 0.15 ? 0 : Math.ceil(Math.random() * 3);
+        if (i > snippet.length) i = 0; // pętla, gdyby odpowiedź się długo generowała
+        target.textContent = snippet.slice(0, i);
+        target.innerHTML = highlightCode(snippet.slice(0, i), "lua") + '<span class="fake-cursor">▍</span>';
+      }, 35);
+
+      return () => clearInterval(interval);
+    }
       icon: { label: "Icon", group: "quick", icon: ICONS.icon, backendCategory: "icon", promptPrefix: "Roblox game icon: centered subject, clean readable silhouette at small size, strong composition, eye-catching icon-style rendering.", injectStyle: true },
       thumbnail: { label: "Thumbnail", group: "quick", icon: ICONS.thumb, backendCategory: "thumbnail", promptPrefix: "Roblox game thumbnail: wide cinematic key-art composition, dynamic scene, clear focal subject, dramatic use of space.", injectStyle: true },
       particle: { label: "Particle", group: "quick", icon: ICONS.spark, backendCategory: "icon", promptPrefix: "Single particle effect asset: one isolated effect (smoke/fire/spark/dust/magic as described), clean readable silhouette, simple background suited for a particle texture.", injectStyle: true },
@@ -5393,7 +5429,8 @@
       sendIcon.querySelector("svg").classList.add("spin");
       
       appendUserBubble(raw);
-      const pendingEl = appendBotPlaceholder(isFix ? "Analizowanie błędu i poprawianie kodu " : "Generowanie kodu ");
+      const pendingEl = appendBotPlaceholder("");
+      const stopTyping = startFakeCodeTyping(pendingEl);
       
       try {
         const chatId = await ensureActiveChat(raw || "Code Gen");
@@ -5421,7 +5458,8 @@
         const data = await res.json();
         const replyText = (data.description ? data.description + "\n\n" : "") + "```" + (data.language || "lua") + "\n" + data.code + "\n```";
         
-        setBotBody(pendingEl, codeModelBadgeHtml(data.model || selectedCodeModel) + renderMarkdown(replyText));
+        stopTyping();
+        setBotBody(pendingEl, codeModelBadgeHtml(data.model || selectedCodeModel, data.pricingNote) + renderMarkdown(replyText));
         attachFixButtonToLastCodeBlock(pendingEl, chatId);
         
         currentCodeState = { code: data.code, language: data.language || "lua", chatId, model: data.model || selectedCodeModel };
@@ -5433,6 +5471,7 @@
         if (!instructionOverride) resetComposerAfterSend();
         
       } catch (e) {
+        stopTyping();
         console.error(e);
         setBotBody(pendingEl, errorHtml("Error: " + e.message));
       } finally {
