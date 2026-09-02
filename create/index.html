@@ -3772,7 +3772,7 @@
                   <div class="fm-pill" data-force="code"><span class="fm-icon"></span>Code</div>
                   <select id="mobileCodeModelSelect" class="mobile-code-model-select">
                     <option value="luna">GPT-5.6 Luna</option>
-                    <option value="gemini">Gemini 3.7 Flash</option>
+                    <option value="gemini">Gemini 3.8 Flash</option>
                     <option value="deepseek">DeepSeek V4 Flash</option>
                   </select>
                 </div>
@@ -3783,7 +3783,7 @@
                     <span class="fm-pill-sub">Najwyższa jakość · świetny balans ceny i wydajności</span>
                   </div>
                   <div class="fm-pill fm-pill-code" data-codemodel="gemini">
-                    <span class="fm-pill-title">Gemini 3.7 Flash</span>
+                    <span class="fm-pill-title">Gemini 3.8 Flash</span>
                     <span class="fm-pill-sub">Wysoka jakość · szybkie działanie · średni koszt</span>
                   </div>
                   <div class="fm-pill fm-pill-code" data-codemodel="deepseek">
@@ -3964,7 +3964,7 @@
       style: { api: "image2img", label: "Transfer style", icon: ICONS.spark, sub: "Upload image and reference style.", hint: "Upload image and reference style." }
     };
 
-    const CODE_MODEL_LABELS = { gemini: "Gemini 3.7 Flash", deepseek: "DeepSeek V4 Flash", luna: "GPT-5.6 Luna" };
+    const CODE_MODEL_LABELS = { gemini: "Gemini 3.8 Flash", deepseek: "DeepSeek V4 Flash", luna: "GPT-5.6 Luna" };
     function codeModelBadgeHtml(model, pricingNote) {
       if (!model) return "";
       const label = CODE_MODEL_LABELS[model] || model;
