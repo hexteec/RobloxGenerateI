@@ -4115,12 +4115,12 @@
     const POLY_STEPS = [500, 1000, 2000, 5000, 10000, 15000, 20000];
 
     const H_ADDON_COSTS = {
-      hdTexture: 10,
-      ultra8kTexture: 20,
-      hdGeometry: 20,
+      textureDetailed: 5,
+      textureExtreme: 15,
+      hdGeometry: 10,
       quadMesh: 5,
-      smartLowPoly: 10,
-      generateParts: 20
+      smartLowPoly: 5,
+      generateParts: 10
     };
 
     function calcModel3DCost(s) {
@@ -4128,9 +4128,12 @@
       let base = isImage ? (s.textures ? 35 : 30) : (s.textures ? 30 : 25);
 
       if (s.series === "h") {
-        base = isImage ? 20 : 10;
-        if (s.hdTexture) base += H_ADDON_COSTS.hdTexture;
-        if (s.ultra8kTexture) base += H_ADDON_COSTS.ultra8kTexture;
+        base = 15;
+        if (s.textures) {
+          base += 5;
+          if (s.textureQuality === "detailed") base += H_ADDON_COSTS.textureDetailed;
+          if (s.textureQuality === "extreme") base += H_ADDON_COSTS.textureExtreme;
+        }
         if (s.hdGeometry) base += H_ADDON_COSTS.hdGeometry;
         if (s.quadMesh) base += H_ADDON_COSTS.quadMesh;
         if (s.smartLowPoly) base += H_ADDON_COSTS.smartLowPoly;
@@ -6033,15 +6036,7 @@
 
       const hOnlyOptions = isH ? `
         <div class="m3d-section">
-          <div class="m3d-label">HD Texture <span class="m3d-badge-discount">+10</span></div>
-          <div class="m3d-row">${toggleBtn('hdTexture', false, 'OFF')}${toggleBtn('hdTexture', true, 'ON')}</div>
-        </div>
-        <div class="m3d-section">
-          <div class="m3d-label">8K Ultra Texture <span class="m3d-badge-discount">+20</span></div>
-          <div class="m3d-row">${toggleBtn('ultra8kTexture', false, 'OFF')}${toggleBtn('ultra8kTexture', true, 'ON')}</div>
-        </div>
-        <div class="m3d-section">
-          <div class="m3d-label">HD Geometry Quality <span class="m3d-badge-discount">+20</span></div>
+          <div class="m3d-label">HD Geometry Quality <span class="m3d-badge-discount">+10</span></div>
           <div class="m3d-row">${toggleBtn('hdGeometry', false, 'OFF')}${toggleBtn('hdGeometry', true, 'ON')}</div>
         </div>
         <div class="m3d-section">
@@ -6049,11 +6044,11 @@
           <div class="m3d-row">${toggleBtn('quadMesh', false, 'OFF')}${toggleBtn('quadMesh', true, 'ON')}</div>
         </div>
         <div class="m3d-section">
-          <div class="m3d-label">Smart Low-poly <span class="m3d-badge-discount">+10</span></div>
+          <div class="m3d-label">Smart Low-poly <span class="m3d-badge-discount">+5</span></div>
           <div class="m3d-row">${toggleBtn('smartLowPoly', false, 'OFF')}${toggleBtn('smartLowPoly', true, 'ON')}</div>
         </div>
         <div class="m3d-section">
-          <div class="m3d-label">Generate Parts <span class="m3d-badge-discount">+20</span></div>
+          <div class="m3d-label">Generate Parts <span class="m3d-badge-discount">+10</span></div>
           <div class="m3d-row">${toggleBtn('generateParts', false, 'OFF')}${toggleBtn('generateParts', true, 'ON')}</div>
         </div>
       ` : '';
@@ -6080,7 +6075,7 @@
       </div>
       <div class="m3d-section" style="${s.textures ? '' : 'opacity:.4;pointer-events:none;'}">
         <div class="m3d-label">Texture Quality</div>
-        <div class="m3d-row">${toggleBtn('textureQuality', 'standard', 'Standard')}${toggleBtn('textureQuality', 'detailed', 'Detailed')}${toggleBtn('textureQuality', 'extreme', 'Extreme')}</div>
+        <div class="m3d-row">${toggleBtn('textureQuality', 'standard', 'Standard')}${toggleBtn('textureQuality', 'detailed', isH ? 'Detailed +5' : 'Detailed')}${toggleBtn('textureQuality', 'extreme', isH ? 'Extreme +10' : 'Extreme')}</div>
       </div>
       ${hOnlyOptions}
       <div class="m3d-section" style="border-top:1px solid var(--border); padding-top:12px; margin-top:4px;">
@@ -6100,8 +6095,6 @@
     function setModel3DSeries(series) {
       model3DSettings.series = series;
       if (series === "p1") {
-        model3DSettings.hdTexture = false;
-        model3DSettings.ultra8kTexture = false;
         model3DSettings.hdGeometry = false;
         model3DSettings.quadMesh = false;
         model3DSettings.smartLowPoly = false;
