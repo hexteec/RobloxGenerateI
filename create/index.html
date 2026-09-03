@@ -814,13 +814,8 @@
       background: var(--ink-faint);
     }
 
-    .roblox-card.linked .rc-status-dot {
-      background: var(--mint);
-    }
-
-    .roblox-card.unlinked .rc-status-dot {
-      background: var(--accent);
-    }
+    .roblox-card.linked .rc-status-dot { background: var(--mint); }
+    .roblox-card.unlinked .rc-status-dot { background: var(--accent); }
 
     .rc-info {
       flex: 1;
@@ -845,10 +840,7 @@
       text-overflow: ellipsis;
     }
 
-    .roblox-card.linked .rc-sub {
-      color: var(--mint);
-      font-weight: 600;
-    }
+    .roblox-card.linked .rc-sub { color: var(--mint); font-weight: 600; }
 
     .rc-action {
       flex-shrink: 0;
@@ -861,9 +853,7 @@
       transition: opacity .15s ease, transform .12s ease;
     }
 
-    .rc-action:hover {
-      transform: translateY(-1px);
-    }
+    .rc-action:hover { transform: translateY(-1px); }
 
     .roblox-card.linked .rc-action {
       background: var(--card);
@@ -3605,10 +3595,9 @@
     /* Gemini (Colorful) */
     .fm-pill-code[data-codemodel="gemini"].active {
       border-color: #A370F7;
-      background: linear-gradient(135deg, rgba(26, 115, 232, 0.06), rgba(155, 81, 224, 0.08), rgba(255, 82, 82, 0.06));
+      background: linear-gradient(135deg, rgba(26,115,232,0.06), rgba(155,81,224,0.08), rgba(255,82,82,0.06));
       color: #7b1fa2;
     }
-
     .fm-pill-code[data-codemodel="gemini"].active .fm-pill-sub {
       color: #9c27b0;
     }
@@ -3619,7 +3608,6 @@
       background: var(--soft);
       color: var(--ink);
     }
-
     .fm-pill-code[data-codemodel="luna"].active .fm-pill-sub {
       color: var(--ink-muted);
     }
@@ -3630,7 +3618,6 @@
       background: rgba(43, 112, 240, 0.08);
       color: #1754c6;
     }
-
     .fm-pill-code[data-codemodel="deepseek"].active .fm-pill-sub {
       color: #2b70f0;
     }
@@ -3785,7 +3772,7 @@
                   <div class="fm-pill" data-force="code"><span class="fm-icon"></span>Code</div>
                   <select id="mobileCodeModelSelect" class="mobile-code-model-select">
                     <option value="luna">GPT-5.6 Luna</option>
-                    <option value="gemini">Gemini 3.8 Flash</option>
+                    <option value="gemini">Gemini 3.7 Flash</option>
                     <option value="deepseek">DeepSeek V4 Flash</option>
                   </select>
                 </div>
@@ -3796,7 +3783,7 @@
                     <span class="fm-pill-sub">Najwyższa jakość · świetny balans ceny i wydajności</span>
                   </div>
                   <div class="fm-pill fm-pill-code" data-codemodel="gemini">
-                    <span class="fm-pill-title">Gemini 3.8 Flash</span>
+                    <span class="fm-pill-title">Gemini 3.7 Flash</span>
                     <span class="fm-pill-sub">Wysoka jakość · szybkie działanie · średni koszt</span>
                   </div>
                   <div class="fm-pill fm-pill-code" data-codemodel="deepseek">
@@ -3977,7 +3964,7 @@
       style: { api: "image2img", label: "Transfer style", icon: ICONS.spark, sub: "Upload image and reference style.", hint: "Upload image and reference style." }
     };
 
-    const CODE_MODEL_LABELS = { gemini: "Gemini 3.8 Flash", deepseek: "DeepSeek V4 Flash", luna: "GPT-5.6 Luna" };
+    const CODE_MODEL_LABELS = { gemini: "Gemini 3.7 Flash", deepseek: "DeepSeek V4 Flash", luna: "GPT-5.6 Luna" };
     function codeModelBadgeHtml(model, pricingNote) {
       if (!model) return "";
       const label = CODE_MODEL_LABELS[model] || model;
@@ -4127,15 +4114,43 @@
     };
     const POLY_STEPS = [500, 1000, 2000, 5000, 10000, 15000, 20000];
 
+    const H_ADDON_COSTS = {
+      hdTexture: 10,
+      ultra8kTexture: 20,
+      hdGeometry: 20,
+      quadMesh: 5,
+      smartLowPoly: 10,
+      generateParts: 20
+    };
+
     function calcModel3DCost(s) {
       const isImage = pending3DInput && pending3DInput.kind === "image";
-      if (isImage) {
-        return s.textures ? 35 : 30;
+      let base = isImage ? (s.textures ? 35 : 30) : (s.textures ? 30 : 25);
+
+      if (s.series === "h") {
+        base = isImage ? 20 : 10;
+        if (s.hdTexture) base += H_ADDON_COSTS.hdTexture;
+        if (s.ultra8kTexture) base += H_ADDON_COSTS.ultra8kTexture;
+        if (s.hdGeometry) base += H_ADDON_COSTS.hdGeometry;
+        if (s.quadMesh) base += H_ADDON_COSTS.quadMesh;
+        if (s.smartLowPoly) base += H_ADDON_COSTS.smartLowPoly;
+        if (s.generateParts) base += H_ADDON_COSTS.generateParts;
       }
-      return s.textures ? 30 : 25;
+      return base;
     }
 
-    let model3DSettings = { ...MODEL3D_PRESETS.standard, preset: "standard", shareSell: false };
+    let model3DSettings = {
+      ...MODEL3D_PRESETS.standard,
+      preset: "standard",
+      shareSell: false,
+      series: "p1",
+      hdTexture: false,
+      ultra8kTexture: false,
+      hdGeometry: false,
+      quadMesh: false,
+      smartLowPoly: false,
+      generateParts: false
+    };
     let pendingTripoTaskId = null;
     let pendingShareSell = false;
 
@@ -5959,7 +5974,18 @@
         } else if (action.type === "need_3d_settings") {
           pendingChoiceMessage = null; // Do not save settings menu
           setForceMode("model3d", { skipAutoChooser: true });
-          model3DSettings = { ...MODEL3D_PRESETS.standard, preset: "standard" };
+          model3DSettings = {
+            ...MODEL3D_PRESETS.standard,
+            preset: "standard",
+            shareSell: false,
+            series: "p1",
+            hdTexture: false,
+            ultra8kTexture: false,
+            hdGeometry: false,
+            quadMesh: false,
+            smartLowPoly: false,
+            generateParts: false
+          };
           pending3DInput = action.useAttachedImage
             ? { kind: "image", text: action.prompt || raw, image: imageAttachments[0] || null }
             : { kind: "text", text: action.prompt || raw };
@@ -5993,9 +6019,48 @@
       const presetBtn = (key, label) => `<button class="m3d-preset ${s.preset === key ? 'active' : ''}" onclick="applyModel3DPreset('${key}')">${label}</button>`;
       const toggleBtn = (field, val, label) => `<button class="m3d-toggle ${s[field] === val ? 'active' : ''}" onclick='setModel3DField("${field}", ${JSON.stringify(val)})'>${label}</button>`;
       const polyIndex = POLY_STEPS.indexOf(s.polygonCount);
+      const isH = s.series === "h";
+
+      const seriesTabs = `
+        <div class="m3d-section">
+          <div class="m3d-label">Model Series</div>
+          <div class="m3d-row">
+            <button class="m3d-preset ${!isH ? 'active' : ''}" onclick="setModel3DSeries('p1')">Game Optimized (Recommended)</button>
+            <button class="m3d-preset ${isH ? 'active' : ''}" onclick="setModel3DSeries('h')">Normal 3D (High Quality)</button>
+          </div>
+          ${isH ? `<div class="m3d-desc" style="color:var(--amber);">⚠ High Quality models have a very high vertex/polygon count and are poorly optimized for real-time games. Use "Game Optimized" if this model will be used in Roblox gameplay.</div>` : ''}
+        </div>`;
+
+      const hOnlyOptions = isH ? `
+        <div class="m3d-section">
+          <div class="m3d-label">HD Texture <span class="m3d-badge-discount">+10</span></div>
+          <div class="m3d-row">${toggleBtn('hdTexture', false, 'OFF')}${toggleBtn('hdTexture', true, 'ON')}</div>
+        </div>
+        <div class="m3d-section">
+          <div class="m3d-label">8K Ultra Texture <span class="m3d-badge-discount">+20</span></div>
+          <div class="m3d-row">${toggleBtn('ultra8kTexture', false, 'OFF')}${toggleBtn('ultra8kTexture', true, 'ON')}</div>
+        </div>
+        <div class="m3d-section">
+          <div class="m3d-label">HD Geometry Quality <span class="m3d-badge-discount">+20</span></div>
+          <div class="m3d-row">${toggleBtn('hdGeometry', false, 'OFF')}${toggleBtn('hdGeometry', true, 'ON')}</div>
+        </div>
+        <div class="m3d-section">
+          <div class="m3d-label">Quad Mesh <span class="m3d-badge-discount">+5</span></div>
+          <div class="m3d-row">${toggleBtn('quadMesh', false, 'OFF')}${toggleBtn('quadMesh', true, 'ON')}</div>
+        </div>
+        <div class="m3d-section">
+          <div class="m3d-label">Smart Low-poly <span class="m3d-badge-discount">+10</span></div>
+          <div class="m3d-row">${toggleBtn('smartLowPoly', false, 'OFF')}${toggleBtn('smartLowPoly', true, 'ON')}</div>
+        </div>
+        <div class="m3d-section">
+          <div class="m3d-label">Generate Parts <span class="m3d-badge-discount">+20</span></div>
+          <div class="m3d-row">${toggleBtn('generateParts', false, 'OFF')}${toggleBtn('generateParts', true, 'ON')}</div>
+        </div>
+      ` : '';
 
       return `
     <div class="m3d-panel" id="model3dPanel">
+      ${seriesTabs}
       <div class="m3d-section">
         <div class="m3d-label">Preset</div>
         <div class="m3d-row">${presetBtn('low', 'Low Poly')}${presetBtn('standard', 'Standard')}${presetBtn('high', 'High Quality')}</div>
@@ -6017,6 +6082,7 @@
         <div class="m3d-label">Texture Quality</div>
         <div class="m3d-row">${toggleBtn('textureQuality', 'standard', 'Standard')}${toggleBtn('textureQuality', 'detailed', 'Detailed')}${toggleBtn('textureQuality', 'extreme', 'Extreme')}</div>
       </div>
+      ${hOnlyOptions}
       <div class="m3d-section" style="border-top:1px solid var(--border); padding-top:12px; margin-top:4px;">
         <div class="m3d-label">Share & Sell <span class="m3d-badge-discount">−1 Token</span></div>
         <div class="m3d-desc">Publish to Community Store. Earn tokens when purchased.</div>
@@ -6029,6 +6095,19 @@
       </div>
       <button class="btn-newchat" style="margin-top:2px;" onclick="confirmModel3DGeneration()">Generate 3D model (${finalCost} tokens)</button>
     </div>`;
+    }
+
+    function setModel3DSeries(series) {
+      model3DSettings.series = series;
+      if (series === "p1") {
+        model3DSettings.hdTexture = false;
+        model3DSettings.ultra8kTexture = false;
+        model3DSettings.hdGeometry = false;
+        model3DSettings.quadMesh = false;
+        model3DSettings.smartLowPoly = false;
+        model3DSettings.generateParts = false;
+      }
+      rerenderModel3DPanel();
     }
 
     function rerenderModel3DPanel() {
@@ -6073,7 +6152,18 @@
 
     function presentModel3DSettingsStep(userText, attachments, imageForPending) {
       appendUserBubble(userText, attachments || []);
-      model3DSettings = { ...MODEL3D_PRESETS.standard, preset: "standard", shareSell: false };
+      model3DSettings = {
+        ...MODEL3D_PRESETS.standard,
+        preset: "standard",
+        shareSell: false,
+        series: "p1",
+        hdTexture: false,
+        ultra8kTexture: false,
+        hdGeometry: false,
+        quadMesh: false,
+        smartLowPoly: false,
+        generateParts: false
+      };
       pending3DInput = imageForPending
         ? { kind: "image", text: userText, image: imageForPending }
         : { kind: "text", text: userText };
@@ -6313,7 +6403,18 @@
 
     function confirmGeneratedImageFor3D(btnEl, chatId, raw) {
       if (!model3dGeneratedImageDataUrl) return;
-      model3DSettings = { ...MODEL3D_PRESETS.standard, preset: "standard", shareSell: false };
+      model3DSettings = {
+        ...MODEL3D_PRESETS.standard,
+        preset: "standard",
+        shareSell: false,
+        series: "p1",
+        hdTexture: false,
+        ultra8kTexture: false,
+        hdGeometry: false,
+        quadMesh: false,
+        smartLowPoly: false,
+        generateParts: false
+      };
       pending3DInput = { kind: "image", text: raw, image: model3dGeneratedImageDataUrl };
       const bubbleEl = btnEl.closest(".msg-bot");
       setBotBody(bubbleEl, renderInlineMarkdown("Set up the 3D model before generating:") + model3DSettingsPanelHtml());
@@ -6551,8 +6652,8 @@
       try {
         const res = await authedFetch("/auth/roblox/start");
         if (!res.ok) {
-          const errData = await res.json().catch(() => ({}));
-          throw new Error(errData.error || "Błąd podczas łączenia");
+            const errData = await res.json().catch(() => ({}));
+            throw new Error(errData.error || "Błąd podczas łączenia");
         }
         const data = await res.json();
         if (data.redirectUrl) {
@@ -6564,15 +6665,15 @@
         alert("Błąd łączenia z Roblox: " + e.message);
       }
     }
-
+    
     window.addEventListener("DOMContentLoaded", () => {
-      const params = new URLSearchParams(window.location.search);
-      if (params.get("roblox_linked") === "1") {
-        const url = new URL(window.location);
-        url.searchParams.delete("roblox_linked");
-        window.history.replaceState({}, document.title, url);
-        refreshBalance();
-      }
+        const params = new URLSearchParams(window.location.search);
+        if (params.get("roblox_linked") === "1") {
+            const url = new URL(window.location);
+            url.searchParams.delete("roblox_linked");
+            window.history.replaceState({}, document.title, url);
+            refreshBalance();
+        }
     });
   </script>
 </body>
