@@ -814,8 +814,13 @@
       background: var(--ink-faint);
     }
 
-    .roblox-card.linked .rc-status-dot { background: var(--mint); }
-    .roblox-card.unlinked .rc-status-dot { background: var(--accent); }
+    .roblox-card.linked .rc-status-dot {
+      background: var(--mint);
+    }
+
+    .roblox-card.unlinked .rc-status-dot {
+      background: var(--accent);
+    }
 
     .rc-info {
       flex: 1;
@@ -840,7 +845,10 @@
       text-overflow: ellipsis;
     }
 
-    .roblox-card.linked .rc-sub { color: var(--mint); font-weight: 600; }
+    .roblox-card.linked .rc-sub {
+      color: var(--mint);
+      font-weight: 600;
+    }
 
     .rc-action {
       flex-shrink: 0;
@@ -853,7 +861,9 @@
       transition: opacity .15s ease, transform .12s ease;
     }
 
-    .rc-action:hover { transform: translateY(-1px); }
+    .rc-action:hover {
+      transform: translateY(-1px);
+    }
 
     .roblox-card.linked .rc-action {
       background: var(--card);
@@ -3595,9 +3605,10 @@
     /* Gemini (Colorful) */
     .fm-pill-code[data-codemodel="gemini"].active {
       border-color: #A370F7;
-      background: linear-gradient(135deg, rgba(26,115,232,0.06), rgba(155,81,224,0.08), rgba(255,82,82,0.06));
+      background: linear-gradient(135deg, rgba(26, 115, 232, 0.06), rgba(155, 81, 224, 0.08), rgba(255, 82, 82, 0.06));
       color: #7b1fa2;
     }
+
     .fm-pill-code[data-codemodel="gemini"].active .fm-pill-sub {
       color: #9c27b0;
     }
@@ -3608,6 +3619,7 @@
       background: var(--soft);
       color: var(--ink);
     }
+
     .fm-pill-code[data-codemodel="luna"].active .fm-pill-sub {
       color: var(--ink-muted);
     }
@@ -3618,6 +3630,7 @@
       background: rgba(43, 112, 240, 0.08);
       color: #1754c6;
     }
+
     .fm-pill-code[data-codemodel="deepseek"].active .fm-pill-sub {
       color: #2b70f0;
     }
@@ -6538,8 +6551,8 @@
       try {
         const res = await authedFetch("/auth/roblox/start");
         if (!res.ok) {
-            const errData = await res.json().catch(() => ({}));
-            throw new Error(errData.error || "Błąd podczas łączenia");
+          const errData = await res.json().catch(() => ({}));
+          throw new Error(errData.error || "Błąd podczas łączenia");
         }
         const data = await res.json();
         if (data.redirectUrl) {
@@ -6551,15 +6564,15 @@
         alert("Błąd łączenia z Roblox: " + e.message);
       }
     }
-    
+
     window.addEventListener("DOMContentLoaded", () => {
-        const params = new URLSearchParams(window.location.search);
-        if (params.get("roblox_linked") === "1") {
-            const url = new URL(window.location);
-            url.searchParams.delete("roblox_linked");
-            window.history.replaceState({}, document.title, url);
-            refreshBalance();
-        }
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("roblox_linked") === "1") {
+        const url = new URL(window.location);
+        url.searchParams.delete("roblox_linked");
+        window.history.replaceState({}, document.title, url);
+        refreshBalance();
+      }
     });
   </script>
 </body>
