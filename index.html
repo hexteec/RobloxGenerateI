@@ -2756,24 +2756,93 @@
     }
     .AssetViewer{
       width: 40%;
-      height: 100%;
+      height: 90%;
       position: absolute;
       right: -5%;
       top: 0;
     }
-    @media (max-width: 1500px) {
+    .AssetText{
+      position: absolute;
+      right: 20%;
+    }
+    .AssetH{
+        position: absolute;
+        right: -100%;
+        bottom: 10%;
+    }
+    @media (max-width: 1550px) {
       .AssetViewer{
-        position: relative;
-        width: 300px;
-        height: 400px;
-        transform: rotate(-45deg);
-        margin-top: 10%;
+        right: -10%;
+      }
+    .AssetText{
+      position: absolute;
+      right: 10%;
+    }
+    .AssetH{
+        right: 170%;
+        bottom: 20%;
+    }
+    }
+    @media (max-width: 1400px) {
+      .AssetViewer{
+        visibility: hidden;
+      }
+      .AssetText{
+      right: 0;
       }
     }
+    @media (max-width: 1200px) {
+      .AssetText{
+      position: relative;
+      left: 0;
+      top: 0;
+      }
+          .AssetH{
+        right: 0%;
+        bottom: 30%;
+    }
+    }
+    @media (max-width: 900px) {
+      .AssetText{
+      position: relative;
+      left: 0;
+      top: 0;
+      }
+    }
+    .AssetText_2.mobile{
+      visibility: hidden;
+    }
     @media (max-width: 500px) {
+      .AssetViewer{
+        width: 60%;
+        height: 450px;
+        transform: rotate(-45deg);
+        left: 25%;
+        top: 50%;
+        visibility: visible;
+      }
       .AssetImage{
         top: 10%;
       }
+      .AssetText_2{
+        position: absolute;
+        left: 0;
+        bottom: 0;
+      }
+      .AssetText_1{
+        visibility: hidden;
+      }
+      .AssetText_2.mobile{
+        visibility: visible;
+        position: absolute;
+        bottom: -15%;
+      }
+      .AssetText_2.pc{
+        visibility: hidden;
+      }
+      .AssetH{
+        bottom: 50%;
+    }
     }
     .AssetDesc{
       font-family: var(--font-mono);
@@ -2963,6 +3032,58 @@
             ✷ UI<br>
           </p>
         </div>
+                  <div class="AssetText min-w-[180px] flex-1">
+            <p class="AssetText_1 mb-2 text-sm font-bold uppercase tracking-wider m-0" style="color: #fff;">Create production-ready visual assets<br> with powerful AI models</p>
+<p class="AssetText_2 pc text-[clamp(0.85rem,1.3vw,1.05rem)] leading-relaxed opacity-75 m-0" style="color: #fff;">
+    <strong>2D textures and UI elements <br></strong> to fully optimized
+    <strong>3D models</strong>.
+    <br><br>
+
+    <strong>Images & Textures</strong><br>
+    Powered by <strong>GPT Image 2</strong>. <br>Generate textures, decals, UI
+    elements <br>and other visual assets using:
+    <br>
+    <strong>✽ Prompt → Image</strong>
+    <br>
+    <strong>✼ Image + Prompt → Image</strong> 
+    <br>
+    <strong>✻ Image + Reference → Image</strong>.
+    <br><br>
+
+    <strong>3D Models</strong><br>
+    Powered by <strong>Tripo AI</strong>. <br>
+    <strong>✼ Prompt → 3D Model</strong>  <br>
+    <strong>✽ Image → 3D Model</strong>  <br>
+    <strong>✻ Idea → Image → 3D Model</strong>.
+    <br><br>
+
+    Fine-tune your models with options for <br>
+    <strong>Textures</strong>, <strong>PBR Materials</strong>, <br>
+    <strong>Poly Count</strong>, <strong>Low Poly</strong>, <br>
+    <strong>High Detail</strong>, and <strong>Mesh Optimization</strong>.
+</p>
+<h1 class="AssetH text-[clamp(3.5rem,10vw,14rem)] font-bold leading-[0.85] uppercase tracking-tight m-0" style="color: #fff;">
+  CREATE
+</h1>
+<p class="AssetText_2 mobile text-[clamp(0.85rem,1.3vw,1.05rem)] leading-relaxed opacity-75 m-0" style="color: #fff;">
+
+    <strong>Images & Textures</strong><br>
+    Powered by <strong>GPT Image 2</strong>.
+    <br>
+    <strong>✽ Prompt → Image</strong>
+    <br>
+    <strong>✼ Image + Prompt → Image</strong> 
+    <br>
+    <strong>✻ Image + Reference → Image</strong>.
+    <br><br>
+
+    <strong>3D Models</strong><br>
+    Powered by <strong>Tripo AI</strong>. <br>
+    <strong>✼ Prompt → 3D Model</strong>  <br>
+    <strong>✽ Image → 3D Model</strong>  <br>
+    <strong>✻ Idea → Image → 3D Model</strong>.
+</p>
+          </div>
     <div class="mt-auto max-w-[50ch] text-[clamp(1rem,2.5vw,2rem)] font-normal leading-relaxed m-0" style="color: #fff;">
 <model-viewer
     src="Sword.glb"
