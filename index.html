@@ -2763,7 +2763,15 @@
     }
     @media (max-width: 1500px) {
       .AssetViewer{
-        display: none;
+        position: relative;
+        width: 300px;
+        height: 400px;
+        transform: rotate(30deg);
+      }
+    }
+    @media (max-width: 500px) {
+      .AssetImage{
+        top: 10%;
       }
     }
     .AssetDesc{
@@ -2968,45 +2976,7 @@
           <img class="AssetImage" src="model_f.png">
         </p>
 
-          <div class="AssetCard group relative w-full max-w-sm overflow-hidden border border-gray-200 shadow-lg transition-all duration-300 ease-in-out hover:shadow-2xl hover:-translate-y-2 md:mr-[4vw]">
-            <!-- Background Image with Zoom Effect on Hover -->
-            <img src="model_g.png" alt="Misty mountains over a serene lake" class="AssetImage2 absolute inset-0 h-full w-full object-cover transition-transform duration-500 ease-in-out group-hover:scale-110" />
-
-            <!-- Gradient Overlay for Text Readability -->
-            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
-
-            <!-- Content Container -->
-            <div class="relative flex h-[420px] flex-col justify-between p-6 text-white text-left font-sans">
-              <!-- Top Section: Logo -->
-              <div class="flex h-40 items-start">
-              </div>
-              
-              <!-- Middle Section: Details (slides up on hover) -->
-              <div class="space-y-4 transition-transform duration-500 ease-in-out group-hover:-translate-y-16">
-                <div>
-                  <h3 class="text-3xl font-bold text-white m-0">3D Models</h3>
-                  <p class="text-sm text-white/80 m-0 mt-1"></p>
-                </div>
-                <div>
-                  <h4 class="font-semibold text-white/90 m-0">TECHNOLOGY</h4>
-                  <p class="text-sm text-white/70 leading-relaxed m-0 mt-1">
-                    Tripo AI [H, P1, P2 Series]
-                  </p>
-                </div>
-              </div>
-
-              <!-- Bottom Section: Price and Button (revealed on hover) -->
-              <div class="absolute -bottom-20 left-0 w-full p-6 opacity-0 transition-all duration-500 ease-in-out group-hover:bottom-0 group-hover:opacity-100">
-                <div class="flex items-end justify-between">
-                  <div>
-                    <span class="text-white/80">Starting at </span>
-                    <span class="text-4xl font-bold text-white">10</span>
-                    <span class="text-white/80"> <b>Tokens</b> per 3D Model</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          
 
       </div>
     </section>
