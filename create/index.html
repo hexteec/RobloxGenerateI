@@ -4589,10 +4589,12 @@
                 </div>
 
                 <button class="composer-action-btn" id="generateBtn" onclick="onSendClick()">
-                  <svg width="12" height="12" viewBox="0 0 14 14" fill="none">
-                    <path d="M7 12V2M7 2L2.5 6.5M7 2L11.5 6.5" stroke="currentColor" stroke-width="1.75"
-                      stroke-linecap="round" stroke-linejoin="round" />
-                  </svg>
+                  <span id="sendIcon" style="display:flex;">
+                    <svg width="12" height="12" viewBox="0 0 14 14" fill="none">
+                      <path d="M7 12V2M7 2L2.5 6.5M7 2L11.5 6.5" stroke="currentColor" stroke-width="1.75"
+                        stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                  </span>
                 </button>
                 <div class="composer-hint" id="composerHint" style="display:none;"></div>
                 <select id="mobileCodeModelSelect" style="display:none;">
@@ -5072,51 +5074,55 @@
     }
 
     function init() {
-      document.getElementById("brandMark").innerHTML = ICONS.ropeak;
-      document.getElementById("newChatIcon").innerHTML = ICONS.plus;
-      initComposerHeightSync();
-
-      const widgetBtnDesktop = document.getElementById("widgetAddBtnDesktop");
-      const widgetBtnMobile = document.getElementById("widgetAddBtnMobile");
-      if (widgetBtnDesktop) widgetBtnDesktop.querySelector(".wab-icon").innerHTML = ICONS.stats;
-      if (widgetBtnMobile) widgetBtnMobile.querySelector(".wab-icon").innerHTML = ICONS.stats;
-
-      document.querySelector(".sb-toggle").innerHTML = ICONS.menu;
-      document.getElementById("attachBtn").innerHTML = ICONS.paperclip;
-      document.getElementById("enhanceIcon").innerHTML = ICONS.wand;
-      document.getElementById("sendIcon").innerHTML = ICONS.send;
-      document.querySelectorAll(".dz-remove").forEach(b => b.innerHTML = ICONS.close);
-      document.querySelectorAll(".modal-close").forEach(b => b.innerHTML = ICONS.close);
-      document.querySelector(".u-signout").innerHTML = ICONS.power;
-      document.getElementById("welcome").querySelector(".w-mark").innerHTML = ICONS.ropeak.replace('width="13" height="13"', 'width="20" height="20"');
-      document.querySelectorAll(".fm-pill").forEach(p => {
-        const info = FORCE_MODE_INFO[p.dataset.force];
-        if (info && p.querySelector(".fm-icon")) p.querySelector(".fm-icon").innerHTML = info.icon;
-      });
-
-      renderImageTypeMenuDropdown();
-      initThemeSwitch();
-      initLangSwitch();
-      bindForceModeBar();
-      bindCodeModelBar();
-      bindGwTypeBar();
-      bindDropzones();
-      bindAttachInput();
-      renderPackages();
-
-      const promptEl = document.getElementById("prompt");
-      promptEl.addEventListener("input", () => {
-        document.getElementById("charCount").textContent = promptEl.value.length + " characters";
-        promptEl.style.height = "auto";
-        promptEl.style.height = Math.min(promptEl.scrollHeight, 160) + "px";
-      });
-      promptEl.addEventListener("keydown", (e) => {
-        if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); onSendClick(); }
-      });
-
       firebase.initializeApp(firebaseConfig);
       auth = firebase.auth();
       auth.onAuthStateChanged(onAuthChange);
+
+      try {
+        document.getElementById("brandMark").innerHTML = ICONS.ropeak;
+        document.getElementById("newChatIcon").innerHTML = ICONS.plus;
+        initComposerHeightSync();
+
+        const widgetBtnDesktop = document.getElementById("widgetAddBtnDesktop");
+        const widgetBtnMobile = document.getElementById("widgetAddBtnMobile");
+        if (widgetBtnDesktop) widgetBtnDesktop.querySelector(".wab-icon").innerHTML = ICONS.stats;
+        if (widgetBtnMobile) widgetBtnMobile.querySelector(".wab-icon").innerHTML = ICONS.stats;
+
+        document.querySelector(".sb-toggle").innerHTML = ICONS.menu;
+        document.getElementById("attachBtn").innerHTML = ICONS.paperclip;
+        document.getElementById("enhanceIcon").innerHTML = ICONS.wand;
+        document.getElementById("sendIcon").innerHTML = ICONS.send;
+        document.querySelectorAll(".dz-remove").forEach(b => b.innerHTML = ICONS.close);
+        document.querySelectorAll(".modal-close").forEach(b => b.innerHTML = ICONS.close);
+        document.querySelector(".u-signout").innerHTML = ICONS.power;
+        document.getElementById("welcome").querySelector(".w-mark").innerHTML = ICONS.ropeak.replace('width="13" height="13"', 'width="20" height="20"');
+        document.querySelectorAll(".fm-pill").forEach(p => {
+          const info = FORCE_MODE_INFO[p.dataset.force];
+          if (info && p.querySelector(".fm-icon")) p.querySelector(".fm-icon").innerHTML = info.icon;
+        });
+
+        renderImageTypeMenuDropdown();
+        initThemeSwitch();
+        initLangSwitch();
+        bindForceModeBar();
+        bindCodeModelBar();
+        bindGwTypeBar();
+        bindDropzones();
+        bindAttachInput();
+        renderPackages();
+
+        const promptEl = document.getElementById("prompt");
+        promptEl.addEventListener("input", () => {
+          document.getElementById("charCount").textContent = promptEl.value.length + " characters";
+          promptEl.style.height = "auto";
+          promptEl.style.height = Math.min(promptEl.scrollHeight, 160) + "px";
+        });
+        promptEl.addEventListener("keydown", (e) => {
+          if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); onSendClick(); }
+        });
+      } catch (e) {
+        console.error("init() UI setup error:", e);
+      }
 
       if (location.search.includes("paid=1")) {
         pollBalanceAfterPurchase();
