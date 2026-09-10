@@ -6048,9 +6048,12 @@
       if (flowState !== "busy") {
         flowState = "choose_method";
         if (!opts.skipAutoChooser && typeof appendModeChooser === 'function') {
-          appendModeChooser(mode);
+          if (pendingChoiceMessage && pendingChoiceMessage._tempEl && pendingChoiceMessage._tempEl.parentNode) {
+            pendingChoiceMessage._tempEl.remove();
+          }
+          const el = appendModeChooser(mode);
           if (typeof activeChatId !== 'undefined') {
-            pendingChoiceMessage = { chatId: activeChatId, payload: { type: "chooser", category: mode, prompt: "" } };
+            pendingChoiceMessage = { chatId: activeChatId, payload: { type: "chooser", category: mode, prompt: "" }, _tempEl: el };
           }
         }
         if (typeof applyFlowComposerState === 'function') applyFlowComposerState();
@@ -6159,9 +6162,11 @@
 
       if (existingEl) {
         appendBotBody(existingEl, html);
+        return existingEl;
       } else {
         const el = appendBotPlaceholder(introText);
         setBotBody(el, renderInlineMarkdown(introText) + html);
+        return el;
       }
     }
 
@@ -6302,8 +6307,19 @@
     }
 
     function triggerAttachPicker() {
-      if (activeForceMode !== "chat") return;
-      document.getElementById("chatAttachInput").click();
+      const dropzoneRow = document.getElementById("dropzoneRow");
+      const dzRef = document.getElementById("dzRef");
+      if (dropzoneRow && dropzoneRow.style.display !== "none") {
+        if (typeof mainImage === 'undefined' || !mainImage) {
+          document.getElementById("mainImageInput").click();
+        } else if (dzRef && dzRef.style.display !== "none" && (typeof refImage === 'undefined' || !refImage)) {
+          document.getElementById("refImageInput").click();
+        } else {
+          document.getElementById("mainImageInput").click();
+        }
+      } else {
+        document.getElementById("chatAttachInput").click();
+      }
     }
 
     async function addChatAttachment(file) {
@@ -6525,7 +6541,8 @@
         clearMainImage();
         clearRefImage();
         flowState = "choose_method";
-        appendModeChooser(activeForceMode);
+        const el = appendModeChooser(activeForceMode);
+        pendingChoiceMessage = { chatId, payload: { type: "chooser", category: activeForceMode, prompt: "" }, _tempEl: el };
         applyFlowComposerState();
 
       } catch (e) {
@@ -6771,17 +6788,17 @@
 
         } else if (action.type === "need_image_method") {
           const presetCat = imagePresets[action.category] ? action.category : "normal";
-          pendingChoiceMessage = { chatId, payload: { type: "chooser", category: presetCat, prompt: raw } };
+          const el = appendModeChooser(presetCat, pendingEl);
+          pendingChoiceMessage = { chatId, payload: { type: "chooser", category: presetCat, prompt: raw }, _tempEl: el };
           selectImageType(presetCat);
           setForceMode("image", { skipAutoChooser: true });
           flowState = "choose_method";
-          appendModeChooser(presetCat, pendingEl);
 
         } else if (action.type === "need_3d_method") {
-          pendingChoiceMessage = { chatId, payload: { type: "chooser", category: "model3d", prompt: raw } };
+          const el = appendModeChooser("model3d", pendingEl);
+          pendingChoiceMessage = { chatId, payload: { type: "chooser", category: "model3d", prompt: raw }, _tempEl: el };
           setForceMode("model3d", { skipAutoChooser: true });
           flowState = "choose_method";
-          appendModeChooser("model3d", pendingEl);
 
         } else if (action.type === "need_code_mode") {
           setForceMode("code", { skipAutoChooser: true });
@@ -7036,7 +7053,8 @@
         console.error(e);
         setBotBody(panelEl, errorHtml("Error: " + e.message));
         flowState = "choose_method";
-        appendModeChooser("model3d", panelEl);
+        const el = appendModeChooser("model3d", panelEl);
+        pendingChoiceMessage = { chatId, payload: { type: "chooser", category: "model3d", prompt: "" }, _tempEl: el };
         applyFlowComposerState();
       }
     }
@@ -7058,7 +7076,8 @@
           if (data.status === "FAILED" || data.status === "CANCELED") {
             setBotBody(el, errorHtml("3D model generation failed" + (data.errorMessage ? (": " + data.errorMessage) : ".")));
             flowState = "choose_method";
-            appendModeChooser("model3d", el);
+            const newEl = appendModeChooser("model3d", el);
+            pendingChoiceMessage = { chatId, payload: { type: "chooser", category: "model3d", prompt: "" }, _tempEl: newEl };
             applyFlowComposerState();
             return;
           }
@@ -7832,10 +7851,7 @@
       closeAllDropdowns();
     }
 
-    function triggerAttachPicker() {
-      const inp = document.getElementById('chatAttachInput');
-      if (inp) inp.click();
-    }
+    // Duplicate triggerAttachPicker removed
 
     // ===== DOCK STAGE =====
     function openComposerStage() {
