@@ -2349,104 +2349,252 @@
 
     .dropzone-row {
       display: flex;
-      gap: 10px;
-      margin-bottom: 12px;
+      gap: 8px;
+      width: 100%;
+      max-width: 480px;
+      margin: 0 auto 10px auto;
+      pointer-events: auto;
+      box-sizing: border-box;
+      animation: dropzoneRowIn 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
+      z-index: 20;
+    }
+
+    @keyframes dropzoneRowIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px) scale(0.98);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
     }
 
     .dropzone {
       flex: 1;
-      border: 1px dashed var(--border);
-      border-radius: var(--radius-sm);
-      padding: 12px;
+      min-width: 0;
+      background: color-mix(in srgb, var(--card) 85%, transparent);
+      backdrop-filter: blur(24px) saturate(160%);
+      -webkit-backdrop-filter: blur(24px) saturate(160%);
+      border: 1px solid color-mix(in srgb, white 14%, var(--border));
+      border-radius: 20px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      padding: 8px 12px;
       cursor: pointer;
-      background: var(--soft);
       position: relative;
-      transition: border-color .15s ease, background .15s ease;
+      transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+      box-sizing: border-box;
+      display: flex;
+      align-items: center;
     }
 
     .dropzone:hover {
-      border-color: var(--ink-faint);
+      border-color: color-mix(in srgb, var(--primary) 45%, var(--border));
+      background: color-mix(in srgb, var(--card) 95%, transparent);
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.12), 0 0 14px color-mix(in srgb, var(--primary) 18%, transparent);
+      transform: translateY(-1px);
     }
 
     .dropzone.drag {
-      border-color: var(--accent);
-      background: var(--accent-wash);
+      border-color: var(--primary) !important;
+      background: color-mix(in srgb, var(--primary) 15%, var(--card)) !important;
+      transform: scale(1.02);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18), 0 0 20px color-mix(in srgb, var(--primary) 35%, transparent) !important;
     }
 
     .dropzone.filled {
-      border-style: solid;
-      border-color: var(--border);
-      background: var(--card);
+      border-color: color-mix(in srgb, #10b981 35%, var(--border));
+      background: color-mix(in srgb, var(--card) 90%, transparent);
     }
 
-    .dropzone input[type=file] {
-      position: absolute;
-      inset: 0;
-      opacity: 0;
-      cursor: pointer;
+    .dropzone.filled .dz-empty {
+      display: none !important;
     }
 
     .dz-empty {
       display: flex;
       align-items: center;
-      gap: 9px;
-      font-size: 12.3px;
+      gap: 10px;
+      width: 100%;
+    }
+
+    .dz-icon-wrap {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: color-mix(in srgb, var(--primary) 14%, transparent);
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: transform 0.2s ease;
+    }
+
+    .dropzone:hover .dz-icon-wrap {
+      transform: scale(1.08);
+      background: color-mix(in srgb, var(--primary) 22%, transparent);
+    }
+
+    .dz-text-block {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .dz-title-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .dz-label {
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--ink);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .dz-badge {
+      font-size: 9.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      padding: 1px 5px;
+      border-radius: 5px;
+      background: color-mix(in srgb, var(--primary) 15%, transparent);
+      color: var(--primary);
+      flex-shrink: 0;
+    }
+
+    .dz-badge.opt {
+      background: color-mix(in srgb, var(--ink-faint) 15%, transparent);
       color: var(--ink-muted);
     }
 
-    .dz-empty .dz-tag {
-      font-size: 10px;
-      font-weight: 700;
-      color: var(--ink-faint);
-      text-transform: uppercase;
-      letter-spacing: .04em;
+    .dz-sub {
+      font-size: 11px;
+      color: var(--ink-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .dz-upload-cta {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 10px;
+      border-radius: 9999px;
+      background: color-mix(in srgb, var(--primary) 12%, transparent);
+      border: 1px solid color-mix(in srgb, var(--primary) 24%, transparent);
+      color: var(--primary);
+      font-size: 11px;
+      font-weight: 600;
+      flex-shrink: 0;
+      transition: all 0.2s ease;
+    }
+
+    .dropzone:hover .dz-upload-cta {
+      background: var(--primary);
+      color: #000;
+      border-color: var(--primary);
+      transform: translateY(-1px);
     }
 
     .dz-filled {
       display: none;
       align-items: center;
-      gap: 9px;
+      gap: 10px;
+      width: 100%;
     }
 
     .dz-filled.show {
-      display: flex;
+      display: flex !important;
     }
 
     .dz-filled img {
-      width: 32px;
-      height: 32px;
+      width: 36px;
+      height: 36px;
       object-fit: cover;
-      border-radius: 7px;
-      border: 1px solid var(--border);
+      border-radius: 10px;
+      border: 1px solid color-mix(in srgb, white 20%, var(--border));
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+      flex-shrink: 0;
     }
 
-    .dz-filled .dz-name {
-      font-size: 12px;
-      color: var(--ink-muted);
+    .dz-file-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
       flex: 1;
       min-width: 0;
+    }
+
+    .dz-name {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--ink);
+      white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      white-space: nowrap;
     }
 
-    .dz-filled .dz-remove {
-      background: none;
-      border: none;
-      color: var(--ink-faint);
-      cursor: pointer;
-      z-index: 2;
-      position: relative;
+    .dz-status-ready {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      font-size: 10.5px;
+      font-weight: 600;
+      color: #10b981;
+    }
+
+    .dz-actions {
       display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
     }
 
-    .dz-filled .dz-remove:hover {
-      color: var(--coral);
+    .dz-action-pill {
+      background: color-mix(in srgb, var(--ink) 6%, transparent);
+      border: 1px solid color-mix(in srgb, var(--ink) 12%, transparent);
+      color: var(--ink);
+      font-size: 11px;
+      font-weight: 500;
+      border-radius: 9999px;
+      padding: 4px 8px;
+      cursor: pointer;
+      transition: all 0.15s ease;
     }
 
-    .dz-filled .dz-remove svg {
-      width: 13px;
-      height: 13px;
+    .dz-action-pill:hover {
+      background: color-mix(in srgb, var(--ink) 12%, transparent);
+    }
+
+    .dz-remove {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      border: none;
+      background: color-mix(in srgb, #ef4444 14%, transparent);
+      color: #ef4444;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      flex-shrink: 0;
+    }
+
+    .dz-remove:hover {
+      background: #ef4444;
+      color: #ffffff;
+      transform: scale(1.08);
     }
 
     .prompt-box {
@@ -4217,14 +4365,15 @@
       color: var(--ink) !important;
     }
 
-    .dropzone-row {
+    .pending-attachments {
       margin-top: 52px !important;
       padding: 0 12px 10px 12px !important;
     }
 
-    .pending-attachments {
-      margin-top: 52px !important;
-      padding: 0 12px 10px 12px !important;
+    #modeAttachPillBtn.has-file {
+      color: #10b981 !important;
+      opacity: 0.95 !important;
+      font-weight: 600 !important;
     }
 
     /* ======== MODE CONTEXT BAR ======== */
@@ -4516,6 +4665,97 @@
               style="display:none; justify-content:center; align-items:center; gap:6px; flex-wrap:wrap; padding: 0 12px 10px 12px; transition: opacity 0.3s ease; animation: fadeIn 0.3s ease;">
             </div>
 
+            <!-- Mode Attachment Floating Shelf -->
+            <div class="dropzone-row" id="dropzoneRow" style="display:none;">
+              <div class="dropzone" id="dzMain">
+                <div class="dz-empty" id="dzMainEmpty">
+                  <div class="dz-icon-wrap">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <rect x="3" y="3" width="18" height="18" rx="3"/>
+                      <circle cx="8.5" cy="8.5" r="1.5"/>
+                      <path d="M21 15l-5-5L5 21"/>
+                    </svg>
+                  </div>
+                  <div class="dz-text-block">
+                    <div class="dz-title-row">
+                      <span class="dz-label" id="dzMainLabel">UI Screenshot</span>
+                      <span class="dz-badge" id="dzMainBadge">Required</span>
+                    </div>
+                    <span class="dz-sub" id="dzMainSub">Click or drag & drop image to attach</span>
+                  </div>
+                  <div class="dz-upload-cta">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                      <polyline points="17 8 12 3 7 8"/>
+                      <line x1="12" y1="3" x2="12" y2="15"/>
+                    </svg>
+                    <span>Upload</span>
+                  </div>
+                </div>
+                <div class="dz-filled" id="dzMainFilled">
+                  <img id="dzMainPreview" alt="Attachment preview">
+                  <div class="dz-file-meta">
+                    <span class="dz-name" id="dzMainName"></span>
+                    <span class="dz-status-ready">
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                      Ready
+                    </span>
+                  </div>
+                  <div class="dz-actions">
+                    <button type="button" class="dz-action-pill" onclick="document.getElementById('mainImageInput').click()" title="Replace file">Change</button>
+                    <button type="button" class="dz-remove" onclick="clearMainImage(event)" title="Remove attachment">
+                      <svg width="11" height="11" viewBox="0 0 14 14" fill="none">
+                        <path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="dropzone" id="dzRef" style="display:none;">
+                <div class="dz-empty" id="dzRefEmpty">
+                  <div class="dz-icon-wrap">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                    </svg>
+                  </div>
+                  <div class="dz-text-block">
+                    <div class="dz-title-row">
+                      <span class="dz-label" id="dzRefLabel">Style Reference</span>
+                      <span class="dz-badge opt">Style</span>
+                    </div>
+                    <span class="dz-sub" id="dzRefSub">Upload art reference image</span>
+                  </div>
+                  <div class="dz-upload-cta">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                      <polyline points="17 8 12 3 7 8"/>
+                      <line x1="12" y1="3" x2="12" y2="15"/>
+                    </svg>
+                    <span>Upload</span>
+                  </div>
+                </div>
+                <div class="dz-filled" id="dzRefFilled">
+                  <img id="dzRefPreview" alt="Ref preview">
+                  <div class="dz-file-meta">
+                    <span class="dz-name" id="dzRefName"></span>
+                    <span class="dz-status-ready">
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                      Ready
+                    </span>
+                  </div>
+                  <div class="dz-actions">
+                    <button type="button" class="dz-action-pill" onclick="document.getElementById('refImageInput').click()" title="Replace file">Change</button>
+                    <button type="button" class="dz-remove" onclick="clearRefImage(event)" title="Remove attachment">
+                      <svg width="11" height="11" viewBox="0 0 14 14" fill="none">
+                        <path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <div class="composer-main-row">
               <div class="composer" id="composerIsland">
                 <input type="file" id="chatAttachInput" multiple accept="image/*,.pdf,.txt,.doc,.docx,.zip"
@@ -4527,26 +4767,6 @@
 
                 <div id="promptBox" style="display:contents;">
                   <textarea id="prompt" rows="1" placeholder="Tell me what you need..."></textarea>
-
-                  <div class="dropzone-row" id="dropzoneRow" style="display:none;">
-                    <div class="dropzone" id="dzMain">
-                      <div class="dz-empty" id="dzMainEmpty"><span class="dz-tag">01</span><span
-                          id="dzMainLabel">Image</span></div>
-                      <div class="dz-filled" id="dzMainFilled">
-                        <img id="dzMainPreview" alt="">
-                        <span class="dz-name" id="dzMainName"></span>
-                        <button class="dz-remove" onclick="clearMainImage(event)"></button>
-                      </div>
-                    </div>
-                    <div class="dropzone" id="dzRef" style="display:none;">
-                      <div class="dz-empty" id="dzRefEmpty"><span class="dz-tag">02</span> Reference</div>
-                      <div class="dz-filled" id="dzRefFilled">
-                        <img id="dzRefPreview" alt="">
-                        <span class="dz-name" id="dzRefName"></span>
-                        <button class="dz-remove" onclick="clearRefImage(event)"></button>
-                      </div>
-                    </div>
-                  </div>
                 </div>
 
                 <div class="pending-attachments" id="pendingAttachments"></div>
@@ -4574,8 +4794,18 @@
                     </div>
                   </div>
 
-                  <button class="ui-pill-btn" id="enhanceBtn" onclick="enhancePrompt()" style="display:none;"
-                    title="Enhance prompt">
+                  <div style="position: relative; display:none;" id="modeAttachPillWrap">
+                    <button class="ui-pill-btn" id="modeAttachPillBtn" onclick="triggerModeAttach()" title="Attach file for active mode">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="18" height="18" rx="2"/>
+                        <circle cx="8.5" cy="8.5" r="1.5"/>
+                        <polyline points="21 15 16 10 5 21"/>
+                      </svg>
+                      <span id="modeAttachPillText">Attach screenshot</span>
+                    </button>
+                  </div>
+
+                  <button class="ui-pill-btn" id="enhanceBtn" onclick="enhancePrompt()" style="display:none;" title="Enhance prompt">
                     <span id="enhanceIcon"></span><span id="enhanceLabel">Enhance</span>
                   </button>
                   <span class="char-count" id="charCount" style="display:none;">0 characters</span>
@@ -5994,6 +6224,7 @@
       if (imgWrap) imgWrap.style.display = mode === "image" ? "block" : "none";
       const luaWrap = document.getElementById("ui2luaSelectorWrap");
       if (luaWrap) luaWrap.style.display = mode === "ui2lua" ? "block" : "none";
+      const modeAttachWrap = document.getElementById("modeAttachPillWrap");
 
       const info = (typeof FORCE_MODE_INFO !== 'undefined' && FORCE_MODE_INFO[mode]) ? FORCE_MODE_INFO[mode] : { hint: '', label: '', icon: '' };
       const promptEl = document.getElementById("prompt");
@@ -6008,10 +6239,12 @@
         if (enhanceBtn) enhanceBtn.style.display = "none";
         if (dropzoneRow) dropzoneRow.style.display = "none";
         if (dzRef) dzRef.style.display = "none";
+        if (modeAttachWrap) modeAttachWrap.style.display = "none";
         if (typeof clearMainImage === 'function') clearMainImage();
         if (typeof clearRefImage === 'function') clearRefImage();
         flowState = "idle";
         if (typeof setPromptBoxEnabled === 'function') setPromptBoxEnabled(true);
+        if (isComposerExpanded && typeof syncComposerLayout === 'function') syncComposerLayout();
         return;
       }
       if (mode === "ui2lua") {
@@ -6020,11 +6253,12 @@
         if (enhanceBtn) enhanceBtn.style.display = "none";
         if (dropzoneRow) dropzoneRow.style.display = "flex";
         if (dzRef) dzRef.style.display = "none";
-        const dzMainLabel = document.getElementById("dzMainLabel");
-        if (dzMainLabel) dzMainLabel.textContent = "UI screenshot";
+        if (modeAttachWrap) modeAttachWrap.style.display = "block";
+        if (typeof updateDropzoneLabels === 'function') updateDropzoneLabels();
         if (typeof clearRefImage === 'function') clearRefImage();
         flowState = "idle";
         if (typeof setPromptBoxEnabled === 'function') setPromptBoxEnabled(true);
+        if (isComposerExpanded && typeof syncComposerLayout === 'function') syncComposerLayout();
         return;
       }
       if (mode === "code") {
@@ -6034,14 +6268,17 @@
         if (enhanceBtn) enhanceBtn.style.display = "none";
         if (dropzoneRow) dropzoneRow.style.display = "none";
         if (dzRef) dzRef.style.display = "none";
+        if (modeAttachWrap) modeAttachWrap.style.display = "none";
         if (typeof clearMainImage === 'function') clearMainImage();
         if (typeof clearRefImage === 'function') clearRefImage();
         flowState = "idle";
         if (typeof setPromptBoxEnabled === 'function') setPromptBoxEnabled(true);
+        if (isComposerExpanded && typeof syncComposerLayout === 'function') syncComposerLayout();
         return;
       }
       if (dropzoneRow) dropzoneRow.style.display = "none";
       if (dzRef) dzRef.style.display = "none";
+      if (modeAttachWrap) modeAttachWrap.style.display = "none";
       if (enhanceBtn) enhanceBtn.style.display = (mode === "image") ? "flex" : "none";
       if (typeof clearMainImage === 'function') clearMainImage();
       if (typeof clearRefImage === 'function') clearRefImage();
@@ -6134,9 +6371,41 @@
 
     function updateDropzoneLabels() {
       const label = document.getElementById("dzMainLabel");
-      if (activeForceMode === "model3d") label.textContent = "Reference image";
-      else if (activeForceMode === "ui2lua") label.textContent = "UI screenshot";
-      else label.textContent = "Image for editing";
+      const sub = document.getElementById("dzMainSub");
+      const badge = document.getElementById("dzMainBadge");
+      const pillBtn = document.getElementById("modeAttachPillBtn");
+      const pillText = document.getElementById("modeAttachPillText");
+
+      if (activeForceMode === "model3d") {
+        if (label) label.textContent = "Reference 3D Image";
+        if (sub) sub.textContent = "Upload photo or render to turn into a 3D model";
+        if (badge) badge.textContent = "Required";
+        if (pillText) pillText.textContent = mainImage ? "✓ 3D Reference attached" : "Attach 3D reference";
+      } else if (activeForceMode === "ui2lua") {
+        if (label) label.textContent = "UI Screenshot";
+        if (sub) sub.textContent = "Upload Roblox UI image to recreate as script";
+        if (badge) badge.textContent = "Required";
+        if (pillText) pillText.textContent = mainImage ? "✓ UI Screenshot attached" : "Attach UI screenshot";
+      } else if (currentMethod === "style") {
+        if (label) label.textContent = "Content Image";
+        if (sub) sub.textContent = "Base image that will receive the new style";
+        if (badge) badge.textContent = "01";
+        const refLbl = document.getElementById("dzRefLabel");
+        const refSub = document.getElementById("dzRefSub");
+        if (refLbl) refLbl.textContent = "Style Reference";
+        if (refSub) refSub.textContent = "Art style to transfer onto content";
+        if (pillText) pillText.textContent = (mainImage && refImage) ? "✓ Both images attached" : (mainImage ? "✓ 1 of 2 attached" : "Attach images");
+      } else {
+        if (label) label.textContent = "Image to Edit";
+        if (sub) sub.textContent = "Upload image to modify with AI";
+        if (badge) badge.textContent = "01";
+        if (pillText) pillText.textContent = mainImage ? "✓ Image attached" : "Attach image to edit";
+      }
+
+      if (pillBtn) {
+        if (mainImage) pillBtn.classList.add("has-file");
+        else pillBtn.classList.remove("has-file");
+      }
     }
 
     function appendModeChooser(mode, existingEl) {
@@ -6174,11 +6443,13 @@
     function applyFlowComposerState() {
       const dropzoneRow = document.getElementById("dropzoneRow");
       const dzRef = document.getElementById("dzRef");
+      const modeAttachWrap = document.getElementById("modeAttachPillWrap");
 
       if (flowState === "choose_method" || flowState === "busy") {
         setPromptBoxEnabled(false);
-        dropzoneRow.style.display = "none";
-        dzRef.style.display = "none";
+        if (dropzoneRow) dropzoneRow.style.display = "none";
+        if (dzRef) dzRef.style.display = "none";
+        if (modeAttachWrap) modeAttachWrap.style.display = "none";
         document.getElementById("composerHint").textContent =
           flowState === "busy" ? "Generation in progress - wait for the result below." : "Choose one of the options above in the chat.";
         return;
@@ -6188,30 +6459,36 @@
 
       if (activeForceMode === "model3d") {
         if (flowState === "awaiting_reference_image") {
-          dropzoneRow.style.display = "flex";
-          dzRef.style.display = "none";
+          if (dropzoneRow) dropzoneRow.style.display = "flex";
+          if (dzRef) dzRef.style.display = "none";
+          if (modeAttachWrap) modeAttachWrap.style.display = "block";
           updateDropzoneLabels();
           document.getElementById("composerHint").textContent = "Upload a reference image, description is optional.";
         } else {
-          dropzoneRow.style.display = "none";
+          if (dropzoneRow) dropzoneRow.style.display = "none";
+          if (modeAttachWrap) modeAttachWrap.style.display = "none";
           document.getElementById("composerHint").textContent = FORCE_MODE_INFO.model3d.hint;
         }
         return;
       }
 
       if (currentMethod === "text") {
-        dropzoneRow.style.display = "none";
-        dzRef.style.display = "none";
+        if (dropzoneRow) dropzoneRow.style.display = "none";
+        if (dzRef) dzRef.style.display = "none";
+        if (modeAttachWrap) modeAttachWrap.style.display = "none";
       } else if (currentMethod === "image") {
-        dropzoneRow.style.display = "flex";
-        dzRef.style.display = "none";
+        if (dropzoneRow) dropzoneRow.style.display = "flex";
+        if (dzRef) dzRef.style.display = "none";
+        if (modeAttachWrap) modeAttachWrap.style.display = "block";
         updateDropzoneLabels();
       } else if (currentMethod === "style") {
-        dropzoneRow.style.display = "flex";
-        dzRef.style.display = "block";
+        if (dropzoneRow) dropzoneRow.style.display = "flex";
+        if (dzRef) dzRef.style.display = "flex";
+        if (modeAttachWrap) modeAttachWrap.style.display = "block";
         updateDropzoneLabels();
       }
       document.getElementById("composerHint").textContent = METHOD_INFO[currentMethod].hint;
+      if (isComposerExpanded && typeof syncComposerLayout === 'function') syncComposerLayout();
     }
 
     function chooseImageMethod(mode, method, btnEl) {
@@ -6248,7 +6525,10 @@
       const input = document.getElementById(inputId);
 
       input.addEventListener("change", () => { if (input.files[0]) handleFile(input.files[0]); });
-      zone.addEventListener("click", () => input.click());
+      zone.addEventListener("click", (e) => {
+        if (e.target.closest(".dz-remove") || e.target.closest(".dz-action-pill")) return;
+        input.click();
+      });
       ["dragenter", "dragover"].forEach(evt => zone.addEventListener(evt, (e) => { e.preventDefault(); zone.classList.add("drag"); }));
       ["dragleave", "drop"].forEach(evt => zone.addEventListener(evt, (e) => { e.preventDefault(); zone.classList.remove("drag"); }));
       zone.addEventListener("drop", (e) => { const f = e.dataTransfer.files[0]; if (f) handleFile(f); });
@@ -6261,6 +6541,7 @@
         document.getElementById(filledId).classList.add("show");
         zone.classList.add("filled");
         updateEnhanceButtonLabel();
+        if (typeof updateDropzoneLabels === 'function') updateDropzoneLabels();
       }
     }
 
@@ -6271,6 +6552,7 @@
       document.getElementById("dzMainFilled").classList.remove("show");
       document.getElementById("dzMain").classList.remove("filled");
       updateEnhanceButtonLabel();
+      if (typeof updateDropzoneLabels === 'function') updateDropzoneLabels();
     }
 
     function clearRefImage(e) {
@@ -6280,6 +6562,18 @@
       document.getElementById("dzRefFilled").classList.remove("show");
       document.getElementById("dzRef").classList.remove("filled");
       updateEnhanceButtonLabel();
+      if (typeof updateDropzoneLabels === 'function') updateDropzoneLabels();
+    }
+
+    function triggerModeAttach() {
+      const dzRef = document.getElementById("dzRef");
+      if (typeof mainImage === 'undefined' || !mainImage) {
+        document.getElementById("mainImageInput").click();
+      } else if (dzRef && dzRef.style.display !== "none" && (typeof refImage === 'undefined' || !refImage)) {
+        document.getElementById("refImageInput").click();
+      } else {
+        document.getElementById("mainImageInput").click();
+      }
     }
 
     function fileToBase64(file) {
@@ -6350,6 +6644,7 @@
         }
         return `<div class="pa-chip pa-file">${ICONS.document}<span class="pa-file-name">${escapeHtml(a.name)}</span><button class="pa-remove" onclick="removePendingAttachment('${a.id}')">${ICONS.close}</button></div>`;
       }).join("");
+      if (typeof syncComposerLayout === 'function') syncComposerLayout();
     }
 
     function clearPendingAttachments() {
@@ -7756,7 +8051,7 @@
       const composer = document.getElementById('composerIsland');
       if (!composer) return;
       composer.classList.add('expanded');
-      composer.style.height = getExpandedHeight() + 'px';
+      syncComposerLayout();
       setTimeout(() => {
         const prompt = document.getElementById('prompt');
         if (prompt) prompt.focus();
@@ -7768,8 +8063,6 @@
       const prompt = document.getElementById('prompt');
       if (prompt && prompt.value.trim() !== '') return;
       if (document.querySelectorAll('.pending-attach-item').length > 0) return;
-      const dzMainFilled = document.getElementById('dzMainFilled');
-      if (dzMainFilled && dzMainFilled.style.display === 'flex') return;
 
       isComposerExpanded = false;
       const composer = document.getElementById('composerIsland');
@@ -7779,10 +8072,29 @@
       closeAllDropdowns();
     }
 
-    function getExpandedHeight() {
+    function syncComposerLayout() {
+      if (!isComposerExpanded) return;
       const prompt = document.getElementById('prompt');
-      if (!prompt) return 116;
-      return Math.max(116, 68 + Math.min(prompt.scrollHeight, 160));
+      let pHeight = 48;
+      if (prompt) {
+        prompt.style.height = '48px';
+        pHeight = Math.min(prompt.scrollHeight, 160);
+        prompt.style.height = pHeight + 'px';
+      }
+
+      const pa = document.getElementById('pendingAttachments');
+      const paHasContent = pa && (pa.children.length > 0 || pa.innerHTML.trim() !== '');
+      let extra = 0;
+      if (paHasContent) {
+        const margin = Math.max(52, pHeight + 4);
+        pa.style.setProperty('margin-top', margin + 'px', 'important');
+        extra = margin + (pa.offsetHeight || 44);
+      }
+
+      const composer = document.getElementById('composerIsland');
+      if (composer) {
+        composer.style.height = (extra ? (extra + 48) : Math.max(116, pHeight + 68)) + 'px';
+      }
     }
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -7804,11 +8116,7 @@
       if (prompt) {
         prompt.addEventListener('input', () => {
           if (isComposerExpanded) {
-            prompt.style.height = '48px';
-            const newH = Math.min(prompt.scrollHeight, 160);
-            prompt.style.height = newH + 'px';
-            const composer = document.getElementById('composerIsland');
-            if (composer) composer.style.height = Math.max(116, newH + 68) + 'px';
+            syncComposerLayout();
           }
         });
       }
