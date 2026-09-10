@@ -302,6 +302,7 @@
 
     html {
       scroll-behavior: smooth;
+      overflow: hidden;
     }
 
     body {
@@ -431,16 +432,11 @@
       width: var(--sidebar-w);
       flex-shrink: 0;
       border-right: 1px solid var(--border);
-      box-shadow: 0px 0px 20px 1px rgba(0, 0, 0, 0.199);
       display: flex;
       flex-direction: column;
       height: 100%;
       transition: transform .25s ease;
       position: relative;
-      background-image:
-        radial-gradient(circle at 1px 1px, var(--soft-2) 1px, transparent 0);
-      background-size: 14px 14px;
-      background-position: -4px -4px;
       backdrop-filter: blur(13px) saturate(110%);
     }
 
@@ -477,19 +473,19 @@
 
     .btn-newchat {
       width: 100%;
-      display: flex;
+      display: inline-flex;
       align-items: center;
-      justify-content: center;
-      gap: 7px;
+      gap: 8px;
       background: var(--ink);
-      border: none;
       color: #fff;
-      font-size: 13px;
-      font-weight: 600;
-      padding: 11px;
-      border-radius: var(--radius-sm);
+      border: none;
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 13.5px;
+      padding: 11px 20px;
       cursor: pointer;
-      transition: background .15s ease, transform .12s ease;
+      transition: background .15s ease, transform .12s ease, box-shadow .15s ease;
+      box-shadow: 0 1px 2px rgba(20, 20, 15, 0.1);
     }
 
     .btn-newchat:hover {
@@ -509,22 +505,19 @@
     .btn-store,
     .btn-tokens {
       width: 52%;
-      display: flex;
+      display: inline-flex;
       align-items: center;
-      justify-content: center;
-      gap: 7px;
-      background: var(--ink-2);
+      gap: 9px;
+      background: var(--ink);
       border: none;
-      color: #fff;
-      font-size: 12px;
+      color: white;
+      font-family: var(--font-display);
       font-weight: 700;
-      padding: 8px;
-      border-radius: var(--radius-sm);
+      font-size: 10.5px;
+      padding: 11px 20px;
       cursor: pointer;
-      transition: transform .12s ease, opacity .15s ease;
-      margin-bottom: 10px;
-      text-decoration: none;
-      box-shadow: 0 4px 12px rgba(248, 247, 248, 0.082);
+      transition: background .15s ease, transform .12s ease, box-shadow .15s ease;
+      box-shadow: 0 1px 2px rgba(20, 20, 15, 0.1);
     }
 
     .btn-store:hover,
@@ -680,7 +673,7 @@
       justify-content: center;
       gap: 8px;
       background: var(--soft);
-      border: 1px solid var(--border);
+      border: none;
       color: var(--ink);
       font-size: 12.5px;
       font-weight: 600;
@@ -758,22 +751,16 @@
       gap: 11px;
       margin-top: 10px;
       padding: 11px 12px;
-      border-radius: 14px;
-      border: 1px solid var(--border);
-      background: var(--card);
+      background-color: var(--ink);
       box-shadow: var(--shadow-sm);
       transition: border-color .15s ease, background .15s ease, box-shadow .15s ease;
     }
 
     .roblox-card.linked {
-      border-color: color-mix(in srgb, var(--mint) 45%, var(--border));
       background: linear-gradient(135deg, var(--mint-wash), var(--card) 70%);
     }
 
-    .roblox-card.unlinked {
-      border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
-      background: linear-gradient(135deg, var(--accent-wash), var(--card) 70%);
-    }
+    .roblox-card.unlinked {}
 
     .rc-avatar-wrap {
       position: relative;
@@ -795,8 +782,8 @@
       width: 38px;
       height: 38px;
       border-radius: 50%;
-      background: var(--soft);
-      border: 1px solid var(--border);
+      background: var(--ink-2);
+      color: white;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -810,12 +797,16 @@
       width: 12px;
       height: 12px;
       border-radius: 50%;
-      border: 2px solid var(--card);
       background: var(--ink-faint);
     }
 
-    .roblox-card.linked .rc-status-dot { background: var(--mint); }
-    .roblox-card.unlinked .rc-status-dot { background: var(--accent); }
+    .roblox-card.linked .rc-status-dot {
+      background: var(--mint);
+    }
+
+    .roblox-card.unlinked .rc-status-dot {
+      background: var(--accent);
+    }
 
     .rc-info {
       flex: 1;
@@ -840,20 +831,25 @@
       text-overflow: ellipsis;
     }
 
-    .roblox-card.linked .rc-sub { color: var(--mint); font-weight: 600; }
+    .roblox-card.linked .rc-sub {
+      color: var(--mint);
+      font-weight: 600;
+    }
 
     .rc-action {
       flex-shrink: 0;
       font-size: 11.5px;
       font-weight: 700;
       padding: 7px 12px;
-      border-radius: 999px;
+      border-radius: 8px;
       border: none;
       cursor: pointer;
       transition: opacity .15s ease, transform .12s ease;
     }
 
-    .rc-action:hover { transform: translateY(-1px); }
+    .rc-action:hover {
+      transform: translateY(-1px);
+    }
 
     .roblox-card.linked .rc-action {
       background: var(--card);
@@ -986,6 +982,20 @@
       gap: 8px;
       overflow-x: auto;
       padding-bottom: 2px;
+      position: relative;
+    }
+
+    /* Fade-out gradient to signal scrollability */
+    .topbar-widgets-mobile::after {
+      content: "";
+      position: sticky;
+      right: 0;
+      top: 0;
+      flex-shrink: 0;
+      width: 40px;
+      height: 100%;
+      background: linear-gradient(to right, transparent, var(--bg));
+      pointer-events: none;
     }
 
     .topbar-widgets-mobile::-webkit-scrollbar {
@@ -1004,6 +1014,15 @@
       padding: 28px 0 160px;
       position: relative;
       isolation: isolate;
+      scrollbar-width: none;
+      /* Firefox */
+      -ms-overflow-style: none;
+      /* IE and Edge */
+    }
+
+    .feed::-webkit-scrollbar {
+      display: none;
+      /* Chrome, Safari and Opera */
     }
 
     /* Ambient liquid lights */
@@ -1019,48 +1038,34 @@
     }
 
     .feed::before {
-      width: 520px;
-      height: 520px;
+      width: 480px;
+      height: 480px;
 
-      top: -260px;
-      left: 8%;
+      top: -240px;
+      left: 12%;
 
-      background: #806cff;
-      opacity: 0.075;
+      background: var(--accent);
+      opacity: 0.032;
 
       animation: ambientOne 20s ease-in-out infinite alternate;
     }
 
     .feed::after {
-      width: 460px;
-      height: 460px;
+      width: 400px;
+      height: 400px;
 
-      top: 35%;
-      right: -220px;
+      top: 45%;
+      right: -180px;
 
-      background: #4d9cff;
-      opacity: 0.055;
+      background: var(--accent-deep);
+      opacity: 0.022;
 
       animation: ambientTwo 25s ease-in-out infinite alternate;
     }
 
-    /* Additional light */
+    /* Additional light — removed to avoid third blob clutter */
     .feed> :first-child::before {
-      content: "";
-      position: absolute;
-      width: 380px;
-      height: 380px;
-      border-radius: 50%;
-
-      left: 35%;
-      bottom: -220px;
-
-      background: #a78bfa;
-      filter: blur(130px);
-      opacity: 0.045;
-
-      pointer-events: none;
-      animation: ambientThree 24s ease-in-out infinite alternate;
+      content: none;
     }
 
     @keyframes ambientOne {
@@ -1220,8 +1225,9 @@
     }
 
     .msg-bot .msg-avatar {
-      background: var(--ink);
-      color: #fff;
+      background: var(--accent-wash);
+      color: var(--accent);
+      border: 1px solid color-mix(in srgb, var(--accent) 25%, var(--border));
     }
 
     .msg-bot .msg-avatar svg {
@@ -1795,7 +1801,7 @@
       font-size: 12.3px;
       font-weight: 600;
       padding: 8px 13px;
-      border-radius: 999px;
+      border-radius: 8px;
       cursor: pointer;
       transition: border-color .15s ease, background .15s ease, transform .12s ease;
     }
@@ -2060,7 +2066,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 10px;
+      gap: 0px;
       width: 100%;
       max-width: 1280px;
       margin: 0 auto;
@@ -2145,7 +2151,7 @@
       gap: 7px;
       flex-shrink: 0;
       background: var(--card);
-      border: 1px dashed var(--border);
+      border: none;
       border-radius: 16px;
       padding: 12px 16px;
       cursor: pointer;
@@ -2186,23 +2192,11 @@
       align-items: center;
       gap: 10px;
 
-      background:
-        radial-gradient(circle at 20% 0%,
-          color-mix(in srgb, var(--bg) 18%, transparent),
-          transparent 45%),
-        linear-gradient(135deg,
-          color-mix(in srgb, var(--card) 72%, transparent),
-          color-mix(in srgb, var(--card) 48%, transparent));
-
-      backdrop-filter: blur(24px) saturate(140%);
-      -webkit-backdrop-filter: blur(24px) saturate(140%);
-
-      border: 1px solid color-mix(in srgb, white 12%, var(--border));
+      background: var(--card);
+      border: 1px solid var(--border);
       border-radius: 14px;
 
-      box-shadow:
-        0 6px 24px rgba(0, 0, 0, 0.10),
-        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      box-shadow: var(--shadow-sm);
 
       padding: 8px 14px 8px 8px;
 
@@ -2322,7 +2316,7 @@
       align-items: center;
       gap: 7px;
       padding: 8px 14px;
-      border-radius: 999px;
+      border-radius: 10px;
       border: 1px solid var(--border);
       background: var(--soft);
       cursor: pointer;
@@ -2529,7 +2523,7 @@
       align-items: center;
       gap: 6px;
       padding: 8px 12px;
-      border-radius: 999px;
+      border-radius: 8px;
       border: 1px solid var(--border);
       background: var(--soft);
       font-size: 12.2px;
@@ -3064,6 +3058,126 @@
       color: var(--coral);
     }
 
+    /* ========================= DESKTOP ISLANDS ========================= */
+    @media (min-width: 769px) {
+      .app-shell {
+        justify-content: center;
+      }
+
+      .sidebar {
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        backdrop-filter: none !important;
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        width: 100vw;
+        pointer-events: none;
+        z-index: 60;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: flex-start;
+        padding: 40px 80px 0;
+      }
+
+      .desktop-col-left {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        width: var(--sidebar-w);
+        pointer-events: auto;
+        animation: floatBubble 6s ease-in-out infinite;
+      }
+
+      .desktop-bubble {
+        width: 100%;
+        background: var(--card);
+        background-size: 14px 14px;
+        background-position: -4px -4px;
+        backdrop-filter: blur(8px) saturate(105%);
+        border-radius: 20px;
+        box-shadow: var(--shadow-lg);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+
+      .desktop-bubble-left {
+        height: fit-content;
+        max-height: 75vh;
+      }
+
+      .desktop-bubble-left .sb-bottom {
+        border-top: none;
+      }
+
+      .desktop-bubble-right {
+        width: var(--sidebar-w);
+        height: 75vh;
+        max-height: 800px;
+        animation: floatBubble 6.5s ease-in-out infinite alternate;
+        pointer-events: auto;
+      }
+
+      .widgets-side {
+        position: relative;
+        left: auto;
+        bottom: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        width: 100%;
+        max-height: 30vh;
+        overflow-y: auto;
+      }
+
+      .widgets-side::-webkit-scrollbar {
+        width: 0;
+      }
+
+      .widgets-side .gw-card {
+        background: var(--card) !important;
+        border: 1px solid var(--border) !important;
+        border-radius: 14px !important;
+        box-shadow: var(--shadow-sm) !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        margin: 0 !important;
+      }
+
+      .widget-add-btn-desktop {
+        width: 180px;
+        margin: 0 auto;
+        justify-content: center;
+        border-radius: 20px;
+        box-shadow: var(--shadow-md);
+      }
+
+      .main {
+        max-width: calc(100vw - (var(--sidebar-w) * 2) - 160px);
+        margin-left: calc(var(--sidebar-w) + 80px);
+        margin-right: calc(var(--sidebar-w) + 80px);
+      }
+    }
+
+    @keyframes floatBubble {
+      0% {
+        transform: translateY(0px);
+      }
+
+      50% {
+        transform: translateY(-8px);
+      }
+
+      100% {
+        transform: translateY(0px);
+      }
+    }
+
     /* ========================= RESPONSIVE ========================= */
     @media (max-width: 1180px) {
       .widgets-side {
@@ -3083,6 +3197,10 @@
     @media (max-width: 900px) {
       .feed-inner {
         max-width: 100%;
+      }
+
+      .composer-stage {
+        width: min(640px, calc(100vw - 48px));
       }
 
       .result-frame.latest {
@@ -3105,6 +3223,33 @@
         transform: translateX(-100%);
         box-shadow: var(--shadow-lg);
         background-color: var(--card);
+        display: flex;
+        flex-direction: column;
+      }
+
+      .desktop-bubble,
+      .desktop-col-left {
+        display: contents;
+      }
+
+      .sb-top-brand {
+        order: 1;
+        padding: 20px 16px 4px;
+        border-bottom: none;
+      }
+
+      .sb-top-chat {
+        order: 2;
+        padding: 0px 16px 14px;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .sb-chats {
+        order: 3;
+      }
+
+      .sb-bottom {
+        order: 4;
       }
 
       .sidebar.open {
@@ -3294,6 +3439,27 @@
       }
     }
 
+    /* ---- Mobile dock: smaller icons, no hover-scale trickery ---- */
+    @media (max-width: 600px) {
+      .mac-dock-list {
+        height: 64px !important;
+      }
+
+      .dock-item {
+        width: 3.8rem !important;
+      }
+
+      .mac-dock-list .fm-pill .fm-icon.dock-icon {
+        width: 38px !important;
+        height: 38px !important;
+      }
+
+      .mac-dock-list .fm-pill .fm-icon.dock-icon svg {
+        width: 18px !important;
+        height: 18px !important;
+      }
+    }
+
     /* ---------- Google Translate ---------- */
     #google_translate_element {
       position: absolute;
@@ -3361,7 +3527,7 @@
       font-weight: 600;
       color: var(--ink);
       background: var(--soft);
-      border: 1px solid var(--border);
+
       border-radius: var(--radius-sm);
       padding: 9px 11px;
       cursor: pointer;
@@ -3595,9 +3761,10 @@
     /* Gemini (Colorful) */
     .fm-pill-code[data-codemodel="gemini"].active {
       border-color: #A370F7;
-      background: linear-gradient(135deg, rgba(26,115,232,0.06), rgba(155,81,224,0.08), rgba(255,82,82,0.06));
+      background: linear-gradient(135deg, rgba(26, 115, 232, 0.06), rgba(155, 81, 224, 0.08), rgba(255, 82, 82, 0.06));
       color: #7b1fa2;
     }
+
     .fm-pill-code[data-codemodel="gemini"].active .fm-pill-sub {
       color: #9c27b0;
     }
@@ -3608,6 +3775,7 @@
       background: var(--soft);
       color: var(--ink);
     }
+
     .fm-pill-code[data-codemodel="luna"].active .fm-pill-sub {
       color: var(--ink-muted);
     }
@@ -3618,6 +3786,7 @@
       background: rgba(43, 112, 240, 0.08);
       color: #1754c6;
     }
+
     .fm-pill-code[data-codemodel="deepseek"].active .fm-pill-sub {
       color: #2b70f0;
     }
@@ -3642,81 +3811,603 @@
       opacity: 0.92;
     }
   </style>
+
+  <style>
+    .mac-dock-list .dock-item.fm-pill {
+      background: none !important;
+      border: none !important;
+      padding: 0 !important;
+      box-shadow: none !important;
+    }
+
+    .mac-dock-list .fm-pill .fm-icon.dock-icon {
+      width: 44px;
+      height: 44px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: var(--ink);
+    }
+
+    .mac-dock-list .fm-pill .fm-icon.dock-icon svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .mac-dock-container {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 22px;
+      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), margin-bottom 0.4s ease;
+      pointer-events: auto;
+    }
+
+    .mac-dock-container.minimized {
+      margin-bottom: 0px;
+      transform: scale(0.85) translateY(-20px);
+    }
+
+    .mac-dock-list {
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      height: 80px;
+      transition: height 0.4s ease;
+    }
+
+    .mac-dock-container.minimized .mac-dock-list {
+      height: 64px;
+    }
+
+    .dock-item {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 5rem;
+      height: 100%;
+      transition: width 0.15s ease-out;
+      cursor: pointer;
+    }
+
+    .mac-dock-container.minimized .dock-item {
+      width: 4rem !important;
+      transition: width 0.4s ease-out;
+    }
+
+    .dock-link {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      width: 100%;
+      height: 100%;
+      align-items: center;
+      justify-content: center;
+      padding: 0 0.5em;
+      border-radius: 20px;
+    }
+
+    .dock-icon {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      transition: transform 0.15s ease-out;
+    }
+
+    .dock-item:hover .dock-icon {
+      transform: translateY(-10px);
+    }
+
+    .mac-dock-container.minimized .dock-item:hover .dock-icon {
+      transform: translateY(-5px);
+    }
+
+    .dock-tooltip {
+      position: absolute;
+      top: 0;
+      z-index: 0;
+      white-space: nowrap;
+      background: var(--card);
+      color: var(--ink);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+      padding: 0.4em 0.8em;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-weight: 600;
+      pointer-events: none;
+      opacity: 0;
+      transform: translateY(-50%);
+      transition: opacity 0.15s ease-out, transform 0.15s ease-out;
+    }
+
+    .dock-item:hover .dock-tooltip {
+      opacity: 1;
+      transform: translateY(-110%);
+    }
+
+    .mac-dock-container.minimized .dock-item:hover .dock-tooltip {
+      opacity: 1;
+      transform: translateY(-120%);
+    }
+  </style>
+
+  <style id="composerRedesignCSS">
+    /* ======== DOCK ICON STYLE ======== */
+    .mac-dock-list .fm-pill .fm-icon.dock-icon {
+      width: 46px !important;
+      height: 46px !important;
+      display: flex !important;
+      justify-content: center !important;
+      align-items: center !important;
+      background: color-mix(in srgb, var(--card) 85%, transparent) !important;
+      border: 1px solid var(--border) !important;
+      border-radius: 14px !important;
+      color: var(--ink) !important;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07) !important;
+      transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease !important;
+    }
+
+    .mac-dock-list .fm-pill .fm-icon.dock-icon svg {
+      width: 22px !important;
+      height: 22px !important;
+    }
+
+    .dock-item.fm-pill.active .fm-icon.dock-icon {
+      background: color-mix(in srgb, var(--accent) 14%, var(--card)) !important;
+      border-color: color-mix(in srgb, var(--accent) 50%, var(--border)) !important;
+      color: var(--accent-deep) !important;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.09) !important;
+    }
+
+    .mac-dock-list .dock-item.fm-pill:hover .fm-icon.dock-icon {
+      color: var(--ink) !important;
+      border-color: var(--ink-faint) !important;
+    }
+
+    .dock-label {
+      position: absolute;
+      bottom: -18px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 9.5px;
+      font-weight: 600;
+      white-space: nowrap;
+      color: var(--ink-muted);
+      letter-spacing: 0.02em;
+      pointer-events: none;
+      transition: color 0.2s;
+    }
+
+    .dock-item.fm-pill.active .dock-label {
+      color: var(--accent-deep);
+      font-weight: 700;
+    }
+
+    .mac-dock-container:not(.minimized) .dock-tooltip {
+      display: none !important;
+    }
+
+    /* ======== COMPOSER ISLAND ======== */
+    .composer-dock {
+      padding-top: 40px;
+      margin-top: -40px;
+      padding-bottom: 20px;
+      margin-bottom: -20px;
+      position: relative;
+    }
+
+    @keyframes dockBounce {
+      0% {
+        transform: translateY(0);
+      }
+
+      40% {
+        transform: translateY(-6px) scale(1.02);
+      }
+
+      100% {
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .mac-dock-list.dock-bounce {
+      animation: dockBounce 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+    }
+
+    @keyframes composerBounce {
+      0% {
+        transform: scale(1);
+      }
+
+      40% {
+        transform: scale(0.96) translateY(2px);
+      }
+
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    .composer.bounce {
+      animation: composerBounce 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+    }
+
+    .composer {
+      background: color-mix(in srgb, var(--card) 78%, transparent) !important;
+      backdrop-filter: blur(24px) saturate(160%) !important;
+      -webkit-backdrop-filter: blur(24px) saturate(160%) !important;
+      border: 1px solid color-mix(in srgb, white 14%, var(--border)) !important;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.07), 0 1px 0 color-mix(in srgb, white 35%, transparent) inset !important;
+      border-radius: 24px !important;
+      width: 100% !important;
+      max-width: 340px;
+      height: 48px;
+      overflow: visible !important;
+      position: relative !important;
+      transition: max-width 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), height 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+      display: flex !important;
+      flex-direction: column !important;
+      padding: 0 !important;
+    }
+
+    .composer.expanded {
+      max-width: 480px;
+    }
+
+    #prompt {
+      background: transparent !important;
+      border: none !important;
+      outline: none !important;
+      width: 100% !important;
+      resize: none !important;
+      padding: 14px 48px 14px 16px !important;
+      font-size: 14px !important;
+      line-height: 20px !important;
+      color: var(--ink) !important;
+      transition: opacity 0.3s ease-out, transform 0.3s ease-out !important;
+      position: absolute !important;
+      top: 0 !important;
+      left: 0 !important;
+      z-index: 1 !important;
+      min-height: 48px !important;
+    }
+
+    .composer:not(.expanded) #prompt {
+      opacity: 0 !important;
+      transform: scale(0.95) translateY(-4px) !important;
+      pointer-events: none !important;
+    }
+
+    .composer-placeholder-btn {
+      position: absolute !important;
+      inset: 0 !important;
+      z-index: 1 !important;
+      background: transparent !important;
+      border: none !important;
+      text-align: left !important;
+      padding: 15px 48px 15px 16px !important;
+      font-size: 14px !important;
+      color: var(--ink-muted) !important;
+      cursor: text !important;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+    }
+
+    .composer.expanded .composer-placeholder-btn {
+      opacity: 0 !important;
+      transform: scale(1.05) translateY(4px) !important;
+      pointer-events: none !important;
+    }
+
+    .composer-action-btn {
+      position: absolute !important;
+      right: 8px !important;
+      bottom: 8px !important;
+      z-index: 10 !important;
+      width: 32px !important;
+      height: 32px !important;
+      border-radius: 50% !important;
+      background: var(--primary) !important;
+      color: rgb(0, 0, 0) !important;
+      opacity: 0.6;
+      transform: rotate(90deg);
+      border: none !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      cursor: pointer !important;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+    }
+
+    .composer-action-btn:hover {
+      opacity: 0.88 !important;
+      transform: rotate(0deg) !important;
+      ;
+    }
+
+    .composer-bottom-actions {
+      position: absolute !important;
+      bottom: 8px !important;
+      left: 12px !important;
+      right: 48px !important;
+      z-index: 10 !important;
+      display: flex !important;
+      align-items: center !important;
+      gap: 6px !important;
+      justify-content: space-between !important;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+    }
+
+    .composer:not(.expanded) .composer-bottom-actions {
+      opacity: 0 !important;
+      filter: blur(2px) !important;
+      transform: translateY(8px) !important;
+      pointer-events: none !important;
+    }
+
+    .ui-pill-btn {
+      display: flex !important;
+      align-items: center !important;
+      gap: 4px !important;
+      border-radius: 9999px !important;
+      padding: 4px 8px !important;
+      color: var(--ink) !important;
+      opacity: 0.6 !important;
+      background: transparent !important;
+      border: none !important;
+      font-size: 12px !important;
+      font-weight: 600 !important;
+      cursor: pointer !important;
+      transition: all 0.2s !important;
+    }
+
+    .ui-pill-btn:hover {
+      opacity: 1 !important;
+      background: color-mix(in srgb, var(--ink) 8%, transparent) !important;
+    }
+
+    .ui-dropdown {
+      position: absolute !important;
+      bottom: calc(100% + 8px) !important;
+      left: 0 !important;
+      z-index: 50 !important;
+      min-width: 160px !important;
+      border-radius: 16px !important;
+      border: 1px solid var(--border) !important;
+      background: color-mix(in srgb, var(--card) 96%, transparent) !important;
+      backdrop-filter: blur(16px) !important;
+      padding: 4px !important;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12) !important;
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 2px !important;
+      transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+      transform-origin: bottom left !important;
+      opacity: 0 !important;
+      transform: scale(0.93) translateY(10px) !important;
+      pointer-events: none !important;
+    }
+
+    .ui-dropdown.open {
+      opacity: 1 !important;
+      transform: scale(1) translateY(0) !important;
+      pointer-events: auto !important;
+    }
+
+    .ui-dropdown-item {
+      display: flex !important;
+      width: 100% !important;
+      padding: 7px 12px !important;
+      border-radius: 12px !important;
+      background: transparent !important;
+      border: none !important;
+      text-align: left !important;
+      font-size: 12px !important;
+      font-weight: 500 !important;
+      color: var(--ink-muted) !important;
+      cursor: pointer !important;
+      transition: all 0.15s !important;
+    }
+
+    .ui-dropdown-item:hover {
+      background: color-mix(in srgb, var(--ink) 6%, transparent) !important;
+      color: var(--ink) !important;
+    }
+
+    .dropzone-row {
+      margin-top: 52px !important;
+      padding: 0 12px 10px 12px !important;
+    }
+
+    .pending-attachments {
+      margin-top: 52px !important;
+      padding: 0 12px 10px 12px !important;
+    }
+
+    /* ======== MODE CONTEXT BAR ======== */
+    #modeContextBar {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      padding: 0 8px 10px 8px;
+      animation: floatUp 0.25s ease both;
+    }
+
+    .mcb-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .mcb-label {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--ink-muted);
+      background: var(--soft);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 4px 10px;
+    }
+
+    .mcb-label svg {
+      width: 12px;
+      height: 12px;
+      flex-shrink: 0;
+    }
+
+    .mcb-hint {
+      font-size: 11px;
+      color: var(--ink-faint);
+      text-align: center;
+      line-height: 1.4;
+      max-width: 380px;
+    }
+
+    /* Image method pills inside context bar */
+    .mcb-methods {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .mcb-method-pill {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 6px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--soft);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--ink-muted);
+      cursor: pointer;
+      transition: border-color .15s ease, background .15s ease, color .15s ease;
+      white-space: nowrap;
+    }
+
+    .mcb-method-pill svg {
+      width: 12px;
+      height: 12px;
+      flex-shrink: 0;
+    }
+
+    .mcb-method-pill:hover {
+      border-color: var(--accent);
+      background: var(--accent-wash);
+      color: var(--accent-deep);
+    }
+
+    .mcb-method-pill.active {
+      border-color: var(--accent);
+      background: var(--accent-wash);
+      color: var(--accent-deep);
+      box-shadow: 0 0 0 1px var(--accent) inset;
+    }
+  </style>
 </head>
 
-<body>
+<body onload="openComposerStageMode('chat')">
 
   <div class="app-shell">
 
     <div class="sb-overlay" id="sbOverlay" onclick="toggleSidebar(false)"></div>
 
     <aside class="sidebar" id="sidebar">
-      <div class="sb-top">
-        <div class="sb-brand">
-          <div class="mark" id="brandMark"></div>RoPeak
-        </div>
-        <button class="btn-newchat" onclick="startNewChat()"><span id="newChatIcon"></span> New chat</button>
-      </div>
-
-      <div class="sb-chats" id="chatList">
-        <div class="sb-empty" id="chatListEmpty">Sign in to see your chats.</div>
-      </div>
-
-      <div class="sb-bottom">
-        <center class="center-botom"><a class="btn-store" href="/store">[ Assets Store ]</a><a id="navTokensBtn"
-            class="btn-tokens" href="/tokens">[ X Tokens ]</a></center>
-        <div class="theme-switch" id="themeSwitch">
-          <div class="theme-switch-label">Theme</div>
-        </div>
-
-        <div class="lang-switch">
-          <div class="theme-switch-label">Language</div>
-          <div class="lang-select" id="langSelect" onclick="toggleLangMenu()">
-            <span class="ls-current"><span class="lo-flag" id="langFlag">🇬🇧</span><span
-                id="langLabel">English</span></span>
-            <span class="ls-chevron" id="langChevron"></span>
+      <div class="desktop-col-left">
+        <div class="desktop-bubble desktop-bubble-left">
+          <div class="sb-top sb-top-brand">
+            <div class="sb-brand">
+              <div class="mark" id="brandMark"></div>RoPeak
+            </div>
+            <div class="roblox-card" id="robloxCard" style="margin-top: 14px;">
+              <div class="rc-avatar-wrap">
+                <img class="rc-avatar" id="robloxAvatar" alt="" style="display:none;">
+                <div class="rc-avatar-fallback" id="robloxAvatarFallback"></div>
+                <div class="rc-status-dot" id="robloxStatusDot"></div>
+              </div>
+              <div class="rc-info">
+                <div class="rc-title" id="robloxTitle">Connect Roblox account</div>
+                <div class="rc-sub" id="robloxSub">Required for the Studio plugin</div>
+              </div>
+              <button class="rc-action" id="robloxAction" onclick="handleRobloxAction()">Connect</button>
+            </div>
           </div>
-          <div class="lang-menu" id="langMenu"></div>
-          <div id="google_translate_element"></div>
-        </div>
-        <a class="sb-back" href="/">← Home</a>
 
-        <div class="auth-block">
-          <button class="btn-google" id="signInBtn" onclick="signInWithGoogle()">
-            <svg viewBox="0 0 48 48">
-              <path fill="#FFC107"
-                d="M43.6 20.5H42V20H24v8h11.3C33.7 32.9 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 8 3l5.7-5.7C34.6 6.1 29.6 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.7-.4-3.5z" />
-              <path fill="#FF3D00"
-                d="m6.3 14.7 6.6 4.8C14.6 15.9 18.9 13 24 13c3.1 0 5.8 1.1 8 3l5.7-5.7C34.6 6.1 29.6 4 24 4 16.3 4 9.7 8.3 6.3 14.7z" />
-              <path fill="#4CAF50"
-                d="M24 44c5.5 0 10.4-1.9 14.2-5.1l-6.6-5.4C29.6 35.4 26.9 36 24 36c-5.3 0-9.7-3.1-11.3-7.6l-6.6 5.1C9.6 39.6 16.2 44 24 44z" />
-              <path fill="#1976D2"
-                d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.3-4.2 5.6l6.6 5.4C41.5 36 44 30.5 44 24c0-1.3-.1-2.7-.4-3.5z" />
-            </svg>
-            Sign in with Google
-          </button>
+          <div class="sb-bottom">
+            <center class="center-botom"><a class="btn-store" href="/store">[ Assets Store ]</a><a id="navTokensBtn"
+                class="btn-tokens" href="/tokens">[ X Tokens ]</a></center>
+            <div class="theme-switch" id="themeSwitch">
+              <div class="theme-switch-label">Theme</div>
+            </div>
 
-          <div class="user-row" id="userRow">
-            <img class="u-avatar" id="userAvatar" alt="">
-            <div class="u-meta">
-              <div class="u-name" id="userName"></div>
-              <div class="u-tokens" id="tokenPill" onclick="openBuyModal()"><span id="tokenCount">–</span> tokens · top
-                up</div>
-              <div class="roblox-card" id="robloxCard">
-                <div class="rc-avatar-wrap">
-                  <img class="rc-avatar" id="robloxAvatar" alt="" style="display:none;">
-                  <div class="rc-avatar-fallback" id="robloxAvatarFallback">🎮</div>
-                  <div class="rc-status-dot" id="robloxStatusDot"></div>
+            <div class="lang-switch">
+              <div class="theme-switch-label">Language</div>
+              <div class="lang-select" id="langSelect" onclick="toggleLangMenu()">
+                <span class="ls-current"><span class="lo-flag" id="langFlag">🇬🇧</span><span
+                    id="langLabel">English</span></span>
+                <span class="ls-chevron" id="langChevron"></span>
+              </div>
+              <div class="lang-menu" id="langMenu"></div>
+              <div id="google_translate_element"></div>
+            </div>
+            <a class="sb-back" href="/">← Home</a>
+
+            <div class="auth-block">
+              <button class="btn-google" id="signInBtn" onclick="signInWithGoogle()">
+                <svg viewBox="0 0 48 48">
+                  <path fill="#FFC107"
+                    d="M43.6 20.5H42V20H24v8h11.3C33.7 32.9 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 8 3l5.7-5.7C34.6 6.1 29.6 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.7-.4-3.5z" />
+                  <path fill="#FF3D00"
+                    d="m6.3 14.7 6.6 4.8C14.6 15.9 18.9 13 24 13c3.1 0 5.8 1.1 8 3l5.7-5.7C34.6 6.1 29.6 4 24 4 16.3 4 9.7 8.3 6.3 14.7z" />
+                  <path fill="#4CAF50"
+                    d="M24 44c5.5 0 10.4-1.9 14.2-5.1l-6.6-5.4C29.6 35.4 26.9 36 24 36c-5.3 0-9.7-3.1-11.3-7.6l-6.6 5.1C9.6 39.6 16.2 44 24 44z" />
+                  <path fill="#1976D2"
+                    d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.3-4.2 5.6l6.6 5.4C41.5 36 44 30.5 44 24c0-1.3-.1-2.7-.4-3.5z" />
+                </svg>
+                Sign in with Google
+              </button>
+
+              <div class="user-row" id="userRow">
+                <img class="u-avatar" id="userAvatar" alt="">
+                <div class="u-meta">
+                  <div class="u-name" id="userName"></div>
+                  <div class="u-tokens" id="tokenPill" onclick="openBuyModal()"><span id="tokenCount">–</span> tokens ·
+                    top
+                    up</div>
                 </div>
-                <div class="rc-info">
-                  <div class="rc-title" id="robloxTitle">Connect Roblox account</div>
-                  <div class="rc-sub" id="robloxSub">Required for the Studio plugin</div>
-                </div>
-                <button class="rc-action" id="robloxAction" onclick="handleRobloxAction()">Connect</button>
+                <button class="u-signout" onclick="signOutUser()" title="Sign out"></button>
               </div>
             </div>
-            <button class="u-signout" onclick="signOutUser()" title="Sign out"></button>
           </div>
+        </div>
+
+        <div class="widgets-side" id="widgetsSideDesktop">
+          <div class="widgets-row widgets-row-desktop" id="widgetsRowDesktop"></div>
+          <button class="widget-add-btn widget-add-btn-desktop" id="widgetAddBtnDesktop"
+            onclick="openGameWidgetModal()">
+            <span class="wab-icon"></span><span>Live Stats</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="desktop-bubble desktop-bubble-right">
+        <div class="sb-top sb-top-chat">
+          <button class="btn-newchat" onclick="startNewChat()"><span id="newChatIcon"></span> New chat</button>
+        </div>
+
+        <div class="sb-chats" id="chatList">
+          <div class="sb-empty" id="chatListEmpty">Sign in to see your chats.</div>
         </div>
       </div>
     </aside>
@@ -3759,112 +4450,160 @@
 
       <div class="composer-wrap">
         <div class="composer-dock">
-          <div class="composer-stage">
+
+          <div class="mac-dock-container" id="macDockContainer">
+            <nav class="mac-dock">
+              <ul class="mac-dock-list">
+                <li class="dock-item fm-pill" data-force="chat" onclick="openComposerStageMode('chat')">
+                  <a href="#" class="dock-link" onclick="event.preventDefault()">
+                    <span class="fm-icon dock-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path
+                          d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+                      </svg></span>
+                    <div class="dock-tooltip">Chat</div>
+                  </a>
+                </li>
+                <li class="dock-item fm-pill" data-force="image" onclick="openComposerStageMode('image')">
+                  <a href="#" class="dock-link" onclick="event.preventDefault()">
+                    <span class="fm-icon dock-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="18" height="18" rx="4" />
+                        <circle cx="9" cy="9" r="2" />
+                        <path d="m21 15-5-5L5 21" />
+                      </svg></span>
+                    <div class="dock-tooltip">Image</div>
+                  </a>
+                </li>
+                <li class="dock-item fm-pill" data-force="model3d" onclick="openComposerStageMode('model3d')">
+                  <a href="#" class="dock-link" onclick="event.preventDefault()">
+                    <span class="fm-icon dock-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path
+                          d="M21 16V8a2 2 0 0 0-1-1.73l-6-3.46a2 2 0 0 0-2 0l-6 3.46A2 2 0 0 0 5 8v8a2 2 0 0 0 1 1.73l6 3.46a2 2 0 0 0 2 0l6-3.46A2 2 0 0 0 21 16Z" />
+                        <path d="M3.27 6.96 12 12l8.73-5.04M12 22.08V12" />
+                      </svg></span>
+                    <div class="dock-tooltip">Model 3D</div>
+                  </a>
+                </li>
+                <li class="dock-item fm-pill" data-force="ui2lua" onclick="openComposerStageMode('ui2lua')">
+                  <a href="#" class="dock-link" onclick="event.preventDefault()">
+                    <span class="fm-icon dock-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="18" height="18" rx="2" />
+                        <path d="M3 9h18M9 21V9" />
+                      </svg></span>
+                    <div class="dock-tooltip">UI Lua</div>
+                  </a>
+                </li>
+                <li class="dock-item fm-pill" data-force="code" onclick="openComposerStageMode('code')">
+                  <a href="#" class="dock-link" onclick="event.preventDefault()">
+                    <span class="fm-icon dock-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m15 4 1 2 2 1-2 1-1 2-1-2-2-1 2-1Z" />
+                        <path d="M4 20 15 9M18.5 6.5 20 5" />
+                      </svg></span>
+                    <div class="dock-tooltip">Code</div>
+                  </a>
+                </li>
+              </ul>
+            </nav>
+          </div>
+          <div class="composer-stage" id="composerStage"
+            style="display: none; opacity: 0; transform: translateY(20px); transition: all 0.3s ease; pointer-events: auto;">
+
+            <div id="modeContextBar"
+              style="display:none; justify-content:center; align-items:center; gap:6px; flex-wrap:wrap; padding: 0 12px 10px 12px; transition: opacity 0.3s ease; animation: fadeIn 0.3s ease;">
+            </div>
 
             <div class="composer-main-row">
-              <div class="composer">
+              <div class="composer" id="composerIsland">
+                <input type="file" id="chatAttachInput" multiple accept="image/*,.pdf,.txt,.doc,.docx,.zip"
+                  style="display:none;">
+                <input type="file" id="mainImageInput" accept="image/png,image/jpeg,image/webp" style="display:none;">
+                <input type="file" id="refImageInput" accept="image/png,image/jpeg,image/webp" style="display:none;">
 
-                <div class="force-mode-bar" id="forceModeBar">
-                  <div class="fm-pill active" data-force="chat"><span class="fm-icon"></span>Chat</div>
-                  <div class="fm-pill" data-force="image"><span class="fm-icon"></span>Image</div>
-                  <div class="fm-pill" data-force="model3d"><span class="fm-icon"></span>Model 3D</div>
-                  <div class="fm-pill" data-force="ui2lua"><span class="fm-icon"></span>UI → Lua</div>
-                  <div class="fm-pill" data-force="code"><span class="fm-icon"></span>Code</div>
-                  <select id="mobileCodeModelSelect" class="mobile-code-model-select">
-                    <option value="luna">GPT-5.6 Luna</option>
-                    <option value="gemini">Gemini 3.7 Flash</option>
-                    <option value="deepseek">DeepSeek V4 Flash</option>
-                  </select>
-                </div>
+                <button class="composer-placeholder-btn" onclick="expandComposer()">Tell me what you need...</button>
 
-                <div class="force-mode-bar" id="codeModelBar" style="display:none; margin-top:-6px; flex-wrap: nowrap;">
-                  <div class="fm-pill fm-pill-code active" data-codemodel="luna">
-                    <span class="fm-pill-title">GPT-5.6 Luna</span>
-                    <span class="fm-pill-sub">Najwyższa jakość · świetny balans ceny i wydajności</span>
-                  </div>
-                  <div class="fm-pill fm-pill-code" data-codemodel="gemini">
-                    <span class="fm-pill-title">Gemini 3.7 Flash</span>
-                    <span class="fm-pill-sub">Wysoka jakość · szybkie działanie · średni koszt</span>
-                  </div>
-                  <div class="fm-pill fm-pill-code" data-codemodel="deepseek">
-                    <span class="fm-pill-title">DeepSeek V4 Flash</span>
-                    <span class="fm-pill-sub">Dobry stosunek jakości do ceny · bardzo szybki</span>
-                  </div>
-                </div>
+                <div id="promptBox" style="display:contents;">
+                  <textarea id="prompt" rows="1" placeholder="Tell me what you need..."></textarea>
 
-
-                <div class="image-type-wrap" id="imageTypeWrap">
-                  <div class="image-type-row" id="imageTypeRow"></div>
-                  <div class="image-type-row-2">
-                    <button class="it-normal" id="itNormalBtn" onclick="selectImageType('normal')">
-                      <span class="itn-title">∎ Normal Image</span>
-                      <span class="itn-desc">Generate an image without a predefined purpose or style.</span>
-                    </button>
-                    <div class="it-more-wrap">
-                      <button class="it-more-btn" id="itMoreBtn" onclick="toggleMoreTypes()">
-                        <span id="itMoreLabel">More types</span><span class="chev" id="itMoreChev"></span>
-                      </button>
-                      <div class="it-more-menu" id="itMoreMenu"></div>
+                  <div class="dropzone-row" id="dropzoneRow" style="display:none;">
+                    <div class="dropzone" id="dzMain">
+                      <div class="dz-empty" id="dzMainEmpty"><span class="dz-tag">01</span><span
+                          id="dzMainLabel">Image</span></div>
+                      <div class="dz-filled" id="dzMainFilled">
+                        <img id="dzMainPreview" alt="">
+                        <span class="dz-name" id="dzMainName"></span>
+                        <button class="dz-remove" onclick="clearMainImage(event)"></button>
+                      </div>
                     </div>
-                  </div>
-                </div>
-
-                <div class="dropzone-row" id="dropzoneRow" style="display:none;">
-                  <div class="dropzone" id="dzMain">
-                    <input type="file" id="mainImageInput" accept="image/png,image/jpeg,image/webp">
-                    <div class="dz-empty" id="dzMainEmpty"><span class="dz-tag">01</span><span
-                        id="dzMainLabel">Image</span></div>
-                    <div class="dz-filled" id="dzMainFilled">
-                      <img id="dzMainPreview" alt="">
-                      <span class="dz-name" id="dzMainName"></span>
-                      <button class="dz-remove" onclick="clearMainImage(event)"></button>
-                    </div>
-                  </div>
-
-                  <div class="dropzone" id="dzRef" style="display:none;">
-                    <input type="file" id="refImageInput" accept="image/png,image/jpeg,image/webp">
-                    <div class="dz-empty" id="dzRefEmpty"><span class="dz-tag">02</span> Reference Image</div>
-                    <div class="dz-filled" id="dzRefFilled">
-                      <img id="dzRefPreview" alt="">
-                      <span class="dz-name" id="dzRefName"></span>
-                      <button class="dz-remove" onclick="clearRefImage(event)"></button>
+                    <div class="dropzone" id="dzRef" style="display:none;">
+                      <div class="dz-empty" id="dzRefEmpty"><span class="dz-tag">02</span> Reference</div>
+                      <div class="dz-filled" id="dzRefFilled">
+                        <img id="dzRefPreview" alt="">
+                        <span class="dz-name" id="dzRefName"></span>
+                        <button class="dz-remove" onclick="clearRefImage(event)"></button>
+                      </div>
                     </div>
                   </div>
                 </div>
 
                 <div class="pending-attachments" id="pendingAttachments"></div>
 
-                <div class="prompt-box" id="promptBox">
-                  <button class="attach-btn" id="attachBtn" onclick="triggerAttachPicker()" title="Add attachment"
-                    type="button"></button>
-                  <input type="file" id="chatAttachInput" multiple accept="image/*,.pdf,.txt,.doc,.docx,.zip"
-                    style="display:none;">
-                  <textarea id="prompt" rows="1" placeholder="Write a message…"></textarea>
-                  <div class="composer-btns">
-                    <button class="enhance-btn" id="enhanceBtn" onclick="enhancePrompt()" style="display:none;">
-                      <span id="enhanceIcon"></span><span id="enhanceLabel">Enhance</span>
+                <div class="composer-bottom-actions">
+                  <div style="position: relative; display:none;" id="codeModelSelectorWrap">
+                    <button class="ui-pill-btn" onclick="toggleDropdown('codeModelDropdown', event)">
+                      <span id="activeCodeModelLabel">GPT-5.6 Luna</span>
                     </button>
-                    <button class="send-btn" id="generateBtn" onclick="onSendClick()">
-                      <span id="sendIcon"></span>
-                    </button>
+                    <div class="ui-dropdown" id="codeModelDropdown">
+                      <button class="ui-dropdown-item" onclick="selectCodeModel('luna', 'GPT-5.6 Luna', event)">GPT-5.6
+                        Luna</button>
+                      <button class="ui-dropdown-item"
+                        onclick="selectCodeModel('gemini', 'Gemini 3.7 Flash', event)">Gemini 3.7 Flash</button>
+                      <button class="ui-dropdown-item"
+                        onclick="selectCodeModel('deepseek', 'DeepSeek V4 Flash', event)">DeepSeek V4 Flash</button>
+                    </div>
                   </div>
+
+                  <div style="position: relative; display:none;" id="imageTypeSelectorWrap">
+                    <button class="ui-pill-btn" onclick="toggleDropdown('imageTypeDropdown', event)">
+                      <span id="activeImageTypeLabel">Normal</span>
+                    </button>
+                    <div class="ui-dropdown" id="imageTypeDropdown">
+                    </div>
+                  </div>
+
+                  <button class="ui-pill-btn" id="enhanceBtn" onclick="enhancePrompt()" style="display:none;" title="Enhance prompt">
+                    <span id="enhanceIcon"></span><span id="enhanceLabel">Enhance</span>
+                  </button>
+                  <span class="char-count" id="charCount" style="display:none;">0 characters</span>
+
+                  <button class="ui-pill-btn" id="attachBtn" onclick="triggerAttachPicker()" style="margin-left: auto;"
+                    title="Attach file">
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                      <path d="M7 2.5V11.5M2.5 7H11.5" stroke="currentColor" stroke-width="1.5"
+                        stroke-linecap="round" />
+                    </svg>
+                  </button>
                 </div>
 
-                <div class="composer-footrow">
-                  <span class="char-count" id="charCount">0 characters</span>
-                </div>
-
-                <div class="composer-hint" id="composerHint">Tell me what you need — I'll figure out the intent.</div>
+                <button class="composer-action-btn" id="generateBtn" onclick="onSendClick()">
+                  <svg width="12" height="12" viewBox="0 0 14 14" fill="none">
+                    <path d="M7 12V2M7 2L2.5 6.5M7 2L11.5 6.5" stroke="currentColor" stroke-width="1.75"
+                      stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                </button>
+                <div class="composer-hint" id="composerHint" style="display:none;"></div>
+                <select id="mobileCodeModelSelect" style="display:none;">
+                  <option value="luna">GPT-5.6 Luna</option>
+                  <option value="gemini">Gemini 3.7 Flash</option>
+                  <option value="deepseek">DeepSeek V4 Flash</option>
+                </select>
               </div>
             </div>
 
-            <div class="widgets-side" id="widgetsSideDesktop">
-              <button class="widget-add-btn widget-add-btn-desktop" id="widgetAddBtnDesktop"
-                onclick="openGameWidgetModal()">
-                <span class="wab-icon"></span><span>Live Stats</span>
-              </button>
-              <div class="widgets-row widgets-row-desktop" id="widgetsRowDesktop"></div>
-            </div>
+
 
           </div>
         </div>
@@ -4324,6 +5063,14 @@
       document.body.style.overflow = isOpen ? "hidden" : "";
     }
 
+    function renderImageTypeMenuDropdown() {
+      const dd = document.getElementById("imageTypeDropdown");
+      if (!dd) return;
+      dd.innerHTML = Object.entries(imagePresets)
+        .map(([key, p]) => `<button class="ui-dropdown-item" onclick="selectImageTypeMenu('${key}','${p.label}',event)">${p.label}</button>`)
+        .join("");
+    }
+
     function init() {
       document.getElementById("brandMark").innerHTML = ICONS.ropeak;
       document.getElementById("newChatIcon").innerHTML = ICONS.plus;
@@ -4347,6 +5094,7 @@
         if (info && p.querySelector(".fm-icon")) p.querySelector(".fm-icon").innerHTML = info.icon;
       });
 
+      renderImageTypeMenuDropdown();
       initThemeSwitch();
       initLangSwitch();
       bindForceModeBar();
@@ -4643,7 +5391,7 @@
         action.textContent = "Connect";
         avatarImg.style.display = "none";
         avatarFallback.style.display = "flex";
-        avatarFallback.textContent = "🎮";
+        avatarFallback.textContent = "...";
       }
     }
 
@@ -5204,7 +5952,9 @@
     function bindForceModeBar() {
       document.querySelectorAll(".fm-pill").forEach(pill => {
         if (!pill.dataset.force) return;
-        pill.addEventListener("click", () => setForceMode(pill.dataset.force));
+        pill.addEventListener("click", () => {
+          setForceMode(pill.dataset.force);
+        });
       });
     }
 
@@ -5231,89 +5981,145 @@
       opts = opts || {};
       activeForceMode = mode;
 
-      // Desktop pills
-      document.getElementById("codeModelBar").style.display = mode === "code" ? "flex" : "none";
+      const codeWrap = document.getElementById("codeModelSelectorWrap");
+      if (codeWrap) codeWrap.style.display = mode === "code" ? "block" : "none";
+      const imgWrap = document.getElementById("imageTypeSelectorWrap");
+      if (imgWrap) imgWrap.style.display = mode === "image" ? "block" : "none";
+      const luaWrap = document.getElementById("ui2luaSelectorWrap");
+      if (luaWrap) luaWrap.style.display = mode === "ui2lua" ? "block" : "none";
 
-      // Mobile select
-      document.getElementById("mobileCodeModelSelect").classList.toggle("active-mode", mode === "code");
-
-      document.querySelectorAll(".fm-pill").forEach(p => {
-        if (p.dataset.force) p.classList.toggle("active", p.dataset.force === mode);
-      });
-
-      const info = FORCE_MODE_INFO[mode];
-      document.getElementById("modeBadgeIcon").innerHTML = info.icon;
-      document.getElementById("modeBadgeText").textContent = info.label;
-
-      const wrap = document.getElementById("imageTypeWrap");
-      if (wrap) wrap.classList.toggle("show", mode === "image");
-
+      const info = (typeof FORCE_MODE_INFO !== 'undefined' && FORCE_MODE_INFO[mode]) ? FORCE_MODE_INFO[mode] : { hint: '', label: '', icon: '' };
+      const promptEl = document.getElementById("prompt");
+      const hintEl = document.getElementById("composerHint");
       const dropzoneRow = document.getElementById("dropzoneRow");
       const dzRef = document.getElementById("dzRef");
+      const enhanceBtn = document.getElementById("enhanceBtn");
 
       if (mode === "chat") {
-        document.getElementById("composerHint").textContent = info.hint;
-        document.getElementById("prompt").placeholder = "Write a message…";
-        document.getElementById("enhanceBtn").style.display = "none";
-        dropzoneRow.style.display = "none";
-        dzRef.style.display = "none";
-        clearMainImage();
-        clearRefImage();
+        if (hintEl) hintEl.textContent = info.hint;
+        if (promptEl) promptEl.placeholder = "Write a message…";
+        if (enhanceBtn) enhanceBtn.style.display = "none";
+        if (dropzoneRow) dropzoneRow.style.display = "none";
+        if (dzRef) dzRef.style.display = "none";
+        if (typeof clearMainImage === 'function') clearMainImage();
+        if (typeof clearRefImage === 'function') clearRefImage();
         flowState = "idle";
-        setPromptBoxEnabled(true);
+        if (typeof setPromptBoxEnabled === 'function') setPromptBoxEnabled(true);
         return;
       }
-
       if (mode === "ui2lua") {
-        document.getElementById("composerHint").textContent = info.hint;
-        document.getElementById("prompt").placeholder = "Optional extra hints (e.g. “add tabs”, “this should be responsive on mobile”)…";
-        document.getElementById("enhanceBtn").style.display = "none";
-        dropzoneRow.style.display = "flex";
-        dzRef.style.display = "none";
-        document.getElementById("dzMainLabel").textContent = "UI screenshot";
-        clearRefImage();
+        if (hintEl) hintEl.textContent = info.hint;
+        if (promptEl) promptEl.placeholder = "Optional extra hints…";
+        if (enhanceBtn) enhanceBtn.style.display = "none";
+        if (dropzoneRow) dropzoneRow.style.display = "flex";
+        if (dzRef) dzRef.style.display = "none";
+        const dzMainLabel = document.getElementById("dzMainLabel");
+        if (dzMainLabel) dzMainLabel.textContent = "UI screenshot";
+        if (typeof clearRefImage === 'function') clearRefImage();
         flowState = "idle";
-        setPromptBoxEnabled(true);
+        if (typeof setPromptBoxEnabled === 'function') setPromptBoxEnabled(true);
         return;
       }
-
       if (mode === "code") {
-        document.getElementById("composerHint").textContent = currentCodeState.code
-          ? "I remember your code — you can ask to add a function, modify, or refactor."
-          : info.hint;
-        document.getElementById("prompt").placeholder = currentCodeState.code
-          ? "e.g. add a save function, add validation…"
-          : "Describe what script/code you want to generate…";
-        document.getElementById("enhanceBtn").style.display = "none";
-        dropzoneRow.style.display = "none";
-        dzRef.style.display = "none";
-        clearMainImage();
-        clearRefImage();
+        const hasCode = typeof currentCodeState !== 'undefined' && currentCodeState && currentCodeState.code;
+        if (hintEl) hintEl.textContent = hasCode ? "I remember your code — you can ask to add a function, modify, or refactor." : info.hint;
+        if (promptEl) promptEl.placeholder = hasCode ? "e.g. add a save function, add validation…" : "Describe what script/code you want to generate…";
+        if (enhanceBtn) enhanceBtn.style.display = "none";
+        if (dropzoneRow) dropzoneRow.style.display = "none";
+        if (dzRef) dzRef.style.display = "none";
+        if (typeof clearMainImage === 'function') clearMainImage();
+        if (typeof clearRefImage === 'function') clearRefImage();
         flowState = "idle";
-        setPromptBoxEnabled(true);
+        if (typeof setPromptBoxEnabled === 'function') setPromptBoxEnabled(true);
         return;
       }
-
-      dropzoneRow.style.display = "none";
-      dzRef.style.display = "none";
-      document.getElementById("enhanceBtn").style.display = (mode === "image") ? "flex" : "none";
-      clearMainImage();
-      clearRefImage();
-
-      const isImg = mode === "image";
-
-      if (isImg && !document.querySelector(".it-opt")) {
-        renderImageTypeBar();
-      }
+      if (dropzoneRow) dropzoneRow.style.display = "none";
+      if (dzRef) dzRef.style.display = "none";
+      if (enhanceBtn) enhanceBtn.style.display = (mode === "image") ? "flex" : "none";
+      if (typeof clearMainImage === 'function') clearMainImage();
+      if (typeof clearRefImage === 'function') clearRefImage();
 
       if (flowState !== "busy") {
         flowState = "choose_method";
-        if (!opts.skipAutoChooser) {
+        if (!opts.skipAutoChooser && typeof appendModeChooser === 'function') {
           appendModeChooser(mode);
-          pendingChoiceMessage = { chatId: activeChatId, payload: { type: "chooser", category: mode, prompt: "" } };
+          if (typeof activeChatId !== 'undefined') {
+            pendingChoiceMessage = { chatId: activeChatId, payload: { type: "chooser", category: mode, prompt: "" } };
+          }
         }
-        applyFlowComposerState();
+        if (typeof applyFlowComposerState === 'function') applyFlowComposerState();
       }
+      // Auto expand on interactive flow start
+      if (typeof expandComposer === 'function') expandComposer();
+      renderModeContextBar(mode);
+    }
+
+    // ===== MODE CONTEXT BAR =====
+    // Renders a contextual strip above the composer showing mode name, hint, and (for image/model3d) method chooser pills
+    function renderModeContextBar(mode) {
+      const bar = document.getElementById('modeContextBar');
+      if (!bar) return;
+
+      const info = (typeof FORCE_MODE_INFO !== 'undefined' && FORCE_MODE_INFO[mode])
+        ? FORCE_MODE_INFO[mode]
+        : { hint: '', label: mode, icon: '' };
+
+      if (mode === 'chat') {
+        bar.style.display = 'none';
+        bar.innerHTML = '';
+        return;
+      }
+
+      const hintText = {
+        image: 'Choose a creation method in the message below.',
+        model3d: 'Choose how you want to create the 3D model.',
+        ui2lua: 'Upload a UI screenshot — attach file below.',
+        code: 'Describe the script. You can also modify existing code.',
+      }[mode] || info.hint;
+
+      bar.innerHTML = `
+        <div class="mcb-row">
+          <span class="mcb-label">${info.icon || ''}<span>${info.label}</span></span>
+          <span class="mcb-hint">${hintText}</span>
+        </div>
+      `;
+      bar.style.display = 'flex';
+    }
+
+    // Called when user picks an image method from the modeContextBar
+    function mcbSelectImageMethod(method) {
+      // Mark active pill
+      document.querySelectorAll('.mcb-method-pill').forEach(p => {
+        p.classList.toggle('active', p.getAttribute('onclick').includes("'" + method + "'"));
+      });
+      // Reuse the existing chooseImageMethod but with a fake button ref
+      const fakeBtn = document.createElement('button');
+      fakeBtn.dataset.method = method;
+      // Create a minimal chooser-3d group so chooseImageMethod can iterate siblings
+      const fakeGroup = document.createElement('div');
+      fakeGroup.className = 'chooser-3d';
+      fakeGroup.appendChild(fakeBtn);
+      if (typeof chooseImageMethod === 'function') {
+        chooseImageMethod(activeForceMode || 'image', method, fakeBtn);
+      }
+      // Re-render bar so the method pills disappear (choice already in chat)
+      renderModeContextBar(activeForceMode || 'image');
+    }
+
+    // Called when user picks a 3D method from the modeContextBar
+    function mcbSelect3DMethod(method) {
+      document.querySelectorAll('.mcb-method-pill').forEach(p => {
+        p.classList.toggle('active', p.getAttribute('onclick').includes("'" + method + "'"));
+      });
+      const fakeBtn = document.createElement('button');
+      const fakeGroup = document.createElement('div');
+      fakeGroup.className = 'chooser-3d';
+      fakeGroup.appendChild(fakeBtn);
+      if (typeof chooseModel3DMethod === 'function') {
+        chooseModel3DMethod(method, fakeBtn);
+      }
+      // Re-render bar so the method pills disappear (choice already in chat)
+      renderModeContextBar('model3d');
     }
 
     function updateDropzoneLabels() {
@@ -5362,7 +6168,7 @@
         dropzoneRow.style.display = "none";
         dzRef.style.display = "none";
         document.getElementById("composerHint").textContent =
-          flowState === "busy" ? "Generation in progress — wait for the result below." : "Choose one of the options above in the chat.";
+          flowState === "busy" ? "Generation in progress - wait for the result below." : "Choose one of the options above in the chat.";
         return;
       }
 
@@ -5397,6 +6203,9 @@
     }
 
     function chooseImageMethod(mode, method, btnEl) {
+      if (typeof _composerLockUntil !== 'undefined') _composerLockUntil = Date.now() + 600;
+      if (typeof expandComposer === 'function') expandComposer();
+      if (typeof expandComposer === 'function') expandComposer();
       if (pendingChoiceMessage) pendingChoiceMessage.payload.selectedOption = method;
       const group = btnEl.closest(".chooser-3d");
       group.querySelectorAll("button").forEach(b => { b.disabled = true; b.classList.remove("chosen"); });
@@ -6289,6 +7098,8 @@
     }
 
     function chooseModel3DMethod(choice, btnEl) {
+      if (typeof _composerLockUntil !== 'undefined') _composerLockUntil = Date.now() + 600;
+      if (typeof expandComposer === 'function') expandComposer();
       if (pendingChoiceMessage) pendingChoiceMessage.payload.selectedOption = choice;
       const group = btnEl.closest(".chooser-3d");
       group.querySelectorAll("button").forEach(b => { b.disabled = true; b.classList.remove("chosen"); });
@@ -6645,8 +7456,8 @@
       try {
         const res = await authedFetch("/auth/roblox/start");
         if (!res.ok) {
-            const errData = await res.json().catch(() => ({}));
-            throw new Error(errData.error || "Błąd podczas łączenia");
+          const errData = await res.json().catch(() => ({}));
+          throw new Error(errData.error || "Błąd podczas łączenia");
         }
         const data = await res.json();
         if (data.redirectUrl) {
@@ -6658,16 +7469,411 @@
         alert("Błąd łączenia z Roblox: " + e.message);
       }
     }
-    
+
     window.addEventListener("DOMContentLoaded", () => {
-        const params = new URLSearchParams(window.location.search);
-        if (params.get("roblox_linked") === "1") {
-            const url = new URL(window.location);
-            url.searchParams.delete("roblox_linked");
-            window.history.replaceState({}, document.title, url);
-            refreshBalance();
-        }
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("roblox_linked") === "1") {
+        const url = new URL(window.location);
+        url.searchParams.delete("roblox_linked");
+        window.history.replaceState({}, document.title, url);
+        refreshBalance();
+      }
     });
+  </script>
+
+  <!-- Magnetic Cursor Implementation -->
+  <style>
+    .magnetic-cursor {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 9999;
+      pointer-events: none;
+      will-change: transform, width, height, border-radius;
+    }
+
+    #promptBox.disabled * {
+      pointer-events: none;
+      opacity: 0.55;
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Auto-attach data-magnetic to interactive elements
+      document.querySelectorAll('a, button, .btn-primary, .btn-google, .btn-ghost, .navlink, .chat-item, .fm-pill-code, .widget-add-btn, .gw-card').forEach(el => {
+        if (!el.hasAttribute('data-magnetic')) {
+          el.setAttribute('data-magnetic', '');
+        }
+      });
+
+      const config = {
+        magneticFactor: 0.1,
+        speedMultiplier: 0.1,
+        maxScaleX: 1,
+        maxScaleY: 0.3,
+        cursorSize: 30,
+        lerpAmount: 0.1,
+        hoverPadding: 2,
+        hoverAttribute: 'data-magnetic',
+        cursorColor: 'white',
+        shape: 'circle',
+        disableOnTouch: true,
+        contrastBoost: 1.5,
+        blendMode: 'exclusion'
+      };
+
+      const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+      if (config.disableOnTouch && isTouchDevice) return;
+
+      const cursorEl = document.createElement('div');
+      cursorEl.className = 'magnetic-cursor';
+      const shapeBorderRadius = config.shape === 'circle' ? '50%' : config.shape === 'square' ? '0' : '8px';
+
+      Object.assign(cursorEl.style, {
+        backgroundColor: config.cursorColor,
+        mixBlendMode: config.blendMode,
+        width: config.cursorSize + 'px',
+        height: config.cursorSize + 'px',
+        borderRadius: shapeBorderRadius,
+        backdropFilter: config.contrastBoost !== 1 ? `contrast(${config.contrastBoost})` : 'none',
+        WebkitBackdropFilter: config.contrastBoost !== 1 ? `contrast(${config.contrastBoost})` : 'none',
+      });
+      document.body.appendChild(cursorEl);
+
+      gsap.set(cursorEl, { xPercent: -50, yPercent: -50 });
+
+      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const detachDuration = prefersReducedMotion ? 0.1 : 0.35;
+
+      class Vec2 {
+        constructor(x, y) { this.x = x; this.y = y; }
+        lerp(target, t) { this.x += (target.x - this.x) * t; this.y += (target.y - this.y) * t; return this; }
+        clone() { return new Vec2(this.x, this.y); }
+        sub(v) { this.x -= v.x; this.y -= v.y; return this; }
+        copy(v) { this.x = v.x; this.y = v.y; return this; }
+      }
+
+      const state = {
+        pos: { current: new Vec2(-100, -100), target: new Vec2(-100, -100), previous: new Vec2(-100, -100) },
+        hover: { isHovered: false },
+        isDetaching: false
+      };
+
+      const update = () => {
+        if (state.hover.isHovered) return;
+        const effectiveLerp = prefersReducedMotion ? 1 : config.lerpAmount;
+        state.pos.current.lerp(state.pos.target, effectiveLerp);
+        const delta = state.pos.current.clone().sub(state.pos.previous);
+        state.pos.previous.copy(state.pos.current);
+
+        if (state.isDetaching) {
+          gsap.set(cursorEl, { x: state.pos.current.x, y: state.pos.current.y, scaleX: 1, scaleY: 1, rotate: 0, overwrite: 'auto' });
+        } else {
+          const speed = Math.sqrt(delta.x * delta.x + delta.y * delta.y) * config.speedMultiplier;
+          gsap.set(cursorEl, {
+            x: state.pos.current.x, y: state.pos.current.y,
+            rotate: Math.atan2(delta.y, delta.x) * (180 / Math.PI),
+            scaleX: 1 + Math.min(speed, config.maxScaleX),
+            scaleY: 1 - Math.min(speed, config.maxScaleY),
+            overwrite: 'auto'
+          });
+        }
+      };
+
+      const initializePosition = (event) => {
+        const x = event.clientX; const y = event.clientY;
+        state.pos.current.x = x; state.pos.current.y = y;
+        state.pos.target.x = x; state.pos.target.y = y;
+        state.pos.previous.x = x; state.pos.previous.y = y;
+        gsap.set(cursorEl, { x, y, opacity: 1 });
+      };
+
+      const onMouseMove = (event) => {
+        state.pos.target.x = event.clientX;
+        state.pos.target.y = event.clientY;
+
+        const isInViewport = event.clientX >= 0 && event.clientX <= window.innerWidth && event.clientY >= 0 && event.clientY <= window.innerHeight;
+        gsap.to(cursorEl, { opacity: isInViewport ? 1 : 0, duration: 0.2, overwrite: 'auto' });
+
+        const target = event.target;
+        const isTextContent = ['P', 'SPAN', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6'].includes(target.tagName) || window.getComputedStyle(target).cursor === 'text';
+        if (isTextContent && !state.hover.isHovered && !state.isDetaching) {
+          gsap.to(cursorEl, { scaleX: 0.5, scaleY: 1.5, duration: 0.3, overwrite: 'auto' });
+        }
+      };
+
+      const handleMouseLeave = () => gsap.to(cursorEl, { opacity: 0, duration: 0.3 });
+      const handleMouseEnter = () => gsap.to(cursorEl, { opacity: 1, duration: 0.3 });
+
+      gsap.ticker.add(update);
+      window.addEventListener('pointermove', onMouseMove);
+      window.addEventListener('pointermove', initializePosition, { once: true });
+      document.addEventListener('mouseleave', handleMouseLeave);
+      document.addEventListener('mouseenter', handleMouseEnter);
+
+      const magneticElements = document.querySelectorAll(`[${config.hoverAttribute}]`);
+      magneticElements.forEach((el) => {
+        const xTo = gsap.quickTo(el, 'x', { duration: 1, ease: 'elastic.out(1, 0.3)' });
+        const yTo = gsap.quickTo(el, 'y', { duration: 1, ease: 'elastic.out(1, 0.3)' });
+
+        const handlePointerEnter = () => {
+          state.hover.isHovered = true;
+          state.isDetaching = false;
+
+          const bounds = el.getBoundingClientRect();
+          const computedStyle = window.getComputedStyle(el);
+          const magneticColor = el.getAttribute('data-magnetic-color') || config.cursorColor;
+          const dynamicPadding = config.hoverPadding * (1 + config.magneticFactor);
+          const centerX = bounds.left + bounds.width / 2;
+          const centerY = bounds.top + bounds.height / 2;
+
+          gsap.killTweensOf(cursorEl);
+          gsap.to(cursorEl, {
+            x: centerX, y: centerY,
+            width: bounds.width + dynamicPadding * 2,
+            height: bounds.height + dynamicPadding * 2,
+            borderRadius: computedStyle.borderRadius,
+            backgroundColor: magneticColor,
+            scaleX: 1, scaleY: 1, rotate: 0,
+            duration: 0.3, ease: 'power3.out', overwrite: 'all'
+          });
+        };
+
+        const handlePointerLeave = () => {
+          const currentX = gsap.getProperty(cursorEl, "x");
+          const currentY = gsap.getProperty(cursorEl, "y");
+
+          state.pos.current.x = currentX; state.pos.current.y = currentY;
+          state.pos.previous.x = currentX; state.pos.previous.y = currentY;
+
+          state.hover.isHovered = false;
+          state.isDetaching = true;
+
+          gsap.killTweensOf(cursorEl);
+          gsap.to(cursorEl, {
+            width: config.cursorSize, height: config.cursorSize,
+            borderRadius: shapeBorderRadius,
+            backgroundColor: config.cursorColor,
+            scaleX: 1, scaleY: 1,
+            duration: detachDuration, ease: 'power3.out', overwrite: 'all',
+            onComplete: () => { state.isDetaching = false; }
+          });
+        };
+
+        let rafId = null;
+        const handlePointerMove = (event) => {
+          if (rafId) return;
+          rafId = requestAnimationFrame(() => {
+            const { clientX, clientY } = event;
+            const { height, width, left, top } = el.getBoundingClientRect();
+            xTo((clientX - (left + width / 2)) * config.magneticFactor);
+            yTo((clientY - (top + height / 2)) * config.magneticFactor);
+            rafId = null;
+          });
+        };
+
+        const handlePointerOut = () => { xTo(0); yTo(0); };
+
+        el.addEventListener('pointerenter', handlePointerEnter);
+        el.addEventListener('pointerleave', handlePointerLeave);
+        el.addEventListener('pointermove', handlePointerMove);
+        el.addEventListener('pointerout', handlePointerOut);
+      });
+    });
+  </script>
+
+  <script>
+    // openComposerStage is defined in composerIslandJS below
+
+    document.addEventListener("DOMContentLoaded", () => {
+      // Only enable macOS-style magnification on pointer devices (not touch)
+      const isPointerDevice = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+      if (!isPointerDevice) return;
+
+      const dockItems = document.querySelectorAll('.dock-item');
+      const baseWidth = 5 * 16;
+      const farWidth = 6 * 16;
+      const closeWidth = 7 * 16;
+      const activeWidth = 8 * 16;
+
+      dockItems.forEach((item, index) => {
+        item.addEventListener('mouseenter', () => {
+          if (document.getElementById('macDockContainer').classList.contains('minimized')) return;
+          dockItems.forEach((otherItem, otherIndex) => {
+            const distance = Math.abs(index - otherIndex);
+            let w = baseWidth;
+            if (distance === 0) w = activeWidth;
+            else if (distance === 1) w = closeWidth;
+            else if (distance === 2) w = farWidth;
+            otherItem.style.width = w + 'px';
+          });
+        });
+
+        item.addEventListener('mouseleave', () => {
+          if (document.getElementById('macDockContainer').classList.contains('minimized')) return;
+          dockItems.forEach(otherItem => {
+            otherItem.style.width = baseWidth + 'px';
+          });
+        });
+      });
+    });
+  </script>
+
+  <script id="composerIslandJS">
+    let isComposerExpanded = false;
+    let _composerLockUntil = 0;
+
+    function expandComposer() {
+      isComposerExpanded = true;
+      const composer = document.getElementById('composerIsland');
+      if (!composer) return;
+      composer.classList.add('expanded');
+      composer.style.height = getExpandedHeight() + 'px';
+      setTimeout(() => {
+        const prompt = document.getElementById('prompt');
+        if (prompt) prompt.focus();
+      }, 50);
+    }
+
+    function collapseComposer() {
+      if (Date.now() < _composerLockUntil) return;
+      const prompt = document.getElementById('prompt');
+      if (prompt && prompt.value.trim() !== '') return;
+      if (document.querySelectorAll('.pending-attach-item').length > 0) return;
+      const dzMainFilled = document.getElementById('dzMainFilled');
+      if (dzMainFilled && dzMainFilled.style.display === 'flex') return;
+
+      isComposerExpanded = false;
+      const composer = document.getElementById('composerIsland');
+      if (!composer) return;
+      composer.classList.remove('expanded');
+      composer.style.height = '48px';
+      closeAllDropdowns();
+    }
+
+    function getExpandedHeight() {
+      const prompt = document.getElementById('prompt');
+      if (!prompt) return 116;
+      return Math.max(116, 68 + Math.min(prompt.scrollHeight, 160));
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const dockWrapper = document.querySelector('.composer-dock');
+      let dockCollapseTimer;
+      if (dockWrapper) {
+        dockWrapper.addEventListener('mouseenter', () => {
+          clearTimeout(dockCollapseTimer);
+          expandComposer();
+        });
+        dockWrapper.addEventListener('mouseleave', () => {
+          dockCollapseTimer = setTimeout(() => {
+            collapseComposer();
+          }, 250);
+        });
+      }
+
+      const prompt = document.getElementById('prompt');
+      if (prompt) {
+        prompt.addEventListener('input', () => {
+          if (isComposerExpanded) {
+            prompt.style.height = '48px';
+            const newH = Math.min(prompt.scrollHeight, 160);
+            prompt.style.height = newH + 'px';
+            const composer = document.getElementById('composerIsland');
+            if (composer) composer.style.height = Math.max(116, newH + 68) + 'px';
+          }
+        });
+      }
+
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('.ui-dropdown') && !e.target.closest('.ui-pill-btn')) {
+          closeAllDropdowns();
+        }
+      });
+    });
+
+    function toggleDropdown(id, event) {
+      if (event) event.stopPropagation();
+      const dd = document.getElementById(id);
+      if (!dd) return;
+      const isOpen = dd.classList.contains('open');
+      closeAllDropdowns();
+      if (!isOpen) dd.classList.add('open');
+    }
+
+    function closeAllDropdowns() {
+      document.querySelectorAll('.ui-dropdown').forEach(dd => dd.classList.remove('open'));
+    }
+
+    function selectCodeModel(model, label, event) {
+      if (event) event.stopPropagation();
+      const lbl = document.getElementById('activeCodeModelLabel');
+      if (lbl) lbl.textContent = label;
+      selectedCodeModel = model;
+      if (typeof updateSelectedCodeModel === 'function') updateSelectedCodeModel(model);
+      closeAllDropdowns();
+    }
+
+    function selectImageTypeMenu(type, label, event) {
+      if (event) event.stopPropagation();
+      const lbl = document.getElementById('activeImageTypeLabel');
+      if (lbl) lbl.textContent = label;
+      selectedImageType = type;
+      if (typeof imagePresets !== 'undefined' && imagePresets[type]) {
+        currentTemplate = imagePresets[type].backendCategory === "thumbnail" ? "wide" : "square";
+      }
+      closeAllDropdowns();
+    }
+
+    function triggerAttachPicker() {
+      const inp = document.getElementById('chatAttachInput');
+      if (inp) inp.click();
+    }
+
+    // ===== DOCK STAGE =====
+    function openComposerStage() {
+      openComposerStageMode('chat');
+    }
+
+    function openComposerStageMode(mode) {
+      mode = mode || 'chat';
+      _composerLockUntil = Date.now() + 600; // Lock hover state to prevent jitter
+
+      const dockContainer = document.getElementById('macDockContainer');
+      if (dockContainer) dockContainer.classList.add('minimized');
+
+      // Bounce the dock list
+      const dockList = document.querySelector('.mac-dock-list');
+      if (dockList) {
+        dockList.classList.remove('dock-bounce');
+        void dockList.offsetWidth;
+        dockList.classList.add('dock-bounce');
+      }
+
+      const stage = document.getElementById('composerStage');
+      if (stage) {
+        stage.style.display = '';
+        stage.offsetHeight;
+        stage.style.opacity = '1';
+        stage.style.transform = 'translateY(0)';
+      }
+
+      document.querySelectorAll('.dock-item.fm-pill').forEach(p => {
+        p.classList.toggle('active', p.dataset.force === mode);
+      });
+
+      if (typeof setForceMode === 'function') setForceMode(mode);
+      if (typeof expandComposer === 'function') expandComposer();
+
+      // Trigger bounce animation
+      const composer = document.getElementById('composerIsland');
+      if (composer) {
+        composer.classList.remove('bounce');
+        void composer.offsetWidth; // trigger reflow
+        composer.classList.add('bounce');
+      }
+    }
   </script>
 </body>
 
