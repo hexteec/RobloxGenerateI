@@ -448,13 +448,6 @@
     .sb-brand {
       display: flex;
       align-items: center;
-      gap: 10px;
-      font-family: var(--font-display);
-      font-weight: 700;
-      font-size: 14.5px;
-      padding: 2px 2px 16px;
-      color: var(--ink);
-      letter-spacing: -0.01em;
     }
 
     .sb-brand .mark {
@@ -1025,48 +1018,6 @@
       /* Chrome, Safari and Opera */
     }
 
-    /* Ambient liquid lights */
-    .feed::before,
-    .feed::after {
-      content: "";
-      position: absolute;
-      pointer-events: none;
-      border-radius: 50%;
-      filter: blur(110px);
-      z-index: -1;
-      will-change: transform;
-    }
-
-    .feed::before {
-      width: 480px;
-      height: 480px;
-
-      top: -240px;
-      left: 12%;
-
-      background: var(--accent);
-      opacity: 0.032;
-
-      animation: ambientOne 20s ease-in-out infinite alternate;
-    }
-
-    .feed::after {
-      width: 400px;
-      height: 400px;
-
-      top: 45%;
-      right: -180px;
-
-      background: var(--accent-deep);
-      opacity: 0.022;
-
-      animation: ambientTwo 25s ease-in-out infinite alternate;
-    }
-
-    /* Additional light — removed to avoid third blob clutter */
-    .feed> :first-child::before {
-      content: none;
-    }
 
     @keyframes ambientOne {
       0% {
@@ -1205,7 +1156,7 @@
     .msg-avatar {
       width: 28px;
       height: 28px;
-      border-radius: 8px;
+      border-radius: 5px;
       flex-shrink: 0;
       display: flex;
       align-items: center;
@@ -1227,7 +1178,6 @@
     .msg-bot .msg-avatar {
       background: var(--accent-wash);
       color: var(--accent);
-      border: 1px solid color-mix(in srgb, var(--accent) 25%, var(--border));
     }
 
     .msg-bot .msg-avatar svg {
@@ -1283,7 +1233,7 @@
     .msg-bot .msg-bubble {
       background: var(--card);
       border: 1px solid var(--border);
-      border-radius: 14px 14px 14px 3px;
+      border-radius: 5px 15px 15px 15px;
       padding: 15px 16px;
       box-shadow: var(--shadow-sm);
     }
@@ -1661,17 +1611,51 @@
       color: var(--ink-muted);
     }
 
+    /* When chooser-3d is present: message bubble wraps only the text (md-p / content),
+       while chooser-3d buttons sit cleanly below without the bubble background */
+    .msg-bot:has(.chooser-3d) .msg-bubble {
+      background: transparent;
+      border: none;
+      padding: 0;
+      box-shadow: none;
+    }
+
+    .msg-bot:has(.chooser-3d) .bot-body {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .msg-bot:has(.chooser-3d) .bot-body > :not(.chooser-3d) {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 5px 15px 15px 15px;
+      padding: 13px 16px;
+      box-shadow: var(--shadow-sm);
+      max-width: 100%;
+    }
+
+    .msg-bot:has(.chooser-3d) .bot-body > .md-p {
+      margin: 0;
+      font-size: 13.8px;
+      line-height: 1.6;
+      color: var(--ink);
+    }
+
     .chooser-3d {
       display: flex;
       flex-direction: column;
       gap: 8px;
-      margin-top: 12px;
+      margin-top: 10px;
+      width: 100%;
+      max-width: 440px;
     }
 
     .chooser-3d button {
       display: flex;
       align-items: center;
       gap: 12px;
+      width: 100%;
       text-align: left;
       background: var(--card);
       border: 1px solid var(--border);
@@ -1681,14 +1665,15 @@
       font-weight: 600;
       color: var(--ink);
       cursor: pointer;
-      transition: border-color .15s ease, background .15s ease;
+      box-shadow: var(--shadow-sm);
+
+      transition: border-color .15s ease, background .15s ease, box-shadow .15s ease, transform .15s ease;
     }
 
     .chooser-3d button .c3-icon {
       width: 30px;
       height: 30px;
       border-radius: 8px;
-      background: var(--soft);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -1712,10 +1697,11 @@
     .chooser-3d button:hover:not(:disabled) {
       border-color: var(--accent);
       background: var(--accent-wash);
+      box-shadow: var(--shadow-md);
+      transform: translateY(-1px);
     }
 
     .chooser-3d button:hover:not(:disabled) .c3-icon {
-      background: #fff;
       color: var(--accent);
     }
 
@@ -1728,6 +1714,10 @@
       border-color: var(--mint);
       background: var(--mint-wash);
       opacity: 1;
+    }
+
+    .chooser-3d button.chosen .c3-icon {
+      color: var(--mint);
     }
 
     .chooser-templates {
@@ -2364,6 +2354,7 @@
         opacity: 0;
         transform: translateY(8px) scale(0.98);
       }
+
       to {
         opacity: 1;
         transform: translateY(0) scale(1);
@@ -4379,23 +4370,31 @@
     /* ======== MODE CONTEXT BAR ======== */
     #modeContextBar {
       display: none;
-      flex-direction: column;
+      flex-direction: row;
       align-items: center;
+      justify-content: center;
       gap: 8px;
       padding: 0 8px 10px 8px;
       animation: floatUp 0.25s ease both;
+      width: 100%;
+      box-sizing: border-box;
     }
 
     .mcb-row {
       display: flex;
+      flex-direction: row;
       align-items: center;
-      gap: 6px;
-      flex-wrap: wrap;
       justify-content: center;
+      gap: 8px;
+      flex-wrap: nowrap !important;
+      white-space: nowrap;
+      max-width: 100%;
+      min-width: 0;
+      box-sizing: border-box;
     }
 
     .mcb-label {
-      display: flex;
+      display: inline-flex;
       align-items: center;
       gap: 5px;
       font-size: 11.5px;
@@ -4404,7 +4403,9 @@
       background: var(--soft);
       border: 1px solid var(--border);
       border-radius: 7px;
-      padding: 4px 10px;
+      padding: 3.5px 9px;
+      flex-shrink: 0;
+      white-space: nowrap;
     }
 
     .mcb-label svg {
@@ -4416,9 +4417,65 @@
     .mcb-hint {
       font-size: 11px;
       color: var(--ink-faint);
-      text-align: center;
-      line-height: 1.4;
-      max-width: 380px;
+      line-height: 1.35;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      min-width: 0;
+      flex-shrink: 1;
+    }
+
+    @media (max-width: 768px) {
+      #modeContextBar {
+        padding: 0 4px 8px 4px;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+      }
+
+      .mcb-row {
+        gap: 6px;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        width: 100%;
+        max-width: 100%;
+        justify-content: center;
+      }
+
+      .mcb-label {
+        font-size: 10.5px;
+        padding: 2.5px 7px;
+        gap: 4px;
+        border-radius: 6px;
+        flex-shrink: 0;
+      }
+
+      .mcb-label svg {
+        width: 11px;
+        height: 11px;
+      }
+
+      .mcb-hint {
+        font-size: clamp(9px, 2.7vw, 10.5px);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        min-width: 0;
+      }
+    }
+
+    @media (max-width: 420px) {
+      .mcb-row {
+        gap: 4px;
+      }
+
+      .mcb-label {
+        font-size: 10px;
+        padding: 2px 6px;
+      }
+
+      .mcb-hint {
+        font-size: clamp(8.5px, 2.5vw, 9.8px);
+      }
     }
 
     /* Image method pills inside context bar */
@@ -4463,6 +4520,13 @@
       color: var(--accent-deep);
       box-shadow: 0 0 0 1px var(--accent) inset;
     }
+
+    .RoPeakImg{
+      width: 100%;
+      height: 60px;
+      background-image: url("RoPeakText.png");
+      background-size: cover;
+    }
   </style>
 </head>
 
@@ -4477,7 +4541,7 @@
         <div class="desktop-bubble desktop-bubble-left">
           <div class="sb-top sb-top-brand">
             <div class="sb-brand">
-              <div class="mark" id="brandMark"></div>RoPeak
+              <div class="RoPeakImg"></div>
             </div>
             <div class="roblox-card" id="robloxCard" style="margin-top: 14px;">
               <div class="rc-avatar-wrap">
@@ -4661,8 +4725,7 @@
           <div class="composer-stage" id="composerStage"
             style="display: none; opacity: 0; transform: translateY(20px); transition: all 0.3s ease; pointer-events: auto;">
 
-            <div id="modeContextBar"
-              style="display:none; justify-content:center; align-items:center; gap:6px; flex-wrap:wrap; padding: 0 12px 10px 12px; transition: opacity 0.3s ease; animation: fadeIn 0.3s ease;">
+            <div id="modeContextBar" style="display:none;">
             </div>
 
             <!-- Mode Attachment Floating Shelf -->
@@ -4670,10 +4733,11 @@
               <div class="dropzone" id="dzMain">
                 <div class="dz-empty" id="dzMainEmpty">
                   <div class="dz-icon-wrap">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <rect x="3" y="3" width="18" height="18" rx="3"/>
-                      <circle cx="8.5" cy="8.5" r="1.5"/>
-                      <path d="M21 15l-5-5L5 21"/>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                      stroke-linecap="round" stroke-linejoin="round">
+                      <rect x="3" y="3" width="18" height="18" rx="3" />
+                      <circle cx="8.5" cy="8.5" r="1.5" />
+                      <path d="M21 15l-5-5L5 21" />
                     </svg>
                   </div>
                   <div class="dz-text-block">
@@ -4684,10 +4748,11 @@
                     <span class="dz-sub" id="dzMainSub">Click or drag & drop image to attach</span>
                   </div>
                   <div class="dz-upload-cta">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                      <polyline points="17 8 12 3 7 8"/>
-                      <line x1="12" y1="3" x2="12" y2="15"/>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                      stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                      <polyline points="17 8 12 3 7 8" />
+                      <line x1="12" y1="3" x2="12" y2="15" />
                     </svg>
                     <span>Upload</span>
                   </div>
@@ -4697,15 +4762,19 @@
                   <div class="dz-file-meta">
                     <span class="dz-name" id="dzMainName"></span>
                     <span class="dz-status-ready">
-                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
                       Ready
                     </span>
                   </div>
                   <div class="dz-actions">
-                    <button type="button" class="dz-action-pill" onclick="document.getElementById('mainImageInput').click()" title="Replace file">Change</button>
+                    <button type="button" class="dz-action-pill"
+                      onclick="document.getElementById('mainImageInput').click()" title="Replace file">Change</button>
                     <button type="button" class="dz-remove" onclick="clearMainImage(event)" title="Remove attachment">
                       <svg width="11" height="11" viewBox="0 0 14 14" fill="none">
-                        <path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        <path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
                       </svg>
                     </button>
                   </div>
@@ -4715,8 +4784,9 @@
               <div class="dropzone" id="dzRef" style="display:none;">
                 <div class="dz-empty" id="dzRefEmpty">
                   <div class="dz-icon-wrap">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                      stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
                     </svg>
                   </div>
                   <div class="dz-text-block">
@@ -4727,10 +4797,11 @@
                     <span class="dz-sub" id="dzRefSub">Upload art reference image</span>
                   </div>
                   <div class="dz-upload-cta">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                      <polyline points="17 8 12 3 7 8"/>
-                      <line x1="12" y1="3" x2="12" y2="15"/>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                      stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                      <polyline points="17 8 12 3 7 8" />
+                      <line x1="12" y1="3" x2="12" y2="15" />
                     </svg>
                     <span>Upload</span>
                   </div>
@@ -4740,15 +4811,19 @@
                   <div class="dz-file-meta">
                     <span class="dz-name" id="dzRefName"></span>
                     <span class="dz-status-ready">
-                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
                       Ready
                     </span>
                   </div>
                   <div class="dz-actions">
-                    <button type="button" class="dz-action-pill" onclick="document.getElementById('refImageInput').click()" title="Replace file">Change</button>
+                    <button type="button" class="dz-action-pill"
+                      onclick="document.getElementById('refImageInput').click()" title="Replace file">Change</button>
                     <button type="button" class="dz-remove" onclick="clearRefImage(event)" title="Remove attachment">
                       <svg width="11" height="11" viewBox="0 0 14 14" fill="none">
-                        <path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        <path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
                       </svg>
                     </button>
                   </div>
@@ -4795,17 +4870,20 @@
                   </div>
 
                   <div style="position: relative; display:none;" id="modeAttachPillWrap">
-                    <button class="ui-pill-btn" id="modeAttachPillBtn" onclick="triggerModeAttach()" title="Attach file for active mode">
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="3" y="3" width="18" height="18" rx="2"/>
-                        <circle cx="8.5" cy="8.5" r="1.5"/>
-                        <polyline points="21 15 16 10 5 21"/>
+                    <button class="ui-pill-btn" id="modeAttachPillBtn" onclick="triggerModeAttach()"
+                      title="Attach file for active mode">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="18" height="18" rx="2" />
+                        <circle cx="8.5" cy="8.5" r="1.5" />
+                        <polyline points="21 15 16 10 5 21" />
                       </svg>
                       <span id="modeAttachPillText">Attach screenshot</span>
                     </button>
                   </div>
 
-                  <button class="ui-pill-btn" id="enhanceBtn" onclick="enhancePrompt()" style="display:none;" title="Enhance prompt">
+                  <button class="ui-pill-btn" id="enhanceBtn" onclick="enhancePrompt()" style="display:none;"
+                    title="Enhance prompt">
                     <span id="enhanceIcon"></span><span id="enhanceLabel">Enhance</span>
                   </button>
                   <span class="char-count" id="charCount" style="display:none;">0 characters</span>
@@ -5310,7 +5388,6 @@
       auth.onAuthStateChanged(onAuthChange);
 
       try {
-        document.getElementById("brandMark").innerHTML = ICONS.ropeak;
         document.getElementById("newChatIcon").innerHTML = ICONS.plus;
         initComposerHeightSync();
 
@@ -5737,6 +5814,7 @@
       activeChatId = chatId;
       lastLargeFrame = null;
       pendingChoiceMessage = null;
+      setForceMode("chat");
       const chat = chatsCache.find(c => c.id === chatId);
       document.getElementById("chatTitle").textContent = chat ? chat.title : "Chat";
       renderChatList();
@@ -6218,6 +6296,8 @@
       opts = opts || {};
       activeForceMode = mode;
 
+      renderModeContextBar(mode);
+
       const codeWrap = document.getElementById("codeModelSelectorWrap");
       if (codeWrap) codeWrap.style.display = mode === "code" ? "block" : "none";
       const imgWrap = document.getElementById("imageTypeSelectorWrap");
@@ -6298,7 +6378,6 @@
       }
       // Auto expand on interactive flow start
       if (typeof expandComposer === 'function') expandComposer();
-      renderModeContextBar(mode);
     }
 
     // ===== MODE CONTEXT BAR =====
@@ -6307,21 +6386,21 @@
       const bar = document.getElementById('modeContextBar');
       if (!bar) return;
 
-      const info = (typeof FORCE_MODE_INFO !== 'undefined' && FORCE_MODE_INFO[mode])
-        ? FORCE_MODE_INFO[mode]
-        : { hint: '', label: mode, icon: '' };
-
-      if (mode === 'chat') {
+      // Only show for modes that require this creation method context bar (image, model3d).
+      // For chat and any other modes that don't have this content, immediately remove and hide it.
+      if (mode !== 'image' && mode !== 'model3d') {
         bar.style.display = 'none';
         bar.innerHTML = '';
         return;
       }
 
+      const info = (typeof FORCE_MODE_INFO !== 'undefined' && FORCE_MODE_INFO[mode])
+        ? FORCE_MODE_INFO[mode]
+        : { hint: '', label: mode, icon: '' };
+
       const hintText = {
         image: 'Choose a creation method in the message below.',
         model3d: 'Choose how you want to create the 3D model.',
-        ui2lua: 'Upload a UI screenshot — attach file below.',
-        code: 'Describe the script. You can also modify existing code.',
       }[mode] || info.hint;
 
       bar.innerHTML = `
