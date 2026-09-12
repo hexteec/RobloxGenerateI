@@ -65,6 +65,7 @@
       --border: #E5E3DF;
       --ink: #201F1C;
       --ink-2: #2b2a2a;
+      --ink-3: #d4d1d1;
       --ink-muted: #6B6862;
       --ink-faint: #A6A29A;
 
@@ -233,9 +234,10 @@
     .theme-switch {
       display: flex;
       align-items: center;
+      justify-content: center;
       gap: 6px;
       flex-wrap: wrap;
-      margin-bottom: 12px;
+      margin: 4px 0 2px 0;
     }
 
     .theme-dot {
@@ -286,15 +288,6 @@
       background: linear-gradient(135deg, #FCF8F1 50%, #C97A25 50%);
     }
 
-    .theme-switch-label {
-      font-size: 10.5px;
-      font-weight: 700;
-      color: var(--ink-faint);
-      text-transform: uppercase;
-      letter-spacing: .05em;
-      width: 100%;
-      margin-bottom: 2px;
-    }
 
     * {
       box-sizing: border-box;
@@ -491,43 +484,47 @@
     }
 
     .center-botom {
+      align-items: center;
       display: flex;
-
+      justify-content: center;
+      gap: 6px;
+      width: 100%;
+      margin-bottom: 0;
     }
 
     .btn-store,
     .btn-tokens {
-      width: 52%;
+      flex: 1;
       display: inline-flex;
       align-items: center;
-      gap: 9px;
+      justify-content: center;
+      text-align: center;
+      gap: 6px;
       background: var(--ink);
       border: none;
+      border-radius: 0;
       color: white;
       font-family: var(--font-display);
       font-weight: 700;
-      font-size: 10.5px;
-      padding: 11px 20px;
+      font-size: 10px;
+      padding: 10px 6px;
       cursor: pointer;
-      transition: background .15s ease, transform .12s ease, box-shadow .15s ease;
+      text-decoration: none;
+      transition: background .15s ease, transform .12s ease, box-shadow .15s ease, opacity .15s ease;
       box-shadow: 0 1px 2px rgba(20, 20, 15, 0.1);
+      box-sizing: border-box;
+      white-space: nowrap;
     }
 
     .btn-store:hover,
     .btn-tokens:hover {
-      opacity: 0.9;
+      opacity: 0.92;
       transform: translateY(-1px);
     }
 
     .btn-store:active,
     .btn-tokens:active {
       transform: translateY(0);
-    }
-
-    .btn-tokens {
-      width: 45%;
-      margin-left: 3%;
-      border: none;
     }
 
     .sb-chats {
@@ -643,15 +640,20 @@
     .sb-bottom {
       border-top: 1px solid var(--border);
       padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
     }
 
     .sb-back {
       display: flex;
       align-items: center;
+      justify-content: center;
       gap: 6px;
       font-size: 12px;
       color: var(--ink-faint);
-      margin-bottom: 12px;
+      text-decoration: none;
+      margin-top: 10px;
       transition: color .15s ease;
     }
 
@@ -659,205 +661,531 @@
       color: var(--ink-muted);
     }
 
-    .auth-block .btn-google {
-      width: 100%;
+    /* =================== ACCOUNTS CARDS (GOOGLE & ROBLOX) =================== */
+    .accounts-stack {
       display: flex;
-      align-items: center;
-      justify-content: center;
+      flex-direction: column;
       gap: 8px;
-      background: var(--soft);
-      border: none;
-      color: var(--ink);
-      font-size: 12.5px;
-      font-weight: 600;
-      padding: 10px;
-      border-radius: var(--radius-sm);
-      cursor: pointer;
-      transition: border-color .15s ease, background .15s ease;
+      margin-top: 12px;
+      width: 100%;
     }
 
-    .auth-block .btn-google:hover {
-      border-color: var(--ink-faint);
-      background: var(--soft-2);
-    }
-
-    .auth-block .btn-google svg {
-      width: 15px;
-      height: 15px;
-    }
-
-    .user-row {
-      display: none;
-      align-items: center;
-      gap: 9px;
-    }
-
-    .user-row.show {
-      display: flex;
-    }
-
-    .user-row .u-avatar {
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      object-fit: cover;
+    .account-card {
+      position: relative;
+      background: none;
       border: 1px solid var(--border);
-      flex-shrink: 0;
-    }
-
-    .user-row .u-meta {
-      flex: 1;
-      min-width: 0;
-    }
-
-    .user-row .u-name {
-      font-size: 12.5px;
-      font-weight: 600;
-      white-space: nowrap;
+      border-radius: 0;
+      transition: border-color .15s ease, background .15s ease, box-shadow .15s ease;
       overflow: hidden;
-      text-overflow: ellipsis;
+      box-sizing: border-box;
+      width: 100%;
     }
 
-    .user-row .u-tokens {
-      font-size: 11.5px;
-      color: var(--mint);
-      cursor: pointer;
-      margin-top: 1px;
-      font-weight: 600;
+    .account-card:hover {
+      border-color: var(--ink-faint);
+      background: var(--card);
+      box-shadow: var(--shadow-sm);
     }
 
-    .user-row .u-tokens.low {
-      color: var(--coral);
+    .account-card.linked {
+      background: var(--card);
+      border-color: var(--border);
     }
 
-    .user-row .u-signout {
-      color: var(--ink-muted);
-      border-radius: 6px;
-      cursor: pointer;
-      padding: 4px;
-      display: flex;
+    /* Shared layout for card states and roblox card */
+    .account-card .ac-state,
+    .roblox-card {
+      align-items: center;
+      gap: 10px;
+      padding: 9px 11px;
+      width: 100%;
+      text-align: left;
+      box-sizing: border-box;
+      background: transparent;
+      border: none;
+      margin: 0;
     }
 
     .roblox-card {
       display: flex;
+    }
+
+    /* Google Unlinked Button State */
+    .account-card #signInBtn,
+    .btn-google-card {
+      display: flex;
+      flex-direction: column;
+      color: inherit;
+      font: inherit;
+      width: 100%;
+      box-sizing: border-box;
+      background: transparent;
+      border: none;
+      padding: 0;
+      text-align: left;
+    }
+
+    /* Google Linked State (User Row) - Hidden by default */
+    .account-card #userRow,
+    .user-row {
+      display: none !important;
+      flex-direction: column;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    /* When linked or .show, display userRow and hide signInBtn */
+    .account-card.linked #userRow,
+    .account-card #userRow.show,
+    .user-row.show {
+      display: flex !important;
+      flex-direction: column !important;
+    }
+
+    .account-card.linked #signInBtn,
+    .account-card.linked .btn-google-card {
+      display: none !important;
+    }
+
+    /* =================== EXPANDED GOOGLE PANEL =================== */
+    .gp-panel {
+      padding: 10px 11px;
+      gap: 9px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .gp-top-row {
+      display: flex;
       align-items: center;
-      gap: 11px;
-      margin-top: 10px;
-      padding: 11px 12px;
-      background-color: var(--ink);
-      box-shadow: var(--shadow-sm);
-      transition: border-color .15s ease, background .15s ease, box-shadow .15s ease;
+      justify-content: space-between;
+      gap: 8px;
+      width: 100%;
+      margin: 5px;
     }
 
-    .roblox-card.linked {
-      background: linear-gradient(135deg, var(--mint-wash), var(--card) 70%);
+    .gp-user-identity {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      min-width: 0;
+      flex: 1;
     }
 
-    .roblox-card.unlinked {}
+    .gp-user-email {
+      font-size: 10px;
+      color: var(--ink-faint);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      line-height: 1.25;
+      margin-top: 1.5px;
+    }
 
-    .rc-avatar-wrap {
-      position: relative;
-      width: 38px;
-      height: 38px;
+    .gp-actions {
+      display: flex;
+      align-items: center;
+      gap: 5px;
       flex-shrink: 0;
     }
 
+    .gp-icon-btn {
+      width: 27px;
+      height: 27px;
+      padding: 0;
+      border-radius: 0;
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--ink-muted);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background .15s ease, border-color .15s ease, color .15s ease, transform .12s ease;
+      box-sizing: border-box;
+      line-height: 1;
+    }
+
+    .gp-icon-btn:hover {
+      background: var(--soft);
+      border-color: var(--ink-faint);
+      color: var(--ink);
+      transform: translateY(-1px);
+    }
+
+    .gp-icon-btn.u-signout {
+      color: var(--coral);
+      border-color: rgba(193, 80, 47, 0.35);
+    }
+
+    .gp-icon-btn.u-signout:hover {
+      background: var(--card);
+      border-color: var(--coral);
+      color: var(--coral);
+    }
+
+    .gp-icon-btn svg {
+      display: block;
+      width: 13.5px;
+      height: 13.5px;
+    }
+
+    /* Tokens Box inside Google Panel */
+    .gp-token-box {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      background: var(--soft);
+      border: 1px solid var(--border);
+      padding: 7px 9px;
+      cursor: pointer;
+      transition: border-color .15s ease, background .15s ease, transform .12s ease;
+      box-sizing: border-box;
+      width: 100%;
+    }
+
+    .gp-token-box:hover {
+      border-color: var(--ink-faint);
+      background: var(--card);
+      transform: translateY(-1px);
+    }
+
+    .gp-token-left {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      min-width: 0;
+    }
+
+    .gp-token-icon {
+      font-size: 11px;
+      color: var(--mint);
+      line-height: 1;
+    }
+
+    .gp-token-info {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.2;
+    }
+
+    .gp-token-label {
+      font-size: 8.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      color: var(--ink-faint);
+    }
+
+    .gp-token-num {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .gp-token-box.low .gp-token-num,
+    .gp-token-box.low .gp-token-icon {
+      color: var(--coral);
+    }
+
+    .gp-topup-btn {
+      font-family: var(--font-display);
+      font-size: 9px;
+      font-weight: 700;
+      padding: 4px 7px;
+      background: var(--ink);
+      color: white;
+      border: none;
+      border-radius: 0;
+      cursor: pointer;
+      line-height: 1;
+      white-space: nowrap;
+      transition: opacity .15s ease, transform .12s ease;
+    }
+
+    .gp-topup-btn:hover {
+      opacity: 0.92;
+      transform: translateY(-0.5px);
+    }
+
+    /* Footer Row */
+    .gp-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      width: 100%;
+      padding-top: 1px;
+    }
+
+    .gp-status-indicator {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 9.5px;
+      color: var(--ink-muted);
+      font-weight: 500;
+    }
+
+    .gp-live-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--mint);
+      box-shadow: 0 0 0 2px var(--mint-wash);
+      flex-shrink: 0;
+    }
+
+    .gp-badge {
+      font-size: 8.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .03em;
+      padding: 2px 6px;
+      background: var(--soft);
+      border: 1px solid var(--border);
+      color: var(--ink-muted);
+      border-radius: 0;
+      white-space: nowrap;
+    }
+
+    /* Unlinked State Layout */
+    .gp-unlinked-body {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      width: 100%;
+    }
+
+    .gp-desc {
+      font-size: 10px;
+      color: var(--ink-muted);
+      line-height: 1.35;
+      margin-left: 7px;
+    }
+
+    .gp-signin-action {
+      width: 100%;
+      padding: 8px 8px;
+      background: var(--ink);
+      color: white;
+      border: none;
+      border-radius: 0;
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 10px;
+      cursor: pointer;
+      text-align: center;
+      transition: opacity .15s ease, transform .12s ease;
+      box-shadow: 0 1px 2px rgba(20, 20, 15, 0.1);
+      box-sizing: border-box;
+      white-space: nowrap;
+    }
+
+    .gp-signin-action:hover {
+      opacity: 0.92;
+      transform: translateY(-1px);
+    }
+
+    .gp-signin-action:active {
+      transform: translateY(0);
+    }
+
+    /* Avatar & Badge */
+    .rc-avatar-wrap {
+      position: relative;
+      width: 36px;
+      height: 36px;
+      flex-shrink: 0;
+      border-radius: 50%;
+      margin-left: 5px;
+    }
+
     .rc-avatar {
-      width: 38px;
-      height: 38px;
+      width: 36px;
+      height: 36px;
       border-radius: 50%;
       object-fit: cover;
-      border: 2px solid var(--card);
+      border: 1.5px solid var(--border);
+      background: var(--card);
       display: block;
     }
 
     .rc-avatar-fallback {
-      width: 38px;
-      height: 38px;
+      width: 36px;
+      height: 36px;
       border-radius: 50%;
-      background: var(--ink-2);
-      color: white;
+      background: var(--ink);
+      color: #fff;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 16px;
+      border: 1.5px solid var(--border);
+      flex-shrink: 0;
+      box-sizing: border-box;
     }
 
+    .ac-google-icon {
+      background: var(--card);
+      border: 1.5px solid var(--border);
+    }
+
+    .ac-google-icon svg {
+      width: 18px;
+      height: 18px;
+      display: block;
+    }
+
+    /* Status Dot */
     .rc-status-dot {
       position: absolute;
       bottom: -1px;
       right: -1px;
-      width: 12px;
-      height: 12px;
+      width: 10px;
+      height: 10px;
       border-radius: 50%;
+      border: 2px solid var(--card);
       background: var(--ink-faint);
+      transition: background .2s ease, box-shadow .2s ease;
+      box-sizing: content-box;
     }
 
-    .roblox-card.linked .rc-status-dot {
+    .account-card.linked .rc-status-dot,
+    .rc-status-dot.linked {
       background: var(--mint);
     }
 
-    .roblox-card.unlinked .rc-status-dot {
+    .account-card.unlinked .rc-status-dot,
+    .rc-status-dot.unlinked {
       background: var(--accent);
     }
 
+    /* Info Block */
     .rc-info {
       flex: 1;
       min-width: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      text-align: left;
     }
 
     .rc-title {
-      font-size: 13px;
-      font-weight: 700;
+      font-size: 12.5px;
+      font-weight: 600;
       color: var(--ink);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      line-height: 1.3;
     }
 
     .rc-sub {
-      font-size: 11px;
+      font-size: 10.5px;
       color: var(--ink-muted);
-      margin-top: 1px;
+      margin-top: 1.5px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      line-height: 1.25;
     }
 
-    .roblox-card.linked .rc-sub {
+    .account-card.linked .rc-sub {
+      color: var(--mint);
+      font-weight: 500;
+    }
+
+    .u-tokens {
+      cursor: pointer;
       color: var(--mint);
       font-weight: 600;
+      transition: opacity .15s ease;
     }
 
+    .u-tokens:hover {
+      opacity: 0.8;
+      text-decoration: underline;
+    }
+
+    .u-tokens.low {
+      color: var(--coral);
+    }
+
+    /* Action Buttons */
     .rc-action {
       flex-shrink: 0;
-      font-size: 11.5px;
+      font-family: var(--font-display);
+      font-size: 11px;
       font-weight: 700;
       padding: 7px 12px;
-      border-radius: 8px;
+      border-radius: 0;
       border: none;
       cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      line-height: 1;
       transition: opacity .15s ease, transform .12s ease;
     }
 
     .rc-action:hover {
       transform: translateY(-1px);
+      opacity: 0.9;
     }
 
-    .roblox-card.linked .rc-action {
-      background: var(--card);
-      color: var(--coral);
-      border: 1px solid var(--coral);
+    .rc-action:active {
+      transform: translateY(0);
     }
 
-    .roblox-card.unlinked .rc-action {
-      background: var(--accent);
+    /* Unlinked Action Style (Sign in / Connect) */
+    .account-card.unlinked .rc-action,
+    .btn-google-card .rc-action {
+      background: var(--ink);
       color: #fff;
     }
 
+    .account-card.unlinked .rc-action:hover,
+    .btn-google-card:hover .rc-action {
+      opacity: 0.9;
+    }
+
+    /* Linked Action Style (Disconnect / Sign out) */
+    .account-card.linked .rc-action {
+      background: var(--card);
+      color: var(--coral);
+      border: 1px solid var(--coral);
+      border-radius: 0;
+    }
+
+    .account-card.linked .rc-action:hover {
+      opacity: 0.9;
+    }
+
+    /* Sign out button */
+    .user-row .u-signout {
+      width: 28px;
+      height: 28px;
+      padding: 0;
+      border-radius: 0;
+      background: var(--card);
+      color: var(--coral);
+      border: 1px solid var(--coral);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .user-row .u-signout:hover {
+      opacity: 0.85;
+    }
+
     .user-row .u-signout svg {
-      width: 15px;
-      height: 15px;
+      width: 14px;
+      height: 14px;
     }
 
     .sb-toggle {
@@ -1626,7 +1954,7 @@
       align-items: flex-start;
     }
 
-    .msg-bot:has(.chooser-3d) .bot-body > :not(.chooser-3d) {
+    .msg-bot:has(.chooser-3d) .bot-body> :not(.chooser-3d) {
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: 5px 15px 15px 15px;
@@ -1635,7 +1963,7 @@
       max-width: 100%;
     }
 
-    .msg-bot:has(.chooser-3d) .bot-body > .md-p {
+    .msg-bot:has(.chooser-3d) .bot-body>.md-p {
       margin: 0;
       font-size: 13.8px;
       line-height: 1.6;
@@ -3651,54 +3979,80 @@
     }
 
     .lang-switch {
-      margin-bottom: 14px;
       position: relative;
+      width: 100%;
+      margin: 0;
     }
 
     .lang-select {
       width: 100%;
-      display: flex;
+      display: inline-flex;
       align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      font-family: var(--font-body);
-      font-size: 12.3px;
-      font-weight: 600;
+      justify-content: center;
+      text-align: center;
+      gap: 6px;
+      background: transparent;
+      border: none;
+      border-radius: 0;
       color: var(--ink);
-      background: var(--soft);
-
-      border-radius: var(--radius-sm);
-      padding: 9px 11px;
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 10.5px;
+      padding: 7px 6px;
       cursor: pointer;
-      transition: border-color .15s ease, background .15s ease;
+      text-decoration: none;
+      transition: opacity .15s ease, color .15s ease, transform .12s ease;
+      box-shadow: none;
+      box-sizing: border-box;
+      white-space: nowrap;
+      user-select: none;
+      opacity: 0.82;
     }
 
     .lang-select:hover {
-      border-color: var(--ink-faint);
+      opacity: 1;
+      transform: translateY(-1px);
     }
 
-    .lang-select .ls-current {
-      display: flex;
+    .lang-select:active {
+      transform: translateY(0);
+    }
+
+    .lang-select .ls-arrow {
+      display: inline-flex;
       align-items: center;
-      gap: 7px;
-      min-width: 0;
-    }
-
-    .lang-select .ls-current span {
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .lang-select .ls-chevron {
-      flex-shrink: 0;
+      justify-content: center;
       color: var(--ink-faint);
-      display: flex;
+      line-height: 1;
+      vertical-align: middle;
+      transition: transform .22s cubic-bezier(0.2, 0.8, 0.2, 1), color .15s ease;
+    }
+
+    .lang-select:hover .ls-arrow {
+      color: var(--ink);
+    }
+
+    .lang-select .ls-arrow-svg {
+      display: block;
+      width: 8.5px;
+      height: 8.5px;
       transition: transform .15s ease;
     }
 
-    .lang-select.open .ls-chevron {
+    .lang-select:hover .ls-arrow-svg {
+      transform: translateY(1px);
+    }
+
+    .lang-select.open {
+      opacity: 1;
+    }
+
+    .lang-select.open .ls-arrow {
       transform: rotate(180deg);
+    }
+
+    .lang-select.open:hover .ls-arrow-svg {
+      transform: translateY(-1px);
     }
 
     .lang-menu {
@@ -3710,10 +4064,10 @@
       z-index: 50;
       background: var(--card);
       border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
+      border-radius: 0;
       box-shadow: var(--shadow-lg);
-      padding: 5px;
-      max-height: 240px;
+      padding: 4px;
+      max-height: 220px;
       overflow-y: auto;
     }
 
@@ -3722,25 +4076,27 @@
     }
 
     .lang-menu::-webkit-scrollbar {
-      width: 6px;
+      width: 5px;
     }
 
     .lang-menu::-webkit-scrollbar-thumb {
-      background: var(--soft-2);
-      border-radius: 3px;
+      background: var(--border);
+      border-radius: 0;
     }
 
     .lang-opt {
       display: flex;
       align-items: center;
+      justify-content: space-between;
       gap: 8px;
-      padding: 8px 9px;
-      border-radius: 8px;
+      padding: 7px 10px;
+      border-radius: 0;
       cursor: pointer;
-      font-size: 12.5px;
-      font-weight: 500;
+      font-family: var(--font-display);
+      font-size: 11px;
+      font-weight: 600;
       color: var(--ink);
-      transition: background .1s ease;
+      transition: background .1s ease, color .1s ease;
     }
 
     .lang-opt:hover {
@@ -3748,13 +4104,13 @@
     }
 
     .lang-opt.active {
-      background: var(--accent-wash);
-      color: var(--accent-deep);
-      font-weight: 600;
+      background: var(--ink);
+      color: var(--bg);
+      font-weight: 700;
     }
 
     .lang-opt .lo-flag {
-      font-size: 14px;
+      font-size: 13px;
       flex-shrink: 0;
     }
 
@@ -4521,11 +4877,16 @@
       box-shadow: 0 0 0 1px var(--accent) inset;
     }
 
-    .RoPeakImg{
+    .RoPeakImg {
       width: 100%;
       height: 60px;
       background-image: url("RoPeakText.png");
       background-size: cover;
+    }
+
+    .gp-home{
+      background: none;
+      border: none;
     }
   </style>
 </head>
@@ -4543,64 +4904,140 @@
             <div class="sb-brand">
               <div class="RoPeakImg"></div>
             </div>
-            <div class="roblox-card" id="robloxCard" style="margin-top: 14px;">
-              <div class="rc-avatar-wrap">
-                <img class="rc-avatar" id="robloxAvatar" alt="" style="display:none;">
-                <div class="rc-avatar-fallback" id="robloxAvatarFallback"></div>
-                <div class="rc-status-dot" id="robloxStatusDot"></div>
+
+            <div class="accounts-stack">
+              <!-- Google Account Card (Expanded Panel) -->
+              <div class="account-card google-card unlinked" id="googleCard">
+                <!-- Unlinked state: signInBtn panel -->
+                <div class="ac-state gp-panel gp-panel-unlinked" id="signInBtn">
+                  <div class="gp-top-row">
+                    <div class="gp-user-identity">
+                      <div class="rc-avatar-wrap">
+                        <div class="rc-avatar-fallback ac-google-icon">
+                          <svg viewBox="0 0 48 48">
+                            <path fill="#FFC107"
+                              d="M43.6 20.5H42V20H24v8h11.3C33.7 32.9 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 8 3l5.7-5.7C34.6 6.1 29.6 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.7-.4-3.5z" />
+                            <path fill="#FF3D00"
+                              d="m6.3 14.7 6.6 4.8C14.6 15.9 18.9 13 24 13c3.1 0 5.8 1.1 8 3l5.7-5.7C34.6 6.1 29.6 4 24 4 16.3 4 9.7 8.3 6.3 14.7z" />
+                            <path fill="#4CAF50"
+                              d="M24 44c5.5 0 10.4-1.9 14.2-5.1l-6.6-5.4C29.6 35.4 26.9 36 24 36c-5.3 0-9.7-3.1-11.3-7.6l-6.6 5.1C9.6 39.6 16.2 44 24 44z" />
+                            <path fill="#1976D2"
+                              d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.3-4.2 5.6l6.6 5.4C41.5 36 44 30.5 44 24c0-1.3-.1-2.7-.4-3.5z" />
+                          </svg>
+                        </div>
+                        <div class="rc-status-dot unlinked"></div>
+                      </div>
+                      <div class="rc-info">
+                        <div class="rc-title">Google account</div>
+                        <div class="rc-sub">Not connected</div>
+                      </div>
+                    </div>
+                    <div class="gp-actions">
+                      <a class="gp-icon-btn gp-home" href="/" title="Strona główna" aria-label="Home">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1h-5a1 1 0 0 1-1-1v-5h-4v5a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5z"/>
+                        </svg>
+                      </a>
+                    </div>
+                  </div>
+                  <div class="gp-unlinked-body">
+                    <div class="gp-desc">Sign in to save chats, generate 3D assets & access tokens.</div>
+                    <button class="gp-signin-action" onclick="signInWithGoogle()" type="button">
+                      [ Sign in with Google ]
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Linked state: userRow panel -->
+                <div class="user-row ac-state gp-panel gp-panel-linked" id="userRow" style="display: none;">
+                  <div class="gp-top-row">
+                    <div class="gp-user-identity">
+                      <div class="rc-avatar-wrap">
+                        <img class="rc-avatar u-avatar" id="userAvatar" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E" alt="User avatar" style="display:none;">
+                        <div class="rc-avatar-fallback ac-user-fallback" id="userAvatarFallback">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+                          </svg>
+                        </div>
+                        <div class="rc-status-dot linked" title="Connected"></div>
+                      </div>
+                      <div class="rc-info u-meta">
+                        <div class="rc-title u-name" id="userName">Account</div>
+                        <div class="gp-user-email" id="userEmail"></div>
+                      </div>
+                    </div>
+                    <div class="gp-actions">
+                      <a class="gp-icon-btn gp-home" href="/" title="Strona główna" aria-label="Home">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1h-5a1 1 0 0 1-1-1v-5h-4v5a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5z"/>
+                        </svg>
+                      </a>
+                      <button class="gp-icon-btn u-signout" onclick="event.stopPropagation(); signOutUser()" title="Sign out" aria-label="Sign out">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="M12 2v8"/><path d="M18.4 6.6a9 9 0 1 1-12.8 0"/>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="gp-token-box" id="tokenPill" onclick="event.stopPropagation(); openBuyModal()" title="Top up tokens">
+                    <div class="gp-token-left">
+                      <span class="gp-token-icon">✦</span>
+                      <div class="gp-token-info">
+                        <div class="gp-token-label">Balance</div>
+                        <div class="gp-token-num"><span id="tokenCount">–</span> tokens</div>
+                      </div>
+                    </div>
+                    <button class="gp-topup-btn" type="button" onclick="event.stopPropagation(); openBuyModal()">
+                      + Top up
+                    </button>
+                  </div>
+
+                  <div class="gp-footer">
+                    <div class="gp-status-indicator">
+                      <span class="gp-live-dot"></span>
+                      <span class="gp-status-text">Cloud Sync</span>
+                    </div>
+                    <span class="gp-badge">Google User</span>
+                  </div>
+                </div>
               </div>
-              <div class="rc-info">
-                <div class="rc-title" id="robloxTitle">Connect Roblox account</div>
-                <div class="rc-sub" id="robloxSub">Required for the Studio plugin</div>
+
+              <!-- Roblox Account Card -->
+              <div class="account-card roblox-card unlinked" id="robloxCard">
+                <div class="rc-avatar-wrap">
+                  <img class="rc-avatar" id="robloxAvatar" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E" alt="Roblox avatar" style="display:none;">
+                  <div class="rc-avatar-fallback" id="robloxAvatarFallback">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                      <path d="M5.33 0L0 18.67l18.67 5.33L24 5.33 5.33 0zm9.74 13.07l-4.14-1.18 1.18-4.14 4.14 1.18-1.18 4.14z"/>
+                    </svg>
+                  </div>
+                  <div class="rc-status-dot" id="robloxStatusDot"></div>
+                </div>
+                <div class="rc-info">
+                  <div class="rc-title" id="robloxTitle">Connect Roblox account</div>
+                  <div class="rc-sub" id="robloxSub">Required for the Studio plugin</div>
+                </div>
+                <button class="rc-action" id="robloxAction" onclick="handleRobloxAction()">Connect</button>
               </div>
-              <button class="rc-action" id="robloxAction" onclick="handleRobloxAction()">Connect</button>
             </div>
           </div>
 
           <div class="sb-bottom">
-            <center class="center-botom"><a class="btn-store" href="/store">[ Assets Store ]</a><a id="navTokensBtn"
-                class="btn-tokens" href="/tokens">[ X Tokens ]</a></center>
-            <div class="theme-switch" id="themeSwitch">
-              <div class="theme-switch-label">Theme</div>
+            <div class="center-botom">
+              <a class="btn-store" href="/store">[ Assets Store ]</a>
+              <a id="navTokensBtn" class="btn-tokens" href="/tokens">[ X Tokens ]</a>
             </div>
+
+            <div class="theme-switch" id="themeSwitch"></div>
 
             <div class="lang-switch">
-              <div class="theme-switch-label">Language</div>
-              <div class="lang-select" id="langSelect" onclick="toggleLangMenu()">
-                <span class="ls-current"><span class="lo-flag" id="langFlag">🇬🇧</span><span
-                    id="langLabel">English</span></span>
-                <span class="ls-chevron" id="langChevron"></span>
-              </div>
+              <button class="lang-select" id="langSelect" onclick="toggleLangMenu()" type="button" aria-label="Language selection">
+                <span id="langLabel">English</span>
+                <span class="ls-arrow" id="langChevron"><svg class="ls-arrow-svg" width="8.5" height="8.5" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m2.5 4.5 3.5 3.5 3.5-3.5"/></svg></span>
+              </button>
               <div class="lang-menu" id="langMenu"></div>
               <div id="google_translate_element"></div>
-            </div>
-            <a class="sb-back" href="/">← Home</a>
-
-            <div class="auth-block">
-              <button class="btn-google" id="signInBtn" onclick="signInWithGoogle()">
-                <svg viewBox="0 0 48 48">
-                  <path fill="#FFC107"
-                    d="M43.6 20.5H42V20H24v8h11.3C33.7 32.9 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 8 3l5.7-5.7C34.6 6.1 29.6 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.7-.4-3.5z" />
-                  <path fill="#FF3D00"
-                    d="m6.3 14.7 6.6 4.8C14.6 15.9 18.9 13 24 13c3.1 0 5.8 1.1 8 3l5.7-5.7C34.6 6.1 29.6 4 24 4 16.3 4 9.7 8.3 6.3 14.7z" />
-                  <path fill="#4CAF50"
-                    d="M24 44c5.5 0 10.4-1.9 14.2-5.1l-6.6-5.4C29.6 35.4 26.9 36 24 36c-5.3 0-9.7-3.1-11.3-7.6l-6.6 5.1C9.6 39.6 16.2 44 24 44z" />
-                  <path fill="#1976D2"
-                    d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.3-4.2 5.6l6.6 5.4C41.5 36 44 30.5 44 24c0-1.3-.1-2.7-.4-3.5z" />
-                </svg>
-                Sign in with Google
-              </button>
-
-              <div class="user-row" id="userRow">
-                <img class="u-avatar" id="userAvatar" alt="">
-                <div class="u-meta">
-                  <div class="u-name" id="userName"></div>
-                  <div class="u-tokens" id="tokenPill" onclick="openBuyModal()"><span id="tokenCount">–</span> tokens ·
-                    top
-                    up</div>
-                </div>
-                <button class="u-signout" onclick="signOutUser()" title="Sign out"></button>
-              </div>
             </div>
           </div>
         </div>
@@ -4965,6 +5402,7 @@
       close: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>`,
       trash: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6"/></svg>`,
       power: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v8"/><path d="M18.4 6.6a9 9 0 1 1-12.8 0"/></svg>`,
+      home: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1h-5a1 1 0 0 1-1-1v-5h-4v5a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5z"/></svg>`,
       menu: `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>`,
       send: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 3 18 9-18 9 4-9Z"/></svg>`,
       spinner: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2v4M12 18v4M4.9 4.9l2.8 2.8M16.3 16.3l2.8 2.8M2 12h4M18 12h4M4.9 19.1l2.8-2.8M16.3 7.7l2.8-2.8" opacity="0.55"/></svg>`,
@@ -5267,12 +5705,15 @@
 
     function initLangSwitch() {
       const menu = document.getElementById("langMenu");
-      document.getElementById("langChevron").innerHTML = ICONS.chevronDown;
+      const chev = document.getElementById("langChevron");
+      if (chev && !chev.querySelector("svg")) {
+        chev.innerHTML = `<svg class="ls-arrow-svg" width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m2.5 4.5 3.5 3.5 3.5-3.5"/></svg>`;
+      }
 
       menu.innerHTML = LANGUAGES.map(l =>
         `<div class="lang-opt" data-code="${l.code}" onclick="selectLanguage('${l.code}')">
-         <span class="lo-flag">${l.flag}</span><span>${l.label}</span>
-       </div>`
+           <span>${l.label}</span><span class="lo-flag">${l.flag}</span>
+         </div>`
       ).join("");
 
       document.addEventListener("click", (e) => {
@@ -5303,8 +5744,9 @@
 
     function setLangDisplay(code) {
       const l = LANGUAGES.find(x => x.code === code) || LANGUAGES[0];
-      document.getElementById("langFlag").textContent = l.flag;
       document.getElementById("langLabel").textContent = l.label;
+      const flagEl = document.getElementById("langFlag");
+      if (flagEl) flagEl.textContent = l.flag;
       document.querySelectorAll(".lang-opt").forEach(el => el.classList.toggle("active", el.dataset.code === code));
     }
 
@@ -5444,18 +5886,49 @@
       currentUser = user;
       const signInBtn = document.getElementById("signInBtn");
       const row = document.getElementById("userRow");
+      const googleCard = document.getElementById("googleCard");
 
       if (user) {
         signInBtn.style.display = "none";
+        row.style.display = "flex";
         row.classList.add("show");
-        document.getElementById("userAvatar").src = user.photoURL || "";
+        if (googleCard) {
+          googleCard.classList.add("linked");
+          googleCard.classList.remove("unlinked");
+        }
+        const uAv = document.getElementById("userAvatar");
+        const uFb = document.getElementById("userAvatarFallback");
+        if (user.photoURL) {
+          uAv.src = user.photoURL;
+          uAv.style.display = "block";
+          if (uFb) uFb.style.display = "none";
+        } else {
+          uAv.style.display = "none";
+          if (uFb) uFb.style.display = "flex";
+        }
         document.getElementById("userName").textContent = user.displayName || user.email || "Account";
+        const emailEl = document.getElementById("userEmail");
+        if (emailEl) {
+          if (user.displayName && user.email) {
+            emailEl.textContent = user.email;
+            emailEl.style.display = "block";
+          } else {
+            emailEl.style.display = "none";
+          }
+        }
         await refreshBalance();
         await loadChats();
         await loadGameWidgets();
       } else {
         signInBtn.style.display = "flex";
+        row.style.display = "none";
         row.classList.remove("show");
+        if (googleCard) {
+          googleCard.classList.remove("linked");
+          googleCard.classList.add("unlinked");
+        }
+        const emailEl = document.getElementById("userEmail");
+        if (emailEl) emailEl.textContent = "";
         tokenBalance = null;
         robloxLinked = false;
         robloxUsername = null;
@@ -5705,7 +6178,7 @@
         action.textContent = "Connect";
         avatarImg.style.display = "none";
         avatarFallback.style.display = "flex";
-        avatarFallback.textContent = "...";
+        avatarFallback.innerHTML = `<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M5.33 0L0 18.67l18.67 5.33L24 5.33 5.33 0zm9.74 13.07l-4.14-1.18 1.18-4.14 4.14 1.18-1.18 4.14z"/></svg>`;
       }
     }
 
