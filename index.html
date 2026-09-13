@@ -206,57 +206,6 @@
       padding: 14px 32px;
     }
 
-    .nav-brand {
-      display: flex;
-      align-items: center;
-      gap: 9px;
-      font-family: var(--font-display);
-      font-weight: 800;
-      font-size: 17px;
-      letter-spacing: -0.01em;
-    }
-
-    .nav-brand .mark {
-      width: 24px;
-      height: 24px;
-      border-radius: 5px;
-      background: var(--ink);
-      position: relative;
-      flex-shrink: 0;
-    }
-
-    .nav-brand .mark::before {
-      content: "";
-      position: absolute;
-      top: 3px;
-      left: 3px;
-      width: 4px;
-      height: 4px;
-      border-radius: 50%;
-      background: var(--accent);
-      box-shadow: 10px 0 var(--accent), 0 10px var(--accent), 10px 10px var(--accent);
-    }
-
-    .nav-links {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .nav-links a.navlink {
-      font-size: 13.5px;
-      color: var(--ink-faint);
-      transition: color .15s ease;
-      padding: 0 10px;
-      background: rgba(255, 255, 255, 0);
-      backdrop-filter: blur(24px) saturate(160%);
-      -webkit-backdrop-filter: blur(24px) saturate(160%);
-      border-radius: 50vh;
-    }
-
-    .nav-links a.navlink:hover {
-      color: var(--ink-muted);
-    }
 
     .btn-google {
       display: inline-flex;
@@ -2769,6 +2718,16 @@
       position: absolute;
       right: -100%;
       bottom: 10%;
+
+                font-family: var(--font-display);
+          font-weight: 800;
+          font-size: clamp(2.4rem, 6vw, 6rem);
+          line-height: .88;
+          letter-spacing: -0.02em;
+          text-transform: uppercase;
+          margin: 0;
+          color: transparent;
+          -webkit-text-stroke: 2px #fff;
     }
 
     @media (max-width: 1550px) {
@@ -2937,6 +2896,10 @@
       height: 110%;
       z-index: 4;
     }
+
+    .RoPeakTextImage{
+      width: 100px;
+    }
   </style>
 </head>
 
@@ -2946,18 +2909,8 @@
 
   <nav>
     <div class="nav-brand">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <g transform="translate(0 5.6239) scale(0.034188)">
-          <path fill="currentColor" stroke="currentColor" stroke-width="1" opacity="0.996078431372549"
-            d="M 450.5 7 Q 463.2 6.3 468 13.5 L 549 354.5 Q 548.1 361.6 542.5 364 L 474 365 L 323 142.5 L 327 140 L 443.5 10 L 450.5 7 Z" />
-          <path fill="currentColor" stroke="currentColor" stroke-width="1" opacity="0.996078431372549"
-            d="M 585.5 40 Q 596.3 40.3 600 47.5 Q 645.5 200.5 696 348.5 L 696 356.5 L 691.5 363 L 688.5 365 L 573.5 365 L 566 358.5 L 500 85.5 L 585.5 40 Z" />
-          <path fill="currentColor" stroke="currentColor" stroke-width="1" opacity="0.996078431372549"
-            d="M 258.5 86 Q 268.6 86.4 272 93.5 L 446 348.5 L 447 357.5 L 440.5 365 L 301.5 365 L 299 362.5 L 254 295 L 247.5 294 L 244 296.5 L 232 311 L 228 314.5 L 180.5 365 L 12.5 365 L 6 359.5 L 5 351.5 L 16 337.5 L 250.5 89 L 258.5 86 Z" />
-        </g>
-      </svg>
-      RoPeak
-    </div>
+      <img class="RoPeakTextImage" src="RoPeakText.png">
+    </div> 
     <div id="authArea">
       <button class="btn-google" id="signInBtn" onclick="signInWithGoogle()">
         <svg viewBox="0 0 48 48">
@@ -3183,207 +3136,425 @@
           position: relative;
           z-index: 10;
         }
+
+        .code-hero {
+          display: grid;
+          grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+          gap: 4vw;
+          align-items: center;
+        }
+
+        #code-section-container .code-hero h2 {
+          font-size: clamp(2.6rem, 7vw, 7rem);
+        }
+
+        #code-section-container .code-hero .lead,
+        #code-section-container .agent-block .lead {
+          font-size: clamp(0.95rem, 1.4vw, 1.15rem);
+          margin-top: 16px;
+        }
+
+        #code-section-container .spec {
+          margin-top: 18px;
+        }
+
+        #code-section-container .spec-row {
+          padding: 7px 0;
+        }
+
+        .spec {
+          display: flex;
+          flex-direction: column;
+          margin-top: 26px;
+          border-top: 1px solid rgba(255, 255, 255, .18);
+          max-width: 46ch;
+        }
+
+        .spec-row {
+          display: flex;
+          align-items: baseline;
+          gap: 14px;
+          padding: 9px 0;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.11);
+          font-size: 11.5px;
+        }
+
+        .spec-row .k {
+          font-size: 11px;
+          letter-spacing: .12em;
+          color: rgba(255, 255, 255, 0.151);
+        }
+
+        .spec-row .v {
+          font-size: 12px;
+          letter-spacing: .02em;
+          text-transform: none;
+          color: rgba(255, 255, 255, .88);
+        }
+
+        .spec-row .v em {
+          font-style: normal;
+          color: #fff;
+          box-shadow: inset 0 -1px 0 green;
+        }
+
+        .panel-head {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 18px;
+          padding: 11px 14px;
+          border-bottom: 1px solid rgba(255, 255, 255, .18);
+          background: rgba(255, 255, 255, .03);
+          font-family: var(--font-display);
+          font-weight: 800;
+          font-size: 11px;
+          letter-spacing: .14em;
+          text-transform: uppercase;
+          color: rgba(255, 255, 255, .62);
+          white-space: nowrap;
+          overflow: hidden;
+        }
+
+        .panel-head>span:first-child {
+          min-width: 0;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        .panel-head .acts {
+          flex-shrink: 0;
+        }
+
+        .panel-head .file {
+          font-family: var(--font-mono);
+          font-weight: 400;
+          letter-spacing: .02em;
+          text-transform: none;
+          font-size: 11px;
+          color: rgba(255, 255, 255, .4);
+        }
+
+        .panel-head .acts {
+          display: flex;
+          gap: 18px;
+          font-family: var(--font-mono);
+          font-weight: 400;
+          font-size: 10.5px;
+          letter-spacing: .1em;
+          color: rgba(255, 255, 255, .55);
+        }
+
+        .cw-prompt {
+          display: flex;
+          gap: 10px;
+          padding: 13px 14px;
+          border-bottom: 1px solid rgba(255, 255, 255, .16);
+          font-family: var(--font-mono);
+          font-size: 12px;
+          line-height: 1.55;
+          color: #fff;
+        }
+
+        .cw-prompt .caret {
+          color: rgba(255, 255, 255, .38);
+          flex-shrink: 0;
+        }
+
+        .cw-code {
+          margin: 0;
+          padding: 14px;
+          font-family: var(--font-mono);
+          font-size: 11px;
+          line-height: 1.75;
+          color: #D7D7DE;
+          white-space: pre;
+          overflow-x: auto;
+          font-size: clamp(9.5px, 0.78vw, 11px);
+        }
+
+        .cw-code .c-key { color: #eb7973; }
+        .cw-code .c-str { color: #c3e88d; }
+        .cw-code .c-blu { color: #82aaff; }
+        .cw-code .c-num { color: #f78c6c; }
+        .cw-code .c-com { color: #6B6C76; }
+
+        .cw-fix {
+          display: flex;
+          align-items: baseline;
+          gap: 12px;
+          padding: 11px 14px;
+          border-top: 1px solid rgba(255, 255, 255, .16);
+          font-family: var(--font-mono);
+          font-size: 11px;
+          color: rgba(255, 255, 255, .45);
+        }
+
+        .cw-fix .fx {
+          font-family: var(--font-display);
+          font-weight: 800;
+          font-size: 10.5px;
+          letter-spacing: .14em;
+          text-transform: uppercase;
+          color: #fff;
+          box-shadow: inset 0 -1px 0 var(--accent);
+        }
+
+        .agent-block {
+          display: grid;
+          grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+          gap: 4vw;
+          align-items: start;
+        }
+
+        .agent-word {
+          font-family: var(--font-display);
+          font-weight: 800;
+          font-size: clamp(2.4rem, 6vw, 6rem);
+          line-height: .88;
+          letter-spacing: -0.02em;
+          text-transform: uppercase;
+          margin: 0;
+          color: transparent;
+          -webkit-text-stroke: 2px #fff;
+        }
+
+        .agent-log {
+          border-top: 1px solid rgba(255, 255, 255, .18);
+          background: #0B0B0D;
+        }
+
+        .agent-step {
+          display: grid;
+          grid-template-columns: 3ch minmax(0, 1fr) auto;
+          gap: 14px;
+          align-items: baseline;
+          padding: 10px 0;
+          border-bottom: 1px solid rgba(255, 255, 255, .1);
+          font-family: var(--font-mono);
+        }
+
+        .agent-step .no {
+          font-size: 11px;
+          color: rgba(255, 255, 255, .32);
+        }
+
+        .agent-step .what {
+          font-size: 12.5px;
+          line-height: 1.5;
+          color: rgba(255, 255, 255, .9);
+        }
+
+        .agent-step .meta {
+          display: block;
+          font-size: 10.5px;
+          color: rgba(255, 255, 255, .32);
+          margin-top: 4px;
+          letter-spacing: .02em;
+        }
+
+        .agent-step .state {
+          font-family: var(--font-display);
+          font-weight: 800;
+          font-size: 10px;
+          letter-spacing: .14em;
+          text-transform: uppercase;
+          color: rgba(255, 255, 255, .28);
+          white-space: nowrap;
+        }
+
+        .agent-step.done .state { color: rgba(255, 255, 255, .55); }
+
+        .agent-step.run .state {
+          color: var(--accent);
+          animation: blink 1.2s ease-in-out infinite;
+        }
+
+        .agent-step.idle .what { color: rgba(255, 255, 255, .38); }
+
+        @media (max-width: 900px) {
+          .code-hero { grid-template-columns: 1fr; gap: 7vw; }
+          .agent-block { grid-template-columns: 1fr; gap: 7vw; }
+        }
       </style>
       <div id="code-section-container"
         class="flow-art-container relative flex min-h-screen w-full flex-col justify-between gap-6 px-[4vw] pt-[clamp(2rem,8vw,4vw)] pb-[4vw] will-change-transform"
-        style="background-color: #000; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAAAIElEQVR42mIUEhJiwAbevXuHVZyJgUQwqmEUDB0AEGAADd8DEPTX6ksAAAAASUVORK5CYII='); background-size: 10px; color: #fff; transform-origin: bottom left; padding-left: 4vw; padding-right: 4vw; padding-top: clamp(2rem, 8vw, 4vw); padding-bottom: 4vw;">
+        style="background-color: #000; background-size: 10px; color: #fff; transform-origin: bottom left; padding-left: 4vw; padding-right: 4vw; padding-top: clamp(2rem, 8vw, 4vw); padding-bottom: 4vw;">
         <canvas id="pixel-stars-canvas" class="pointer-events-none absolute inset-0 z-0 w-full h-full"></canvas>
-        <p class="text-xs font-bold uppercase tracking-[0.2em] m-0">/[02]///CODE\\\\</p>
+        <p class="text-xs font-bold uppercase tracking-[0.2em] m-0">/[02]///CODE + AGENT\\\\</p>
         <hr class="my-[2vw] border-none border-t border-white/60" />
-        <div>
-          <h2 class="text-[clamp(3.5rem,12vw,14rem)] font-bold leading-[0.85] uppercase tracking-tight m-0"
-            style="color: #fff;">
-            CODE
-          </h2>
-        </div>
-        <hr class="my-[2vw] border-none border-t border-white/60" />
-        <p class="max-w-[50ch] text-[clamp(1rem,2.5vw,2rem)] font-normal leading-relaxed m-0" style="color: #fff;">
-          A global community built for artists, by artists. We're rewriting the rules of how creative work gets seen,
-          shared, and valued.
-        </p>
-        <hr class="my-[2vw] border-none border-t border-white/60" />
-        <div class="flex flex-wrap gap-[3vw]">
-          <div class="min-w-[180px] flex-1">
-            <p class="mb-2 text-sm font-bold uppercase tracking-wider m-0" style="color: #fff;">Discovery</p>
-            <p class="text-[clamp(0.85rem,1.3vw,1.05rem)] leading-relaxed opacity-75 m-0" style="color: #fff;">
-              Human-curated collections that put real eyes on real art. No algorithms deciding your fate.</p>
+        <div class="code-hero">
+          <div>
+            <h2 class="text-[clamp(3.5rem,10vw,11rem)] font-bold leading-[0.85] uppercase tracking-tight m-0"
+              style="color: #fff;">
+              CODE
+            </h2>
+            <p class="lead max-w-[42ch] font-normal leading-relaxed m-0" style="color: #fff; margin-top: 22px;">
+              Describe the mechanic, get the Luau. Server, local and module scripts written in chat and ready to drop
+              into your place.
+            </p>
+            <div class="spec">
+              <div class="spec-row"><span class="k">Models</span><span class="v"><em>GPT-5.6 Luna</em> - Gemini 3.7
+                  Flash - DeepSeek V4 Flash</span></div>
+              <div class="spec-row"><span class="k">Output</span><span class="v">Server - Local - Module - Lua</span>
+              </div>
+              <div class="spec-row"><span class="k">Export</span><span class="v">Copy - .lua - Studio</span>
+              </div>
+            </div>
           </div>
-          <div class="min-w-[180px] flex-1">
-            <p class="mb-2 text-sm font-bold uppercase tracking-wider m-0" style="color: #fff;">Community</p>
-            <p class="text-[clamp(0.85rem,1.3vw,1.05rem)] leading-relaxed opacity-75 m-0" style="color: #fff;">Find
-              collaborators, mentors, and fellow creatives who push your work forward.</p>
-          </div>
-          <div class="min-w-[180px] flex-1">
-            <p class="mb-2 text-sm font-bold uppercase tracking-wider m-0" style="color: #fff;">Value</p>
-            <p class="text-[clamp(0.85rem,1.3vw,1.05rem)] leading-relaxed opacity-75 m-0" style="color: #fff;">Fair
-              pricing. Transparent commissions. Artists keep what they earn. Always.</p>
+          <div class="panel code-window">
+            <img src="CODEimg.png">
           </div>
         </div>
         <hr class="my-[2vw] border-none border-t border-white/60" />
-        <div class="flex flex-wrap gap-[3vw]">
-          <div class="min-w-[180px] flex-1">
-            <p class="mb-2 text-sm font-bold uppercase tracking-wider m-0" style="color: #fff;">Exhibitions</p>
-            <p class="text-[clamp(0.85rem,1.3vw,1.05rem)] leading-relaxed opacity-75 m-0" style="color: #fff;">Virtual
-              and physical showcases curated from our global network.</p>
+        <div class="agent-block">
+          <div>
+            <h3 class="agent-word">Agent</h3>
+            <p class="lead max-w-[46ch] font-normal leading-relaxed m-0" style="color: #fff; margin-top: 22px;">
+              Give it the goal instead of the file. The agent plans the work, writes the scripts it needs and hands the
+              whole set back as one change you can review.
+            </p>
+            <div class="spec">
+              <div class="spec-row"><span class="k">Input</span><span class="v">One goal - in plain words</span></div>
+              <div class="spec-row"><span class="k">Does</span><span class="v">Plans - writes scripts - fixes its own
+                  errors</span></div>
+              <div class="spec-row"><span class="k">Output</span><span class="v"><em>One reviewable change set</em></span>
+              </div>
+            </div>
           </div>
-          <div class="min-w-[180px] flex-1">
-            <p class="mb-2 text-sm font-bold uppercase tracking-wider m-0" style="color: #fff;">Mentorship</p>
-            <p class="text-[clamp(0.85rem,1.3vw,1.05rem)] leading-relaxed opacity-75 m-0" style="color: #fff;">Paired
-              guidance from established artists who've walked the path.</p>
-          </div>
-          <div class="min-w-[180px] flex-1">
-            <p class="mb-2 text-sm font-bold uppercase tracking-wider m-0" style="color: #fff;">Residencies</p>
-            <p class="text-[clamp(0.85rem,1.3vw,1.05rem)] leading-relaxed opacity-75 m-0" style="color: #fff;">Access
-              funded creative retreats around the world.</p>
+          <div>
+            <img src="AGENTimg.png">
           </div>
         </div>
         <hr class="my-[2vw] border-none border-t border-white/60" />
-        <p class="mt-auto ml-auto max-w-[50ch] text-right text-[clamp(1rem,2.5vw,2rem)] font-normal leading-relaxed m-0"
+        <p class="mt-auto ml-auto max-w-[54ch] text-right text-[clamp(0.95rem,1.7vw,1.4rem)] font-normal leading-relaxed m-0"
           style="color: #fff;">
-          Every feature we build starts with one question — does this serve the artist?
+          You don't have to give up creating, you can become more productive.
         </p>
       </div>
     </section>
 
-    <!-- Section 3 -->
-    <section data-flow-section aria-label="Comment ça marche" class="relative min-h-screen w-full overflow-hidden"
+    <!-- Section 3 — footer card -->
+    <section data-flow-section aria-label="RoPeak" class="relative w-full overflow-hidden"
       style="max-width: 100%; padding: 0;">
+      <style>
+        .foot-grid {
+          display: grid;
+          grid-template-columns: minmax(0, 1fr) auto;
+          gap: 4vw;
+          align-items: end;
+        }
+
+        .foot-nav {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 34px;
+        }
+
+        .foot-col {
+          display: flex;
+          flex-direction: column;
+          gap: 9px;
+        }
+
+        .foot-col-head {
+          font-family: var(--font-mono);
+          font-size: 10px;
+          letter-spacing: .12em;
+          text-transform: uppercase;
+          color: rgba(0, 0, 0, .45);
+          margin-bottom: 3px;
+        }
+
+        .foot-col a {
+          font-family: var(--font-display);
+          font-weight: 700;
+          font-size: 15px;
+          color: #000;
+          border-bottom: 1.5px solid transparent;
+          width: fit-content;
+          transition: border-color .15s ease;
+        }
+
+        .foot-col a:hover {
+          border-color: #000;
+        }
+
+        .foot-bottom {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          flex-wrap: wrap;
+          gap: 12px;
+          font-family: var(--font-mono);
+          font-size: 11px;
+          color: rgba(0, 0, 0, .5);
+        }
+
+        .foot-cta {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          background: #000;
+          color: #fff;
+          font-family: var(--font-display);
+          font-weight: 700;
+          font-size: 14px;
+          padding: 14px 26px;
+          border: none;
+          cursor: pointer;
+          transition: background .15s ease, transform .12s ease;
+        }
+
+        .foot-cta:hover {
+          background: var(--accent);
+          transform: translateY(2px);
+        }
+
+        @media (max-width: 760px) {
+          .foot-grid {
+            grid-template-columns: 1fr;
+            align-items: start;
+          }
+        }
+      </style>
       <div
         class="flow-art-container relative flex min-h-screen w-full flex-col justify-between gap-6 px-[4vw] pt-[clamp(2rem,8vw,4vw)] pb-[4vw] will-change-transform"
         style="background-color: #F5F0E8; color: #000; transform-origin: bottom left; padding-left: 4vw; padding-right: 4vw; padding-top: clamp(2rem, 8vw, 4vw); padding-bottom: 4vw;">
-        <p class="text-xs font-bold uppercase tracking-[0.2em] m-0" style="color: #000;">03 — How it works</p>
+        <p class="text-xs font-bold uppercase tracking-[0.2em] m-0" style="color: #000;">/[03]///ROPEAK\\\\</p>
         <hr class="my-[2vw] border-none border-t border-black/60" />
-        <div>
+        <div class="foot-grid">
           <h2 class="text-[clamp(3.5rem,12vw,14rem)] font-bold leading-[0.85] uppercase tracking-tight m-0"
             style="color: #000;">
-            Show<br />Up.<br />Stand<br />Out.
+            Start<br />Building
           </h2>
+          <button class="foot-cta" onclick="goToCreate()">[ Open Studio ]</button>
         </div>
         <hr class="my-[2vw] border-none border-t border-black/60" />
-        <p class="max-w-[50ch] text-[clamp(1rem,2.5vw,2rem)] font-normal leading-relaxed m-0" style="color: #000;">
-          Three steps. Zero complexity. Your creative career starts moving the moment you sign up.
-        </p>
-        <hr class="my-[2vw] border-none border-t border-black/60" />
-        <div class="flex flex-wrap gap-[3vw]">
-          <div class="min-w-[180px] flex-1">
-            <p class="mb-2 text-sm font-bold uppercase tracking-wider m-0" style="color: #000;">01 — Upload</p>
-            <p class="text-[clamp(0.85rem,1.3vw,1.05rem)] leading-relaxed opacity-75 m-0" style="color: #000;">Drag,
-              drop, done. Your portfolio goes live in seconds with full creative control.</p>
+        <div class="foot-nav">
+          <div class="foot-col">
+            <span class="foot-col-head">Product</span>
+            <a href="create/">Studio</a>
+            <a href="store/">Store</a>
+            <a href="tokens/">Tokens</a>
           </div>
-          <div class="min-w-[180px] flex-1">
-            <p class="mb-2 text-sm font-bold uppercase tracking-wider m-0" style="color: #000;">02 — Connect</p>
-            <p class="text-[clamp(0.85rem,1.3vw,1.05rem)] leading-relaxed opacity-75 m-0" style="color: #000;">Match
-              with collectors, galleries, and brands actively looking for your style.</p>
+          <div class="foot-col">
+            <span class="foot-col-head">Legal</span>
+            <a href="privacy/">Privacy</a>
+            <a href="terms/">Terms</a>
           </div>
-          <div class="min-w-[180px] flex-1">
-            <p class="mb-2 text-sm font-bold uppercase tracking-wider m-0" style="color: #000;">03 — Grow</p>
-            <p class="text-[clamp(0.85rem,1.3vw,1.05rem)] leading-relaxed opacity-75 m-0" style="color: #000;">Track
-              engagement, manage commissions, and scale your practice — all in one place.</p>
+          <div class="foot-col">
+            <span class="foot-col-head">Powered by</span>
+            <a href="create/">OpenAI · Gemini · DeepSeek</a>
+            <a href="create/">Tripo AI</a>
+            <a href="create/">Roblox Open Cloud</a>
           </div>
         </div>
         <hr class="my-[2vw] border-none border-t border-black/60" />
-        <div class="flex flex-wrap gap-[3vw]">
-          <div class="min-w-[180px] flex-1">
-            <p class="mb-2 text-sm font-bold uppercase tracking-wider m-0" style="color: #000;">04 — Sell</p>
-            <p class="text-[clamp(0.85rem,1.3vw,1.05rem)] leading-relaxed opacity-75 m-0" style="color: #000;">Set your
-              prices, manage editions, handle licensing. Built-in commerce tools.</p>
-          </div>
-          <div class="min-w-[180px] flex-1">
-            <p class="mb-2 text-sm font-bold uppercase tracking-wider m-0" style="color: #000;">05 — Collaborate</p>
-            <p class="text-[clamp(0.85rem,1.3vw,1.05rem)] leading-relaxed opacity-75 m-0" style="color: #000;">Find your
-              people. Joint projects, split commissions, shared studios.</p>
-          </div>
-          <div class="min-w-[180px] flex-1">
-            <p class="mb-2 text-sm font-bold uppercase tracking-wider m-0" style="color: #000;">06 — Evolve</p>
-            <p class="text-[clamp(0.85rem,1.3vw,1.05rem)] leading-relaxed opacity-75 m-0" style="color: #000;">Your
-              practice changes. Your platform should too. Flexible tools that adapt.</p>
-          </div>
+        <div class="foot-bottom">
+          <span>© 2026 RoPeak — Your AI Studio for Roblox</span>
+          <span>Not affiliated with Roblox Corporation</span>
         </div>
-      </div>
-    </section>
-
-    <!-- Section 4 -->
-    <section data-flow-section aria-label="La vision" class="relative min-h-screen w-full overflow-hidden"
-      style="max-width: 100%; padding: 0;">
-      <div
-        class="flow-art-container relative flex min-h-screen w-full flex-col justify-between gap-6 px-[4vw] pt-[clamp(2rem,8vw,4vw)] pb-[4vw] will-change-transform"
-        style="background-color: #1A3DE8; color: #fff; transform-origin: bottom left; padding-left: 4vw; padding-right: 4vw; padding-top: clamp(2rem, 8vw, 4vw); padding-bottom: 4vw;">
-        <p class="text-xs font-bold uppercase tracking-[0.2em] m-0">04 — The vision</p>
-        <hr class="my-[2vw] border-none border-t border-white/50" />
-        <div>
-          <h2 class="text-[clamp(3.5rem,12vw,14rem)] font-bold leading-[0.85] uppercase tracking-tight m-0"
-            style="color: #fff;">
-            Future<br />Of<br />Art
-          </h2>
-        </div>
-        <hr class="my-[2vw] border-none border-t border-white/50" />
-        <p class="max-w-[50ch] text-[clamp(1rem,2.5vw,2rem)] font-normal leading-relaxed m-0" style="color: #fff;">
-          We're not just building a platform. We're building a movement.
-        </p>
-        <hr class="my-[2vw] border-none border-t border-white/50" />
-        <div class="flex flex-wrap gap-[3vw]">
-          <div class="min-w-[180px] flex-1">
-            <p class="mb-2 text-sm font-bold uppercase tracking-wider m-0" style="color: #fff;">10K+</p>
-            <p class="text-[clamp(0.85rem,1.3vw,1.05rem)] leading-relaxed opacity-75 m-0" style="color: #fff;">Artists
-              from 80 countries already shaping the future with us.</p>
-          </div>
-          <div class="min-w-[180px] flex-1">
-            <p class="mb-2 text-sm font-bold uppercase tracking-wider m-0" style="color: #fff;">$2M+</p>
-            <p class="text-[clamp(0.85rem,1.3vw,1.05rem)] leading-relaxed opacity-75 m-0" style="color: #fff;">Paid
-              directly to creators in our first year. Zero hidden fees.</p>
-          </div>
-          <div class="min-w-[180px] flex-1">
-            <p class="mb-2 text-sm font-bold uppercase tracking-wider m-0" style="color: #fff;">100%</p>
-            <p class="text-[clamp(0.85rem,1.3vw,1.05rem)] leading-relaxed opacity-75 m-0" style="color: #fff;">
-              Artist-owned. Every decision we make starts with the creator.</p>
-          </div>
-        </div>
-        <hr class="my-[2vw] border-none border-t border-white/50" />
-        <p class="max-w-[50ch] text-[clamp(1rem,2.5vw,2rem)] font-normal leading-relaxed m-0" style="color: #fff;">
-          The art world has been broken for decades. Galleries take 50%. Algorithms bury talent. We're here to change
-          that — permanently.
-        </p>
-        <hr class="my-[2vw] border-none border-t border-white/50" />
-        <div class="flex flex-wrap gap-[3vw]">
-          <div class="min-w-[180px] flex-1">
-            <p class="mb-2 text-sm font-bold uppercase tracking-wider m-0" style="color: #fff;">Open access</p>
-            <p class="text-[clamp(0.85rem,1.3vw,1.05rem)] leading-relaxed opacity-75 m-0" style="color: #fff;">No invite
-              codes. No waiting lists. If you make art, you belong here.</p>
-          </div>
-          <div class="min-w-[180px] flex-1">
-            <p class="mb-2 text-sm font-bold uppercase tracking-wider m-0" style="color: #fff;">Global reach</p>
-            <p class="text-[clamp(0.85rem,1.3vw,1.05rem)] leading-relaxed opacity-75 m-0" style="color: #fff;">Your work
-              seen in 120+ countries from day one.</p>
-          </div>
-          <div class="min-w-[180px] flex-1">
-            <p class="mb-2 text-sm font-bold uppercase tracking-wider m-0" style="color: #fff;">Artist-first economics
-            </p>
-            <p class="text-[clamp(0.85rem,1.3vw,1.05rem)] leading-relaxed opacity-75 m-0" style="color: #fff;">You keep
-              90% of every sale. The remaining 10% funds the platform and the mission.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Section 5 -->
-    <section data-flow-section aria-label="Nous rejoindre" class="relative min-h-screen w-full overflow-hidden"
-      style="max-width: 100%; padding: 0;">
-      <div
-        class="flow-art-container relative flex min-h-screen w-full flex-col justify-between gap-6 px-[4vw] pt-[clamp(2rem,8vw,4vw)] pb-[4vw] will-change-transform"
-        style="background-color: #000; color: #fff; transform-origin: bottom left; padding-left: 4vw; padding-right: 4vw; padding-top: clamp(2rem, 8vw, 4vw); padding-bottom: 4vw;">
-        <p class="text-xs font-bold uppercase tracking-[0.2em] m-0">05 — Join us</p>
-        <hr class="my-[2vw] border-none border-t border-black/60" />
-        <div>
-          <h2 class="text-[clamp(3.5rem,12vw,14rem)] font-bold leading-[0.85] uppercase tracking-tight m-0"
-            style="color: #fff;">
-            Ready<br />To<br />Begin?
-          </h2>
-        </div>
-        <hr class="my-[2vw] border-none border-t border-black/60" />
-        <p class="mt-auto max-w-[50ch] text-[clamp(1rem,2.5vw,2rem)] font-normal leading-relaxed m-0"
-          style="color: #fff;">
-          Take control of your creative journey. Join now and let's shape the future of the art world together.
-        </p>
       </div>
     </section>
   </main>
