@@ -3645,42 +3645,29 @@
     .modal-sub {
       font-size: 12.8px;
       color: var(--ink-muted);
-      margin: 0 0 12px;
+      margin: 0 0 18px;
       line-height: 1.5;
     }
 
-    /* The per-item costs used to be one grey paragraph of four sentences —
-       facts a buyer scans, so they are a row of facts now. */
+    /* One quiet line, not three cards. Boxing every small fact is what made the
+       dialog read as generated — the only framed things here are the rows you
+       actually click. */
     .price-facts {
       display: flex;
-      gap: 8px;
-      margin-bottom: 18px;
-    }
-
-    .pf-item {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-      background: var(--soft);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      padding: 9px 10px;
-      min-width: 0;
-    }
-
-    .pf-num {
-      font-family: var(--font-display);
-      font-size: 14px;
-      font-weight: 700;
-      letter-spacing: -0.01em;
-      color: var(--ink);
-    }
-
-    .pf-what {
-      font-size: 10.5px;
-      line-height: 1.3;
+      flex-wrap: wrap;
+      gap: 4px 14px;
+      margin: 3px 0 18px;
+      font-size: 12px;
       color: var(--ink-faint);
+    }
+
+    .price-facts span {
+      white-space: nowrap;
+    }
+
+    .price-facts b {
+      font-weight: 600;
+      color: var(--ink-muted);
     }
 
     .modal-foot {
@@ -5733,11 +5720,10 @@
     <div class="modal-card">
       <button class="modal-close" onclick="closeBuyModal()"></button>
       <p class="modal-title">Top up tokens</p>
-      <p class="modal-sub">What your tokens buy:</p>
       <div class="price-facts">
-        <div class="pf-item"><span class="pf-num">2</span><span class="pf-what">per image</span></div>
-        <div class="pf-item"><span class="pf-num">2</span><span class="pf-what">per UI → Lua</span></div>
-        <div class="pf-item"><span class="pf-num">25–35</span><span class="pf-what">per 3D model</span></div>
+        <span><b>2</b> per image</span>
+        <span><b>2</b> per UI → Lua</span>
+        <span><b>from 15</b> per 3D model</span>
       </div>
       <div class="package-grid" id="packageGrid"></div>
       <div class="modal-status" id="modalStatus"></div>
