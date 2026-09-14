@@ -1584,7 +1584,17 @@
       padding: 0 30px;
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      /* Tight inside a turn, roomy between turns — a uniform gap makes every
+         exchange read as one undifferentiated stream. */
+      gap: 10px;
+    }
+
+    .feed-inner>.msg-user {
+      margin-top: 20px;
+    }
+
+    .feed-inner>.msg-user:first-child {
+      margin-top: 0;
     }
 
     .welcome {
@@ -1633,6 +1643,10 @@
     }
 
     .welcome .w-hint {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-family: inherit;
       font-size: 11.8px;
       font-weight: 500;
       color: var(--ink-muted);
@@ -1640,6 +1654,19 @@
       border: 1px solid var(--border);
       padding: 8px 13px;
       border-radius: 999px;
+      cursor: pointer;
+      transition: border-color .15s ease, color .15s ease, transform .15s ease;
+    }
+
+    .welcome .w-hint:hover {
+      border-color: var(--accent);
+      color: var(--accent-deep);
+      transform: translateY(-1px);
+    }
+
+    .welcome .w-hint svg {
+      width: 13px;
+      height: 13px;
     }
 
     .msg {
@@ -1686,6 +1713,18 @@
 
     .msg-bubble {
       max-width: 78%;
+      min-width: 0;
+    }
+
+    .msg-bot .msg-bubble {
+      max-width: calc(100% - 39px);
+      flex: 1;
+    }
+
+    /* Consecutive assistant messages are one turn — repeating the avatar on
+       each is what makes a feed look auto-generated. */
+    .msg-bot+.msg-bot .msg-avatar {
+      visibility: hidden;
     }
 
     .msg-user .msg-bubble {
@@ -1695,15 +1734,6 @@
       padding: 11px 15px;
       font-size: 13.8px;
       line-height: 1.55;
-    }
-
-    .msg-user .msg-meta {
-      font-size: 10.5px;
-      color: rgba(255, 255, 255, 0.6);
-      margin-top: 6px;
-      display: flex;
-      gap: 8px;
-      justify-content: flex-end;
     }
 
     .chat-image-chip {
@@ -1729,12 +1759,18 @@
       opacity: .9;
     }
 
+    /* Assistant prose sits on the page, not in a card. Results, code blocks and
+       the 3D panel bring their own frames, so wrapping everything in a second
+       bordered bubble only added visual noise. */
     .msg-bot .msg-bubble {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 5px 15px 15px 15px;
-      padding: 15px 16px;
-      box-shadow: var(--shadow-sm);
+      background: transparent;
+      border: none;
+      border-radius: 0;
+      padding: 2px 0 0;
+      box-shadow: none;
+      color: var(--ink);
+      font-size: 14px;
+      line-height: 1.62;
     }
 
     .bot-text {
@@ -1752,8 +1788,23 @@
       gap: 9px;
     }
 
+    /* Errors keep a container: without the old message card, plain coral text
+       was easy to scroll straight past. */
     .bot-status.error {
       color: var(--coral);
+      align-items: flex-start;
+      background: color-mix(in srgb, var(--coral) 8%, transparent);
+      border: 1px solid color-mix(in srgb, var(--coral) 28%, transparent);
+      border-radius: var(--radius-sm);
+      padding: 11px 13px;
+      line-height: 1.55;
+    }
+
+    @supports not (color: color-mix(in srgb, red 50%, transparent)) {
+      .bot-status.error {
+        background: var(--soft);
+        border-color: var(--border);
+      }
     }
 
     .bot-status.ok {
@@ -2042,9 +2093,9 @@
     }
 
     .md-content .md-p {
-      margin: 0 0 8px;
-      font-size: 13.8px;
-      line-height: 1.6;
+      margin: 0 0 10px;
+      font-size: 14px;
+      line-height: 1.62;
       color: var(--ink);
     }
 
@@ -2058,8 +2109,14 @@
     .md-content h4 {
       font-family: var(--font-body);
       color: var(--ink);
-      margin: 0 0 6px;
+      /* Headings carry their own top space now that no card padding separates
+         them from the paragraph above. */
+      margin: 16px 0 6px;
       line-height: 1.35;
+    }
+
+    .md-content> :first-child {
+      margin-top: 0;
     }
 
     .md-content h1 {
@@ -2084,10 +2141,10 @@
 
     .md-content ul,
     .md-content ol {
-      margin: 0 0 8px;
+      margin: 0 0 10px;
       padding-left: 20px;
-      font-size: 13.8px;
-      line-height: 1.6;
+      font-size: 14px;
+      line-height: 1.62;
       color: var(--ink);
     }
 
@@ -2110,35 +2167,10 @@
       color: var(--ink-muted);
     }
 
-    /* When chooser-3d is present: message bubble wraps only the text (md-p / content),
-       while chooser-3d buttons sit cleanly below without the bubble background */
-    .msg-bot:has(.chooser-3d) .msg-bubble {
-      background: transparent;
-      border: none;
-      padding: 0;
-      box-shadow: none;
-    }
-
     .msg-bot:has(.chooser-3d) .bot-body {
       display: flex;
       flex-direction: column;
       align-items: flex-start;
-    }
-
-    .msg-bot:has(.chooser-3d) .bot-body> :not(.chooser-3d) {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 5px 15px 15px 15px;
-      padding: 13px 16px;
-      box-shadow: var(--shadow-sm);
-      max-width: 100%;
-    }
-
-    .msg-bot:has(.chooser-3d) .bot-body>.md-p {
-      margin: 0;
-      font-size: 13.8px;
-      line-height: 1.6;
-      color: var(--ink);
     }
 
     .chooser-3d {
@@ -2250,8 +2282,13 @@
       display: flex;
       flex-direction: column;
       gap: 14px;
-      margin-top: 6px;
+      margin-top: 10px;
       max-width: 420px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      box-shadow: var(--shadow-sm);
+      padding: 16px;
     }
 
     .m3d-section {
@@ -4479,14 +4516,40 @@
       font-weight: 700;
     }
 
-    .fake-cursor {
-      display: inline-block;
-      animation: softPulse 0.8s step-start infinite;
-      color: var(--accent);
+    .code-wait-model {
+      margin-left: auto;
+      font-size: 11.5px;
+      color: var(--ink-faint);
+      white-space: nowrap;
     }
 
-    .code-block.fake-typing {
-      opacity: 0.92;
+    .code-skeleton {
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+    }
+
+    .code-skeleton span {
+      display: block;
+      height: 10px;
+      border-radius: 5px;
+      background: linear-gradient(90deg, var(--soft-2) 0%, var(--border) 50%, var(--soft-2) 100%);
+      background-size: 200% 100%;
+      animation: skeletonSweep 1.4s ease-in-out infinite;
+    }
+
+    .code-skeleton span:nth-child(2) { animation-delay: .1s; }
+    .code-skeleton span:nth-child(3) { animation-delay: .2s; }
+    .code-skeleton span:nth-child(4) { animation-delay: .3s; }
+    .code-skeleton span:nth-child(5) { animation-delay: .4s; }
+
+    @keyframes skeletonSweep {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .code-skeleton span { animation: none; }
     }
   </style>
 
@@ -5189,7 +5252,7 @@
 
                   <!-- Generation Counters Row -->
                   <div class="gp-stats-row" id="gpStatsRow">
-                    <div class="gp-stat-item" title="Wygenerowane modele 3D">
+                    <div class="gp-stat-item" title="3D models generated">
                       <div class="gp-stat-top">
                         <span class="gp-stat-icon"><svg width="11" height="11" viewBox="0 0 24 24" fill="none"
                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -5204,7 +5267,7 @@
 
                     <div class="gp-stat-divider"></div>
 
-                    <div class="gp-stat-item" title="Wygenerowane obrazy">
+                    <div class="gp-stat-item" title="Images generated">
                       <div class="gp-stat-top">
                         <span class="gp-stat-icon"><svg width="11" height="11" viewBox="0 0 24 24" fill="none"
                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -5322,18 +5385,7 @@
 
       <div class="feed" id="feed">
         <div class="feed-inner" id="feedInner">
-          <div class="welcome" id="welcome">
-            <div class="w-mark"></div>
-            <h2>What are we working on?</h2>
-            <p>Tell me what you need — I'll figure out what you're asking for. You can also force a specific mode below.
-            </p>
-            <div class="w-hints">
-              <span class="w-hint">"make me a dragon icon"</span>
-              <span class="w-hint">"I need a thumbnail for a zombie game"</span>
-              <span class="w-hint">"I want a 3D model of a sword"</span>
-              <span class="w-hint">"turn this UI into a Lua script"</span>
-            </div>
-          </div>
+          <div class="welcome" id="welcome"></div>
         </div>
       </div>
 
@@ -5697,37 +5749,40 @@
       if (!model) return "";
       const label = CODE_MODEL_LABELS[model] || model;
       const note = pricingNote
-        ? ` <span class="code-model-note ${pricingNote}">(${pricingNote === "off-peak" ? "tańsza taryfa" : "taryfa szczytowa"})</span>`
+        ? ` <span class="code-model-note ${pricingNote}">(${pricingNote === "off-peak" ? "off-peak rate" : "peak rate"})</span>`
         : "";
-      return `<div class="code-model-tag">${ICONS.wand}<span>Wygenerowano przez: ${escapeHtml(label)}${note}</span></div>`;
+      return `<div class="code-model-tag">${ICONS.wand}<span>Generated by ${escapeHtml(label)}${note}</span></div>`;
     }
 
-    const FAKE_CODE_SNIPPETS = [
-      `local function init()\n    print("Initializing module...")\n    local Players = game:GetService("Players")\n    local player = Players.LocalPlayer\nend`,
-      `local function setupEvents()\n    for _, obj in ipairs(workspace:GetChildren()) do\n        if obj:IsA("BasePart") then\n            obj.Touched:Connect(function(hit)\n                -- handle collision\n            end)\n        end\n    end\nend`,
-      `local TweenService = game:GetService("TweenService")\nlocal function animate(part, goal)\n    local tween = TweenService:Create(part, TweenInfo.new(0.3), goal)\n    tween:Play()\nend`
+    // Honest waiting state. This previously typed out a randomly chosen Lua
+    // snippet that had nothing to do with the request — it read as real output
+    // and was not, so it is a skeleton now.
+    const CODE_WAIT_STAGES = [
+      { after: 0, label: "Writing the script…" },
+      { after: 6000, label: "Still writing — longer scripts take a moment…" },
+      { after: 20000, label: "Almost there, finishing the script…" }
     ];
 
-    function startFakeCodeTyping(el) {
-      const snippet = FAKE_CODE_SNIPPETS[Math.floor(Math.random() * FAKE_CODE_SNIPPETS.length)];
-      let i = 0;
-      const html = `
-        <div class="bot-status" style="margin-bottom:8px;"><span class="mini-loader"><span></span><span></span><span></span></span><span>Generowanie kodu…</span></div>
-        <div class="code-block fake-typing">
-          <div class="cb-head"><span class="cb-lang">lua</span></div>
-          <pre><code class="hljs" id="fakeTypeTarget"></code></pre>
-        </div>`;
-      setBotBody(el, html);
-      const target = el.querySelector("#fakeTypeTarget");
-      if (!target) return () => { };
+    function startCodeWaitState(el, modelLabel) {
+      const started = Date.now();
+      setBotBody(el, `
+        <div class="bot-status" style="margin-bottom:10px;">
+          <span class="mini-loader"><span></span><span></span><span></span></span>
+          <span class="code-wait-label">${escapeHtml(CODE_WAIT_STAGES[0].label)}</span>
+          ${modelLabel ? `<span class="code-wait-model">${escapeHtml(modelLabel)}</span>` : ""}
+        </div>
+        <div class="code-skeleton" aria-hidden="true">
+          <span style="width:62%"></span><span style="width:88%"></span><span style="width:45%"></span>
+          <span style="width:74%"></span><span style="width:33%"></span>
+        </div>`);
 
+      const label = el.querySelector(".code-wait-label");
       const interval = setInterval(() => {
-        if (!target.isConnected) { clearInterval(interval); return; }
-        i += Math.random() < 0.15 ? 0 : Math.ceil(Math.random() * 3);
-        if (i > snippet.length) i = 0;
-        target.textContent = snippet.slice(0, i);
-        target.innerHTML = highlightCode(snippet.slice(0, i), "lua") + '<span class="fake-cursor">▍</span>';
-      }, 35);
+        if (!label || !label.isConnected) { clearInterval(interval); return; }
+        const elapsed = Date.now() - started;
+        const stage = CODE_WAIT_STAGES.filter(s => elapsed >= s.after).pop();
+        if (stage && label.textContent !== stage.label) label.textContent = stage.label;
+      }, 1000);
 
       return () => clearInterval(interval);
     }
@@ -5842,17 +5897,22 @@
     };
     const POLY_STEPS = [500, 1000, 2000, 5000, 10000, 15000, 20000];
 
+    // Must mirror H_ADDON_COSTS in the worker — the worker is the authoritative
+    // charge. A value that disagrees quotes the user a price they are not billed.
     const H_ADDON_COSTS = {
       textureDetailed: 5,
-      textureExtreme: 15,
+      textureExtreme: 10,
       hdGeometry: 10,
       quadMesh: 5,
       smartLowPoly: 5,
       generateParts: 10
     };
+    const SHARE_SELL_DISCOUNT = 1;
 
-    function calcModel3DCost(s) {
-      const isImage = pending3DInput && pending3DInput.kind === "image";
+    function calcModel3DCost(s, isImageOverride) {
+      const isImage = isImageOverride !== undefined
+        ? isImageOverride
+        : !!(pending3DInput && pending3DInput.kind === "image" && pending3DInput.image);
       let base = isImage ? (s.textures ? 35 : 30) : (s.textures ? 30 : 25);
 
       if (s.series === "h") {
@@ -5868,6 +5928,10 @@
         if (s.generateParts) base += H_ADDON_COSTS.generateParts;
       }
       return base;
+    }
+
+    function calcModel3DFinalCost(s) {
+      return Math.max(0, calcModel3DCost(s) - (s.shareSell ? SHARE_SELL_DISCOUNT : 0));
     }
 
     let model3DSettings = {
@@ -6070,6 +6134,9 @@
       auth.onAuthStateChanged(onAuthChange);
 
       try {
+        const welcomeEl = document.getElementById("welcome");
+        if (welcomeEl) welcomeEl.innerHTML = welcomeInnerHtml();
+
         document.getElementById("newChatIcon").innerHTML = ICONS.plus;
         initComposerHeightSync();
 
@@ -6085,7 +6152,6 @@
         document.querySelectorAll(".dz-remove").forEach(b => b.innerHTML = ICONS.close);
         document.querySelectorAll(".modal-close").forEach(b => b.innerHTML = ICONS.close);
         document.querySelectorAll(".u-signout").forEach(b => b.innerHTML = ICONS.minus);
-        document.getElementById("welcome").querySelector(".w-mark").innerHTML = ICONS.ropeak.replace('width="13" height="13"', 'width="20" height="20"');
         document.querySelectorAll(".fm-pill").forEach(p => {
           const info = FORCE_MODE_INFO[p.dataset.force];
           if (info && p.querySelector(".fm-icon")) p.querySelector(".fm-icon").innerHTML = info.icon;
@@ -6687,11 +6753,40 @@
       scrollFeedToBottom();
     }
 
+    const WELCOME_EXAMPLES = [
+      "Make me a dragon icon",
+      "I need a thumbnail for a zombie game",
+      "I want a 3D model of a sword",
+      "Turn this UI into a Lua script"
+    ];
+
+    // One definition for both the initial page render and every empty chat —
+    // two hand-written copies had already drifted apart.
+    function welcomeInnerHtml() {
+      const chips = WELCOME_EXAMPLES
+        .map(t => `<button class="w-hint" type="button" onclick="useExamplePrompt(${JSON.stringify(t).replace(/"/g, "&quot;")})">${escapeHtml(t)}</button>`)
+        .join("");
+      return `
+        <div class="w-mark">${ICONS.ropeak}</div>
+        <h2>What are we working on?</h2>
+        <p>Tell me what you need — I'll work out what you're asking for. You can also pick a mode below.</p>
+        <div class="w-hints">${chips}</div>`;
+    }
+
+    function useExamplePrompt(text) {
+      const promptEl = document.getElementById("prompt");
+      if (!promptEl) return;
+      if (typeof expandComposer === "function") expandComposer();
+      promptEl.value = text;
+      promptEl.focus();
+      promptEl.dispatchEvent(new Event("input", { bubbles: true }));
+    }
+
     function buildWelcomeNode() {
       const div = document.createElement("div");
       div.id = "welcome";
       div.className = "welcome";
-      div.innerHTML = `<div class="w-mark">${ICONS.ropeak}</div><h2>What are we working on?</h2><p>Write what you need.</p>`;
+      div.innerHTML = welcomeInnerHtml();
       return div;
     }
 
@@ -6703,12 +6798,13 @@
       const promptText = (m.prompt || "").trim();
       const hasInputImage = !!m.inputThumbnail;
       const imageChip = hasInputImage ? `<div class="msg-attach-grid"><div class="ag-item"><img src="${m.inputThumbnail}" alt=""></div></div>` : "";
+      // No meta badge here: appendUserBubble does not render one, so showing it
+      // only after a reload made the same message look different on each visit.
       userMsg.innerHTML = `
       <div class="msg-avatar"><img src="${currentUser && currentUser.photoURL ? currentUser.photoURL : ""}" alt=""></div>
       <div class="msg-bubble">
         ${imageChip}
         ${promptText ? `<div>${escapeHtml(promptText)}</div>` : ""}
-        <div class="msg-meta"><span>${historyBadge(m)}</span></div>
       </div>
     `;
       inner.appendChild(userMsg);
@@ -6774,16 +6870,7 @@
       }
     }
 
-    function historyBadge(m) {
-      if (m.type === "text") return "Chat";
-      if (m.type === "model3d") return "Model 3D";
-      return categoryLabel(m.category) + " · " + methodShortLabel(m.mode);
-    }
-
     function categoryLabel(cat) { return cat === "thumbnail" ? "Thumbnail" : "Icon"; }
-    function methodShortLabel(m) {
-      return { text2img: "From scratch", image2img: "Edit photo", reference2img: "Transfer style" }[m] || m;
-    }
     function initComposerHeightSync() {
       const composerWrap = document.querySelector(".composer-wrap");
       const feed = document.getElementById("feed");
@@ -6840,7 +6927,7 @@
         if (a.kind === "image") {
           return `<div class="ag-item"><img src="${a.dataUrl}" alt=""></div>`;
         }
-        return `<div class="ag-item ag-file">${ICONS.document}<span>${escapeHtml(a.name || "plik")}</span></div>`;
+        return `<div class="ag-item ag-file">${ICONS.document}<span>${escapeHtml(a.name || "file")}</span></div>`;
       }).join("");
       return `<div class="msg-attach-grid">${items}</div>`;
     }
@@ -7787,7 +7874,7 @@
 
       appendUserBubble(raw);
       const pendingEl = appendBotPlaceholder("");
-      const stopTyping = startFakeCodeTyping(pendingEl);
+      const stopTyping = startCodeWaitState(pendingEl, CODE_MODEL_LABELS[selectedCodeModel] || selectedCodeModel);
 
       try {
         const chatId = await ensureActiveChat(raw || "Code Gen");
@@ -7820,8 +7907,8 @@
         attachFixButtonToLastCodeBlock(pendingEl, chatId);
 
         currentCodeState = { code: data.code, language: data.language || "lua", chatId, model: data.model || selectedCodeModel };
-        document.getElementById("composerHint").textContent = "Mam zapamiętany Twój kod — możesz poprosić o dodanie funkcji, zmianę, refaktor.";
-        document.getElementById("prompt").placeholder = "np. dodaj funkcję do zapisu stanu, dodaj walidację…";
+        document.getElementById("composerHint").textContent = "This script is in context — ask for a change, a refactor, or an extra function.";
+        document.getElementById("prompt").placeholder = "e.g. add a save function, add validation…";
 
         refreshBalance();
         await persistMessage(chatId, { type: "code", prompt: raw, reply: replyText, language: data.language, model: data.model || selectedCodeModel });
@@ -7991,8 +8078,10 @@
             smartLowPoly: false,
             generateParts: false
           };
-          pending3DInput = action.useAttachedImage
-            ? { kind: "image", text: action.prompt || raw, image: imageAttachments[0] || null }
+          // useAttachedImage with no actual attachment would post prompt:"" and
+          // image:null, which the worker rejects as "Missing description or image".
+          pending3DInput = (action.useAttachedImage && imageAttachments[0])
+            ? { kind: "image", text: action.prompt || raw, image: imageAttachments[0] }
             : { kind: "text", text: action.prompt || raw };
           setBotBody(pendingEl, renderMarkdown(data.reply || "..."));
           appendBotBody(pendingEl, model3DSettingsPanelHtml());
@@ -8019,8 +8108,7 @@
     function model3DSettingsPanelHtml() {
       const s = model3DSettings;
       const baseCost = calcModel3DCost(s);
-      const discount = s.shareSell ? 1 : 0;
-      const finalCost = Math.max(0, baseCost - discount);
+      const finalCost = calcModel3DFinalCost(s);
       const presetBtn = (key, label) => `<button class="m3d-preset ${s.preset === key ? 'active' : ''}" onclick="applyModel3DPreset('${key}')">${label}</button>`;
       const toggleBtn = (field, val, label) => `<button class="m3d-toggle ${s[field] === val ? 'active' : ''}" onclick='setModel3DField("${field}", ${JSON.stringify(val)})'>${label}</button>`;
       const polyIndex = POLY_STEPS.indexOf(s.polygonCount);
@@ -8086,11 +8174,11 @@
         <div class="m3d-row">${toggleBtn('shareSell', false, 'OFF')}${toggleBtn('shareSell', true, 'ON')}</div>
       </div>
       <div class="m3d-cost-breakdown">
-        <div class="m3d-cost-row"><span>Generation</span><span>${baseCost} Tokens</span></div>
-        ${s.shareSell ? '<div class="m3d-cost-row discount"><span>Share & Sell</span><span>−1 Token</span></div>' : ''}
-        <div class="m3d-cost-row total"><span>Total</span><span>${finalCost} Tokens</span></div>
+        <div class="m3d-cost-row"><span>Generation</span><span class="m3d-base-cost">${baseCost} Tokens</span></div>
+        ${s.shareSell ? `<div class="m3d-cost-row discount"><span>Share &amp; Sell</span><span>−${SHARE_SELL_DISCOUNT} Token</span></div>` : ''}
+        <div class="m3d-cost-row total"><span>Total</span><span class="m3d-total-cost">${finalCost} Tokens</span></div>
       </div>
-      <button class="btn-newchat" style="margin-top:2px;" onclick="confirmModel3DGeneration()">Generate 3D model (${finalCost} tokens)</button>
+      <button class="btn-newchat m3d-generate" style="margin-top:2px;" onclick="confirmModel3DGeneration()">Generate 3D model (${finalCost} tokens)</button>
     </div>`;
     }
 
@@ -8107,8 +8195,13 @@
 
     function rerenderModel3DPanel() {
       const el = document.getElementById("model3dPanel");
-      if (el) el.outerHTML = model3DSettingsPanelHtml();
-      scrollFeedToBottom();
+      if (!el) return;
+      const feed = document.getElementById("feed");
+      // Toggling an option must not yank the view; only follow the panel if the
+      // user was already parked at the bottom of the feed.
+      const wasAtBottom = feed ? (feed.scrollHeight - feed.scrollTop - feed.clientHeight) < 80 : false;
+      el.outerHTML = model3DSettingsPanelHtml();
+      if (wasAtBottom) scrollFeedToBottom();
     }
 
     function applyModel3DPreset(key) {
@@ -8129,14 +8222,22 @@
       if (!panel) return;
       const valSpan = panel.querySelector(".m3d-val");
       if (valSpan) valSpan.textContent = formatCount(POLY_STEPS[idx]);
-      const costEl = panel.querySelector(".m3d-cost b");
-      const genBtn = panel.querySelector(".btn-newchat");
-      if (costEl || genBtn) {
-        const cost = calcModel3DCost(model3DSettings);
-        if (costEl) costEl.textContent = cost + " tokens";
-        if (genBtn) genBtn.textContent = "Generate 3D model (" + cost + " tokens)";
-      }
-      panel.querySelectorAll(".m3d-preset").forEach(b => b.classList.remove("active"));
+      refreshModel3DCostDisplay(panel);
+      // Series tabs reuse .m3d-preset, so deselect only the actual preset row.
+      panel.querySelectorAll('[onclick^="applyModel3DPreset"]').forEach(b => b.classList.remove("active"));
+    }
+
+    function refreshModel3DCostDisplay(panel) {
+      panel = panel || document.getElementById("model3dPanel");
+      if (!panel) return;
+      const baseCost = calcModel3DCost(model3DSettings);
+      const finalCost = calcModel3DFinalCost(model3DSettings);
+      const baseEl = panel.querySelector(".m3d-base-cost");
+      const totalEl = panel.querySelector(".m3d-total-cost");
+      const genBtn = panel.querySelector(".m3d-generate");
+      if (baseEl) baseEl.textContent = baseCost + " Tokens";
+      if (totalEl) totalEl.textContent = finalCost + " Tokens";
+      if (genBtn) genBtn.textContent = "Generate 3D model (" + finalCost + " tokens)";
     }
 
     function setModel3DPolyIndex(idx) {
@@ -8172,19 +8273,20 @@
 
     async function confirmModel3DGeneration() {
       if (!pending3DInput || !pendingModel3DPanelEl) return;
-      if ((tokenBalance ?? 0) < 2) { openBuyModal(); return; }
+      if ((tokenBalance ?? 0) < calcModel3DFinalCost(model3DSettings)) { openBuyModal(); return; }
 
       const panelEl = pendingModel3DPanelEl;
       setBotBody(panelEl, loaderHtml("Starting 3D model generation…"));
       flowState = "busy";
       applyFlowComposerState();
 
+      let chatId = null;
       try {
-        const chatId = await ensureActiveChat(pending3DInput.text || "Model 3D");
+        chatId = await ensureActiveChat(pending3DInput.text || "Model 3D");
         let promptPayload = "";
         let imagePayload = null;
 
-        if (pending3DInput.kind === "image") {
+        if (pending3DInput.kind === "image" && pending3DInput.image) {
           imagePayload = pending3DInput.image;
         } else {
           const { text } = await translateToEnglish(pending3DInput.text);
@@ -8216,12 +8318,16 @@
           inputThumbnail = await createThumbnail(pending3DInput.image);
         }
 
+        const historyPrompt = promptPayload || pending3DInput.text || "";
         pending3DInput = null;
-        pollTripoTask(panelEl, data.taskId, promptPayload, chatId, inputThumbnail);
+        pendingModel3DPanelEl = null;
+        pollTripoTask(panelEl, data.taskId, historyPrompt, chatId, inputThumbnail);
 
       } catch (e) {
         console.error(e);
         setBotBody(panelEl, errorHtml("Error: " + e.message));
+        pendingModel3DPanelEl = null;
+        refreshBalance();
         flowState = "choose_method";
         const el = appendModeChooser("model3d", panelEl);
         pendingChoiceMessage = { chatId, payload: { type: "chooser", category: "model3d", prompt: "" }, _tempEl: el };
@@ -8231,28 +8337,48 @@
 
     function pollTripoTask(el, taskId, promptText, chatId, inputThumbnail) {
       let attempts = 0;
+      let consecutiveErrors = 0;
       let currentTaskId = taskId;
+
+      // The user has already been charged by the time polling starts, so a
+      // transient network error must not abandon the task — only a real FAILED
+      // status from the worker (which refunds) or the hard ceiling stops us.
+      const MAX_ATTEMPTS = 300;
+      const MAX_CONSECUTIVE_ERRORS = 6;
+
+      const giveUp = (message) => {
+        setBotBody(el, errorHtml(message));
+        refreshBalance();
+        flowState = "choose_method";
+        const newEl = appendModeChooser("model3d", el);
+        pendingChoiceMessage = { chatId, payload: { type: "chooser", category: "model3d", prompt: "" }, _tempEl: newEl };
+        applyFlowComposerState();
+      };
+
       const tick = async () => {
         attempts++;
         try {
           const res = await authedFetch(`/tripo/status?id=${encodeURIComponent(currentTaskId)}`);
           if (!res.ok) throw new Error(await extractError(res));
           const data = await res.json();
+          consecutiveErrors = 0;
 
           if (data.taskId && data.taskId !== currentTaskId) {
-            currentTaskId = data.taskId; // przeszliśmy do zadania konwersji
+            currentTaskId = data.taskId; // the worker moved us to the GLB conversion task
           }
 
           if (data.status === "FAILED" || data.status === "CANCELED") {
-            setBotBody(el, errorHtml("3D model generation failed" + (data.errorMessage ? (": " + data.errorMessage) : ".")));
-            flowState = "choose_method";
-            const newEl = appendModeChooser("model3d", el);
-            pendingChoiceMessage = { chatId, payload: { type: "chooser", category: "model3d", prompt: "" }, _tempEl: newEl };
-            applyFlowComposerState();
+            giveUp("3D model generation failed" + (data.errorMessage ? (": " + data.errorMessage) : ".") + " Your tokens have been refunded.");
             return;
           }
 
           if (data.status !== "SUCCEEDED") {
+            if (attempts >= MAX_ATTEMPTS) {
+              // The worker only refunds when a status check sees FAILED, and we
+              // have stopped checking — so do not promise a refund here.
+              giveUp("3D model generation is still running after a long wait. It may yet finish — reopen this chat later to check, or contact support with this task id: " + currentTaskId);
+              return;
+            }
             setBotBody(el, progressHtml(`Generating… ${data.progress || 0}%`, data.progress || 0));
             setTimeout(tick, attempts < 5 ? 2500 : 4500);
             return;
@@ -8284,9 +8410,13 @@
 
         } catch (e) {
           console.error(e);
-          setBotBody(el, errorHtml("Error checking status: " + e.message));
-          flowState = "choose_method";
-          applyFlowComposerState();
+          consecutiveErrors++;
+          if (consecutiveErrors >= MAX_CONSECUTIVE_ERRORS) {
+            giveUp("Lost contact while checking the model status: " + e.message);
+            return;
+          }
+          setBotBody(el, progressHtml("Reconnecting… (attempt " + consecutiveErrors + " of " + MAX_CONSECUTIVE_ERRORS + ")", 0));
+          setTimeout(tick, 3000 * consecutiveErrors);
         }
       };
       setTimeout(tick, 2500);
@@ -8335,15 +8465,23 @@
       }
     }
 
-    async function generateImageForModel3D(raw) {
+    async function generateImageForModel3D(raw, reuseEl) {
       if (!currentUser) { document.getElementById("signInBtn").click(); return; }
       if ((tokenBalance ?? 0) < 2) { openBuyModal(); return; }
 
       flowState = "busy";
       applyFlowComposerState();
 
-      appendUserBubble(raw);
-      const pendingEl = appendBotPlaceholder("Generating reference image…");
+      // A regenerate reuses the existing bubble — re-appending would duplicate
+      // the user's message and strand the old bubble on its loader forever.
+      let pendingEl;
+      if (reuseEl) {
+        pendingEl = reuseEl;
+        setBotBody(pendingEl, loaderHtml("Generating a new reference image…"));
+      } else {
+        appendUserBubble(raw);
+        pendingEl = appendBotPlaceholder("Generating reference image…");
+      }
 
       try {
         const chatId = await ensureActiveChat(raw);
@@ -8376,10 +8514,10 @@
         await persistMessage(chatId, { type: "generation", imageUrl: imageUrl || "", prompt: raw, mode: "text2img", template: "square", category: "icon" });
 
         setBotBody(pendingEl,
-          imageFrameHtml(blobUrl, "square", "Obraz referencyjny", true, false) +
+          imageFrameHtml(blobUrl, "square", "Reference image", true, false) +
           `<div class="result-actions" style="margin-top:10px;">
            <button class="primary" onclick='confirmGeneratedImageFor3D(this, ${JSON.stringify(chatId)}, ${JSON.stringify(raw)})'>Use for 3D model</button>
-           <button onclick='regenerateImageForModel3D(this, ${JSON.stringify(raw)})'>Wygeneruj inny</button>
+           <button onclick='regenerateImageForModel3D(this, ${JSON.stringify(raw)})'>Generate another</button>
          </div>`
         );
         markNewLastLarge(pendingEl);
@@ -8395,9 +8533,7 @@
     }
 
     function regenerateImageForModel3D(btnEl, raw) {
-      const bubbleEl = btnEl.closest(".msg-bot");
-      setBotBody(bubbleEl, loaderHtml("Generating a new reference image…"));
-      generateImageForModel3D(raw).then(() => { });
+      generateImageForModel3D(raw, btnEl.closest(".msg-bot"));
     }
 
     function confirmGeneratedImageFor3D(btnEl, chatId, raw) {
