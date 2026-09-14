@@ -4479,14 +4479,44 @@
       font-weight: 700;
     }
 
-    .fake-cursor {
-      display: inline-block;
-      animation: softPulse 0.8s step-start infinite;
-      color: var(--accent);
+    /* Placeholder lines shown while the model writes. Sits inside the dark
+       code-block chrome, so the bars are tinted against #181712, not the page. */
+    .code-skeleton {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      /* Matches .code-block pre — the dark ground lives on the pre, which this
+         placeholder replaces, so it has to carry the same surface itself. */
+      background: #181712;
+      border-radius: 0 0 10px 10px;
+      padding: 17px 14px;
     }
 
-    .code-block.fake-typing {
-      opacity: 0.92;
+    .code-skeleton span {
+      display: block;
+      height: 10px;
+      border-radius: 5px;
+      background: linear-gradient(90deg,
+          rgba(234, 232, 228, 0.07) 0%,
+          rgba(234, 232, 228, 0.17) 50%,
+          rgba(234, 232, 228, 0.07) 100%);
+      background-size: 200% 100%;
+      animation: skeletonSweep 1.5s ease-in-out infinite;
+    }
+
+    .code-skeleton span:nth-child(2) { animation-delay: .12s; }
+    .code-skeleton span:nth-child(3) { animation-delay: .24s; }
+    .code-skeleton span:nth-child(4) { animation-delay: .36s; }
+    .code-skeleton span:nth-child(5) { animation-delay: .48s; }
+    .code-skeleton span:nth-child(6) { animation-delay: .60s; }
+
+    @keyframes skeletonSweep {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .code-skeleton span { animation: none; }
     }
   </style>
 
@@ -5702,32 +5732,37 @@
       return `<div class="code-model-tag">${ICONS.wand}<span>Wygenerowano przez: ${escapeHtml(label)}${note}</span></div>`;
     }
 
-    const FAKE_CODE_SNIPPETS = [
-      `local function init()\n    print("Initializing module...")\n    local Players = game:GetService("Players")\n    local player = Players.LocalPlayer\nend`,
-      `local function setupEvents()\n    for _, obj in ipairs(workspace:GetChildren()) do\n        if obj:IsA("BasePart") then\n            obj.Touched:Connect(function(hit)\n                -- handle collision\n            end)\n        end\n    end\nend`,
-      `local TweenService = game:GetService("TweenService")\nlocal function animate(part, goal)\n    local tween = TweenService:Create(part, TweenInfo.new(0.3), goal)\n    tween:Play()\nend`
+    // Blank shimmer lines rather than typed-out code. The previous version
+    // animated a randomly picked Lua snippet unrelated to the request, which
+    // read as real output for as long as the call took.
+    const CODE_WAIT_LINES = [62, 88, 45, 74, 33, 56];
+
+    const CODE_WAIT_STAGES = [
+      { after: 0, label: "Generating code…" },
+      { after: 8000, label: "Still working — longer scripts take a moment…" },
+      { after: 22000, label: "Almost there, finishing the script…" }
     ];
 
-    function startFakeCodeTyping(el) {
-      const snippet = FAKE_CODE_SNIPPETS[Math.floor(Math.random() * FAKE_CODE_SNIPPETS.length)];
-      let i = 0;
-      const html = `
-        <div class="bot-status" style="margin-bottom:8px;"><span class="mini-loader"><span></span><span></span><span></span></span><span>Generowanie kodu…</span></div>
-        <div class="code-block fake-typing">
+    function startCodeWaitState(el) {
+      const started = Date.now();
+      const bars = CODE_WAIT_LINES.map(w => `<span style="width:${w}%"></span>`).join("");
+      setBotBody(el, `
+        <div class="bot-status" style="margin-bottom:8px;">
+          <span class="mini-loader"><span></span><span></span><span></span></span>
+          <span class="code-wait-label">${escapeHtml(CODE_WAIT_STAGES[0].label)}</span>
+        </div>
+        <div class="code-block">
           <div class="cb-head"><span class="cb-lang">lua</span></div>
-          <pre><code class="hljs" id="fakeTypeTarget"></code></pre>
-        </div>`;
-      setBotBody(el, html);
-      const target = el.querySelector("#fakeTypeTarget");
-      if (!target) return () => { };
+          <div class="code-skeleton" aria-hidden="true">${bars}</div>
+        </div>`);
 
+      const label = el.querySelector(".code-wait-label");
       const interval = setInterval(() => {
-        if (!target.isConnected) { clearInterval(interval); return; }
-        i += Math.random() < 0.15 ? 0 : Math.ceil(Math.random() * 3);
-        if (i > snippet.length) i = 0;
-        target.textContent = snippet.slice(0, i);
-        target.innerHTML = highlightCode(snippet.slice(0, i), "lua") + '<span class="fake-cursor">▍</span>';
-      }, 35);
+        if (!label || !label.isConnected) { clearInterval(interval); return; }
+        const elapsed = Date.now() - started;
+        const stage = CODE_WAIT_STAGES.filter(s => elapsed >= s.after).pop();
+        if (stage && label.textContent !== stage.label) label.textContent = stage.label;
+      }, 1000);
 
       return () => clearInterval(interval);
     }
@@ -7796,7 +7831,7 @@
 
       appendUserBubble(raw);
       const pendingEl = appendBotPlaceholder("");
-      const stopTyping = startFakeCodeTyping(pendingEl);
+      const stopTyping = startCodeWaitState(pendingEl);
 
       try {
         const chatId = await ensureActiveChat(raw || "Code Gen");
