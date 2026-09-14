@@ -500,25 +500,25 @@
       justify-content: center;
       text-align: center;
       gap: 6px;
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      color: var(--ink);
-      font-family: var(--font-body);
-      font-weight: 600;
-      font-size: 11.5px;
-      padding: 9px 8px;
+      background: var(--ink);
+      border: none;
+      border-radius: 0;
+      color: white;
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 10px;
+      padding: 10px 6px;
       cursor: pointer;
       text-decoration: none;
-      transition: border-color .15s ease, color .15s ease, transform .12s ease;
+      transition: background .15s ease, transform .12s ease, box-shadow .15s ease, opacity .15s ease;
+      box-shadow: 0 1px 2px rgba(20, 20, 15, 0.1);
       box-sizing: border-box;
       white-space: nowrap;
     }
 
     .btn-store:hover,
     .btn-tokens:hover {
-      border-color: var(--accent);
-      color: var(--accent-deep);
+      opacity: 0.92;
       transform: translateY(-1px);
     }
 
@@ -832,103 +832,110 @@
     }
 
     /* Tokens Box inside Google Panel */
-    /* The balance is the one number worth emphasising here. The counters below
-       are reference information and deliberately recede — when both were solid
-       black slabs the sidebar had four things all shouting at once. */
     .gp-token-box {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 10px;
-      background: var(--soft);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      padding: 10px 12px;
+      gap: 8px;
+      background: var(--ink);
+      border: 1px solid var(--ink);
+      border-radius: 0;
+      padding: 7px 9px;
       cursor: pointer;
-      color: var(--ink);
-      transition: border-color .15s ease, background .15s ease;
+      color: #ffffff;
+      box-shadow: 0 1px 2px rgba(20, 20, 15, 0.1);
+      transition: opacity .15s ease, transform .12s ease;
       box-sizing: border-box;
       width: 100%;
     }
 
     .gp-token-box:hover {
-      border-color: var(--ink-faint);
+      opacity: 0.92;
+      transform: translateY(-1px);
+    }
+
+    .gp-token-box:active {
+      transform: translateY(0);
+    }
+
+    .gp-token-left {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      min-width: 0;
+    }
+
+    .gp-token-icon {
+      font-size: 11px;
+      color: var(--mint);
+      line-height: 1;
     }
 
     .gp-token-info {
       display: flex;
       flex-direction: column;
-      gap: 2px;
-      min-width: 0;
-      line-height: 1.15;
+      line-height: 1.2;
     }
 
     .gp-token-label {
-      font-size: 9.5px;
+      font-size: 8.5px;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: .06em;
-      color: var(--ink-faint);
+      letter-spacing: .04em;
+      color: rgba(255, 255, 255, 0.7);
     }
 
     .gp-token-num {
-      display: flex;
-      align-items: baseline;
-      gap: 4px;
-      font-family: var(--font-display);
-      font-size: 19px;
+      font-size: 11px;
       font-weight: 700;
-      letter-spacing: -0.02em;
-      color: var(--ink);
+      color: #ffffff;
     }
 
-    .gp-token-unit {
-      font-size: 10.5px;
-      font-weight: 600;
-      color: var(--ink-faint);
-      letter-spacing: 0;
-    }
-
-    .gp-token-box.low .gp-token-num {
+    .gp-token-box.low .gp-token-num,
+    .gp-token-box.low .gp-token-icon {
       color: var(--coral);
     }
 
     .gp-topup-btn {
-      font-family: var(--font-body);
-      font-size: 11px;
-      font-weight: 600;
-      padding: 7px 12px;
-      background: var(--ink);
-      color: var(--bg);
-      border: 1px solid var(--ink);
-      border-radius: 7px;
+      font-family: var(--font-display);
+      font-size: 9px;
+      font-weight: 700;
+      padding: 4px 7px;
+      background: rgba(255, 255, 255, 0.15);
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      border-radius: 0;
       cursor: pointer;
       line-height: 1;
       white-space: nowrap;
-      flex-shrink: 0;
-      transition: opacity .15s ease, transform .12s ease;
+      transition: background .15s ease, color .15s ease, border-color .15s ease, transform .12s ease;
     }
 
     .gp-topup-btn:hover {
-      opacity: .88;
-      transform: translateY(-1px);
-    }
-
-    .gp-topup-btn:active {
-      transform: translateY(0);
+      background: #ffffff;
+      color: var(--ink);
+      border-color: #ffffff;
+      transform: translateY(-0.5px);
     }
 
     /* Generation Counters Row */
     .gp-stats-row {
       display: grid;
       grid-template-columns: 1fr auto 1fr auto 1fr;
-      align-items: stretch;
-      background: none;
-      border: none;
-      padding: 2px 0 0;
+      align-items: center;
+      background: var(--ink);
+      border: 1px solid var(--ink);
+      border-radius: 0;
+      padding: 6px 4px;
       box-sizing: border-box;
       width: 100%;
-      color: var(--ink);
+      color: #ffffff;
+      box-shadow: 0 1px 2px rgba(20, 20, 15, 0.1);
+      transition: opacity .15s ease, transform .12s ease;
+    }
+
+    .gp-stats-row:hover {
+      opacity: 0.95;
     }
 
     .gp-stat-item {
@@ -937,34 +944,85 @@
       align-items: center;
       justify-content: center;
       text-align: center;
-      gap: 3px;
+      gap: 2px;
       min-width: 0;
-      padding: 4px 2px;
+    }
+
+    .gp-stat-top {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 3.5px;
+      line-height: 1;
+    }
+
+    .gp-stat-icon {
+      color: rgba(255, 255, 255, 0.7);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .gp-stat-icon svg {
+      width: 11px;
+      height: 11px;
+      display: block;
     }
 
     .gp-stat-num {
-      font-family: var(--font-display);
-      font-size: 14px;
+      font-size: 11px;
       font-weight: 700;
-      letter-spacing: -0.01em;
-      color: var(--ink);
+      color: #ffffff;
+      font-family: var(--font-display);
     }
 
     .gp-stat-label {
-      font-size: 9px;
+      font-size: 8px;
       font-weight: 600;
       text-transform: uppercase;
-      letter-spacing: .05em;
-      color: var(--ink-faint);
+      letter-spacing: .03em;
+      color: rgba(255, 255, 255, 0.65);
       white-space: nowrap;
     }
 
     .gp-stat-divider {
       width: 1px;
-      align-self: center;
-      height: 20px;
-      background: var(--border);
+      height: 18px;
+      background: rgba(255, 255, 255, 0.18);
       flex-shrink: 0;
+    }
+
+    /* Dark theme contrast adjustments */
+    [data-theme="dark"] .gp-token-box,
+    [data-theme="dark"] .gp-stats-row {
+      color: #17161A;
+    }
+
+    [data-theme="dark"] .gp-token-box .gp-token-num,
+    [data-theme="dark"] .gp-stats-row .gp-stat-num {
+      color: #17161A;
+    }
+
+    [data-theme="dark"] .gp-token-box .gp-token-label,
+    [data-theme="dark"] .gp-stats-row .gp-stat-label,
+    [data-theme="dark"] .gp-stats-row .gp-stat-icon {
+      color: rgba(23, 22, 26, 0.7);
+    }
+
+    [data-theme="dark"] .gp-stats-row .gp-stat-divider {
+      background: rgba(23, 22, 26, 0.2);
+    }
+
+    [data-theme="dark"] .gp-topup-btn {
+      background: rgba(23, 22, 26, 0.14);
+      color: #17161A;
+      border-color: rgba(23, 22, 26, 0.25);
+    }
+
+    [data-theme="dark"] .gp-topup-btn:hover {
+      background: #17161A;
+      color: #ffffff;
+      border-color: #17161A;
     }
 
     /* Roblox Card & Disconnect styling */
@@ -1526,17 +1584,7 @@
       padding: 0 30px;
       display: flex;
       flex-direction: column;
-      /* Tight inside a turn, roomy between turns — a uniform gap makes every
-         exchange read as one undifferentiated stream. */
-      gap: 10px;
-    }
-
-    .feed-inner>.msg-user {
-      margin-top: 20px;
-    }
-
-    .feed-inner>.msg-user:first-child {
-      margin-top: 0;
+      gap: 20px;
     }
 
     .welcome {
@@ -1585,10 +1633,6 @@
     }
 
     .welcome .w-hint {
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      font-family: inherit;
       font-size: 11.8px;
       font-weight: 500;
       color: var(--ink-muted);
@@ -1596,19 +1640,6 @@
       border: 1px solid var(--border);
       padding: 8px 13px;
       border-radius: 999px;
-      cursor: pointer;
-      transition: border-color .15s ease, color .15s ease, transform .15s ease;
-    }
-
-    .welcome .w-hint:hover {
-      border-color: var(--accent);
-      color: var(--accent-deep);
-      transform: translateY(-1px);
-    }
-
-    .welcome .w-hint svg {
-      width: 13px;
-      height: 13px;
     }
 
     .msg {
@@ -1655,18 +1686,6 @@
 
     .msg-bubble {
       max-width: 78%;
-      min-width: 0;
-    }
-
-    .msg-bot .msg-bubble {
-      max-width: calc(100% - 39px);
-      flex: 1;
-    }
-
-    /* Consecutive assistant messages are one turn — repeating the avatar on
-       each is what makes a feed look auto-generated. */
-    .msg-bot+.msg-bot .msg-avatar {
-      visibility: hidden;
     }
 
     .msg-user .msg-bubble {
@@ -1676,6 +1695,15 @@
       padding: 11px 15px;
       font-size: 13.8px;
       line-height: 1.55;
+    }
+
+    .msg-user .msg-meta {
+      font-size: 10.5px;
+      color: rgba(255, 255, 255, 0.6);
+      margin-top: 6px;
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
     }
 
     .chat-image-chip {
@@ -1704,47 +1732,9 @@
     .msg-bot .msg-bubble {
       background: var(--card);
       border: 1px solid var(--border);
-      border-radius: 4px 14px 14px 14px;
-      padding: 14px 16px;
+      border-radius: 5px 15px 15px 15px;
+      padding: 15px 16px;
       box-shadow: var(--shadow-sm);
-      color: var(--ink);
-      font-size: 14px;
-      line-height: 1.62;
-    }
-
-    /* Artifacts inside the bubble carry their own frame — let them bleed to the
-       bubble's edge instead of sitting as a second box inside the first. */
-    .msg-bot .msg-bubble .code-block,
-    .msg-bot .msg-bubble .result-frame-wrap {
-      margin-left: -16px;
-      margin-right: -16px;
-      width: calc(100% + 32px);
-      max-width: none;
-    }
-
-    .msg-bot .msg-bubble .code-block {
-      border-radius: 0;
-      border-left: none;
-      border-right: none;
-    }
-
-    .msg-bot .msg-bubble .result-frame-wrap {
-      padding: 0 16px;
-      box-sizing: border-box;
-    }
-
-    .msg-bot .msg-bubble> .bot-body> .code-block:first-child {
-      margin-top: -14px;
-      border-top: none;
-      border-radius: 3px 13px 0 0;
-      overflow: hidden;
-    }
-
-    .msg-bot .msg-bubble> .bot-body> .code-block:last-child {
-      margin-bottom: -14px;
-      border-bottom: none;
-      border-radius: 0 0 13px 13px;
-      overflow: hidden;
     }
 
     .bot-text {
@@ -1762,14 +1752,8 @@
       gap: 9px;
     }
 
-    /* A left accent rather than a full box — the bubble is already a card, and
-       a bordered error inside it would read as a frame within a frame. */
     .bot-status.error {
       color: var(--coral);
-      align-items: flex-start;
-      border-left: 2px solid var(--coral);
-      padding-left: 11px;
-      line-height: 1.55;
     }
 
     .bot-status.ok {
@@ -2058,9 +2042,9 @@
     }
 
     .md-content .md-p {
-      margin: 0 0 10px;
-      font-size: 14px;
-      line-height: 1.62;
+      margin: 0 0 8px;
+      font-size: 13.8px;
+      line-height: 1.6;
       color: var(--ink);
     }
 
@@ -2074,14 +2058,8 @@
     .md-content h4 {
       font-family: var(--font-body);
       color: var(--ink);
-      /* Headings carry their own top space now that no card padding separates
-         them from the paragraph above. */
-      margin: 16px 0 6px;
+      margin: 0 0 6px;
       line-height: 1.35;
-    }
-
-    .md-content> :first-child {
-      margin-top: 0;
     }
 
     .md-content h1 {
@@ -2106,10 +2084,10 @@
 
     .md-content ul,
     .md-content ol {
-      margin: 0 0 10px;
+      margin: 0 0 8px;
       padding-left: 20px;
-      font-size: 14px;
-      line-height: 1.62;
+      font-size: 13.8px;
+      line-height: 1.6;
       color: var(--ink);
     }
 
@@ -2132,10 +2110,35 @@
       color: var(--ink-muted);
     }
 
+    /* When chooser-3d is present: message bubble wraps only the text (md-p / content),
+       while chooser-3d buttons sit cleanly below without the bubble background */
+    .msg-bot:has(.chooser-3d) .msg-bubble {
+      background: transparent;
+      border: none;
+      padding: 0;
+      box-shadow: none;
+    }
+
     .msg-bot:has(.chooser-3d) .bot-body {
       display: flex;
       flex-direction: column;
       align-items: flex-start;
+    }
+
+    .msg-bot:has(.chooser-3d) .bot-body> :not(.chooser-3d) {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 5px 15px 15px 15px;
+      padding: 13px 16px;
+      box-shadow: var(--shadow-sm);
+      max-width: 100%;
+    }
+
+    .msg-bot:has(.chooser-3d) .bot-body>.md-p {
+      margin: 0;
+      font-size: 13.8px;
+      line-height: 1.6;
+      color: var(--ink);
     }
 
     .chooser-3d {
@@ -2247,7 +2250,7 @@
       display: flex;
       flex-direction: column;
       gap: 14px;
-      margin-top: 10px;
+      margin-top: 6px;
       max-width: 420px;
     }
 
@@ -4476,40 +4479,14 @@
       font-weight: 700;
     }
 
-    .code-wait-model {
-      margin-left: auto;
-      font-size: 11.5px;
-      color: var(--ink-faint);
-      white-space: nowrap;
+    .fake-cursor {
+      display: inline-block;
+      animation: softPulse 0.8s step-start infinite;
+      color: var(--accent);
     }
 
-    .code-skeleton {
-      display: flex;
-      flex-direction: column;
-      gap: 9px;
-    }
-
-    .code-skeleton span {
-      display: block;
-      height: 10px;
-      border-radius: 5px;
-      background: linear-gradient(90deg, var(--soft-2) 0%, var(--border) 50%, var(--soft-2) 100%);
-      background-size: 200% 100%;
-      animation: skeletonSweep 1.4s ease-in-out infinite;
-    }
-
-    .code-skeleton span:nth-child(2) { animation-delay: .1s; }
-    .code-skeleton span:nth-child(3) { animation-delay: .2s; }
-    .code-skeleton span:nth-child(4) { animation-delay: .3s; }
-    .code-skeleton span:nth-child(5) { animation-delay: .4s; }
-
-    @keyframes skeletonSweep {
-      0% { background-position: 200% 0; }
-      100% { background-position: -200% 0; }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      .code-skeleton span { animation: none; }
+    .code-block.fake-typing {
+      opacity: 0.92;
     }
   </style>
 
@@ -5139,7 +5116,7 @@
                       </div>
                     </div>
                     <div class="gp-actions">
-                      <a class="gp-icon-btn gp-home" href="/" title="Home" aria-label="Home">
+                      <a class="gp-icon-btn gp-home" href="/" title="Strona główna" aria-label="Home">
                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                           stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                           <path
@@ -5151,7 +5128,7 @@
                   <div class="gp-unlinked-body">
                     <div class="gp-desc">Sign in to save chats, generate 3D assets & access tokens.</div>
                     <button class="gp-signin-action" onclick="signInWithGoogle()" type="button">
-                      Sign in with Google
+                      [ Sign in with Google ]
                     </button>
                   </div>
                 </div>
@@ -5179,7 +5156,7 @@
                       </div>
                     </div>
                     <div class="gp-actions">
-                      <a class="gp-icon-btn gp-home" href="/" title="Home" aria-label="Home">
+                      <a class="gp-icon-btn gp-home" href="/" title="Strona główna" aria-label="Home">
                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                           stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                           <path
@@ -5198,34 +5175,59 @@
 
                   <div class="gp-token-box" id="tokenPill" onclick="event.stopPropagation(); openBuyModal()"
                     title="Top up tokens">
-                    <div class="gp-token-info">
-                      <div class="gp-token-label">Balance</div>
-                      <div class="gp-token-num"><span id="tokenCount">–</span><span class="gp-token-unit">tokens</span>
+                    <div class="gp-token-left">
+                      <span class="gp-token-icon">✦</span>
+                      <div class="gp-token-info">
+                        <div class="gp-token-label">Balance</div>
+                        <div class="gp-token-num"><span id="tokenCount">–</span> tokens</div>
                       </div>
                     </div>
                     <button class="gp-topup-btn" type="button" onclick="event.stopPropagation(); openBuyModal()">
-                      Top up
+                      [ + Top up ]
                     </button>
                   </div>
 
                   <!-- Generation Counters Row -->
                   <div class="gp-stats-row" id="gpStatsRow">
-                    <div class="gp-stat-item" title="3D models generated">
-                      <span class="gp-stat-num" id="statModelsCount">0</span>
+                    <div class="gp-stat-item" title="Wygenerowane modele 3D">
+                      <div class="gp-stat-top">
+                        <span class="gp-stat-icon"><svg width="11" height="11" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path
+                              d="M21 16V8a2 2 0 0 0-1-1.73l-6-3.46a2 2 0 0 0-2 0l-6 3.46A2 2 0 0 0 5 8v8a2 2 0 0 0 1 1.73l6 3.46a2 2 0 0 0 2 0l6-3.46A2 2 0 0 0 21 16Z" />
+                            <path d="M3.27 6.96 12 12l8.73-5.04M12 22.08V12" />
+                          </svg></span>
+                        <span class="gp-stat-num" id="statModelsCount">0</span>
+                      </div>
                       <span class="gp-stat-label">3D Models</span>
                     </div>
 
                     <div class="gp-stat-divider"></div>
 
-                    <div class="gp-stat-item" title="Images generated">
-                      <span class="gp-stat-num" id="statImagesCount">0</span>
+                    <div class="gp-stat-item" title="Wygenerowane obrazy">
+                      <div class="gp-stat-top">
+                        <span class="gp-stat-icon"><svg width="11" height="11" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="18" height="18" rx="2" />
+                            <circle cx="8.5" cy="8.5" r="1.5" />
+                            <path d="m21 15-5-5L5 21" />
+                          </svg></span>
+                        <span class="gp-stat-num" id="statImagesCount">0</span>
+                      </div>
                       <span class="gp-stat-label">Images</span>
                     </div>
 
                     <div class="gp-stat-divider"></div>
 
-                    <div class="gp-stat-item" title="Messages sent">
-                      <span class="gp-stat-num" id="statMessagesCount">0</span>
+                    <div class="gp-stat-item" title="Wysłane wiadomości">
+                      <div class="gp-stat-top">
+                        <span class="gp-stat-icon"><svg width="11" height="11" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path
+                              d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+                          </svg></span>
+                        <span class="gp-stat-num" id="statMessagesCount">0</span>
+                      </div>
                       <span class="gp-stat-label">Messages</span>
                     </div>
                   </div>
@@ -5250,15 +5252,15 @@
                   <div class="rc-title" id="robloxTitle">Connect Roblox account</div>
                   <div class="rc-sub" id="robloxSub">Required for the Studio plugin</div>
                 </div>
-                <button class="rc-action" id="robloxAction" onclick="handleRobloxAction()">Connect</button>
+                <button class="rc-action" id="robloxAction" onclick="handleRobloxAction()">[ Connect ]</button>
               </div>
             </div>
           </div>
 
           <div class="sb-bottom">
             <div class="center-botom">
-              <a class="btn-store" href="/store">Assets Store</a>
-              <a id="navTokensBtn" class="btn-tokens" href="/tokens">Buy tokens</a>
+              <a class="btn-store" href="/store">[ Assets Store ]</a>
+              <a id="navTokensBtn" class="btn-tokens" href="/tokens">[ X Tokens ]</a>
             </div>
 
             <div class="theme-switch" id="themeSwitch"></div>
@@ -5320,7 +5322,18 @@
 
       <div class="feed" id="feed">
         <div class="feed-inner" id="feedInner">
-          <div class="welcome" id="welcome"></div>
+          <div class="welcome" id="welcome">
+            <div class="w-mark"></div>
+            <h2>What are we working on?</h2>
+            <p>Tell me what you need — I'll figure out what you're asking for. You can also force a specific mode below.
+            </p>
+            <div class="w-hints">
+              <span class="w-hint">"make me a dragon icon"</span>
+              <span class="w-hint">"I need a thumbnail for a zombie game"</span>
+              <span class="w-hint">"I want a 3D model of a sword"</span>
+              <span class="w-hint">"turn this UI into a Lua script"</span>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -5684,40 +5697,37 @@
       if (!model) return "";
       const label = CODE_MODEL_LABELS[model] || model;
       const note = pricingNote
-        ? ` <span class="code-model-note ${pricingNote}">(${pricingNote === "off-peak" ? "off-peak rate" : "peak rate"})</span>`
+        ? ` <span class="code-model-note ${pricingNote}">(${pricingNote === "off-peak" ? "tańsza taryfa" : "taryfa szczytowa"})</span>`
         : "";
-      return `<div class="code-model-tag">${ICONS.wand}<span>Generated by ${escapeHtml(label)}${note}</span></div>`;
+      return `<div class="code-model-tag">${ICONS.wand}<span>Wygenerowano przez: ${escapeHtml(label)}${note}</span></div>`;
     }
 
-    // Honest waiting state. This previously typed out a randomly chosen Lua
-    // snippet that had nothing to do with the request — it read as real output
-    // and was not, so it is a skeleton now.
-    const CODE_WAIT_STAGES = [
-      { after: 0, label: "Writing the script…" },
-      { after: 6000, label: "Still writing — longer scripts take a moment…" },
-      { after: 20000, label: "Almost there, finishing the script…" }
+    const FAKE_CODE_SNIPPETS = [
+      `local function init()\n    print("Initializing module...")\n    local Players = game:GetService("Players")\n    local player = Players.LocalPlayer\nend`,
+      `local function setupEvents()\n    for _, obj in ipairs(workspace:GetChildren()) do\n        if obj:IsA("BasePart") then\n            obj.Touched:Connect(function(hit)\n                -- handle collision\n            end)\n        end\n    end\nend`,
+      `local TweenService = game:GetService("TweenService")\nlocal function animate(part, goal)\n    local tween = TweenService:Create(part, TweenInfo.new(0.3), goal)\n    tween:Play()\nend`
     ];
 
-    function startCodeWaitState(el, modelLabel) {
-      const started = Date.now();
-      setBotBody(el, `
-        <div class="bot-status" style="margin-bottom:10px;">
-          <span class="mini-loader"><span></span><span></span><span></span></span>
-          <span class="code-wait-label">${escapeHtml(CODE_WAIT_STAGES[0].label)}</span>
-          ${modelLabel ? `<span class="code-wait-model">${escapeHtml(modelLabel)}</span>` : ""}
-        </div>
-        <div class="code-skeleton" aria-hidden="true">
-          <span style="width:62%"></span><span style="width:88%"></span><span style="width:45%"></span>
-          <span style="width:74%"></span><span style="width:33%"></span>
-        </div>`);
+    function startFakeCodeTyping(el) {
+      const snippet = FAKE_CODE_SNIPPETS[Math.floor(Math.random() * FAKE_CODE_SNIPPETS.length)];
+      let i = 0;
+      const html = `
+        <div class="bot-status" style="margin-bottom:8px;"><span class="mini-loader"><span></span><span></span><span></span></span><span>Generowanie kodu…</span></div>
+        <div class="code-block fake-typing">
+          <div class="cb-head"><span class="cb-lang">lua</span></div>
+          <pre><code class="hljs" id="fakeTypeTarget"></code></pre>
+        </div>`;
+      setBotBody(el, html);
+      const target = el.querySelector("#fakeTypeTarget");
+      if (!target) return () => { };
 
-      const label = el.querySelector(".code-wait-label");
       const interval = setInterval(() => {
-        if (!label || !label.isConnected) { clearInterval(interval); return; }
-        const elapsed = Date.now() - started;
-        const stage = CODE_WAIT_STAGES.filter(s => elapsed >= s.after).pop();
-        if (stage && label.textContent !== stage.label) label.textContent = stage.label;
-      }, 1000);
+        if (!target.isConnected) { clearInterval(interval); return; }
+        i += Math.random() < 0.15 ? 0 : Math.ceil(Math.random() * 3);
+        if (i > snippet.length) i = 0;
+        target.textContent = snippet.slice(0, i);
+        target.innerHTML = highlightCode(snippet.slice(0, i), "lua") + '<span class="fake-cursor">▍</span>';
+      }, 35);
 
       return () => clearInterval(interval);
     }
@@ -6069,9 +6079,6 @@
       auth.onAuthStateChanged(onAuthChange);
 
       try {
-        const welcomeEl = document.getElementById("welcome");
-        if (welcomeEl) welcomeEl.innerHTML = welcomeInnerHtml();
-
         document.getElementById("newChatIcon").innerHTML = ICONS.plus;
         initComposerHeightSync();
 
@@ -6087,6 +6094,7 @@
         document.querySelectorAll(".dz-remove").forEach(b => b.innerHTML = ICONS.close);
         document.querySelectorAll(".modal-close").forEach(b => b.innerHTML = ICONS.close);
         document.querySelectorAll(".u-signout").forEach(b => b.innerHTML = ICONS.minus);
+        document.getElementById("welcome").querySelector(".w-mark").innerHTML = ICONS.ropeak.replace('width="13" height="13"', 'width="20" height="20"');
         document.querySelectorAll(".fm-pill").forEach(p => {
           const info = FORCE_MODE_INFO[p.dataset.force];
           if (info && p.querySelector(".fm-icon")) p.querySelector(".fm-icon").innerHTML = info.icon;
@@ -6470,7 +6478,7 @@
       } else {
         title.textContent = "Connect Roblox";
         sub.textContent = "Studio plugin integration";
-        action.textContent = "Connect";
+        action.textContent = "[ Connect ]";
         action.className = "rc-action";
         action.title = "Connect Roblox account";
         action.removeAttribute("aria-label");
@@ -6501,8 +6509,11 @@
     function updateTokenPill() {
       document.getElementById("tokenCount").textContent = tokenBalance ?? "–";
       document.getElementById("tokenPill").classList.toggle("low", (tokenBalance ?? 0) < 2);
-      // The balance card directly above already shows the count; repeating it on
-      // this link just duplicated the same number twice in one panel.
+
+      const navTokensBtn = document.getElementById("navTokensBtn");
+      if (navTokensBtn) {
+        navTokensBtn.textContent = "[ " + (tokenBalance ?? "–") + " Tokens ]";
+      }
     }
 
     async function pollBalanceAfterPurchase(attempt = 0) {
@@ -6685,40 +6696,11 @@
       scrollFeedToBottom();
     }
 
-    const WELCOME_EXAMPLES = [
-      "Make me a dragon icon",
-      "I need a thumbnail for a zombie game",
-      "I want a 3D model of a sword",
-      "Turn this UI into a Lua script"
-    ];
-
-    // One definition for both the initial page render and every empty chat —
-    // two hand-written copies had already drifted apart.
-    function welcomeInnerHtml() {
-      const chips = WELCOME_EXAMPLES
-        .map(t => `<button class="w-hint" type="button" onclick="useExamplePrompt(${JSON.stringify(t).replace(/"/g, "&quot;")})">${escapeHtml(t)}</button>`)
-        .join("");
-      return `
-        <div class="w-mark">${ICONS.ropeak}</div>
-        <h2>What are we working on?</h2>
-        <p>Tell me what you need — I'll work out what you're asking for. You can also pick a mode below.</p>
-        <div class="w-hints">${chips}</div>`;
-    }
-
-    function useExamplePrompt(text) {
-      const promptEl = document.getElementById("prompt");
-      if (!promptEl) return;
-      if (typeof expandComposer === "function") expandComposer();
-      promptEl.value = text;
-      promptEl.focus();
-      promptEl.dispatchEvent(new Event("input", { bubbles: true }));
-    }
-
     function buildWelcomeNode() {
       const div = document.createElement("div");
       div.id = "welcome";
       div.className = "welcome";
-      div.innerHTML = welcomeInnerHtml();
+      div.innerHTML = `<div class="w-mark">${ICONS.ropeak}</div><h2>What are we working on?</h2><p>Write what you need.</p>`;
       return div;
     }
 
@@ -6730,13 +6712,12 @@
       const promptText = (m.prompt || "").trim();
       const hasInputImage = !!m.inputThumbnail;
       const imageChip = hasInputImage ? `<div class="msg-attach-grid"><div class="ag-item"><img src="${m.inputThumbnail}" alt=""></div></div>` : "";
-      // No meta badge here: appendUserBubble does not render one, so showing it
-      // only after a reload made the same message look different on each visit.
       userMsg.innerHTML = `
       <div class="msg-avatar"><img src="${currentUser && currentUser.photoURL ? currentUser.photoURL : ""}" alt=""></div>
       <div class="msg-bubble">
         ${imageChip}
         ${promptText ? `<div>${escapeHtml(promptText)}</div>` : ""}
+        <div class="msg-meta"><span>${historyBadge(m)}</span></div>
       </div>
     `;
       inner.appendChild(userMsg);
@@ -6802,7 +6783,16 @@
       }
     }
 
+    function historyBadge(m) {
+      if (m.type === "text") return "Chat";
+      if (m.type === "model3d") return "Model 3D";
+      return categoryLabel(m.category) + " · " + methodShortLabel(m.mode);
+    }
+
     function categoryLabel(cat) { return cat === "thumbnail" ? "Thumbnail" : "Icon"; }
+    function methodShortLabel(m) {
+      return { text2img: "From scratch", image2img: "Edit photo", reference2img: "Transfer style" }[m] || m;
+    }
     function initComposerHeightSync() {
       const composerWrap = document.querySelector(".composer-wrap");
       const feed = document.getElementById("feed");
@@ -6859,7 +6849,7 @@
         if (a.kind === "image") {
           return `<div class="ag-item"><img src="${a.dataUrl}" alt=""></div>`;
         }
-        return `<div class="ag-item ag-file">${ICONS.document}<span>${escapeHtml(a.name || "file")}</span></div>`;
+        return `<div class="ag-item ag-file">${ICONS.document}<span>${escapeHtml(a.name || "plik")}</span></div>`;
       }).join("");
       return `<div class="msg-attach-grid">${items}</div>`;
     }
@@ -7806,7 +7796,7 @@
 
       appendUserBubble(raw);
       const pendingEl = appendBotPlaceholder("");
-      const stopTyping = startCodeWaitState(pendingEl, CODE_MODEL_LABELS[selectedCodeModel] || selectedCodeModel);
+      const stopTyping = startFakeCodeTyping(pendingEl);
 
       try {
         const chatId = await ensureActiveChat(raw || "Code Gen");
@@ -7839,8 +7829,8 @@
         attachFixButtonToLastCodeBlock(pendingEl, chatId);
 
         currentCodeState = { code: data.code, language: data.language || "lua", chatId, model: data.model || selectedCodeModel };
-        document.getElementById("composerHint").textContent = "This script is in context — ask for a change, a refactor, or an extra function.";
-        document.getElementById("prompt").placeholder = "e.g. add a save function, add validation…";
+        document.getElementById("composerHint").textContent = "Mam zapamiętany Twój kod — możesz poprosić o dodanie funkcji, zmianę, refaktor.";
+        document.getElementById("prompt").placeholder = "np. dodaj funkcję do zapisu stanu, dodaj walidację…";
 
         refreshBalance();
         await persistMessage(chatId, { type: "code", prompt: raw, reply: replyText, language: data.language, model: data.model || selectedCodeModel });
@@ -8107,7 +8097,7 @@
       </div>
       <div class="m3d-cost-breakdown">
         <div class="m3d-cost-row"><span>Generation</span><span class="m3d-base-cost">${baseCost} Tokens</span></div>
-        ${s.shareSell ? `<div class="m3d-cost-row discount"><span>Share &amp; Sell</span><span>−${SHARE_SELL_DISCOUNT} Token</span></div>` : ''}
+        ${s.shareSell ? `<div class="m3d-cost-row discount"><span>Share & Sell</span><span>−${SHARE_SELL_DISCOUNT} Token</span></div>` : ''}
         <div class="m3d-cost-row total"><span>Total</span><span class="m3d-total-cost">${finalCost} Tokens</span></div>
       </div>
       <button class="btn-newchat m3d-generate" style="margin-top:2px;" onclick="confirmModel3DGeneration()">Generate 3D model (${finalCost} tokens)</button>
@@ -8127,13 +8117,8 @@
 
     function rerenderModel3DPanel() {
       const el = document.getElementById("model3dPanel");
-      if (!el) return;
-      const feed = document.getElementById("feed");
-      // Toggling an option must not yank the view; only follow the panel if the
-      // user was already parked at the bottom of the feed.
-      const wasAtBottom = feed ? (feed.scrollHeight - feed.scrollTop - feed.clientHeight) < 80 : false;
-      el.outerHTML = model3DSettingsPanelHtml();
-      if (wasAtBottom) scrollFeedToBottom();
+      if (el) el.outerHTML = model3DSettingsPanelHtml();
+      scrollFeedToBottom();
     }
 
     function applyModel3DPreset(key) {
@@ -8212,6 +8197,8 @@
       flowState = "busy";
       applyFlowComposerState();
 
+      // Declared outside the try: the catch below reads it, and a const scoped
+      // to the try block made the error handler itself throw a ReferenceError.
       let chatId = null;
       try {
         chatId = await ensureActiveChat(pending3DInput.text || "Model 3D");
@@ -8446,10 +8433,10 @@
         await persistMessage(chatId, { type: "generation", imageUrl: imageUrl || "", prompt: raw, mode: "text2img", template: "square", category: "icon" });
 
         setBotBody(pendingEl,
-          imageFrameHtml(blobUrl, "square", "Reference image", true, false) +
+          imageFrameHtml(blobUrl, "square", "Obraz referencyjny", true, false) +
           `<div class="result-actions" style="margin-top:10px;">
            <button class="primary" onclick='confirmGeneratedImageFor3D(this, ${JSON.stringify(chatId)}, ${JSON.stringify(raw)})'>Use for 3D model</button>
-           <button onclick='regenerateImageForModel3D(this, ${JSON.stringify(raw)})'>Generate another</button>
+           <button onclick='regenerateImageForModel3D(this, ${JSON.stringify(raw)})'>Wygeneruj inny</button>
          </div>`
         );
         markNewLastLarge(pendingEl);
