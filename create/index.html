@@ -877,18 +877,33 @@
       line-height: 1.2;
     }
 
+    /* 8.5px label above an 11px value made the number no bigger than its own
+       caption, and both sat below a readable size. The value leads now. */
     .gp-token-label {
-      font-size: 8.5px;
-      font-weight: 700;
+      font-size: 9.5px;
+      font-weight: 600;
       text-transform: uppercase;
-      letter-spacing: .04em;
-      color: rgba(255, 255, 255, 0.7);
+      letter-spacing: .07em;
+      color: rgba(255, 255, 255, 0.65);
     }
 
     .gp-token-num {
-      font-size: 11px;
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+      font-family: var(--font-display);
+      font-size: 17px;
       font-weight: 700;
+      letter-spacing: -0.02em;
       color: #ffffff;
+    }
+
+    .gp-token-unit {
+      font-family: var(--font-body);
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0;
+      color: rgba(255, 255, 255, 0.55);
     }
 
     .gp-token-box.low .gp-token-num,
@@ -897,10 +912,10 @@
     }
 
     .gp-topup-btn {
-      font-family: var(--font-display);
-      font-size: 9px;
-      font-weight: 700;
-      padding: 4px 7px;
+      font-family: var(--font-body);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 6px 9px;
       background: rgba(255, 255, 255, 0.15);
       color: #ffffff;
       border: 1px solid rgba(255, 255, 255, 0.22);
@@ -970,18 +985,20 @@
     }
 
     .gp-stat-num {
-      font-size: 11px;
+      font-size: 14px;
       font-weight: 700;
+      letter-spacing: -0.01em;
       color: #ffffff;
       font-family: var(--font-display);
     }
 
+    /* Was 8px — under the size where a label is actually readable. */
     .gp-stat-label {
-      font-size: 8px;
-      font-weight: 600;
+      font-size: 9px;
+      font-weight: 500;
       text-transform: uppercase;
-      letter-spacing: .03em;
-      color: rgba(255, 255, 255, 0.65);
+      letter-spacing: .06em;
+      color: rgba(255, 255, 255, 0.6);
       white-space: nowrap;
     }
 
@@ -1004,6 +1021,7 @@
     }
 
     [data-theme="dark"] .gp-token-box .gp-token-label,
+    [data-theme="dark"] .gp-token-box .gp-token-unit,
     [data-theme="dark"] .gp-stats-row .gp-stat-label,
     [data-theme="dark"] .gp-stats-row .gp-stat-icon {
       color: rgba(23, 22, 26, 0.7);
@@ -5209,7 +5227,7 @@
                       <span class="gp-token-icon">✦</span>
                       <div class="gp-token-info">
                         <div class="gp-token-label">Balance</div>
-                        <div class="gp-token-num"><span id="tokenCount">–</span> tokens</div>
+                        <div class="gp-token-num"><span id="tokenCount">–</span><span class="gp-token-unit">tokens</span></div>
                       </div>
                     </div>
                     <button class="gp-topup-btn" type="button" onclick="event.stopPropagation(); openBuyModal()">
