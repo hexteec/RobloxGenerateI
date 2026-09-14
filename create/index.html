@@ -4570,6 +4570,27 @@
 
     /* Placeholder lines shown while the model writes. Sits inside the dark
        code-block chrome, so the bars are tinted against #181712, not the page. */
+    /* Sits on the last line of a reply that is still arriving. */
+    .stream-caret {
+      display: inline-block;
+      width: 2px;
+      height: 1em;
+      margin-left: 2px;
+      vertical-align: text-bottom;
+      background: var(--accent);
+      border-radius: 1px;
+      animation: caretBlink 1s steps(1) infinite;
+    }
+
+    @keyframes caretBlink {
+      0%, 49% { opacity: 1; }
+      50%, 100% { opacity: 0; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .stream-caret { animation: none; }
+    }
+
     .code-skeleton {
       display: flex;
       flex-direction: column;
@@ -6532,6 +6553,100 @@
       return currentUser.getIdToken();
     }
 
+    // Stages the worker actually reports — never a guess about what it is doing.
+    const CHAT_STAGE_LABELS = {
+      thinking: "Thinking…",
+      reading_image: "Looking at your image…",
+      ui_to_lua: "Writing the Lua script…"
+    };
+
+    // Returns the same { reply, action } shape as /chat, so the caller's action
+    // handling is identical either way. Falls back to the non-streaming
+    // endpoint when streaming is unavailable — the worker is deployed by hand,
+    // so the app has to keep working before the streaming build goes live.
+    let chatStreamingAvailable = true;
+
+    async function streamChat(payload, handlers) {
+      // Once a worker has told us it has no streaming endpoint, stop probing —
+      // otherwise every message pays for a failed round trip until redeploy.
+      if (!chatStreamingAvailable) return chatWithoutStreaming(payload);
+
+      let res;
+      try {
+        res = await authedFetch("/chat/stream", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+      } catch (e) {
+        return chatWithoutStreaming(payload);
+      }
+
+      const isEventStream = (res.headers.get("content-type") || "").includes("text/event-stream");
+      if (!res.ok || !res.body || !isEventStream) {
+        if (res.status === 404 || res.status === 405 || !isEventStream) {
+          chatStreamingAvailable = false;
+          return chatWithoutStreaming(payload);
+        }
+        throw new Error(await extractError(res));
+      }
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buf = "";
+      let result = null;
+      let streamError = null;
+      let sawDelta = false;
+
+      const dispatch = (event, data) => {
+        if (event === "stage") handlers.onStage && handlers.onStage(data.stage);
+        else if (event === "delta") { sawDelta = true; handlers.onDelta && handlers.onDelta(data.text || ""); }
+        else if (event === "replace") handlers.onReplace && handlers.onReplace(data.reply || "");
+        else if (event === "done") result = { reply: data.reply || "", action: data.action || null };
+        else if (event === "error") streamError = data.error || "Stream error";
+      };
+
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        buf += decoder.decode(value, { stream: true });
+
+        let sep;
+        while ((sep = buf.indexOf("\n\n")) !== -1) {
+          const block = buf.slice(0, sep);
+          buf = buf.slice(sep + 2);
+
+          let event = "message";
+          const dataLines = [];
+          for (const line of block.split("\n")) {
+            if (line.startsWith("event:")) event = line.slice(6).trim();
+            else if (line.startsWith("data:")) dataLines.push(line.slice(5).trim());
+          }
+          if (!dataLines.length) continue;
+          try { dispatch(event, JSON.parse(dataLines.join("\n"))); } catch (e) { /* skip bad frame */ }
+        }
+      }
+
+      if (streamError) throw new Error(streamError);
+      if (!result) {
+        // Nothing arrived at all — most likely an old worker; retry the plain
+        // endpoint. If prose had already streamed, the connection died mid-reply.
+        if (!sawDelta) return chatWithoutStreaming(payload);
+        throw new Error("The response was cut off.");
+      }
+      return result;
+    }
+
+    async function chatWithoutStreaming(payload) {
+      const res = await authedFetch("/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) throw new Error(await extractError(res));
+      return res.json();
+    }
+
     async function authedFetch(path, options = {}) {
       const idToken = await getIdToken();
       if (!idToken) throw new Error("You must be signed in.");
@@ -7132,6 +7247,30 @@
       inner.appendChild(el);
       scrollFeedToBottom();
       return el;
+    }
+
+    // Streaming render. Deliberately uses renderInlineMarkdown, not
+    // renderMarkdown: the latter allocates a codeBlockStore entry per call, so
+    // re-rendering on every token would pile up hundreds of dead entries. The
+    // full markdown pass runs once when the reply is complete.
+    const STREAM_FRAME_MS = 50;
+
+    function renderStreamingReply(el, text, state) {
+      state.pending = text;
+      if (state.timer) return;
+      state.timer = setTimeout(() => {
+        state.timer = null;
+        const body = botBody(el);
+        if (!body) return;
+        const feed = document.getElementById("feed");
+        const wasAtBottom = feed ? (feed.scrollHeight - feed.scrollTop - feed.clientHeight) < 120 : true;
+        body.innerHTML = renderInlineMarkdown(state.pending) + '<span class="stream-caret"></span>';
+        if (wasAtBottom && feed) feed.scrollTop = feed.scrollHeight;
+      }, STREAM_FRAME_MS);
+    }
+
+    function stopStreamingReply(state) {
+      if (state.timer) { clearTimeout(state.timer); state.timer = null; }
     }
 
     function botBody(el) { return el.querySelector(".bot-body"); }
@@ -8038,6 +8177,10 @@
       appendUserBubble(raw, attachments);
       const pendingEl = appendBotPlaceholder("Thinking…");
 
+      // Declared out here so the catch/finally can cancel a queued frame —
+      // otherwise a pending render fires after an error and overwrites it.
+      const streamState = { timer: null, pending: "" };
+
       try {
         const chatId = await ensureActiveChat(raw || "Chat");
 
@@ -8048,20 +8191,29 @@
           messageForModel += (messageForModel ? "\n" : "") + "[Attached files: " + fileAttachments.map(f => f.name).join(", ") + "]";
         }
 
-        const res = await authedFetch("/chat", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            chatId,
-            message: messageForModel,
-            image: imageAttachments[0] || null,
-            images: imageAttachments
-          })
+        let streamed = "";
+
+        const data = await streamChat({
+          chatId,
+          message: messageForModel,
+          image: imageAttachments[0] || null,
+          images: imageAttachments
+        }, {
+          onStage: (stage) => {
+            if (streamed) return; // prose already started; do not clobber it
+            setBotBody(pendingEl, loaderHtml(CHAT_STAGE_LABELS[stage] || "Thinking…"));
+          },
+          onDelta: (text) => {
+            streamed += text;
+            renderStreamingReply(pendingEl, streamed, streamState);
+          },
+          onReplace: (reply) => {
+            streamed = reply;
+            renderStreamingReply(pendingEl, streamed, streamState);
+          }
         });
 
-        if (!res.ok) throw new Error(await extractError(res));
-        const data = await res.json();
-
+        stopStreamingReply(streamState);
         setBotBody(pendingEl, renderMarkdown(data.reply || "..."));
 
         const action = data.action;
@@ -8147,8 +8299,10 @@
 
       } catch (e) {
         console.error(e);
+        stopStreamingReply(streamState);
         setBotBody(pendingEl, errorHtml("Error: " + e.message));
       } finally {
+        stopStreamingReply(streamState);
         sendBtn.disabled = false;
         sendIcon.innerHTML = ICONS.send;
       }
