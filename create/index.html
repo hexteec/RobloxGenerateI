@@ -721,15 +721,75 @@
       margin: 0;
     }
 
-    /* The row wraps, so the unlinked Connect button — the only child set to
-       full width — drops onto its own line, while the small unlink button
-       stays beside the name. */
     .rc-row {
       display: flex;
       align-items: center;
       gap: 10px;
       min-width: 0;
-      flex-wrap: wrap;
+    }
+
+    /* Empty-state variants. Same geometry as the filled card, drawn as an
+       outline so it reads as "not yet" rather than "loading" or "broken".
+       Nothing inside is interactive. */
+    /* .gp-wallet, .rc-stats and .rc-dev all set --on-card and are declared
+       later in the sheet, so a single ghost class loses every tie and the
+       preview kept the filled card's ink: white on a light background, near
+       1:1. Matching two classes wins outright, and the dark-theme rule needs
+       three to outrank [data-theme="dark"] .gp-wallet. */
+    .gp-wallet.gp-wallet-ghost,
+    .rc-stats.rc-ghost,
+    .rc-dev.rc-ghost,
+    [data-theme="dark"] .gp-wallet.gp-wallet-ghost,
+    [data-theme="dark"] .rc-stats.rc-ghost,
+    [data-theme="dark"] .rc-dev.rc-ghost {
+      --on-card: var(--ink-muted);
+    }
+
+    .gp-wallet-ghost,
+    .rc-ghost {
+      pointer-events: none;
+      user-select: none;
+    }
+
+    /* .gp-wallet is declared later in the sheet, so a single class loses the
+       tie; matching both wins without !important. */
+    .gp-wallet.gp-wallet-ghost {
+      background: transparent;
+      border: 1px dashed var(--border);
+      box-shadow: none;
+    }
+
+    .gp-wallet-ghost .gp-token-num {
+      font-size: 19px;
+    }
+
+    /* The unit label is a 50% mix of the card ink; on the muted preview ink
+       that lands under 3:1, so the preview gets a stronger mix of its own. */
+    .gp-wallet-ghost .gp-token-unit {
+      color: color-mix(in srgb, var(--on-card) 75%, transparent);
+    }
+
+    .gp-wallet-ghost .milli-meter {
+      background: color-mix(in srgb, var(--ink-faint) 30%, transparent);
+    }
+
+    .gp-wallet-ghost .milli-fill {
+      width: 0 !important;
+    }
+
+    .gp-wallet-ghost .gp-stats-row {
+      border-top-color: var(--border);
+    }
+
+    /* The Roblox rows are the live ones, greyed until an account is attached.
+       They follow --on-card like the wallet preview, rather than pinning a
+       fainter grey that read at 2.4:1 against the card. */
+    .rc-ghost .gp-stat b {
+      color: var(--on-card);
+    }
+
+    .rc-ghost .rc-groups-btn {
+      visibility: hidden;
     }
 
     /* Developer totals. Same counter shape as the rows above it, with the
@@ -905,8 +965,21 @@
       line-height: 1.35;
     }
 
+    /* Unlinked it is the card's primary action and sits full width at the
+       bottom; linked it is a 28px unlink control, so it goes back to the
+       corner of the identity row without needing a second copy in the markup. */
     .roblox-card .rc-action {
       width: 100%;
+    }
+
+    .roblox-card.linked .rc-unlink-btn {
+      position: absolute;
+      top: 10px;
+      right: 11px;
+    }
+
+    .roblox-card.linked .rc-row {
+      padding-right: 34px;
     }
 
     /* Google Unlinked Button State */
@@ -5656,7 +5729,33 @@
                     </div>
                   </div>
                   <div class="gp-unlinked-body">
-                    <div class="gp-desc">Sign in to save chats, generate 3D assets & access tokens.</div>
+                    <!-- The same wallet the signed-in card carries, drawn empty.
+                         Signing in fills this in rather than replacing it, and
+                         the dashes say what an account gets you without a
+                         sentence explaining it. -->
+                    <div class="gp-wallet gp-wallet-ghost" aria-hidden="true">
+                      <div class="gp-token-box">
+                        <div class="gp-token-num"><span>&ndash;</span><span class="gp-token-unit">tokens</span></div>
+                        <div class="milli-meter show"><span class="milli-fill"></span></div>
+                      </div>
+                      <div class="gp-stats-row">
+                        <span class="gp-stat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 16V8a2 2 0 0 0-1-1.73l-6-3.46a2 2 0 0 0-2 0l-6 3.46A2 2 0 0 0 5 8v8a2 2 0 0 0 1 1.73l6 3.46a2 2 0 0 0 2 0l6-3.46A2 2 0 0 0 21 16Z" />
+                            <path d="M3.27 6.96 12 12l8.73-5.04M12 22.08V12" />
+                          </svg><b>&ndash;</b></span>
+                        <span class="gp-stat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="18" height="18" rx="2" />
+                            <circle cx="8.5" cy="8.5" r="1.5" />
+                            <path d="m21 15-5-5L5 21" />
+                          </svg><b>&ndash;</b></span>
+                        <span class="gp-stat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+                          </svg><b>&ndash;</b></span>
+                      </div>
+                    </div>
                     <button class="gp-signin-action" onclick="signInWithGoogle()" type="button">
                       [ Sign in with Google ]
                     </button>
@@ -5766,11 +5865,10 @@
                   <div class="rc-title" id="robloxTitle">Connect Roblox account</div>
                   <div class="rc-sub" id="robloxSub">Required for the Studio plugin</div>
                 </div>
-                  <button class="rc-action" id="robloxAction" onclick="handleRobloxAction()">[ Connect ]</button>
                 </div>
 
                 <!-- Only meaningful once an account is attached; hidden until then. -->
-                <div class="rc-stats" id="robloxStats" hidden>
+                <div class="rc-stats rc-ghost" id="robloxStats">
                   <span class="gp-stat" title="Followers" aria-label="Followers">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                       stroke-linecap="round" stroke-linejoin="round">
@@ -5790,18 +5888,18 @@
                   </span>
                 </div>
                 <!-- Developer totals across owned and opted-in group experiences. -->
-                <div class="rc-dev" id="robloxDev" hidden>
+                <div class="rc-dev rc-ghost" id="robloxDev">
                   <span class="gp-stat" title="Total visits"><svg viewBox="0 0 24 24" fill="none"
                       stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                       <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z" />
                       <circle cx="12" cy="12" r="3" />
-                    </svg><b id="robloxVisits">&ndash;</b></span>
+                    </svg><b id="robloxVisits">&mdash;</b></span>
 
                   <span class="gp-stat" title="Playing right now"><svg viewBox="0 0 24 24" fill="none"
                       stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                       <circle cx="12" cy="12" r="9" />
                       <path d="m10 8 6 4-6 4Z" />
-                    </svg><b id="robloxPlaying">&ndash;</b></span>
+                    </svg><b id="robloxPlaying">&mdash;</b></span>
 
                   <button type="button" class="rc-groups-btn" id="robloxGroupsBtn"
                     onclick="toggleRobloxGroups(event)" title="Choose which groups count"
@@ -5820,6 +5918,8 @@
                     <button type="button" class="rgp-apply" onclick="saveRobloxGroups(event)">[ Apply ]</button>
                   </div>
                 </div>
+
+                <button class="rc-action" id="robloxAction" onclick="handleRobloxAction()">[ Connect ]</button>
               </div>
             </div>
           </div>
@@ -7287,7 +7387,6 @@
     async function loadRobloxDevStats() {
       const row = document.getElementById("robloxDev");
       if (!row || !robloxLinked) return;
-      row.hidden = false;
       try {
         const res = await authedFetch("/roblox/dev-stats");
         if (!res.ok) throw new Error(await res.text());
@@ -7476,10 +7575,22 @@
       card.classList.toggle("linked", robloxLinked);
       card.classList.toggle("unlinked", !robloxLinked);
       const statsRow = document.getElementById("robloxStats");
-      if (statsRow && !robloxLinked) statsRow.hidden = true;
       const devRow = document.getElementById("robloxDev");
-      if (devRow && !robloxLinked) {
-        devRow.hidden = true;
+
+      // Unlinked shows the same two rows greyed out with dashes rather than
+      // dropping them: connecting then fills the card in instead of changing
+      // its shape, and the empty rows say what connecting is worth.
+      for (const row of [statsRow, devRow]) {
+        if (!row) continue;
+        row.hidden = false;
+        row.classList.toggle("rc-ghost", !robloxLinked);
+        if (!robloxLinked) {
+          row.querySelectorAll("b").forEach(b => { b.textContent = "\u2014"; });
+          row.querySelectorAll(".gp-stat").forEach(stat => { stat.title = "Connect an account to see this"; });
+        }
+      }
+
+      if (!robloxLinked) {
         robloxGroupsLoaded = false;
         // The panel was moved to <body>, so hiding the card no longer hides it.
         const pop = document.getElementById("robloxGroupsPop");
@@ -7498,10 +7609,6 @@
         action.title = "Disconnect Roblox";
         action.setAttribute("aria-label", "Disconnect Roblox");
 
-        // Reveal the row up front so it does not pop in once the fetch lands;
-        // it already reads as em dashes until the numbers arrive.
-        const statsNow = document.getElementById("robloxStats");
-        if (statsNow) statsNow.hidden = false;
         loadRobloxDevStats();
 
         avatarFallback.style.display = "none";
