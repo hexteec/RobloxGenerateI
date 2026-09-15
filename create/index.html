@@ -12144,17 +12144,15 @@
         currentMethod = s.task === "create" ? "text" : (s.task === "restyle" ? "style" : "image");
         mainImage = c.image || null;
         refImage = c.reference || null;
-        document.getElementById("prompt").value = c.prompt || "";
         wsBusy("Generating the image…");
-        generateImage();
+        wsLendPrompt(c.prompt, generateImage);
         return;
       }
 
       if (s.mode === "model3d") {
         if (s.task === "m-gen") {
-          document.getElementById("prompt").value = c.prompt || "";
           wsBusy("Drawing the reference image first…");
-          generateImageForModel3D(c.prompt || "");
+          wsLendPrompt(c.prompt, () => generateImageForModel3D(c.prompt || ""));
           return;
         }
         if (s.task === "m-image") {
@@ -12176,9 +12174,27 @@
 
       if (s.mode === "ui2lua") {
         mainImage = c.image || null;
-        document.getElementById("prompt").value = c.prompt || "";
         wsBusy("Reading the screenshot…");
-        sendUiToLua();
+        wsLendPrompt(c.prompt, sendUiToLua);
+      }
+    }
+
+    // generateImage, sendUiToLua and friends take their text from the
+    // composer, so the workspace has to write there to drive them. They
+    // read it synchronously before their first await, which means it can
+    // be taken straight back — and it has to be, or the user's own words
+    // sit in the composer underneath, showing them their prompt a second
+    // time behind the work.
+    function wsLendPrompt(text, run) {
+      const el = document.getElementById("prompt");
+      if (el) el.value = text || "";
+      try {
+        run();
+      } finally {
+        if (el) {
+          el.value = "";
+          el.dispatchEvent(new Event("input", { bubbles: true }));
+        }
       }
     }
 
