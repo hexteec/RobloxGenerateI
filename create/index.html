@@ -5675,951 +5675,630 @@
       border: none;
     }
   </style>
-  <style id="focusModeCSS">
-    /* ===================== FOCUS MODE (workshop) =====================
-       Picking a generation mode drops the app into a workshop: the chat
-       parts, blurs and desaturates behind a lens, and one lit window in
-       the middle carries the whole job from task choice to finished
-       result. Leaving puts the chat back exactly as it was — the result
-       is already sitting in it as an ordinary message. */
+  <style id="workspaceCSS">
+    /* ===================== WORKSPACE =====================
+       Picking a generation mode opens the job where the next message
+       would have gone: the feed makes room, the surrounding messages
+       recede, and the whole thing happens in the same column, in the
+       same card language as everything else on the page. Closing it
+       leaves the chat exactly as it was — the result is already in it. */
 
-    .focus-stage[hidden] { display: none !important; }
-
-    .focus-stage {
-      position: fixed;
-      inset: 0;
-      z-index: 120;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 26px 18px;
-      /* Workshop palette — deliberately not the app theme. Every control
-         inside the stage reads from these, so the whole window shifts
-         with one set of tokens. */
-      --ws-bg: #1A1A1E;
-      --ws-panel: #24242A;
-      --ws-panel-2: #2C2C33;
-      --ws-line: #383840;
-      --ws-line-soft: #303037;
-      --ws-ink: #ECEBEF;
-      --ws-muted: #9C9BA6;
-      --ws-faint: #6E6D78;
-      --ws-accent: #E08350;
-      --ws-accent-soft: rgba(224, 131, 80, 0.14);
-      --ws-on-accent: #17161A;
-      color: var(--ws-ink);
-      font-family: var(--font-body);
-
-      /* App components get borrowed into the workshop as they are — the
-         3D mesh panel is the live node from the chat flow. Re-pointing
-         the app's own tokens here is what makes them arrive dressed for
-         the bench instead of glowing white in a dark room. */
-      --bg: var(--ws-bg);
-      --card: var(--ws-panel-2);
-      --soft: var(--ws-panel-2);
-      --soft-2: var(--ws-line);
-      --border: var(--ws-line);
-      --ink: var(--ws-ink);
-      --ink-2: var(--ws-ink);
-      --ink-3: var(--ws-muted);
-      --ink-muted: var(--ws-muted);
-      --ink-faint: var(--ws-faint);
-      --accent: var(--ws-accent);
-      --accent-deep: #F0A47C;
-      --accent-wash: var(--ws-accent-soft);
-      --on-accent: var(--ws-on-accent);
-      --on-card: var(--ws-ink);
-      --mint: #6FBF97;
-      --mint-wash: rgba(111, 191, 151, .14);
-      --coral: #E79086;
-      --amber: #D8A657;
-      --amber-wash: rgba(216, 166, 87, .14);
-      --gridColor: rgba(255, 255, 255, .05);
-      --Check-1: #202025;
-      --Check-2: #26262B;
-      --shadow-sm: none;
-      --shadow-md: none;
-      --shadow-lg: none;
-    }
-
-    /* Hardcoded white label on a var(--ink) fill: inverted-for-light, so
-       it needs saying explicitly rather than riding the token swap. */
-    .focus-stage .btn-newchat {
-      background: var(--ws-accent);
-      color: var(--ws-on-accent);
-      border-radius: 10px;
-      box-shadow: none;
-    }
-
-    .focus-stage .btn-newchat:hover { filter: brightness(1.07); }
-
-    /* The mesh panel carries its own generate button at the bottom of a
-       long scroll. In the workshop the footer owns the primary action, so
-       the panel's copy is hidden and driven from there. */
-    .fs-mesh-hosted .m3d-generate { display: none; }
-
-    .fs-veil {
-      position: absolute;
-      inset: 0;
-      background:
-        radial-gradient(118% 88% at 50% 44%, rgba(26, 26, 30, 0.62) 0%, rgba(17, 17, 20, 0.92) 58%, rgba(11, 11, 13, 0.97) 100%);
-      animation: fsVeilIn .34s cubic-bezier(.22, 1, .36, 1) both;
-    }
-
-    @keyframes fsVeilIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-
-    /* The chat behind the stage: parts down the middle, pulls back, goes
-       grey and out of focus. fsPart is set per message by partChat(). */
-    body.focus-on .app-shell {
-      filter: grayscale(.72) blur(6px) brightness(.82);
-      transform: scale(.985);
-      transition: filter .42s ease, transform .42s cubic-bezier(.22, 1, .36, 1);
-      pointer-events: none;
-    }
-
-    body.focus-on.focus-lens .app-shell {
-      filter: url(#fsFisheye) grayscale(.72) blur(6px) brightness(.82);
-    }
-
-    .app-shell {
-      transition: filter .38s ease, transform .38s cubic-bezier(.22, 1, .36, 1);
-    }
-
-    .msg {
-      transition: transform .5s cubic-bezier(.22, 1, .36, 1), opacity .4s ease;
-    }
-
-    body.focus-on .msg {
-      transform: translateY(calc(var(--fs-part, 0) * 1px));
-    }
-
-    /* ---------- the window ---------- */
-    .fs-panel {
+    .ws {
       position: relative;
-      width: min(1040px, 100%);
-      max-height: min(880px, calc(100vh - 52px));
       display: flex;
       flex-direction: column;
-      background: var(--ws-panel);
-      border: 1px solid var(--ws-line);
-      border-radius: 20px;
-      box-shadow:
-        0 0 0 1px rgba(0, 0, 0, .4),
-        0 40px 90px rgba(0, 0, 0, .55),
-        inset 0 1px 0 rgba(255, 255, 255, .045);
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
       overflow: hidden;
-      animation: fsPanelIn .42s cubic-bezier(.22, 1, .36, 1) both;
+      /* The topbar floats over the feed, so scrolling the card's head to
+         the very top would tuck it underneath. */
+      scroll-margin: 74px 0 24px;
+      animation: wsOpen .32s cubic-bezier(.22, 1, .36, 1) both;
     }
 
-    @keyframes fsPanelIn {
-      from { opacity: 0; transform: perspective(1100px) translateY(22px) scale(.955) rotateX(3.5deg); }
-      to { opacity: 1; transform: perspective(1100px) translateY(0) scale(1) rotateX(0); }
+    @keyframes wsOpen {
+      from { opacity: 0; transform: translateY(12px) scale(.985); }
+      to { opacity: 1; transform: none; }
     }
 
-    .focus-stage.fs-closing .fs-panel { animation: fsPanelOut .24s ease both; }
-    .focus-stage.fs-closing .fs-veil { animation: fsVeilIn .24s ease reverse both; }
+    .ws.ws-closing { animation: wsShut .2s ease both; }
 
-    @keyframes fsPanelOut {
-      to { opacity: 0; transform: translateY(14px) scale(.97); }
+    @keyframes wsShut {
+      to { opacity: 0; transform: translateY(6px) scale(.99); }
     }
 
-    /* Blueprint grid — the workbench surface. */
-    .fs-panel::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background-image:
-        linear-gradient(var(--ws-line-soft) 1px, transparent 1px),
-        linear-gradient(90deg, var(--ws-line-soft) 1px, transparent 1px);
-      background-size: 34px 34px;
-      opacity: .32;
+    /* The rest of the page steps back. The falloff is set per message by
+       wsFocusFeed(), so attention thins out with distance instead of the
+       whole feed dropping to one flat grey. */
+    body.ws-on .msg {
+      opacity: var(--ws-fade, .28);
+      filter: blur(var(--ws-blur, 3px));
       pointer-events: none;
-      mask-image: radial-gradient(85% 70% at 50% 40%, #000 0%, transparent 82%);
+    }
+
+    /* The composer island floats over the feed, so it would land on top
+       of the workspace. While the workspace owns the input, it steps out
+       of the way entirely rather than sitting there greyed out. */
+    /* !important because the composer island writes its opacity and
+       transform as inline styles when a mode is opened. */
+    body.ws-on .composer-stage,
+    body.ws-on .mac-dock-container {
+      opacity: 0 !important;
+      transform: translateY(14px) !important;
+      pointer-events: none !important;
+    }
+
+    body.ws-on .sidebar,
+    body.ws-on .topbar { opacity: .82; }
+
+    .msg,
+    .sidebar,
+    .topbar {
+      transition: opacity .35s ease, filter .35s ease;
+    }
+
+    .composer-stage {
+      transition: opacity .3s ease, transform .3s cubic-bezier(.22, 1, .36, 1);
     }
 
     /* ---------- head ---------- */
-    .fs-head {
-      position: relative;
+    .ws-head {
       display: flex;
       align-items: center;
-      gap: 14px;
-      padding: 14px 16px 14px 18px;
-      border-bottom: 1px solid var(--ws-line);
-      background: linear-gradient(180deg, rgba(255, 255, 255, .035), transparent);
-      flex: 0 0 auto;
+      gap: 12px;
+      padding: 11px 14px;
+      border-bottom: 1px solid var(--border);
+      background: var(--soft);
     }
 
-    .fs-mode {
+    .ws-mode {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
+      gap: 9px;
       font-family: var(--font-display);
-      font-size: 13.5px;
+      font-size: 13px;
       font-weight: 600;
-      letter-spacing: .01em;
       white-space: nowrap;
     }
 
-    .fs-mode .fs-mode-ico {
+    .ws-mode-ico {
       display: inline-flex;
       align-items: center;
       justify-content: center;
       width: 26px;
       height: 26px;
       border-radius: 8px;
-      background: var(--ws-accent-soft);
-      color: var(--ws-accent);
+      background: var(--accent-wash);
+      color: var(--accent);
     }
 
-    .fs-mode .fs-mode-ico svg { width: 14px; height: 14px; }
+    .ws-mode-ico svg { width: 14px; height: 14px; }
 
-    .fs-steps {
+    .ws-steps {
       display: flex;
       align-items: center;
-      gap: 7px;
-      margin-left: 4px;
+      gap: 6px;
       min-width: 0;
       overflow: hidden;
     }
 
-    .fs-step {
+    .ws-step {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
       font-size: 11.5px;
-      color: var(--ws-faint);
+      color: var(--ink-faint);
       white-space: nowrap;
     }
 
-    .fs-step .fs-dot {
-      width: 6px;
-      height: 6px;
+    .ws-step .ws-dot {
+      width: 5px;
+      height: 5px;
       border-radius: 50%;
-      background: var(--ws-line);
-      transition: background .2s ease, box-shadow .2s ease;
+      background: var(--soft-2);
     }
 
-    .fs-step.done { color: var(--ws-muted); }
-    .fs-step.done .fs-dot { background: var(--ws-muted); }
+    .ws-step.done { color: var(--ink-muted); }
+    .ws-step.done .ws-dot { background: var(--ink-faint); }
+    .ws-step.now { color: var(--ink); font-weight: 600; }
 
-    .fs-step.now { color: var(--ws-ink); }
-
-    .fs-step.now .fs-dot {
-      background: var(--ws-accent);
-      box-shadow: 0 0 0 3px var(--ws-accent-soft);
+    .ws-step.now .ws-dot {
+      background: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-wash);
     }
 
-    .fs-sep {
-      width: 14px;
+    .ws-sep {
+      width: 12px;
       height: 1px;
-      background: var(--ws-line);
+      background: var(--border);
       flex: 0 0 auto;
     }
 
-    .fs-head-right {
+    .ws-x {
       margin-left: auto;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .fs-exit {
       display: inline-flex;
       align-items: center;
-      gap: 7px;
-      height: 30px;
-      padding: 0 11px;
-      border-radius: 9px;
-      border: 1px solid var(--ws-line);
+      gap: 6px;
+      height: 28px;
+      padding: 0 10px;
+      border-radius: var(--radius-sm);
+      border: 1px solid transparent;
       background: transparent;
-      color: var(--ws-muted);
+      color: var(--ink-muted);
       font-family: var(--font-body);
       font-size: 12px;
+      font-weight: 600;
       cursor: pointer;
-      transition: color .16s ease, border-color .16s ease, background .16s ease;
+      transition: color .15s ease, border-color .15s ease, background .15s ease;
     }
 
-    .fs-exit:hover {
-      color: var(--ws-ink);
-      border-color: var(--ws-muted);
-      background: rgba(255, 255, 255, .04);
+    .ws-x:hover {
+      color: var(--ink);
+      border-color: var(--border);
+      background: var(--card);
     }
 
-    .fs-exit svg { width: 13px; height: 13px; }
-
-    .fs-esc {
-      font-family: var(--font-mono);
-      font-size: 10px;
-      color: var(--ws-faint);
-      border: 1px solid var(--ws-line);
-      border-radius: 5px;
-      padding: 1px 5px;
-    }
+    .ws-x svg { width: 13px; height: 13px; }
 
     /* ---------- body ---------- */
-    .fs-body {
-      position: relative;
-      flex: 1 1 auto;
-      overflow-y: auto;
-      padding: 22px;
-      scrollbar-width: thin;
-      scrollbar-color: var(--ws-line) transparent;
-    }
+    .ws-body { padding: 18px 16px; }
 
-    .fs-body::-webkit-scrollbar { width: 9px; }
-    .fs-body::-webkit-scrollbar-thumb { background: var(--ws-line); border-radius: 9px; border: 3px solid transparent; background-clip: content-box; }
-    .fs-body::-webkit-scrollbar-track { background: transparent; }
-
-    .fs-title {
+    .ws-title {
       font-family: var(--font-display);
-      font-size: 19px;
+      font-size: 17px;
       font-weight: 600;
       letter-spacing: -.01em;
-      margin: 0 0 5px;
+      margin: 0 0 4px;
     }
 
-    .fs-lead {
-      font-size: 13px;
-      color: var(--ws-muted);
-      margin: 0 0 18px;
-      max-width: 62ch;
-      line-height: 1.5;
+    .ws-lead {
+      font-size: 12.5px;
+      color: var(--ink-muted);
+      line-height: 1.55;
+      margin: 0 0 16px;
+      max-width: 64ch;
     }
 
-    /* ---------- task grid ---------- */
-    .fs-group + .fs-group { margin-top: 22px; }
+    .ws-group + .ws-group { margin-top: 18px; }
 
-    .fs-group-title {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 10.5px;
-      font-weight: 600;
-      letter-spacing: .09em;
-      text-transform: uppercase;
-      color: var(--ws-faint);
-      margin-bottom: 10px;
-    }
-
-    .fs-group-title::after {
-      content: "";
-      flex: 1;
-      height: 1px;
-      background: var(--ws-line);
-    }
-
-    .fs-tasks {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(226px, 1fr));
-      gap: 10px;
-    }
-
-    .fs-task {
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      gap: 7px;
-      padding: 13px 13px 12px;
-      border: 1px solid var(--ws-line);
-      border-radius: 13px;
-      background: var(--ws-panel-2);
-      text-align: left;
-      color: inherit;
-      font-family: inherit;
-      cursor: pointer;
-      overflow: hidden;
-      transition: border-color .16s ease, transform .16s ease, background .16s ease;
-    }
-
-    .fs-task::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      border-radius: inherit;
-      background: radial-gradient(90% 120% at 12% 0%, rgba(224, 131, 80, .14), transparent 62%);
-      opacity: 0;
-      transition: opacity .18s ease;
-      pointer-events: none;
-    }
-
-    .fs-task:hover:not(:disabled) {
-      border-color: var(--ws-accent);
-      transform: translateY(-2px);
-    }
-
-    .fs-task:hover:not(:disabled)::after { opacity: 1; }
-
-    .fs-task:disabled {
-      cursor: not-allowed;
-      opacity: .48;
-    }
-
-    .fs-task-top {
+    .ws-group-title {
       display: flex;
       align-items: center;
       gap: 9px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+      margin-bottom: 9px;
     }
 
-    .fs-task-ico {
-      display: inline-flex;
+    .ws-group-title::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* Task cards speak the same language as the in-chat method chooser:
+       icon, name, one line of what it is for. */
+    .ws-tasks {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(232px, 1fr));
+      gap: 8px;
+    }
+
+    .ws-task {
+      display: flex;
+      align-items: flex-start;
+      gap: 11px;
+      text-align: left;
+      padding: 12px 13px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      box-shadow: var(--shadow-sm);
+      color: var(--ink);
+      font-family: var(--font-body);
+      cursor: pointer;
+      transition: border-color .15s ease, background .15s ease, box-shadow .15s ease, transform .15s ease;
+    }
+
+    .ws-task:hover:not(:disabled) {
+      border-color: var(--accent);
+      background: var(--accent-wash);
+      box-shadow: var(--shadow-md);
+      transform: translateY(-1px);
+    }
+
+    .ws-task:hover:not(:disabled) .ws-task-ico { color: var(--accent); }
+
+    .ws-task:disabled {
+      cursor: default;
+      opacity: .45;
+      box-shadow: none;
+    }
+
+    .ws-task-ico {
+      display: flex;
       align-items: center;
       justify-content: center;
-      width: 30px;
-      height: 30px;
+      width: 28px;
+      height: 28px;
       flex: 0 0 auto;
-      border-radius: 9px;
-      border: 1px solid var(--ws-line);
-      background: rgba(255, 255, 255, .03);
-      color: var(--ws-accent);
+      border-radius: 8px;
+      background: var(--soft);
+      color: var(--ink-muted);
+      transition: color .15s ease;
     }
 
-    .fs-task-ico svg { width: 15px; height: 15px; }
+    .ws-task-ico svg { width: 15px; height: 15px; }
 
-    .fs-task-name {
-      font-family: var(--font-display);
-      font-size: 13px;
+    .ws-task-name {
+      display: block;
+      font-size: 12.8px;
       font-weight: 600;
-      line-height: 1.25;
+      line-height: 1.3;
     }
 
-    .fs-task-sub {
+    .ws-task-sub {
+      display: block;
       font-size: 11.5px;
+      font-weight: 500;
+      color: var(--ink-muted);
       line-height: 1.45;
-      color: var(--ws-muted);
+      margin-top: 2px;
     }
 
-    .fs-badge {
-      align-self: flex-start;
-      margin-top: 1px;
+    .ws-soon {
+      display: inline-block;
+      margin-top: 6px;
       font-size: 9.5px;
-      font-weight: 600;
+      font-weight: 700;
       letter-spacing: .07em;
       text-transform: uppercase;
-      padding: 2.5px 6px;
+      padding: 2px 6px;
       border-radius: 5px;
-      border: 1px solid var(--ws-line);
-      color: var(--ws-faint);
+      color: var(--amber);
+      background: var(--amber-wash);
     }
 
-    .fs-badge.wip {
-      color: #D8A657;
-      border-color: rgba(216, 166, 87, .4);
-      background: rgba(216, 166, 87, .1);
-    }
-
-    /* ---------- config form ---------- */
-    .fs-form {
+    /* ---------- fields ---------- */
+    .ws-form {
       display: grid;
-      gap: 15px;
-      max-width: 720px;
+      gap: 14px;
+      max-width: 620px;
     }
 
-    .fs-field > label,
-    .fs-field-label {
+    .ws-label {
       display: block;
       font-size: 11.5px;
       font-weight: 600;
-      letter-spacing: .02em;
-      color: var(--ws-ink);
+      color: var(--ink);
       margin-bottom: 6px;
     }
 
-    .fs-field-note {
-      font-size: 11px;
-      color: var(--ws-muted);
-      margin-top: 5px;
-      line-height: 1.45;
+    .ws-label small {
+      font-weight: 500;
+      color: var(--ink-faint);
     }
 
-    .fs-input,
-    .fs-area,
-    .fs-select {
+    .ws-note {
+      font-size: 11px;
+      color: var(--ink-muted);
+      line-height: 1.5;
+      margin-top: 5px;
+    }
+
+    .ws-input,
+    .ws-area,
+    .ws-select {
       width: 100%;
-      background: var(--ws-bg);
-      border: 1px solid var(--ws-line);
-      border-radius: 10px;
-      color: var(--ws-ink);
+      background: var(--soft);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--ink);
       font-family: var(--font-body);
       font-size: 13px;
       padding: 10px 12px;
       outline: none;
-      transition: border-color .16s ease, box-shadow .16s ease;
+      transition: border-color .15s ease, background .15s ease;
     }
 
-    .fs-area {
-      min-height: 96px;
+    .ws-area {
+      min-height: 92px;
       resize: vertical;
       line-height: 1.55;
     }
 
-    .fs-input:focus,
-    .fs-area:focus,
-    .fs-select:focus {
-      border-color: var(--ws-accent);
-      box-shadow: 0 0 0 3px var(--ws-accent-soft);
+    .ws-input:focus,
+    .ws-area:focus,
+    .ws-select:focus {
+      border-color: var(--accent);
+      background: var(--card);
     }
 
-    .fs-input::placeholder,
-    .fs-area::placeholder { color: var(--ws-faint); }
+    .ws-input::placeholder,
+    .ws-area::placeholder { color: var(--ink-faint); }
 
-    .fs-chips {
+    .ws-chips {
       display: flex;
       flex-wrap: wrap;
-      gap: 7px;
+      gap: 6px;
     }
 
-    .fs-chip {
+    .ws-chip {
       display: inline-flex;
       align-items: center;
       gap: 7px;
-      padding: 7px 11px;
-      border-radius: 9px;
-      border: 1px solid var(--ws-line);
-      background: var(--ws-panel-2);
-      color: var(--ws-muted);
+      border: 1px solid var(--border);
+      background: var(--soft);
+      color: var(--ink);
       font-family: var(--font-body);
-      font-size: 12px;
+      font-size: 12.3px;
+      font-weight: 600;
+      padding: 7px 12px;
+      border-radius: 8px;
       cursor: pointer;
-      transition: border-color .16s ease, color .16s ease, background .16s ease;
+      transition: border-color .15s ease, background .15s ease, color .15s ease;
     }
 
-    .fs-chip:hover { color: var(--ws-ink); border-color: var(--ws-muted); }
+    .ws-chip:hover { border-color: var(--ink-faint); }
 
-    .fs-chip.on {
-      color: var(--ws-ink);
-      border-color: var(--ws-accent);
-      background: var(--ws-accent-soft);
+    .ws-chip.on {
+      border-color: var(--accent);
+      background: var(--accent-wash);
+      color: var(--accent-deep);
     }
 
-    .fs-chip .fs-chip-sub {
+    .ws-chip-sub {
       font-size: 10.5px;
-      color: var(--ws-faint);
+      font-weight: 500;
+      color: var(--ink-faint);
     }
 
-    .fs-toggle {
-      display: flex;
-      align-items: flex-start;
-      gap: 11px;
-      padding: 11px 12px;
-      border: 1px solid var(--ws-line);
-      border-radius: 11px;
-      background: var(--ws-panel-2);
-      cursor: pointer;
-    }
+    .ws-chip.on .ws-chip-sub { color: var(--accent-deep); opacity: .75; }
 
-    .fs-toggle:hover { border-color: var(--ws-muted); }
+    .ws-chip svg { width: 13px; height: 13px; }
 
-    .fs-switch {
-      position: relative;
-      flex: 0 0 auto;
-      width: 34px;
-      height: 19px;
-      border-radius: 10px;
-      background: var(--ws-line);
-      transition: background .18s ease;
-      margin-top: 1px;
-    }
-
-    .fs-switch::after {
-      content: "";
-      position: absolute;
-      top: 2.5px;
-      left: 2.5px;
-      width: 14px;
-      height: 14px;
-      border-radius: 50%;
-      background: var(--ws-muted);
-      transition: transform .18s cubic-bezier(.22, 1, .36, 1), background .18s ease;
-    }
-
-    .fs-toggle.on .fs-switch { background: var(--ws-accent); }
-    .fs-toggle.on .fs-switch::after { transform: translateX(15px); background: var(--ws-on-accent); }
-
-    .fs-toggle-text { font-size: 12.5px; line-height: 1.4; }
-    .fs-toggle-text small { display: block; color: var(--ws-muted); font-size: 11px; margin-top: 3px; }
-
-    /* image field */
-    .fs-drop {
+    .ws-drop {
       display: flex;
       align-items: center;
       gap: 12px;
-      padding: 13px;
-      border: 1px dashed var(--ws-line);
-      border-radius: 12px;
-      background: var(--ws-bg);
+      padding: 12px;
+      border: 1px dashed var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--soft);
       cursor: pointer;
-      transition: border-color .16s ease, background .16s ease;
+      transition: border-color .15s ease, background .15s ease;
     }
 
-    .fs-drop:hover,
-    .fs-drop.drag { border-color: var(--ws-accent); background: rgba(224, 131, 80, .05); }
+    .ws-drop:hover {
+      border-color: var(--accent);
+      background: var(--accent-wash);
+    }
 
-    .fs-drop-ico {
-      display: inline-flex;
+    .ws-drop-ico {
+      display: flex;
       align-items: center;
       justify-content: center;
       width: 38px;
       height: 38px;
       flex: 0 0 auto;
-      border-radius: 10px;
-      border: 1px solid var(--ws-line);
-      color: var(--ws-accent);
+      border-radius: 8px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--ink-muted);
       overflow: hidden;
     }
 
-    .fs-drop-ico img { width: 100%; height: 100%; object-fit: cover; }
-    .fs-drop-ico svg { width: 16px; height: 16px; }
+    .ws-drop-ico img { width: 100%; height: 100%; object-fit: cover; }
+    .ws-drop-ico svg { width: 16px; height: 16px; }
 
-    .fs-drop-text { font-size: 12.5px; }
-    .fs-drop-text small { display: block; color: var(--ws-muted); font-size: 11px; margin-top: 3px; }
+    .ws-drop-text { font-size: 12.5px; font-weight: 600; }
+
+    .ws-drop-text small {
+      display: block;
+      font-weight: 500;
+      color: var(--ink-muted);
+      font-size: 11px;
+      margin-top: 2px;
+    }
 
     /* ---------- foot ---------- */
-    .fs-foot {
+    .ws-foot {
       display: flex;
       align-items: center;
-      gap: 10px;
-      padding: 13px 16px;
-      border-top: 1px solid var(--ws-line);
-      background: linear-gradient(0deg, rgba(0, 0, 0, .18), transparent);
-      flex: 0 0 auto;
+      gap: 8px;
+      padding: 11px 14px;
+      border-top: 1px solid var(--border);
+      background: var(--soft);
     }
 
-    .fs-foot-note {
+    .ws-foot-note {
       font-size: 11.5px;
-      color: var(--ws-muted);
-      margin-right: auto;
+      color: var(--ink-muted);
       line-height: 1.4;
+      margin-right: auto;
     }
 
-    .fs-btn {
+    .ws-btn {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
-      height: 36px;
-      padding: 0 16px;
-      border-radius: 10px;
-      border: 1px solid var(--ws-line);
-      background: transparent;
-      color: var(--ws-ink);
+      gap: 7px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--ink);
       font-family: var(--font-body);
-      font-size: 12.5px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: border-color .16s ease, background .16s ease, opacity .16s ease;
-    }
-
-    .fs-btn:hover:not(:disabled) { border-color: var(--ws-muted); background: rgba(255, 255, 255, .04); }
-
-    .fs-btn svg { width: 14px; height: 14px; }
-
-    .fs-btn.primary {
-      border-color: var(--ws-accent);
-      background: var(--ws-accent);
-      color: var(--ws-on-accent);
+      font-size: 12.3px;
       font-weight: 600;
+      padding: 8px 14px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: border-color .15s ease, background .15s ease, opacity .15s ease;
     }
 
-    .fs-btn.primary:hover:not(:disabled) { filter: brightness(1.07); background: var(--ws-accent); }
+    .ws-btn:hover:not(:disabled) {
+      border-color: var(--ink-faint);
+      background: var(--soft);
+    }
 
-    .fs-btn:disabled { opacity: .45; cursor: not-allowed; }
+    .ws-btn svg { width: 14px; height: 14px; }
 
-    /* ---------- run ---------- */
-    .fs-run {
+    /* Accent fill rather than the ink fill used elsewhere: the dark theme
+       lightens --ink until white labels on it stop being readable. */
+    .ws-btn.primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: var(--on-accent);
+    }
+
+    .ws-btn.primary:hover:not(:disabled) {
+      background: var(--accent-deep);
+      border-color: var(--accent-deep);
+      color: var(--on-accent);
+    }
+
+    .ws-btn:disabled { opacity: .45; cursor: default; }
+
+    /* ---------- running ---------- */
+    .ws-run {
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      gap: 16px;
-      min-height: 320px;
+      gap: 13px;
+      padding: 30px 0 26px;
       text-align: center;
     }
 
-    .fs-run-ring {
-      position: relative;
-      width: 74px;
-      height: 74px;
-      border-radius: 50%;
-      border: 2px solid var(--ws-line);
-      border-top-color: var(--ws-accent);
-      animation: fsSpin 1s linear infinite;
+    .ws-run-label { font-size: 13.5px; font-weight: 600; }
+
+    .ws-run-sub {
+      font-size: 11.5px;
+      color: var(--ink-muted);
+      line-height: 1.5;
+      max-width: 48ch;
     }
 
-    @keyframes fsSpin { to { transform: rotate(360deg); } }
-
-    .fs-run-label { font-size: 13.5px; }
-    .fs-run-sub { font-size: 11.5px; color: var(--ws-muted); max-width: 46ch; line-height: 1.5; }
-
-    .fs-progress {
-      width: min(320px, 80%);
-      height: 5px;
+    .ws-bar {
+      width: min(300px, 70%);
+      height: 4px;
       border-radius: 3px;
-      background: var(--ws-line);
+      background: var(--soft-2);
       overflow: hidden;
     }
 
-    .fs-progress span {
+    .ws-bar span {
       display: block;
       height: 100%;
       width: 0%;
       border-radius: 3px;
-      background: var(--ws-accent);
+      background: var(--accent);
       transition: width .4s ease;
     }
 
-    /* Only the 3D pipeline reports a percentage. Everything else gets a
+    /* Only the 3D pipeline reports a percentage; everything else gets a
        bar that is honestly indeterminate rather than parked at zero. */
-    .fs-progress.indet span {
-      width: 34%;
+    .ws-bar.indet span {
+      width: 32%;
       transition: none;
-      animation: fsIndet 1.5s cubic-bezier(.65, 0, .35, 1) infinite;
+      animation: wsIndet 1.5s cubic-bezier(.65, 0, .35, 1) infinite;
     }
 
-    @keyframes fsIndet {
-      0% { transform: translateX(-105%); }
-      100% { transform: translateX(300%); }
+    @keyframes wsIndet {
+      from { transform: translateX(-105%); }
+      to { transform: translateX(315%); }
     }
 
-    @media (prefers-reduced-motion: reduce) {
-      .fs-progress.indet span { animation: none; width: 100%; opacity: .5; }
-    }
-
-    .fs-error {
-      max-width: 60ch;
+    .ws-error {
       font-size: 12.5px;
       line-height: 1.55;
-      color: #E79086;
-      border: 1px solid rgba(231, 144, 134, .32);
-      background: rgba(231, 144, 134, .08);
-      border-radius: 11px;
+      color: var(--coral);
+      border: 1px solid var(--border);
+      background: var(--soft);
+      border-radius: var(--radius-sm);
       padding: 11px 13px;
+      max-width: 64ch;
     }
 
     /* ---------- result ---------- */
-    .fs-result {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) 236px;
-      gap: 18px;
-      align-items: start;
-    }
-
-    .fs-stagebox {
-      position: relative;
-      border: 1px solid var(--ws-line);
-      border-radius: 14px;
+    .ws-preview {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
       background:
-        repeating-conic-gradient(rgba(255, 255, 255, .028) 0% 25%, transparent 0% 50%) 50% / 18px 18px,
-        var(--ws-bg);
+        repeating-conic-gradient(var(--Check-1) 0% 25%, var(--Check-2) 0% 50%) 50% / 18px 18px;
       overflow: hidden;
-      min-height: 300px;
       display: flex;
       align-items: center;
       justify-content: center;
     }
 
-    /* Code is not an image on a light table: no transparency checker. */
-    .fs-stagebox.fs-flat {
-      display: block;
-      padding: 14px;
-      overflow: auto;
-      max-height: 520px;
-      background: var(--ws-bg);
-    }
-
-    .fs-stagebox img {
+    .ws-preview img {
       display: block;
       max-width: 100%;
-      max-height: 460px;
+      max-height: 420px;
       object-fit: contain;
     }
 
-    .fs-stagebox model-viewer {
+    .ws-preview model-viewer {
       width: 100%;
-      height: 420px;
+      height: 360px;
       background: transparent;
     }
 
-    .fs-rail {
-      display: flex;
-      flex-direction: column;
-      gap: 7px;
+    .ws-preview.ws-flat {
+      display: block;
+      background: var(--soft);
+      padding: 12px;
     }
 
-    .fs-rail-title {
-      font-size: 10.5px;
-      font-weight: 600;
+    .ws-next {
+      margin-top: 14px;
+    }
+
+    .ws-next-title {
+      font-size: 10px;
+      font-weight: 700;
       letter-spacing: .09em;
       text-transform: uppercase;
-      color: var(--ws-faint);
-      margin-bottom: 2px;
+      color: var(--ink-faint);
+      margin-bottom: 8px;
     }
 
-    .fs-rail-btn {
+    .ws-next-row {
       display: flex;
-      align-items: center;
-      gap: 9px;
-      padding: 9px 10px;
-      border: 1px solid var(--ws-line);
-      border-radius: 10px;
-      background: var(--ws-panel-2);
-      color: var(--ws-ink);
-      font-family: var(--font-body);
-      font-size: 12px;
-      text-align: left;
-      cursor: pointer;
-      transition: border-color .16s ease, background .16s ease;
-    }
-
-    .fs-rail-btn:hover:not(:disabled) { border-color: var(--ws-accent); background: rgba(224, 131, 80, .07); }
-    .fs-rail-btn:disabled { opacity: .45; cursor: not-allowed; }
-
-    .fs-rail-btn svg { width: 14px; height: 14px; flex: 0 0 auto; color: var(--ws-accent); }
-
-    .fs-rail-sub {
-      font-size: 11px;
-      color: var(--ws-muted);
-      line-height: 1.5;
-      padding: 2px 2px 0;
-    }
-
-    /* ---------- mask editor ---------- */
-    .fs-mask {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) 210px;
-      gap: 16px;
-      align-items: start;
-    }
-
-    .fs-mask-canvas-wrap {
-      position: relative;
-      border: 1px solid var(--ws-line);
-      border-radius: 13px;
-      background:
-        repeating-conic-gradient(rgba(255, 255, 255, .028) 0% 25%, transparent 0% 50%) 50% / 18px 18px,
-        var(--ws-bg);
-      overflow: hidden;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 300px;
-      touch-action: none;
-    }
-
-    .fs-mask-canvas-wrap canvas {
-      display: block;
-      max-width: 100%;
-      cursor: none;
-    }
-
-    .fs-brush-cursor {
-      position: absolute;
-      border: 1.5px solid var(--ws-accent);
-      border-radius: 50%;
-      pointer-events: none;
-      transform: translate(-50%, -50%);
-      box-shadow: 0 0 0 1px rgba(0, 0, 0, .5);
-      display: none;
-    }
-
-    .fs-tool-row {
-      display: flex;
+      flex-wrap: wrap;
       gap: 6px;
     }
 
-    .fs-tool {
-      flex: 1;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      height: 32px;
-      border: 1px solid var(--ws-line);
-      border-radius: 9px;
-      background: var(--ws-panel-2);
-      color: var(--ws-muted);
-      font-family: var(--font-body);
-      font-size: 11.5px;
-      cursor: pointer;
-      transition: border-color .16s ease, color .16s ease, background .16s ease;
-    }
+    .ws-next-row .ws-btn { font-size: 12px; padding: 7px 12px; }
 
-    .fs-tool:hover { color: var(--ws-ink); }
+    .ws-next-row .ws-btn svg { color: var(--ink-muted); }
 
-    .fs-tool.on {
-      color: var(--ws-ink);
-      border-color: var(--ws-accent);
-      background: var(--ws-accent-soft);
-    }
+    .ws-next-row .ws-btn:hover:not(:disabled) svg { color: var(--accent); }
 
-    .fs-tool svg { width: 13px; height: 13px; }
+    /* The mesh panel is the live node from the chat flow, moved in here.
+       Its own generate button sits at the end of a long scroll, so the
+       footer takes over the action and this copy stays hidden. */
+    .ws-mesh .m3d-generate { display: none; }
 
-    .fs-range {
-      width: 100%;
-      appearance: none;
-      height: 4px;
-      border-radius: 2px;
-      background: var(--ws-line);
-      outline: none;
-    }
+    @media (max-width: 720px) {
+      .ws-tasks { grid-template-columns: minmax(0, 1fr); }
+      .ws-steps { display: none; }
+      .ws-body { padding: 15px 13px; }
 
-    .fs-range::-webkit-slider-thumb {
-      appearance: none;
-      width: 15px;
-      height: 15px;
-      border-radius: 50%;
-      background: var(--ws-accent);
-      cursor: pointer;
-      border: none;
-    }
-
-    .fs-range::-moz-range-thumb {
-      width: 15px;
-      height: 15px;
-      border-radius: 50%;
-      background: var(--ws-accent);
-      cursor: pointer;
-      border: none;
-    }
-
-    /* ---------- responsive ---------- */
-    @media (max-width: 860px) {
-      .fs-result,
-      .fs-mask { grid-template-columns: minmax(0, 1fr); }
-
-      .fs-rail { flex-direction: row; flex-wrap: wrap; }
-      .fs-rail-btn { flex: 1 1 44%; }
-      .fs-rail-title, .fs-rail-sub { flex: 1 1 100%; }
-    }
-
-    @media (max-width: 640px) {
-      .focus-stage { padding: 0; }
-
-      .fs-panel {
-        width: 100%;
-        max-height: 100vh;
-        height: 100vh;
-        border-radius: 0;
-        border: none;
-      }
-
-      .fs-steps { display: none; }
-      .fs-body { padding: 16px; }
-      .fs-tasks { grid-template-columns: minmax(0, 1fr); }
-      .fs-foot { padding: 11px 13px; flex-wrap: wrap; }
-      .fs-foot-note { flex: 1 1 100%; order: -1; margin-bottom: 4px; }
+      .ws-foot { flex-wrap: wrap; }
+      .ws-foot-note { flex: 1 1 100%; margin: 0 0 4px; }
+      .ws-foot .ws-btn { flex: 1 1 auto; justify-content: center; }
     }
 
     @media (prefers-reduced-motion: reduce) {
-      .fs-panel,
-      .fs-veil,
-      .focus-stage.fs-closing .fs-panel { animation: none; }
-
-      body.focus-on .app-shell,
-      .msg { transition: none; }
-
-      body.focus-on.focus-lens .app-shell { filter: grayscale(.72) blur(6px) brightness(.82); }
+      .ws, .ws.ws-closing { animation: none; }
+      .msg, .composer-stage, .mac-dock-container, .sidebar, .topbar { transition: none; }
+      .ws-bar.indet span { animation: none; width: 100%; opacity: .5; }
     }
   </style>
 </head>
@@ -8937,6 +8616,10 @@
     }
 
     function scrollFeedToBottom() {
+      // The 3D settings panel re-renders on every change and scrolls after
+      // itself. Once it lives in the workspace that is the user's own
+      // scroll position being thrown away mid-edit.
+      if (document.getElementById("wsMeshSlot")) return;
       const feed = document.getElementById("feed");
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
@@ -9402,7 +9085,7 @@
 
       if (flowState !== "busy") {
         flowState = "choose_method";
-        if (!opts.skipAutoChooser && typeof appendModeChooser === 'function' && !(typeof fsOpen === 'function' && fsOpen())) {
+        if (!opts.skipAutoChooser && typeof appendModeChooser === 'function' && !(typeof wsOpen === 'function' && wsOpen())) {
           if (pendingChoiceMessage && pendingChoiceMessage._tempEl && pendingChoiceMessage._tempEl.parentNode) {
             pendingChoiceMessage._tempEl.remove();
           }
@@ -9926,7 +9609,7 @@
 
         setBotBody(pendingEl, imageFrameHtml(blobUrl, currentTemplate, templateLabel(category === "thumbnail" ? "wide" : currentTemplate), true, category === "thumbnail"));
         markNewLastLarge(pendingEl);
-        if (typeof fsNotify === 'function') fsNotify({ stage: "done", kind: "image", url: blobUrl, imageUrl, el: pendingEl });
+        if (typeof wsNotify === 'function') wsNotify({ stage: "done", kind: "image", url: blobUrl, imageUrl, el: pendingEl });
 
         if (tokenBalance != null) tokenBalance -= 2;
         updateTokenPill();
@@ -9954,7 +9637,7 @@
         resetComposerAfterSend();
         clearMainImage();
         clearRefImage();
-        if (typeof fsOpen === 'function' && fsOpen()) {
+        if (typeof wsOpen === 'function' && wsOpen()) {
           // The workshop is the chooser right now — a second one in the
           // chat would be waiting behind the blur for nobody.
           flowState = "awaiting_input";
@@ -9969,7 +9652,7 @@
       } catch (e) {
         console.error(e);
         setBotBody(pendingEl, errorHtml("Error: " + e.message));
-        if (typeof fsNotify === 'function') fsNotify({ stage: "error", error: e.message });
+        if (typeof wsNotify === 'function') wsNotify({ stage: "error", error: e.message });
         flowState = "awaiting_input";
         applyFlowComposerState();
       } finally {
@@ -10008,7 +9691,7 @@
 
         const replyText = (data.description ? data.description + "\n\n" : "") + "```lua\n" + data.code + "\n```";
         setBotBody(pendingEl, renderMarkdown(replyText));
-        if (typeof fsNotify === 'function') fsNotify({ stage: "done", kind: "code", el: pendingEl });
+        if (typeof wsNotify === 'function') wsNotify({ stage: "done", kind: "code", el: pendingEl });
 
         refreshBalance();
         await persistMessage(chatId, { type: "text", prompt: raw, reply: replyText });
@@ -10019,7 +9702,7 @@
       } catch (e) {
         console.error(e);
         setBotBody(pendingEl, errorHtml("Error: " + e.message));
-        if (typeof fsNotify === 'function') fsNotify({ stage: "error", error: e.message });
+        if (typeof wsNotify === 'function') wsNotify({ stage: "error", error: e.message });
       } finally {
         sendBtn.disabled = false;
         sendIcon.innerHTML = ICONS.send;
@@ -10072,7 +9755,7 @@
         stopTyping();
         setBotBody(pendingEl, codeModelBadgeHtml(data.model || selectedCodeModel, data.pricingNote) + renderMarkdown(replyText));
         attachFixButtonToLastCodeBlock(pendingEl, chatId);
-        if (typeof fsNotify === 'function') fsNotify({ stage: "done", kind: "code", el: pendingEl });
+        if (typeof wsNotify === 'function') wsNotify({ stage: "done", kind: "code", el: pendingEl });
 
         currentCodeState = { code: data.code, language: data.language || "lua", chatId, model: data.model || selectedCodeModel };
         document.getElementById("composerHint").textContent = "Mam zapamiętany Twój kod — możesz poprosić o dodanie funkcji, zmianę, refaktor.";
@@ -10086,7 +9769,7 @@
         stopTyping();
         console.error(e);
         setBotBody(pendingEl, errorHtml("Error: " + e.message));
-        if (typeof fsNotify === 'function') fsNotify({ stage: "error", error: e.message });
+        if (typeof wsNotify === 'function') wsNotify({ stage: "error", error: e.message });
       } finally {
         sendBtn.disabled = false;
         sendIcon.innerHTML = ICONS.send;
@@ -10507,7 +10190,7 @@
       } catch (e) {
         console.error(e);
         setBotBody(panelEl, errorHtml("Error: " + e.message));
-        if (typeof fsNotify === 'function') fsNotify({ stage: "error", error: e.message });
+        if (typeof wsNotify === 'function') wsNotify({ stage: "error", error: e.message });
         pendingModel3DPanelEl = null;
         refreshBalance();
         flowState = "choose_method";
@@ -10530,7 +10213,7 @@
 
       const giveUp = (message) => {
         setBotBody(el, errorHtml(message));
-        if (typeof fsNotify === 'function') fsNotify({ stage: "error", error: message });
+        if (typeof wsNotify === 'function') wsNotify({ stage: "error", error: message });
         refreshBalance();
         flowState = "choose_method";
         const newEl = appendModeChooser("model3d", el);
@@ -10563,14 +10246,14 @@
               return;
             }
             setBotBody(el, progressHtml(`Generating… ${data.progress || 0}%`, data.progress || 0));
-            if (typeof fsNotify === 'function') fsNotify({ progress: data.progress || 0, label: "Building the mesh…" });
+            if (typeof wsNotify === 'function') wsNotify({ progress: data.progress || 0, label: "Building the mesh…" });
             setTimeout(tick, attempts < 5 ? 2500 : 4500);
             return;
           }
 
           setBotBody(el, modelFrameHtml(data.modelUrl, data.thumbnailUrl, true));
           markNewLastLarge(el);
-          if (typeof fsNotify === 'function') fsNotify({ stage: "done", kind: "model3d", modelUrl: data.modelUrl, thumbnailUrl: data.thumbnailUrl, el });
+          if (typeof wsNotify === 'function') wsNotify({ stage: "done", kind: "model3d", modelUrl: data.modelUrl, thumbnailUrl: data.thumbnailUrl, el });
           if (chatId) {
             if (pendingChoiceMessage && (pendingChoiceMessage.chatId === chatId || pendingChoiceMessage.chatId === null)) {
               await persistMessage(chatId, pendingChoiceMessage.payload);
@@ -10706,14 +10389,14 @@
          </div>`
         );
         markNewLastLarge(pendingEl);
-        if (typeof fsNotify === 'function') fsNotify({ stage: "done", kind: "refimage", url: blobUrl, dataUrl, el: pendingEl });
+        if (typeof wsNotify === 'function') wsNotify({ stage: "done", kind: "refimage", url: blobUrl, dataUrl, el: pendingEl });
         flowState = "awaiting_generated_image";
         applyFlowComposerState();
 
       } catch (e) {
         console.error(e);
         setBotBody(pendingEl, errorHtml("Error: " + e.message));
-        if (typeof fsNotify === 'function') fsNotify({ stage: "error", error: e.message });
+        if (typeof wsNotify === 'function') wsNotify({ stage: "error", error: e.message });
         flowState = "awaiting_generated_image";
         applyFlowComposerState();
       }
@@ -11409,7 +11092,7 @@
 
       // The workshop opens first: setForceMode checks whether it is up
       // before deciding to drop a method chooser into the chat.
-      if (mode !== 'chat' && typeof openFocus === 'function') openFocus(mode);
+      if (mode !== 'chat' && typeof openWorkspace === 'function') openWorkspace(mode);
 
       if (typeof setForceMode === 'function') setForceMode(mode);
       if (typeof expandComposer === 'function') expandComposer();
@@ -11423,77 +11106,67 @@
       }
     }
   </script>
-  <!-- Focus mode: the workshop overlay and the lens that bends the chat behind it. -->
-  <svg class="fs-defs" width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute">
-    <filter id="fsFisheye" primitiveUnits="objectBoundingBox" x="0" y="0" width="1" height="1"
-      color-interpolation-filters="sRGB">
-      <feImage id="fsFisheyeMap" result="fsMap" preserveAspectRatio="none" x="0" y="0" width="1" height="1"></feImage>
-      <feDisplacementMap in="SourceGraphic" in2="fsMap" scale="0.055" xChannelSelector="R" yChannelSelector="G" />
-    </filter>
-  </svg>
-  <div class="focus-stage" id="focusStage" hidden></div>
 
-  <script id="focusModeJS">
+  <script id="workspaceJS">
 
-    /* ==================== FOCUS MODE (workshop) ====================
-       Picking a generation mode hands the screen over to a workshop: the
-       chat parts and falls out of focus behind a lens, and one window in
-       the middle carries the job from "what do you want to do" through
-       configuration to a finished result you can keep working on.
+    /* ==================== WORKSPACE ====================
+       Picking a generation mode opens the job in the feed, where the next
+       message would have gone. The surrounding chat recedes, the column
+       makes room, and the whole task — choose, configure, run, keep
+       working on the result — happens inline in the page's own card
+       language rather than in a layer on top of it.
 
        Nothing here re-implements generation. Every task drives the same
        pipeline the composer drives, so whatever comes out is already an
-       ordinary chat message by the time you leave — the chat never
-       actually stopped, it just stepped back. */
+       ordinary chat message by the time the workspace closes. */
 
-    const FS_ICONS = {
+    const WS_ICONS = {
       close: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>`,
       back: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5m7-7-7 7 7 7"/></svg>`,
       brush: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 14.5 3 21s3.5.5 5-1 1.5-5.5 1.5-5.5"/><path d="m14 10-4 4"/><path d="M21.3 3.7a2.4 2.4 0 0 0-3.4 0l-6.4 6.4 3.4 3.4 6.4-6.4a2.4 2.4 0 0 0 0-3.4Z"/></svg>`,
-      eraser: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m5 16 6-6 7 7-3 3H8Z"/><path d="m11 10 4-4a2 2 0 0 1 2.8 0l3.2 3.2a2 2 0 0 1 0 2.8l-4 4"/><path d="M3 21h18"/></svg>`,
       expand: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8V5a2 2 0 0 1 2-2h3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3"/></svg>`,
       copies: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="8" width="13" height="13" rx="2.5"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg>`,
       cutout: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4 8.1 15.9M14.5 14.5 20 20M8.1 8.1 9.5 9.5"/></svg>`,
       mesh: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m12 2 9 5.2v9.6L12 22l-9-5.2V7.2Z"/><path d="M12 22V12M3 7.2 12 12l9-4.8M7.5 4.6l9 5.2M16.5 4.6l-9 5.2"/></svg>`,
-      scissors: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h18M7 4v16M17 4v16"/></svg>`,
-      patch: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-4.4 7-9.6V6.2L12 3.5 5 6.2v5.2C5 16.6 12 21 12 21Z"/><path d="m9 11.8 2.2 2.2L15.4 10"/></svg>`,
+      split: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h18M7 4v16M17 4v16"/></svg>`,
+      seal: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-4.4 7-9.6V6.2L12 3.5 5 6.2v5.2C5 16.6 12 21 12 21Z"/><path d="m9 11.8 2.2 2.2L15.4 10"/></svg>`,
       paint: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 11 9 21l-6-6L13 5Z"/><path d="M14 6 9 1"/><path d="M20 16s2 2.5 2 4a2 2 0 1 1-4 0c0-1.5 2-4 2-4Z"/></svg>`,
       bone: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="2.6"/><circle cx="18" cy="18" r="2.6"/><path d="m8 8 8 8"/></svg>`,
-      run: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4.5 13H11l-1 9 8.5-11H12Z"/></svg>`,
+      bolt: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4.5 13H11l-1 9 8.5-11H12Z"/></svg>`,
       box: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.7l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.7l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5M12 22V12"/></svg>`,
       text: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V5h16v2M9 19h6M12 5v14"/></svg>`,
       photo: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2.5"/><circle cx="8.5" cy="9.5" r="1.8"/><path d="m3 16 5-4 4 3.5 3-2.5 6 5"/></svg>`,
       views: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="9" height="12" rx="2"/><rect x="13" y="6" width="9" height="12" rx="2"/></svg>`,
       bug: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="6" width="8" height="14" rx="4"/><path d="M8 11H3M21 11h-5M8 16H4M20 16h-4M9 6 7.5 3.5M15 6l1.5-2.5"/></svg>`,
       read: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5.5A16 16 0 0 1 12 8a16 16 0 0 1 10-2.5v13A16 16 0 0 0 12 21a16 16 0 0 0-10-2.5Z"/><path d="M12 8v13"/></svg>`,
-      refactor: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h11a4 4 0 0 1 0 8H7"/><path d="m10 4-3 3 3 3M7 12l3 3-3 3"/></svg>`,
+      tidy: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h11a4 4 0 0 1 0 8H7"/><path d="m10 4-3 3 3 3M7 12l3 3-3 3"/></svg>`,
       download: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7.5 10.5 12 15l4.5-4.5M4 20h16"/></svg>`,
       check: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m20 6-11 11-5-5"/></svg>`
     };
 
     // What you can ask each mode to do. `ready: false` means the task is
-    // designed and reachable but the worker route behind it is not live
-    // yet — it says so instead of pretending.
-    const FOCUS_CATALOG = {
+    // designed and listed but the worker route behind it is not live yet —
+    // it says so instead of pretending.
+    const WS_CATALOG = {
       image: {
         title: "What are we making?",
-        lead: "Everything here runs on the images API. Start something new, or put an existing image on the bench and work on it.",
+        lead: "Start something new, or put an existing image on the bench and work on it.",
         groups: [
           {
             title: "Create",
             tasks: [
-              { id: "create", name: "From a description", sub: "Say what you want, pick the asset type, get the image.", icon: FS_ICONS.text, ready: true },
-              { id: "edit-photo", name: "Change an image", sub: "Upload one and describe what should be different.", icon: FS_ICONS.photo, ready: true },
-              { id: "restyle", name: "Borrow a style", sub: "Keep your subject, take the look from a second image.", icon: FS_ICONS.paint, ready: true }
+              { id: "create", name: "From a description", sub: "Say what you want, pick the asset type, get the image.", icon: WS_ICONS.text, ready: true },
+              { id: "edit-photo", name: "Change an image", sub: "Upload one and describe what should be different.", icon: WS_ICONS.photo, ready: true },
+              { id: "restyle", name: "Borrow a style", sub: "Keep your subject, take the look from a second image.", icon: WS_ICONS.paint, ready: true }
             ]
           },
           {
             title: "Work on an image",
             tasks: [
-              { id: "mark", name: "Paint the part to change", sub: "Brush over a region and say what belongs there instead.", icon: FS_ICONS.brush, ready: false, needs: "edits" },
-              { id: "extend", name: "Extend past the edges", sub: "Grow the canvas and let it fill in what continues.", icon: FS_ICONS.expand, ready: false, needs: "edits" },
-              { id: "cutout", name: "Cut out on transparency", sub: "Same asset, no background — ready to drop into Studio.", icon: FS_ICONS.cutout, ready: false, needs: "edits" },
-              { id: "takes", name: "More takes on one image", sub: "Several variations of something you already like.", icon: FS_ICONS.copies, ready: false, needs: "variations" }
+              { id: "mark", name: "Paint the part to change", sub: "Brush over a region and say what belongs there instead.", icon: WS_ICONS.brush, ready: false, needs: "mask" },
+              { id: "extend", name: "Extend past the edges", sub: "Grow the canvas and let it fill in what continues.", icon: WS_ICONS.expand, ready: false, needs: "mask" },
+              { id: "cutout", name: "Cut out on transparency", sub: "Same asset, no background — ready to drop into Studio.", icon: WS_ICONS.cutout, ready: false, needs: "bg" },
+              { id: "takes", name: "More takes on one image", sub: "Several variations of something you already like.", icon: WS_ICONS.copies, ready: false, needs: "variations" }
             ]
           }
         ]
@@ -11505,21 +11178,21 @@
           {
             title: "Create",
             tasks: [
-              { id: "m-text", name: "From a description", sub: "Describe the object, tune the mesh, generate.", icon: FS_ICONS.text, ready: true },
-              { id: "m-image", name: "From your image", sub: "Upload a reference photo of the object.", icon: FS_ICONS.photo, ready: true },
-              { id: "m-gen", name: "Draw it first", sub: "Generate the reference image, then the model from it.", icon: FS_ICONS.run, ready: true },
-              { id: "m-multi", name: "From several views", sub: "Front, side and back into one consistent mesh.", icon: FS_ICONS.views, ready: false, needs: "v3" }
+              { id: "m-text", name: "From a description", sub: "Describe the object, tune the mesh, generate.", icon: WS_ICONS.text, ready: true },
+              { id: "m-image", name: "From your image", sub: "Upload a reference photo of the object.", icon: WS_ICONS.photo, ready: true },
+              { id: "m-gen", name: "Draw it first", sub: "Generate the reference image, then the model from it.", icon: WS_ICONS.bolt, ready: true },
+              { id: "m-multi", name: "From several views", sub: "Front, side and back into one consistent mesh.", icon: WS_ICONS.views, ready: false, needs: "v3" }
             ]
           },
           {
             title: "Work on a model",
             tasks: [
-              { id: "m-retopo", name: "Retopologise", sub: "Drop to a face budget, optionally as clean quads.", icon: FS_ICONS.mesh, ready: false, needs: "v3" },
-              { id: "m-segment", name: "Split into parts", sub: "Separate head, limbs, clothing into sub-meshes.", icon: FS_ICONS.scissors, ready: false, needs: "v3" },
-              { id: "m-complete", name: "Close it up", sub: "Fill holes, clear self-intersections, make it watertight.", icon: FS_ICONS.patch, ready: false, needs: "v3" },
-              { id: "m-texture", name: "Re-texture", sub: "Fresh UVs and PBR maps, or another colour variant.", icon: FS_ICONS.paint, ready: false, needs: "v3" },
-              { id: "m-rig", name: "Rig & animate", sub: "Check, rig for its body plan, then apply animations.", icon: FS_ICONS.bone, ready: false, needs: "v3" },
-              { id: "m-convert", name: "Export elsewhere", sub: "FBX, OBJ, STL, USDZ, 3MF and back to GLB.", icon: FS_ICONS.box, ready: false, needs: "v3" }
+              { id: "m-retopo", name: "Retopologise", sub: "Drop to a face budget, optionally as clean quads.", icon: WS_ICONS.mesh, ready: false, needs: "v3" },
+              { id: "m-segment", name: "Split into parts", sub: "Separate head, limbs, clothing into sub-meshes.", icon: WS_ICONS.split, ready: false, needs: "v3" },
+              { id: "m-complete", name: "Close it up", sub: "Fill holes, clear self-intersections, make it watertight.", icon: WS_ICONS.seal, ready: false, needs: "v3" },
+              { id: "m-texture", name: "Re-texture", sub: "Fresh UVs and PBR maps, or another colour variant.", icon: WS_ICONS.paint, ready: false, needs: "v3" },
+              { id: "m-rig", name: "Rig & animate", sub: "Check, rig for its body plan, then apply animations.", icon: WS_ICONS.bone, ready: false, needs: "v3" },
+              { id: "m-convert", name: "Export elsewhere", sub: "FBX, OBJ, STL, USDZ, 3MF and back to GLB.", icon: WS_ICONS.box, ready: false, needs: "v3" }
             ]
           }
         ]
@@ -11531,16 +11204,16 @@
           {
             title: "Write",
             tasks: [
-              { id: "c-new", name: "Write a script", sub: "Describe the behaviour you want in your game.", icon: FS_ICONS.text, ready: true },
-              { id: "c-add", name: "Add to the last script", sub: "Another function, another case, another check.", icon: FS_ICONS.run, ready: true, needsCode: true }
+              { id: "c-new", name: "Write a script", sub: "Describe the behaviour you want in your game.", icon: WS_ICONS.text, ready: true },
+              { id: "c-add", name: "Add to the last script", sub: "Another function, another case, another check.", icon: WS_ICONS.bolt, ready: true, needsCode: true }
             ]
           },
           {
             title: "Work on the last script",
             tasks: [
-              { id: "c-fix", name: "Fix what is broken", sub: "Tell me the error or the symptom.", icon: FS_ICONS.bug, ready: true, needsCode: true },
-              { id: "c-refactor", name: "Clean it up", sub: "Same behaviour, better structure and naming.", icon: FS_ICONS.refactor, ready: true, needsCode: true },
-              { id: "c-explain", name: "Explain it", sub: "Walk through what each part actually does.", icon: FS_ICONS.read, ready: true, needsCode: true }
+              { id: "c-fix", name: "Fix what is broken", sub: "Tell me the error or the symptom.", icon: WS_ICONS.bug, ready: true, needsCode: true },
+              { id: "c-refactor", name: "Clean it up", sub: "Same behaviour, better structure and naming.", icon: WS_ICONS.tidy, ready: true, needsCode: true },
+              { id: "c-explain", name: "Explain it", sub: "Walk through what each part actually does.", icon: WS_ICONS.read, ready: true, needsCode: true }
             ]
           }
         ]
@@ -11552,236 +11225,217 @@
           {
             title: "Convert",
             tasks: [
-              { id: "u-shot", name: "From a screenshot", sub: "A picture of the UI becomes a responsive Lua build script.", icon: FS_ICONS.photo, ready: true }
+              { id: "u-shot", name: "From a screenshot", sub: "A picture of the UI becomes a responsive Lua build script.", icon: WS_ICONS.photo, ready: true }
             ]
           }
         ]
       }
     };
 
-    const FOCUS_NEEDS_NOTE = {
-      edits: "This runs on the images edit route, which the worker does not expose yet. It is the next thing going in.",
-      variations: "Variations need their own route in the worker. Coming right after the edit route.",
+    const WS_SOON_NOTE = {
+      mask: "The worker already posts to the images edit route, but does not pass a mask yet. That is the next piece going in.",
+      bg: "Needs the transparent-background option passed through the worker's image call.",
+      variations: "Variations need their own route in the worker.",
       v3: "Tripo's mesh, texture and rigging tools only exist on API V3. The worker still calls V2, so this moves with that migration."
     };
 
-    let focusState = null;
-    let fsLensReady = false;
+    let wsState = null;
+    let wsFeedWatcher = null;
 
-    function focusIsOpen() { return !!focusState; }
+    function wsOpen() { return typeof wsState !== "undefined" && !!wsState; }
 
-    // Safe to call from the older script block, which loads first.
-    function fsOpen() { return typeof focusState !== "undefined" && !!focusState; }
+    function wsEl() { return document.getElementById("wsBlock"); }
 
-    function fsEl() { return document.getElementById("focusStage"); }
-
-    // ---------- the lens ----------
-    // A real barrel displacement, generated once: R carries the x offset,
-    // G the y offset, both relative to the centre, fading out at the rim
-    // so nothing is dragged in from outside the element.
-    function fsBuildLens() {
-      if (fsLensReady) return Promise.resolve(true);
-      try {
-        const N = 192;
-        const cv = document.createElement("canvas");
-        cv.width = cv.height = N;
-        const ctx = cv.getContext("2d");
-        const img = ctx.createImageData(N, N);
-        const d = img.data;
-        for (let y = 0; y < N; y++) {
-          for (let x = 0; x < N; x++) {
-            const nx = (x + 0.5) / N * 2 - 1;
-            const ny = (y + 0.5) / N * 2 - 1;
-            const r = Math.min(1, Math.hypot(nx, ny));
-            // Peaks mid-radius, zero at the centre and at the rim: the
-            // middle stays sharp and pulls the surroundings towards it.
-            const k = Math.sin(Math.PI * r) * 0.5;
-            const i = (y * N + x) * 4;
-            d[i] = Math.round((0.5 - nx * k * 0.5) * 255);
-            d[i + 1] = Math.round((0.5 - ny * k * 0.5) * 255);
-            d[i + 2] = 128;
-            d[i + 3] = 255;
-          }
-        }
-        ctx.putImageData(img, 0, 0);
-        const url = cv.toDataURL("image/png");
-        const fe = document.getElementById("fsFisheyeMap");
-        if (!fe) return Promise.resolve(false);
-        return new Promise(resolve => {
-          const probe = new Image();
-          probe.onload = () => {
-            fe.setAttribute("href", url);
-            fe.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", url);
-            fsLensReady = true;
-            resolve(true);
-          };
-          probe.onerror = () => resolve(false);
-          probe.src = url;
-        });
-      } catch (e) {
-        return Promise.resolve(false);
+    // ---------- mounting ----------
+    // The workspace lives in the feed, as the last thing in it: messages
+    // generated while it is open stack above it, so it always sits exactly
+    // where the next message would go.
+    function wsMount() {
+      const inner = document.getElementById("feedInner");
+      if (!inner) return null;
+      let el = wsEl();
+      if (!el) {
+        el = document.createElement("section");
+        el.className = "ws";
+        el.id = "wsBlock";
       }
+      inner.appendChild(el);
+      if (!wsFeedWatcher) {
+        wsFeedWatcher = new MutationObserver(() => {
+          const me = wsEl();
+          const feed = document.getElementById("feedInner");
+          if (me && feed && feed.lastElementChild !== me) feed.appendChild(me);
+        });
+        wsFeedWatcher.observe(inner, { childList: true });
+      }
+      return el;
     }
 
-    // ---------- parting the chat ----------
-    function fsPartChat() {
+    // Attention thins out with distance from the workspace rather than the
+    // whole feed dropping to one flat grey.
+    function wsFocusFeed() {
+      const me = wsEl();
       const feed = document.getElementById("feed");
-      if (!feed) return;
-      const mid = feed.getBoundingClientRect().top + feed.clientHeight / 2;
+      if (!me || !feed) return;
+      const anchor = me.getBoundingClientRect().top;
+      const span = Math.max(feed.clientHeight, 1);
       feed.querySelectorAll(".msg").forEach(m => {
         const r = m.getBoundingClientRect();
-        const centre = r.top + r.height / 2;
-        const dir = centre < mid ? -1 : 1;
-        const dist = Math.min(1, Math.abs(centre - mid) / (feed.clientHeight / 2 || 1));
-        m.style.setProperty("--fs-part", (dir * (26 + 34 * (1 - dist))).toFixed(1));
+        const d = Math.min(1, Math.abs(r.top + r.height / 2 - anchor) / span);
+        m.style.setProperty("--ws-fade", (0.62 - 0.26 * d).toFixed(3));
+        m.style.setProperty("--ws-blur", (0.8 + 2.2 * d).toFixed(2) + "px");
       });
     }
 
-    function fsUnpartChat() {
-      document.querySelectorAll(".msg").forEach(m => m.style.removeProperty("--fs-part"));
+    function wsClearFeed() {
+      document.querySelectorAll(".msg").forEach(m => {
+        m.style.removeProperty("--ws-fade");
+        m.style.removeProperty("--ws-blur");
+      });
+    }
+
+    // scrollIntoView is no use here: adopting the mesh panel empties the
+    // chat bubble it came from, so the feed reflows under a scroll that is
+    // still animating and lands somewhere else. This computes the target
+    // itself and re-places once the reflow has settled.
+    function wsScrollIntoView() {
+      const feed = document.getElementById("feed");
+      if (!feed) return;
+
+      const place = () => {
+        const me = wsEl();
+        if (!me) return;
+        const box = me.getBoundingClientRect();
+        const top = box.top - feed.getBoundingClientRect().top + feed.scrollTop;
+        // Short enough to fit: show it whole, sitting just above the fold.
+        // Taller than the fold: put its head in view, clear of the topbar.
+        const fits = box.height <= feed.clientHeight - 98;
+        const target = fits ? top + box.height + 24 - feed.clientHeight : top - 74;
+        const want = Math.max(0, Math.round(target));
+        if (Math.abs(feed.scrollTop - want) > 6) feed.scrollTo({ top: want, behavior: "smooth" });
+      };
+
+      requestAnimationFrame(() => requestAnimationFrame(place));
+      setTimeout(place, 280);
+      setTimeout(wsFocusFeed, 460);
     }
 
     // ---------- open / close ----------
-    async function openFocus(mode) {
-      if (!FOCUS_CATALOG[mode]) return;
-      const stage = fsEl();
-      if (!stage) return;
-
-      focusState = { mode, task: null, step: "task", cfg: {}, result: null, busy: false, error: null };
-      stage.classList.remove("fs-closing");
-      stage.hidden = false;
-      document.body.classList.add("focus-on");
-      fsPartChat();
-      fsRender();
-
-      const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      const weak = (navigator.hardwareConcurrency || 8) <= 2;
-      if (!reduced && !weak) {
-        const ok = await fsBuildLens();
-        if (ok && focusIsOpen()) document.body.classList.add("focus-lens");
-      }
+    function openWorkspace(mode) {
+      if (!WS_CATALOG[mode]) return;
+      wsState = { mode, task: null, step: "task", cfg: {}, result: null, busy: false, progress: null };
+      if (!wsMount()) { wsState = null; return; }
+      document.body.classList.add("ws-on");
+      wsRender();
+      wsFocusFeed();
+      wsScrollIntoView();
     }
 
-    function closeFocus(opts) {
+    function closeWorkspace(opts) {
       opts = opts || {};
-      const stage = fsEl();
-      if (!stage || !focusState) return;
-      if (focusState.busy && !opts.force) return;
+      const el = wsEl();
+      if (!wsState) return;
+      if (wsState.busy && !opts.force) return;
 
-      focusState = null;
+      wsState = null;
 
-      // The workshop stood in for the in-chat method chooser. Walking out
+      // The workspace stood in for the in-chat method chooser. Walking out
       // without generating would leave the composer locked, waiting on a
       // chooser nobody ever posted — so post the normal one now.
       const needsChooser = typeof flowState !== "undefined" && flowState === "choose_method"
         && (activeForceMode === "image" || activeForceMode === "model3d")
         && !document.querySelector(".chooser-3d button:not([disabled])");
+
+      if (wsFeedWatcher) { wsFeedWatcher.disconnect(); wsFeedWatcher = null; }
+      if (el) {
+        el.classList.add("ws-closing");
+        setTimeout(() => el.remove(), 190);
+      }
+      document.body.classList.remove("ws-on");
+      wsClearFeed();
+
       if (needsChooser && typeof appendModeChooser === "function") {
-        const el = appendModeChooser(activeForceMode);
+        const chooser = appendModeChooser(activeForceMode);
         pendingChoiceMessage = {
           chatId: (typeof activeChatId !== "undefined" ? activeChatId : null),
           payload: { type: "chooser", category: activeForceMode, prompt: "" },
-          _tempEl: el
+          _tempEl: chooser
         };
         if (typeof applyFlowComposerState === "function") applyFlowComposerState();
       }
-
-      stage.classList.add("fs-closing");
-      document.body.classList.remove("focus-lens");
-      setTimeout(() => {
-        stage.hidden = true;
-        stage.classList.remove("fs-closing");
-        stage.innerHTML = "";
-        document.body.classList.remove("focus-on");
-        fsUnpartChat();
-        if (typeof scrollFeedToBottom === "function") scrollFeedToBottom();
-      }, 210);
+      if (typeof scrollFeedToBottom === "function") setTimeout(scrollFeedToBottom, 210);
     }
 
     // ---------- rendering ----------
-    const FS_STEP_NAMES = { task: "Task", config: "Setup", mask: "Region", run: "Working", result: "Result" };
+    const WS_STEP_NAMES = { task: "Task", config: "Setup", run: "Working", result: "Result" };
 
-    function fsStepsFor(s) {
-      const base = ["task", "config"];
-      if (s.task === "mark") base.push("mask");
-      base.push("run", "result");
-      return base;
-    }
+    function wsRender() {
+      const s = wsState;
+      const el = wsEl();
+      if (!s || !el) return;
+      const cat = WS_CATALOG[s.mode];
+      const info = (typeof FORCE_MODE_INFO !== "undefined" && FORCE_MODE_INFO[s.mode])
+        ? FORCE_MODE_INFO[s.mode] : { label: s.mode, icon: "" };
 
-    function fsRender() {
-      const s = focusState;
-      const stage = fsEl();
-      if (!s || !stage) return;
-      const cat = FOCUS_CATALOG[s.mode];
-      const info = (typeof FORCE_MODE_INFO !== "undefined" && FORCE_MODE_INFO[s.mode]) ? FORCE_MODE_INFO[s.mode] : { label: s.mode, icon: "" };
-
-      const steps = fsStepsFor(s);
+      const steps = ["task", "config", "run", "result"];
       const at = steps.indexOf(s.step);
       const stepsHtml = steps.map((k, i) => {
         const cls = i < at ? "done" : (i === at ? "now" : "");
-        return `<span class="fs-step ${cls}"><span class="fs-dot"></span>${FS_STEP_NAMES[k]}</span>`;
-      }).join(`<span class="fs-sep"></span>`);
+        return `<span class="ws-step ${cls}"><span class="ws-dot"></span>${WS_STEP_NAMES[k]}</span>`;
+      }).join(`<span class="ws-sep"></span>`);
 
-      const body = { task: fsViewTask, config: fsViewConfig, mask: fsViewMask, run: fsViewRun, result: fsViewResult }[s.step](s, cat);
+      const view = { task: wsViewTask, config: wsViewConfig, run: wsViewRun, result: wsViewResult }[s.step](s, cat);
 
-      stage.innerHTML = `
-        <div class="fs-veil"></div>
-        <div class="fs-panel" role="dialog" aria-modal="true" aria-label="${escapeHtml(info.label)} workshop">
-          <div class="fs-head">
-            <span class="fs-mode"><span class="fs-mode-ico">${info.icon || ""}</span>${escapeHtml(info.label)} workshop</span>
-            <div class="fs-steps">${stepsHtml}</div>
-            <div class="fs-head-right">
-              <span class="fs-esc">esc</span>
-              <button class="fs-exit" type="button" onclick="closeFocus()">${FS_ICONS.close}Back to chat</button>
-            </div>
-          </div>
-          <div class="fs-body" id="fsBody">${body.html}</div>
-          <div class="fs-foot">${body.foot || ""}</div>
-        </div>`;
+      el.innerHTML = `
+        <div class="ws-head">
+          <span class="ws-mode"><span class="ws-mode-ico">${info.icon || ""}</span>${escapeHtml(info.label)}</span>
+          <div class="ws-steps">${stepsHtml}</div>
+          <button class="ws-x" type="button" onclick="closeWorkspace()">${WS_ICONS.close}Close</button>
+        </div>
+        <div class="ws-body" id="wsBody">${view.html}</div>
+        <div class="ws-foot">${view.foot || ""}</div>`;
 
-      if (body.after) body.after();
+      if (view.after) view.after();
+      wsFocusFeed();
     }
 
-    function fsViewTask(s, cat) {
+    function wsViewTask(s, cat) {
       const hasCode = typeof currentCodeState !== "undefined" && currentCodeState && currentCodeState.code;
       const groups = cat.groups.map(g => {
         const tasks = g.tasks.map(t => {
           const blockedByCode = t.needsCode && !hasCode;
           const off = !t.ready || blockedByCode;
-          const badge = !t.ready
-            ? `<span class="fs-badge wip">Not wired up yet</span>`
-            : (blockedByCode ? `<span class="fs-badge">Needs a script first</span>` : "");
+          const soon = !t.ready
+            ? `<span class="ws-soon">Not wired up yet</span>`
+            : (blockedByCode ? `<span class="ws-soon">Needs a script first</span>` : "");
           return `
-            <button class="fs-task" type="button" ${off ? "disabled" : ""} onclick="fsPickTask('${t.id}')"
-              ${t.needs && !t.ready ? `title="${escapeHtml(FOCUS_NEEDS_NOTE[t.needs] || "")}"` : ""}>
-              <span class="fs-task-top">
-                <span class="fs-task-ico">${t.icon}</span>
-                <span class="fs-task-name">${escapeHtml(t.name)}</span>
-              </span>
-              <span class="fs-task-sub">${escapeHtml(t.sub)}</span>
-              ${badge}
+            <button class="ws-task" type="button" ${off ? "disabled" : ""} onclick="wsPickTask('${t.id}')"
+              ${!t.ready && t.needs ? `title="${escapeHtml(WS_SOON_NOTE[t.needs] || "")}"` : ""}>
+              <span class="ws-task-ico">${t.icon}</span>
+              <span><span class="ws-task-name">${escapeHtml(t.name)}</span>
+                <span class="ws-task-sub">${escapeHtml(t.sub)}</span>${soon}</span>
             </button>`;
         }).join("");
-        return `<div class="fs-group"><div class="fs-group-title">${escapeHtml(g.title)}</div><div class="fs-tasks">${tasks}</div></div>`;
+        return `<div class="ws-group"><div class="ws-group-title">${escapeHtml(g.title)}</div><div class="ws-tasks">${tasks}</div></div>`;
       }).join("");
 
       return {
-        html: `<h2 class="fs-title">${escapeHtml(cat.title)}</h2><p class="fs-lead">${escapeHtml(cat.lead)}</p>${groups}`,
-        foot: `<span class="fs-foot-note">The chat is still there behind this — anything you make lands in it as a normal message.</span>
-               <button class="fs-btn" type="button" onclick="closeFocus()">Cancel</button>`
+        html: `<h2 class="ws-title">${escapeHtml(cat.title)}</h2><p class="ws-lead">${escapeHtml(cat.lead)}</p>${groups}`,
+        foot: `<span class="ws-foot-note">Whatever you make lands in the chat as a normal message.</span>
+               <button class="ws-btn" type="button" onclick="closeWorkspace()">Cancel</button>`
       };
     }
 
     // ---------- fields ----------
-    function fsTaskDef(s) {
-      for (const g of FOCUS_CATALOG[s.mode].groups) {
+    function wsTaskDef(s) {
+      for (const g of WS_CATALOG[s.mode].groups) {
         const t = g.tasks.find(x => x.id === s.task);
         if (t) return t;
       }
       return null;
     }
 
-    function fsFields(s) {
+    function wsFields(s) {
       switch (s.task) {
         case "create":
           return [
@@ -11832,271 +11486,249 @@
       }
     }
 
-    function fsRenderField(f, s) {
+    function wsRenderField(f, s) {
       const v = s.cfg[f.key];
-      // Pickers always have a value, so tagging them "optional" reads as a
+      // Pickers always carry a value, so tagging them "optional" reads as a
       // question about whether they apply at all. Only free input gets it.
       const optional = !f.required && f.type !== "imagetype" && f.type !== "codemodel";
-      const label = `<span class="fs-field-label">${escapeHtml(f.label)}${optional ? ` <span style="color:var(--ws-faint);font-weight:400">optional</span>` : ""}</span>`;
-      const note = f.note ? `<div class="fs-field-note">${escapeHtml(f.note)}</div>` : "";
+      const label = `<span class="ws-label">${escapeHtml(f.label)}${optional ? " <small>optional</small>" : ""}</span>`;
+      const note = f.note ? `<div class="ws-note">${escapeHtml(f.note)}</div>` : "";
       let inner = "";
 
       if (f.type === "area") {
-        inner = `<textarea class="fs-area" placeholder="${escapeHtml(f.ph || "")}" oninput="fsSet('${f.key}', this.value)">${escapeHtml(v || "")}</textarea>`;
+        inner = `<textarea class="ws-area" placeholder="${escapeHtml(f.ph || "")}" oninput="wsSet('${f.key}', this.value)">${escapeHtml(v || "")}</textarea>`;
       } else if (f.type === "text") {
-        inner = `<input class="fs-input" value="${escapeHtml(v || "")}" placeholder="${escapeHtml(f.ph || "")}" oninput="fsSet('${f.key}', this.value)">`;
+        inner = `<input class="ws-input" value="${escapeHtml(v || "")}" placeholder="${escapeHtml(f.ph || "")}" oninput="wsSet('${f.key}', this.value)">`;
       } else if (f.type === "image") {
-        const prev = v ? `<img src="${escapeHtml(v)}" alt="">` : FS_ICONS.photo;
+        const prev = v ? `<img src="${escapeHtml(v)}" alt="">` : WS_ICONS.photo;
         inner = `
-          <div class="fs-drop" data-key="${f.key}" onclick="fsPickImage('${f.key}')">
-            <span class="fs-drop-ico">${prev}</span>
-            <span class="fs-drop-text">${v ? "Image loaded" : "Click or drop an image here"}
+          <div class="ws-drop" onclick="wsPickImage('${f.key}')">
+            <span class="ws-drop-ico">${prev}</span>
+            <span class="ws-drop-text">${v ? "Image loaded" : "Click to choose an image"}
               <small>${v ? "Click to replace it." : "PNG, JPG or WebP."}</small></span>
           </div>`;
       } else if (f.type === "imagetype") {
-        const sections = typeof imageTypeSections === "function" ? imageTypeSections() : [];
         const cur = v || (typeof selectedImageType !== "undefined" ? selectedImageType : "normal");
         const popular = (typeof IMAGE_TYPE_POPULAR !== "undefined" ? IMAGE_TYPE_POPULAR : []).filter(k => imagePresets[k]);
         const chips = popular.map(k => {
           const size = typeof imageOutputSize === "function" ? imageOutputSize(k) : null;
-          return `<button type="button" class="fs-chip ${cur === k ? "on" : ""}" onclick="fsSet('${f.key}','${k}')">
+          return `<button type="button" class="ws-chip ${cur === k ? "on" : ""}" onclick="wsSet('${f.key}','${k}')">
             ${imagePresets[k].icon || ""}${escapeHtml(imagePresets[k].label)}
-            ${size ? `<span class="fs-chip-sub">${size.w}×${size.h}</span>` : ""}</button>`;
+            ${size ? `<span class="ws-chip-sub">${size.w}×${size.h}</span>` : ""}</button>`;
         }).join("");
+        const sections = typeof imageTypeSections === "function" ? imageTypeSections() : [];
         const opts = sections.map(sec =>
           `<optgroup label="${escapeHtml(sec.title)}">` +
           sec.keys.map(k => `<option value="${k}" ${cur === k ? "selected" : ""}>${escapeHtml(imagePresets[k].label)}</option>`).join("") +
           `</optgroup>`).join("");
-        inner = `<div class="fs-chips" style="margin-bottom:8px">${chips}</div>
-                 <select class="fs-select" onchange="fsSet('${f.key}', this.value)">${opts}</select>`;
+        inner = `<div class="ws-chips" style="margin-bottom:7px">${chips}</div>
+                 <select class="ws-select" onchange="wsSet('${f.key}', this.value)">${opts}</select>`;
       } else if (f.type === "codemodel") {
         const cur = v || (typeof selectedCodeModel !== "undefined" ? selectedCodeModel : "gemini");
-        inner = `<div class="fs-chips">` + Object.keys(CODE_MODEL_LABELS).map(k =>
-          `<button type="button" class="fs-chip ${cur === k ? "on" : ""}" onclick="fsSet('${f.key}','${k}')">${escapeHtml(CODE_MODEL_LABELS[k])}</button>`).join("") + `</div>`;
+        inner = `<div class="ws-chips">` + Object.keys(CODE_MODEL_LABELS).map(k =>
+          `<button type="button" class="ws-chip ${cur === k ? "on" : ""}" onclick="wsSet('${f.key}','${k}')">${escapeHtml(CODE_MODEL_LABELS[k])}</button>`).join("") + `</div>`;
       }
 
-      return `<div class="fs-field">${label}${inner}${note}</div>`;
+      return `<div class="ws-field">${label}${inner}${note}</div>`;
     }
 
-    function fsViewConfig(s, cat) {
-      const t = fsTaskDef(s);
-      const fields = fsFields(s);
+    function wsViewConfig(s) {
+      const t = wsTaskDef(s);
+      const fields = wsFields(s);
       const missing = fields.some(f => f.required && !s.cfg[f.key]);
-      const cost = fsCostNote(s);
 
       return {
-        html: `<h2 class="fs-title">${escapeHtml(t ? t.name : "Setup")}</h2>
-               <p class="fs-lead">${escapeHtml(t ? t.sub : "")}</p>
-               <div class="fs-form">${fields.map(f => fsRenderField(f, s)).join("")}</div>`,
-        foot: `<span class="fs-foot-note">${escapeHtml(cost)}</span>
-               <button class="fs-btn" type="button" onclick="fsGo('task')">${FS_ICONS.back}Back</button>
-               <button class="fs-btn primary" type="button" ${missing ? "disabled" : ""} onclick="fsNext()">
-                 ${s.task === "mark" ? "Pick the region" : (s.mode === "model3d" ? "Set up the mesh" : "Generate")}</button>`,
+        html: `<h2 class="ws-title">${escapeHtml(t ? t.name : "Setup")}</h2>
+               <p class="ws-lead">${escapeHtml(t ? t.sub : "")}</p>
+               <div class="ws-form">${fields.map(f => wsRenderField(f, s)).join("")}</div>`,
+        foot: `<span class="ws-foot-note">${escapeHtml(wsCostNote(s))}</span>
+               <button class="ws-btn" type="button" onclick="wsGo('task')">${WS_ICONS.back}Back</button>
+               <button class="ws-btn primary" type="button" ${missing ? "disabled" : ""} onclick="wsRun()">
+                 ${s.mode === "model3d" ? "Set up the mesh" : "Generate"}</button>`,
         after: () => {
-          const ta = document.querySelector("#fsBody .fs-area");
+          const ta = document.querySelector("#wsBody .ws-area");
           if (ta) { ta.focus(); ta.selectionStart = ta.value.length; }
         }
       };
     }
 
-    function fsCostNote(s) {
-      if (s.mode === "image") return "Costs 2 tokens.";
-      if (s.mode === "ui2lua") return "Costs 2 tokens.";
+    function wsCostNote(s) {
+      if (s.mode === "image" || s.mode === "ui2lua") return "Costs 2 tokens.";
       if (s.mode === "code") return "Billed per generation in millitokens.";
       if (s.mode === "model3d") return "Cost depends on the mesh settings on the next step.";
       return "";
     }
 
-    function fsViewRun(s) {
+    function wsViewRun(s) {
       return {
-        html: `<div class="fs-run">
-                 <div class="fs-run-ring"></div>
-                 <div class="fs-run-label" id="fsRunLabel">${escapeHtml(s.runLabel || "Working…")}</div>
-                 <div class="fs-progress ${s.progress == null ? "indet" : ""}" id="fsRunBar"><span style="width:${s.progress == null ? "" : s.progress + "%"}"></span></div>
-                 <div class="fs-run-sub">This is running in the chat behind you as well — closing the workshop will not cancel it.</div>
+        html: `<div class="ws-run">
+                 <div class="ws-run-label" id="wsRunLabel">${escapeHtml(s.runLabel || "Working…")}</div>
+                 <div class="ws-bar ${s.progress == null ? "indet" : ""}" id="wsRunBar"><span style="width:${s.progress == null ? "" : s.progress + "%"}"></span></div>
+                 <div class="ws-run-sub">This is running in the chat too — closing the workspace will not cancel it.</div>
                </div>`,
-        foot: `<span class="fs-foot-note">Working…</span>
-               <button class="fs-btn" type="button" onclick="closeFocus({force:true})">Leave it running</button>`
+        foot: `<span class="ws-foot-note">Working…</span>
+               <button class="ws-btn" type="button" onclick="closeWorkspace({force:true})">Leave it running</button>`
       };
     }
 
-    function fsViewResult(s) {
+    function wsViewResult(s) {
       const r = s.result || {};
       if (r.error) {
         return {
-          html: `<h2 class="fs-title">That did not go through</h2><div class="fs-error">${escapeHtml(r.error)}</div>`,
-          foot: `<span class="fs-foot-note">Nothing was kept.</span>
-                 <button class="fs-btn" type="button" onclick="fsGo('config')">${FS_ICONS.back}Change it</button>
-                 <button class="fs-btn primary" type="button" onclick="closeFocus()">Back to chat</button>`
+          html: `<h2 class="ws-title">That did not go through</h2><div class="ws-error">${escapeHtml(r.error)}</div>`,
+          foot: `<span class="ws-foot-note">Nothing was kept.</span>
+                 <button class="ws-btn" type="button" onclick="wsGo('config')">${WS_ICONS.back}Change it</button>
+                 <button class="ws-btn primary" type="button" onclick="closeWorkspace()">Back to chat</button>`
         };
       }
 
       let preview = "";
       if (r.kind === "image" || r.kind === "refimage") preview = `<img src="${escapeHtml(r.url)}" alt="Result">`;
       else if (r.kind === "model3d") preview = `<model-viewer src="${escapeHtml(r.modelUrl || "")}" poster="${escapeHtml(r.thumbnailUrl || "")}" camera-controls auto-rotate shadow-intensity="1" exposure="1" loading="eager"></model-viewer>`;
-      else if (r.kind === "code") preview = `<div class="msg msg-bot" style="width:100%"><div class="msg-bubble" style="width:100%">${r.html || ""}</div></div>`;
-
-      const rail = fsRailFor(s, r);
+      else if (r.kind === "code") preview = `<div class="msg msg-bot" style="--ws-fade:1;--ws-blur:0px"><div class="msg-bubble" style="max-width:100%">${r.html || ""}</div></div>`;
 
       return {
-        html: `<div class="fs-result">
-                 <div class="fs-stagebox ${r.kind === "code" ? "fs-flat" : ""}">${preview}</div>
-                 <div class="fs-rail">
-                   <div class="fs-rail-title">Keep working on it</div>
-                   ${rail}
-                   <div class="fs-rail-sub">Whatever you do next stacks onto the same chat, one message per step.</div>
-                 </div>
+        html: `<div class="ws-preview ${r.kind === "code" ? "ws-flat" : ""}">${preview}</div>
+               <div class="ws-next">
+                 <div class="ws-next-title">Keep working on it</div>
+                 <div class="ws-next-row">${wsNextFor(s, r)}</div>
                </div>`,
-        foot: `<span class="fs-foot-note">It is already saved in the chat.</span>
-               <button class="fs-btn" type="button" onclick="fsGo('task')">Another task</button>
-               <button class="fs-btn primary" type="button" onclick="closeFocus()">${FS_ICONS.check}Done</button>`
+        foot: `<span class="ws-foot-note">It is already saved in the chat.</span>
+               <button class="ws-btn" type="button" onclick="wsGo('task')">Another task</button>
+               <button class="ws-btn primary" type="button" onclick="closeWorkspace()">${WS_ICONS.check}Done</button>`
       };
     }
 
-    function fsRailBtn(label, icon, action, off, title) {
-      return `<button class="fs-rail-btn" type="button" ${off ? "disabled" : ""} ${title ? `title="${escapeHtml(title)}"` : ""} onclick="${action}">${icon}${escapeHtml(label)}</button>`;
+    function wsNextBtn(label, icon, action, off, title) {
+      return `<button class="ws-btn" type="button" ${off ? "disabled" : ""} ${title ? `title="${escapeHtml(title)}"` : ""} onclick="${action}">${icon}${escapeHtml(label)}</button>`;
     }
 
-    function fsRailFor(s, r) {
+    function wsNextFor(s, r) {
       if (r.kind === "refimage") {
         return [
-          fsRailBtn("Use it for the model", FS_ICONS.box, "fsUseRefImage()"),
-          fsRailBtn("Draw a different one", FS_ICONS.run, "fsRedrawRefImage()"),
-          fsRailBtn("Download", FS_ICONS.download, "fsDownload()")
+          wsNextBtn("Use it for the model", WS_ICONS.box, "wsUseRefImage()"),
+          wsNextBtn("Draw a different one", WS_ICONS.bolt, "wsRedrawRefImage()"),
+          wsNextBtn("Download", WS_ICONS.download, "wsDownload()")
         ].join("");
       }
       if (r.kind === "image") {
         return [
-          fsRailBtn("Paint a region to change", FS_ICONS.brush, "", true, FOCUS_NEEDS_NOTE.edits),
-          fsRailBtn("Extend past the edges", FS_ICONS.expand, "", true, FOCUS_NEEDS_NOTE.edits),
-          fsRailBtn("Describe another change", FS_ICONS.photo, "fsContinueWithImage('edit-photo')"),
-          fsRailBtn("Borrow a style for it", FS_ICONS.paint, "fsContinueWithImage('restyle')"),
-          fsRailBtn("Turn it into a 3D model", FS_ICONS.box, "fsImageToModel()"),
-          fsRailBtn("Run it again", FS_ICONS.run, "fsRerun()"),
-          fsRailBtn("Download", FS_ICONS.download, "fsDownload()")
+          wsNextBtn("Paint a region", WS_ICONS.brush, "", true, WS_SOON_NOTE.mask),
+          wsNextBtn("Extend the edges", WS_ICONS.expand, "", true, WS_SOON_NOTE.mask),
+          wsNextBtn("Describe another change", WS_ICONS.photo, "wsContinueWithImage('edit-photo')"),
+          wsNextBtn("Borrow a style", WS_ICONS.paint, "wsContinueWithImage('restyle')"),
+          wsNextBtn("Turn it into a 3D model", WS_ICONS.box, "wsImageToModel()"),
+          wsNextBtn("Run it again", WS_ICONS.bolt, "wsRerun()"),
+          wsNextBtn("Download", WS_ICONS.download, "wsDownload()")
         ].join("");
       }
       if (r.kind === "model3d") {
         return [
-          fsRailBtn("Retopologise", FS_ICONS.mesh, "", true, FOCUS_NEEDS_NOTE.v3),
-          fsRailBtn("Split into parts", FS_ICONS.scissors, "", true, FOCUS_NEEDS_NOTE.v3),
-          fsRailBtn("Re-texture", FS_ICONS.paint, "", true, FOCUS_NEEDS_NOTE.v3),
-          fsRailBtn("Rig & animate", FS_ICONS.bone, "", true, FOCUS_NEEDS_NOTE.v3),
-          fsRailBtn("Export elsewhere", FS_ICONS.box, "", true, FOCUS_NEEDS_NOTE.v3),
-          fsRailBtn("Build another", FS_ICONS.run, "fsGo('task')"),
-          fsRailBtn("Download GLB", FS_ICONS.download, "fsDownload()")
+          wsNextBtn("Retopologise", WS_ICONS.mesh, "", true, WS_SOON_NOTE.v3),
+          wsNextBtn("Split into parts", WS_ICONS.split, "", true, WS_SOON_NOTE.v3),
+          wsNextBtn("Re-texture", WS_ICONS.paint, "", true, WS_SOON_NOTE.v3),
+          wsNextBtn("Rig & animate", WS_ICONS.bone, "", true, WS_SOON_NOTE.v3),
+          wsNextBtn("Export elsewhere", WS_ICONS.box, "", true, WS_SOON_NOTE.v3),
+          wsNextBtn("Build another", WS_ICONS.bolt, "wsGo('task')"),
+          wsNextBtn("Download GLB", WS_ICONS.download, "wsDownload()")
         ].join("");
       }
       return [
-        fsRailBtn("Add a function", FS_ICONS.run, "fsContinueCode('c-add')"),
-        fsRailBtn("Fix a problem", FS_ICONS.bug, "fsContinueCode('c-fix')"),
-        fsRailBtn("Clean it up", FS_ICONS.refactor, "fsContinueCode('c-refactor')"),
-        fsRailBtn("Explain it", FS_ICONS.read, "fsContinueCode('c-explain')")
+        wsNextBtn("Add a function", WS_ICONS.bolt, "wsContinueCode('c-add')"),
+        wsNextBtn("Fix a problem", WS_ICONS.bug, "wsContinueCode('c-fix')"),
+        wsNextBtn("Clean it up", WS_ICONS.tidy, "wsContinueCode('c-refactor')"),
+        wsNextBtn("Explain it", WS_ICONS.read, "wsContinueCode('c-explain')")
       ].join("");
     }
 
-    function fsViewMask(s) {
-      return {
-        html: `<h2 class="fs-title">Region editing</h2>
-               <div class="fs-error">${escapeHtml(FOCUS_NEEDS_NOTE.edits)}</div>`,
-        foot: `<button class="fs-btn" type="button" onclick="fsGo('config')">${FS_ICONS.back}Back</button>`
-      };
-    }
-
     // ---------- interaction ----------
-    function fsPickTask(id) {
-      if (!focusState) return;
-      focusState.task = id;
-      focusState.cfg = {};
+    function wsPickTask(id) {
+      if (!wsState) return;
+      wsState.task = id;
+      wsState.cfg = {};
       if (id === "create" || id === "edit-photo") {
-        focusState.cfg.type = (typeof selectedImageType !== "undefined" ? selectedImageType : "normal");
+        wsState.cfg.type = (typeof selectedImageType !== "undefined" ? selectedImageType : "normal");
       }
-      if (id === "c-new") focusState.cfg.codemodel = (typeof selectedCodeModel !== "undefined" ? selectedCodeModel : "gemini");
-      focusState.step = "config";
-      fsRender();
+      if (id === "c-new") wsState.cfg.codemodel = (typeof selectedCodeModel !== "undefined" ? selectedCodeModel : "gemini");
+      wsState.step = "config";
+      wsRender();
     }
 
-    function fsGo(step) {
-      if (!focusState) return;
-      focusState.step = step;
-      if (step === "task") { focusState.task = null; focusState.cfg = {}; }
-      fsRender();
+    function wsGo(step) {
+      if (!wsState) return;
+      wsState.step = step;
+      if (step === "task") { wsState.task = null; wsState.cfg = {}; wsState.result = null; }
+      wsRender();
     }
 
-    function fsSet(key, value) {
-      if (!focusState) return;
-      const wasBlocking = fsFields(focusState).some(f => f.required && !focusState.cfg[f.key]);
-      focusState.cfg[key] = value;
-      const nowBlocking = fsFields(focusState).some(f => f.required && !focusState.cfg[f.key]);
-      // Chips and selects need the panel redrawn; free text must not lose
+    function wsSet(key, value) {
+      if (!wsState) return;
+      const wasBlocking = wsFields(wsState).some(f => f.required && !wsState.cfg[f.key]);
+      wsState.cfg[key] = value;
+      const nowBlocking = wsFields(wsState).some(f => f.required && !wsState.cfg[f.key]);
+      // Chips and pickers need the panel redrawn; free text must not lose
       // the caret, so it only redraws when the run button flips state.
-      const needsRedraw = key === "type" || key === "codemodel" || key === "image" || key === "reference" || wasBlocking !== nowBlocking;
-      if (needsRedraw) {
-        const active = document.activeElement;
-        const isText = active && (active.classList.contains("fs-area") || active.classList.contains("fs-input"));
-        const caret = isText ? active.selectionStart : null;
-        const wasArea = isText && active.classList.contains("fs-area");
-        fsRender();
-        if (isText) {
-          const again = document.querySelector("#fsBody " + (wasArea ? ".fs-area" : ".fs-input"));
-          if (again) { again.focus(); if (caret != null) again.setSelectionRange(caret, caret); }
-        }
+      const redraw = key === "type" || key === "codemodel" || key === "image" || key === "reference" || wasBlocking !== nowBlocking;
+      if (!redraw) return;
+
+      const active = document.activeElement;
+      const isText = active && (active.classList.contains("ws-area") || active.classList.contains("ws-input"));
+      const caret = isText ? active.selectionStart : null;
+      const wasArea = isText && active.classList.contains("ws-area");
+      wsRender();
+      if (isText) {
+        const again = document.querySelector("#wsBody " + (wasArea ? ".ws-area" : ".ws-input"));
+        if (again) { again.focus(); if (caret != null) again.setSelectionRange(caret, caret); }
       }
     }
 
-    function fsPickImage(key) {
+    function wsPickImage(key) {
       const input = document.createElement("input");
       input.type = "file";
       input.accept = "image/png,image/jpeg,image/webp";
       input.onchange = async () => {
         const f = input.files && input.files[0];
         if (!f) return;
-        const b64 = await fileToBase64(f);
-        fsSet(key, b64);
+        wsSet(key, await fileToBase64(f));
       };
       input.click();
     }
 
-    function fsNext() {
-      const s = focusState;
-      if (!s) return;
-      if (s.task === "mark") { fsGo("mask"); return; }
-      fsRun();
-    }
-
     // ---------- running ----------
-    function fsBusy(label) {
-      if (!focusState) return;
-      focusState.busy = true;
-      focusState.runLabel = label;
-      focusState.progress = null;
-      focusState.step = "run";
-      fsRender();
+    function wsBusy(label) {
+      if (!wsState) return;
+      wsState.busy = true;
+      wsState.runLabel = label;
+      wsState.progress = null;
+      wsState.step = "run";
+      wsRender();
+      wsScrollIntoView();
     }
 
-    function fsDone(result) {
-      if (!focusState) return;
-      focusState.busy = false;
-      focusState.result = result;
-      focusState.step = "result";
-      fsRender();
+    function wsDone(result) {
+      if (!wsState) return;
+      wsState.busy = false;
+      wsState.result = result;
+      wsState.step = "result";
+      wsRender();
+      wsScrollIntoView();
     }
 
     // Everything below hands off to the same functions the composer uses,
     // so the result is a real chat message with real history behind it.
-    async function fsRun() {
-      const s = focusState;
+    async function wsRun() {
+      const s = wsState;
       if (!s) return;
       const c = s.cfg;
 
       if (typeof currentUser === "undefined" || !currentUser) {
-        fsDone({ error: "Sign in first — generating needs your account to bill it and keep the result." });
+        wsDone({ error: "Sign in first — generating needs your account to bill it and keep the result." });
         const b = document.getElementById("signInBtn");
         if (b) b.click();
         return;
       }
       if ((s.mode === "image" || s.mode === "ui2lua") && (tokenBalance ?? 0) < 2) {
-        fsDone({ error: "This costs 2 tokens and you do not have that many yet." });
+        wsDone({ error: "This costs 2 tokens and you do not have that many yet." });
         if (typeof openBuyModal === "function") openBuyModal();
         return;
       }
@@ -12110,7 +11742,7 @@
         mainImage = c.image || null;
         refImage = c.reference || null;
         document.getElementById("prompt").value = c.prompt || "";
-        fsBusy("Generating the image…");
+        wsBusy("Generating the image…");
         generateImage();
         return;
       }
@@ -12118,26 +11750,23 @@
       if (s.mode === "model3d") {
         if (s.task === "m-gen") {
           document.getElementById("prompt").value = c.prompt || "";
-          fsBusy("Drawing the reference image first…");
+          wsBusy("Drawing the reference image first…");
           generateImageForModel3D(c.prompt || "");
           return;
         }
-        // The mesh settings panel is the real one from the chat flow —
-        // adopted into the workshop rather than rebuilt, so presets, the
-        // polygon slider and the running cost all keep working.
         if (s.task === "m-image") {
           presentModel3DSettingsStep(c.prompt || "(reference image)", [{ kind: "image", dataUrl: c.image }], c.image);
         } else {
           presentModel3DSettingsStep(c.prompt || "");
         }
-        fsAdoptMeshPanel();
+        wsAdoptMeshPanel();
         return;
       }
 
       if (s.mode === "code") {
         if (c.codemodel && typeof updateSelectedCodeModel === "function") updateSelectedCodeModel(c.codemodel);
-        const instruction = fsCodeInstruction(s);
-        fsBusy("Writing the script…");
+        const instruction = wsCodeInstruction(s);
+        wsBusy("Writing the script…");
         sendCodeMessage(instruction, s.task === "c-fix");
         return;
       }
@@ -12145,13 +11774,12 @@
       if (s.mode === "ui2lua") {
         mainImage = c.image || null;
         document.getElementById("prompt").value = c.prompt || "";
-        fsBusy("Reading the screenshot…");
+        wsBusy("Reading the screenshot…");
         sendUiToLua();
-        return;
       }
     }
 
-    function fsCodeInstruction(s) {
+    function wsCodeInstruction(s) {
       const p = (s.cfg.prompt || "").trim();
       switch (s.task) {
         case "c-add": return "Add to the script you already have: " + p;
@@ -12163,61 +11791,63 @@
     }
 
     // Moves the live #model3dPanel out of its chat bubble and into the
-    // workshop. It is the same node, so every handler on it still fires;
+    // workspace. It is the same node, so every handler on it still fires;
     // generation replaces the bubble's contents anyway once it starts.
-    function fsAdoptMeshPanel() {
-      const s = focusState;
-      if (!s) return;
+    function wsAdoptMeshPanel() {
+      const s = wsState;
+      const el = wsEl();
+      if (!s || !el) return;
       s.step = "config";
-      const stage = fsEl();
-      stage.querySelector("#fsBody").innerHTML = `<h2 class="fs-title">Set up the mesh</h2>
-        <p class="fs-lead">Pick a preset or tune it yourself — the cost updates as you go.</p>
-        <div id="fsMeshSlot" class="fs-mesh-hosted"></div>`;
-      const foot = stage.querySelector(".fs-foot");
+      el.querySelector("#wsBody").innerHTML = `<h2 class="ws-title">Set up the mesh</h2>
+        <p class="ws-lead">Pick a preset or tune it yourself — the cost updates as you go.</p>
+        <div id="wsMeshSlot" class="ws-mesh"></div>`;
       const panel = document.getElementById("model3dPanel");
-      const slot = stage.querySelector("#fsMeshSlot");
+      const slot = el.querySelector("#wsMeshSlot");
       if (panel && slot) slot.appendChild(panel);
+
+      const foot = el.querySelector(".ws-foot");
       if (foot) {
-        foot.innerHTML = `<span class="fs-foot-note">Every setting changes the price — the button keeps the running total.</span>
-          <button class="fs-btn" type="button" onclick="fsGo('task')">${FS_ICONS.back}Start over</button>
-          <button class="fs-btn primary" type="button" id="fsMeshGo" onclick="fsMeshGenerate()">Generate</button>`;
+        foot.innerHTML = `<span class="ws-foot-note">Every setting moves the price — the button keeps the running total.</span>
+          <button class="ws-btn" type="button" onclick="wsGo('task')">${WS_ICONS.back}Start over</button>
+          <button class="ws-btn primary" type="button" id="wsMeshGo" onclick="wsMeshGenerate()">Generate</button>`;
       }
       // Anything touched in the panel can move the price, and the panel
       // rewrites itself on most of them, so the footer button re-reads the
       // real one rather than tracking the settings itself.
       if (slot) {
         ["click", "input", "change"].forEach(ev =>
-          slot.addEventListener(ev, () => setTimeout(fsSyncMeshButton, 0)));
+          slot.addEventListener(ev, () => setTimeout(wsSyncMeshButton, 0)));
       }
-      fsSyncMeshButton();
+      wsSyncMeshButton();
+      wsScrollIntoView();
     }
 
-    function fsSyncMeshButton() {
-      const real = document.querySelector("#fsMeshSlot .m3d-generate");
-      const proxy = document.getElementById("fsMeshGo");
+    function wsSyncMeshButton() {
+      const real = document.querySelector("#wsMeshSlot .m3d-generate");
+      const proxy = document.getElementById("wsMeshGo");
       if (real && proxy) proxy.textContent = real.textContent.trim();
     }
 
-    function fsMeshGenerate() {
-      const real = document.querySelector("#fsMeshSlot .m3d-generate");
+    function wsMeshGenerate() {
+      const real = document.querySelector("#wsMeshSlot .m3d-generate");
       if (!real) return;
-      fsBusy("Building the mesh…");
+      wsBusy("Building the mesh…");
       real.click();
     }
 
     // ---------- follow-ups ----------
-    function fsContinueWithImage(task) {
-      const s = focusState;
+    function wsContinueWithImage(task) {
+      const s = wsState;
       if (!s || !s.result) return;
-      const src = s.result.dataUrl || s.result.url;
       s.task = task;
-      s.cfg = { image: src, type: s.cfg.type, prompt: "" };
+      s.cfg = { image: s.result.dataUrl || s.result.url, type: s.cfg.type, prompt: "" };
+      s.result = null;
       s.step = "config";
-      fsRender();
+      wsRender();
     }
 
-    async function fsImageToModel() {
-      const s = focusState;
+    async function wsImageToModel() {
+      const s = wsState;
       if (!s || !s.result) return;
       let src = s.result.dataUrl || s.result.url;
       if (src && src.startsWith("blob:") && typeof blobUrlToDataUrl === "function") {
@@ -12228,51 +11858,49 @@
       s.cfg = { image: src, prompt: "" };
       s.result = null;
       presentModel3DSettingsStep("(generated image)", [{ kind: "image", dataUrl: src }], src);
-      fsRender();
-      fsAdoptMeshPanel();
+      wsRender();
+      wsAdoptMeshPanel();
     }
 
     // The reference image lives in a real chat bubble with its own two
     // buttons; clicking them keeps the 3D flow on its normal path rather
     // than building a second one that can drift out of step.
-    function fsUseRefImage() {
-      const s = focusState;
+    function wsUseRefImage() {
+      const s = wsState;
       const el = s && s.result && s.result.el;
       const btn = el && el.querySelector(".result-actions button.primary");
       if (!btn) return;
       btn.click();
-      const panel = document.getElementById("model3dPanel");
-      if (panel) fsAdoptMeshPanel();
+      if (document.getElementById("model3dPanel")) wsAdoptMeshPanel();
     }
 
-    function fsRedrawRefImage() {
-      const s = focusState;
+    function wsRedrawRefImage() {
+      const s = wsState;
       const el = s && s.result && s.result.el;
       const btns = el ? el.querySelectorAll(".result-actions button") : [];
       if (btns.length < 2) return;
-      fsBusy("Drawing another reference image…");
+      wsBusy("Drawing another reference image…");
       btns[1].click();
     }
 
-    function fsContinueCode(task) {
-      const s = focusState;
+    function wsContinueCode(task) {
+      const s = wsState;
       if (!s) return;
       s.task = task;
       s.cfg = { prompt: "" };
       s.result = null;
       s.step = "config";
-      fsRender();
+      wsRender();
     }
 
-    function fsRerun() {
-      const s = focusState;
-      if (!s) return;
-      s.result = null;
-      fsRun();
+    function wsRerun() {
+      if (!wsState) return;
+      wsState.result = null;
+      wsRun();
     }
 
-    function fsDownload() {
-      const s = focusState;
+    function wsDownload() {
+      const s = wsState;
       if (!s || !s.result) return;
       const r = s.result;
       const href = r.kind === "model3d" ? r.modelUrl : (r.url || r.dataUrl);
@@ -12286,13 +11914,13 @@
     }
 
     // ---------- results arriving from the pipeline ----------
-    function fsNotify(payload) {
-      if (!focusIsOpen()) return;
-      if (payload.progress != null && focusState.step === "run") {
-        focusState.progress = payload.progress;
-        const bar = document.querySelector("#fsRunBar span");
-        const wrap = document.getElementById("fsRunBar");
-        const lbl = document.getElementById("fsRunLabel");
+    function wsNotify(payload) {
+      if (!wsOpen()) return;
+      if (payload.progress != null && wsState.step === "run") {
+        wsState.progress = payload.progress;
+        const bar = document.querySelector("#wsRunBar span");
+        const wrap = document.getElementById("wsRunBar");
+        const lbl = document.getElementById("wsRunLabel");
         if (wrap) wrap.classList.remove("indet");
         if (bar) bar.style.width = payload.progress + "%";
         if (lbl && payload.label) lbl.textContent = payload.label;
@@ -12303,19 +11931,21 @@
           const body = payload.el.querySelector(".bot-body") || payload.el;
           payload.html = body.innerHTML;
         }
-        fsDone(payload);
+        wsDone(payload);
+      } else if (payload.stage === "error") {
+        wsDone({ error: payload.error });
       }
-      else if (payload.stage === "error") fsDone({ error: payload.error });
     }
 
     document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape" && focusIsOpen()) {
+      if (e.key === "Escape" && wsOpen()) {
         e.preventDefault();
-        closeFocus();
+        closeWorkspace();
       }
     });
 
-    window.addEventListener("resize", () => { if (focusIsOpen()) fsPartChat(); });
+    window.addEventListener("resize", () => { if (wsOpen()) wsFocusFeed(); });
+    document.addEventListener("scroll", () => { if (wsOpen()) wsFocusFeed(); }, true);
   </script>
 </body>
 
