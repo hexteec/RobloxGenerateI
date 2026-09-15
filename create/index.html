@@ -2033,8 +2033,9 @@
       background: #181712;
       border-radius: 0 0 10px 10px;
       padding: 14px;
+      /* No max-height: the block shows the whole script and the feed does the
+         scrolling, so there is never a scrollbar inside the message. */
       overflow-x: auto;
-      max-height: 420px;
     }
 
     .code-block code {
