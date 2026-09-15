@@ -732,6 +732,152 @@
       flex-wrap: wrap;
     }
 
+    /* Developer totals. Same counter shape as the rows above it, with the
+       group picker anchored to this row. */
+    .rc-dev {
+      --on-card: var(--ink);
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding-top: 8px;
+      border-top: 1px solid var(--border);
+    }
+
+    /* 232px minus the group button leaves no room for the words; the icon
+       carries the meaning and the tooltip spells out the exact figure. */
+    .rc-dev .gp-stat {
+      min-width: 0;
+      gap: 5px;
+    }
+
+    /* Square with the corners taken off, matching the small controls the rest
+       of the sidebar uses. Sits at the end of the row. */
+    .rc-groups-btn {
+      margin-left: auto;
+      width: 24px;
+      height: 24px;
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      background: var(--soft);
+      color: var(--ink-muted);
+      cursor: pointer;
+      transition: background .15s ease, border-color .15s ease, color .15s ease;
+    }
+
+    .rc-groups-btn svg {
+      width: 13px;
+      height: 13px;
+    }
+
+    .rc-groups-btn:hover,
+    .rc-groups-btn.open {
+      background: var(--accent-wash);
+      border-color: var(--accent);
+      color: var(--accent-deep);
+    }
+
+    /* .account-card clips its children (overflow:hidden for the rounded
+       corners), so an absolutely positioned panel is cut off at the card edge.
+       Fixed takes it out of that box; JS puts it where the button is. */
+    .rc-groups-pop {
+      position: fixed;
+      z-index: 200;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.14);
+      padding: 9px;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .rgp-head {
+      font-size: 9.5px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+    }
+
+    /* A developer can sit in dozens of groups; the list scrolls, the rest
+       of the popover does not. */
+    .rgp-list {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      max-height: 190px;
+      overflow-y: auto;
+    }
+
+    .rgp-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 7px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font-size: 11.5px;
+      color: var(--ink);
+    }
+
+    .rgp-item:hover {
+      background: var(--soft);
+    }
+
+    .rgp-item input {
+      accent-color: var(--accent);
+      width: 13px;
+      height: 13px;
+      flex-shrink: 0;
+      margin: 0;
+      cursor: pointer;
+    }
+
+    .rgp-name {
+      flex: 1;
+      min-width: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-weight: 600;
+    }
+
+    .rgp-role {
+      font-size: 9.5px;
+      color: var(--ink-faint);
+      flex-shrink: 0;
+    }
+
+    .rgp-empty {
+      padding: 12px 4px;
+      text-align: center;
+      font-size: 11px;
+      color: var(--ink-faint);
+    }
+
+    .rgp-apply {
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      font-weight: 600;
+      padding: 7px;
+      border: none;
+      border-radius: var(--radius-sm);
+      background: var(--accent);
+      color: var(--on-accent);
+      cursor: pointer;
+    }
+
+    .rgp-apply:hover {
+      background: var(--accent-deep);
+    }
+
     /* Counters reuse .gp-stat from the wallet; only the ink differs, because
        this card sits on a light surface rather than the dark one. */
     .rc-stats {
@@ -5661,6 +5807,37 @@
                     </svg><b id="robloxFriends">–</b>friends
                   </span>
                 </div>
+                <!-- Developer totals across owned and opted-in group experiences. -->
+                <div class="rc-dev" id="robloxDev" hidden>
+                  <span class="gp-stat" title="Total visits"><svg viewBox="0 0 24 24" fill="none"
+                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z" />
+                      <circle cx="12" cy="12" r="3" />
+                    </svg><b id="robloxVisits">&ndash;</b></span>
+
+                  <span class="gp-stat" title="Playing right now"><svg viewBox="0 0 24 24" fill="none"
+                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="12" cy="12" r="9" />
+                      <path d="m10 8 6 4-6 4Z" />
+                    </svg><b id="robloxPlaying">&ndash;</b></span>
+
+                  <button type="button" class="rc-groups-btn" id="robloxGroupsBtn"
+                    onclick="toggleRobloxGroups(event)" title="Choose which groups count"
+                    aria-label="Choose which groups count">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                      stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                      <circle cx="9" cy="7" r="4" />
+                      <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+                    </svg>
+                  </button>
+
+                  <div class="rc-groups-pop" id="robloxGroupsPop" hidden>
+                    <div class="rgp-head">Count experiences from</div>
+                    <div class="rgp-list" id="robloxGroupsList"></div>
+                    <button type="button" class="rgp-apply" onclick="saveRobloxGroups(event)">[ Apply ]</button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -7098,6 +7275,159 @@
     // not answer; that is not the same as zero, so it renders as an em dash
     // with the reason on hover. Hiding the row on failure, as this did before,
     // left no number and no explanation for why it was missing.
+    // Visit counts reach eight figures and the sidebar is 232px wide, so they
+    // are abbreviated. Below 10k the exact number still fits and is more
+    // useful than "9.4k".
+    function compactCount(n) {
+      // Thresholds sit just under each boundary because rounding crosses it
+      // first: 999,999 to one decimal is 1000K, which is not a unit anyone uses.
+      if (n < 10000) return n.toLocaleString("en-US");
+      if (n < 999950) return (n / 1e3).toFixed(n < 99950 ? 1 : 0).replace(/\.0$/, "") + "K";
+      if (n < 999950000) return (n / 1e6).toFixed(n < 99950000 ? 1 : 0).replace(/\.0$/, "") + "M";
+      return (n / 1e9).toFixed(1).replace(/\.0$/, "") + "B";
+    }
+
+    // Same contract as the follower counters: a number renders, null renders
+    // as an em dash carrying the reason, and neither is faked as zero.
+    function fillRobloxStat(id, value, label, statusCode, compact) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const stat = el.closest(".gp-stat");
+      if (typeof value === "number") {
+        el.textContent = compact ? compactCount(value) : value.toLocaleString("en-US");
+        if (stat) stat.title = compact ? label + ": " + value.toLocaleString("en-US") : label;
+        return;
+      }
+      el.textContent = "\u2014";
+      if (stat) {
+        stat.title = statusCode
+          ? label + " unavailable — Roblox replied " + statusCode
+          : label + " unavailable";
+      }
+    }
+
+    async function loadRobloxDevStats() {
+      const row = document.getElementById("robloxDev");
+      if (!row || !robloxLinked) return;
+      row.hidden = false;
+      try {
+        const res = await authedFetch("/roblox/dev-stats");
+        if (!res.ok) throw new Error(await res.text());
+        const data = await res.json();
+        const label = data.games
+          ? data.games + (data.games === 1 ? " experience" : " experiences")
+          : "No public experiences found";
+        fillRobloxStat("robloxVisits", data.visits, "Total visits across " + label, data.status, true);
+        fillRobloxStat("robloxPlaying", data.playing, "Playing now across " + label, data.status, true);
+      } catch (e) {
+        fillRobloxStat("robloxVisits", null, "Total visits", null, true);
+        fillRobloxStat("robloxPlaying", null, "Playing now", null, true);
+        console.warn("Roblox dev stats:", e.message);
+      }
+    }
+
+    let robloxGroupsLoaded = false;
+
+    // Fixed positioning means the panel does not move with the card, so its
+    // place is recomputed whenever the page does.
+    function positionRobloxGroups() {
+      const pop = document.getElementById("robloxGroupsPop");
+      const btn = document.getElementById("robloxGroupsBtn");
+      if (!pop || pop.hidden || !btn) return;
+      const card = btn.closest(".account-card");
+      const b = btn.getBoundingClientRect();
+      const c = (card || btn).getBoundingClientRect();
+
+      pop.style.left = Math.round(c.left) + "px";
+      pop.style.width = Math.round(c.width) + "px";
+
+      // Open downward when there is room for the list, upward otherwise.
+      const needed = 250;
+      if (window.innerHeight - b.bottom > needed) {
+        pop.style.top = Math.round(b.bottom + 7) + "px";
+        pop.style.bottom = "auto";
+      } else {
+        pop.style.top = "auto";
+        pop.style.bottom = Math.round(window.innerHeight - b.top + 7) + "px";
+      }
+    }
+
+    window.addEventListener("resize", positionRobloxGroups);
+    window.addEventListener("scroll", positionRobloxGroups, true);
+
+    async function toggleRobloxGroups(event) {
+      if (event) event.stopPropagation();
+      const pop = document.getElementById("robloxGroupsPop");
+      const btn = document.getElementById("robloxGroupsBtn");
+      if (!pop) return;
+
+      const opening = pop.hidden;
+      pop.hidden = !opening;
+      if (btn) btn.classList.toggle("open", opening);
+      if (opening) positionRobloxGroups();
+      if (!opening || robloxGroupsLoaded) return;
+
+      const list = document.getElementById("robloxGroupsList");
+      list.innerHTML = '<div class="rgp-empty">Loading…</div>';
+      try {
+        const res = await authedFetch("/roblox/groups");
+        if (!res.ok) throw new Error(await res.text());
+        const data = await res.json();
+        if (!Array.isArray(data.groups)) {
+          list.innerHTML = '<div class="rgp-empty">Roblox replied ' + escapeHtml(String(data.status || "?")) + '</div>';
+          return;
+        }
+        if (!data.groups.length) {
+          list.innerHTML = '<div class="rgp-empty">You are not in any groups</div>';
+          robloxGroupsLoaded = true;
+          return;
+        }
+        list.innerHTML = data.groups.map(g => `
+          <label class="rgp-item">
+            <input type="checkbox" value="${escapeHtml(g.id)}"${g.selected ? " checked" : ""}>
+            <span class="rgp-name">${escapeHtml(g.name)}</span>
+            <span class="rgp-role">${escapeHtml(g.role || "")}</span>
+          </label>`).join("");
+        robloxGroupsLoaded = true;
+        positionRobloxGroups();
+      } catch (e) {
+        list.innerHTML = '<div class="rgp-empty">Could not load groups</div>';
+        console.warn("Roblox groups:", e.message);
+      }
+    }
+
+    async function saveRobloxGroups(event) {
+      if (event) event.stopPropagation();
+      const pop = document.getElementById("robloxGroupsPop");
+      const btn = document.getElementById("robloxGroupsBtn");
+      const groupIds = [...document.querySelectorAll("#robloxGroupsList input:checked")].map(i => i.value);
+      try {
+        const res = await authedFetch("/roblox/groups", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ groupIds })
+        });
+        if (!res.ok) throw new Error(await res.text());
+      } catch (e) {
+        console.warn("Saving groups failed:", e.message);
+      }
+      if (pop) pop.hidden = true;
+      if (btn) btn.classList.remove("open");
+      // The totals depend on the selection, so they are refetched, not patched.
+      fillRobloxStat("robloxVisits", null, "Total visits", null, true);
+      fillRobloxStat("robloxPlaying", null, "Playing now", null, true);
+      loadRobloxDevStats();
+    }
+
+    // Clicking anywhere else closes it, like the other popovers on this page.
+    document.addEventListener("click", (e) => {
+      const pop = document.getElementById("robloxGroupsPop");
+      if (!pop || pop.hidden) return;
+      if (e.target.closest("#robloxGroupsPop") || e.target.closest("#robloxGroupsBtn")) return;
+      pop.hidden = true;
+      document.getElementById("robloxGroupsBtn")?.classList.remove("open");
+    });
+
     function setRobloxStats(data) {
       const row = document.getElementById("robloxStats");
       if (!row) return;
@@ -7144,6 +7474,11 @@
       card.classList.toggle("unlinked", !robloxLinked);
       const statsRow = document.getElementById("robloxStats");
       if (statsRow && !robloxLinked) statsRow.hidden = true;
+      const devRow = document.getElementById("robloxDev");
+      if (devRow && !robloxLinked) {
+        devRow.hidden = true;
+        robloxGroupsLoaded = false;
+      }
       if (dot) {
         dot.className = "rc-status-dot " + (robloxLinked ? "linked" : "unlinked");
       }
@@ -7160,6 +7495,7 @@
         // it already reads as em dashes until the numbers arrive.
         const statsNow = document.getElementById("robloxStats");
         if (statsNow) statsNow.hidden = false;
+        loadRobloxDevStats();
 
         avatarFallback.style.display = "none";
         avatarImg.style.display = "block";
