@@ -5138,7 +5138,7 @@
       text-align: left;
       /* Grid rows take the tallest chip, so a two-line label like "Normal
          Image" would leave its whole row taller than the others. */
-      min-height: 68px;
+      min-height: 74px;
       justify-content: flex-start;
       cursor: pointer;
       transition: background .15s ease, color .15s ease, border-color .15s ease;
@@ -5155,18 +5155,41 @@
       color: var(--accent-deep);
     }
 
-    .itp-chip .itp-ico {
+    /* The glyph sits in a frame shaped like the output: a square for the
+       1024x1024 types, a 3:2 box for the 1536x1024 ones. Same information the
+       trigger carries, so the format is visible before you pick, not after. */
+    .itp-chip .itp-frame {
       display: flex;
-      opacity: .65;
+      align-items: center;
+      justify-content: center;
+      width: 22px;
+      height: 22px;
+      border: 1.5px solid currentColor;
+      border-radius: 4px;
+      opacity: .45;
+      flex-shrink: 0;
+      transition: opacity .15s ease;
     }
 
-    .itp-chip.active .itp-ico {
+    .itp-chip .itp-frame[data-ar="wide"] {
+      width: 33px;
+    }
+
+    .itp-chip:hover .itp-frame {
+      opacity: .7;
+    }
+
+    .itp-chip.active .itp-frame {
       opacity: 1;
     }
 
+    .itp-chip .itp-ico {
+      display: flex;
+    }
+
     .itp-chip svg {
-      width: 15px;
-      height: 15px;
+      width: 12px;
+      height: 12px;
     }
 
     .itp-empty {
@@ -6562,10 +6585,12 @@
         const chips = sec.keys.map(key => {
           const p = imagePresets[key];
           const label = p.label;
+          const size = imageOutputSize(key);
           return `<button type="button" class="itp-chip${selectedImageType === key ? " active" : ""}"
                     data-key="${key}" data-search="${escapeHtml(label.toLowerCase())}"
+                    title="${escapeHtml(label)} — ${size.w}\u00d7${size.h}"
                     onclick="selectImageTypeMenu('${key}','${escapeHtml(label)}',event)">
-                    <span class="itp-ico">${p.icon || sec.fallbackIcon}</span>
+                    <span class="itp-frame" data-ar="${size.ar}"><span class="itp-ico">${p.icon || sec.fallbackIcon}</span></span>
                     <span class="itp-name">${escapeHtml(label)}</span>
                   </button>`;
         }).join("");
