@@ -788,6 +788,8 @@
     .rc-groups-pop {
       position: fixed;
       z-index: 200;
+      max-height: 320px;
+      overflow: hidden;
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: var(--radius-md);
@@ -806,13 +808,15 @@
       color: var(--ink-faint);
     }
 
-    /* A developer can sit in dozens of groups; the list scrolls, the rest
-       of the popover does not. */
+    /* A developer can sit in dozens of groups. The list takes whatever height
+       the panel has left after the header and the button, and scrolls; the
+       panel's own height is clamped to the viewport in positionRobloxGroups. */
     .rgp-list {
       display: flex;
       flex-direction: column;
       gap: 2px;
-      max-height: 190px;
+      flex: 1 1 auto;
+      min-height: 0;
       overflow-y: auto;
     }
 
@@ -7330,26 +7334,45 @@
 
     // Fixed positioning means the panel does not move with the card, so its
     // place is recomputed whenever the page does.
+    const RGP_MARGIN = 8;   // never sit flush against the window edge
+    const RGP_MAX_H = 320;
+    const RGP_MIN_H = 132;  // header, one row and the button
+
     function positionRobloxGroups() {
       const pop = document.getElementById("robloxGroupsPop");
       const btn = document.getElementById("robloxGroupsBtn");
       if (!pop || pop.hidden || !btn) return;
+
       const card = btn.closest(".account-card");
       const b = btn.getBoundingClientRect();
       const c = (card || btn).getBoundingClientRect();
 
-      pop.style.left = Math.round(c.left) + "px";
-      pop.style.width = Math.round(c.width) + "px";
+      // Track the card's width, but never wider than the window allows.
+      const width = Math.min(c.width, window.innerWidth - RGP_MARGIN * 2);
+      pop.style.width = Math.round(width) + "px";
+      pop.style.left = Math.round(
+        Math.max(RGP_MARGIN, Math.min(c.left, window.innerWidth - width - RGP_MARGIN))
+      ) + "px";
 
-      // Open downward when there is room for the list, upward otherwise.
-      const needed = 250;
-      if (window.innerHeight - b.bottom > needed) {
-        pop.style.top = Math.round(b.bottom + 7) + "px";
-        pop.style.bottom = "auto";
-      } else {
-        pop.style.top = "auto";
-        pop.style.bottom = Math.round(window.innerHeight - b.top + 7) + "px";
-      }
+      // Measure at full height first: guessing a threshold, as this did
+      // before, puts a taller panel through the bottom of the window.
+      pop.style.maxHeight = RGP_MAX_H + "px";
+      pop.style.top = "0px";
+      pop.style.bottom = "auto";
+      const wanted = Math.min(pop.offsetHeight, RGP_MAX_H);
+
+      const below = window.innerHeight - b.bottom - 7 - RGP_MARGIN;
+      const above = b.top - 7 - RGP_MARGIN;
+      // Prefer downward, but only while it genuinely fits; otherwise take
+      // whichever side has more room and shrink the list to match.
+      const down = wanted <= below || below >= above;
+      const height = Math.max(RGP_MIN_H, Math.min(wanted, down ? below : above));
+
+      pop.style.maxHeight = Math.round(height) + "px";
+      pop.style.top = Math.round(down
+        ? Math.min(b.bottom + 7, window.innerHeight - height - RGP_MARGIN)
+        : Math.max(RGP_MARGIN, b.top - 7 - height)
+      ) + "px";
     }
 
     window.addEventListener("resize", positionRobloxGroups);
