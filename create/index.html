@@ -5006,10 +5006,13 @@
     }
 
     .milli-fill {
+      /* It is a span: without this it stays inline and ignores width/height
+         entirely, so the bar renders permanently empty. */
+      display: block;
       height: 100%;
       width: 0%;
       border-radius: 9999px;
-      background: var(--ink-faint);
+      background: var(--ink-muted);
       transition: width .4s ease, background .4s ease;
     }
 
