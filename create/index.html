@@ -7363,9 +7363,20 @@
       document.getElementById("mobileCodeModelSelect").value = model;
     }
 
+    // Keeps the dock pills in sync with the active mode no matter what set it:
+    // a dock click, a restored chat, or the assistant switching mode by itself.
+    // setForceMode returns early per mode, so this has to run before those branches.
+    function syncForceModeDock(mode) {
+      document.querySelectorAll(".fm-pill[data-force]").forEach(p => {
+        p.classList.toggle("active", p.dataset.force === mode);
+      });
+    }
+
     function setForceMode(mode, opts) {
       opts = opts || {};
       activeForceMode = mode;
+
+      syncForceModeDock(mode);
 
       renderModeContextBar(mode);
 
