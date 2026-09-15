@@ -1085,32 +1085,6 @@
       color: var(--coral);
     }
 
-    /* The bracket motif is used across the app, so it stays — set in the mono
-       face and filled with the brand accent it reads as deliberate. */
-    .gp-topup-btn {
-      font-family: var(--font-mono);
-      font-size: 10.5px;
-      font-weight: 600;
-      padding: 7px 10px;
-      background: var(--accent);
-      color: var(--on-accent);
-      border: none;
-      border-radius: var(--radius-sm);
-      cursor: pointer;
-      line-height: 1;
-      white-space: nowrap;
-      transition: background .15s ease, transform .12s ease;
-    }
-
-    .gp-topup-btn:hover {
-      background: var(--accent-deep);
-      transform: translateY(-1px);
-    }
-
-    .gp-topup-btn:active {
-      transform: translateY(0);
-    }
-
     /* Counters read as one line of tally, not three dashboard tiles: no
        dividers, no stacked all-caps captions. */
     /* The sidebar gives this card 232px. Spelled-out labels overran it once
@@ -5349,13 +5323,14 @@
        price: every call adds millitokens and a whole token is deducted at 1000.
        Just the bar — the number it is counting toward means nothing to anyone,
        so the fill level is the whole message. Detail lives in the tooltip. */
+    /* Lives on the wallet tile, so its colours come from --on-card rather than
+       the page ink: the tile inverts with the theme and the bar goes with it. */
     .milli-meter {
       display: none;
-      width: 84px;
+      width: 96px;
       height: 6px;
       border-radius: 9999px;
-      background: var(--soft-2);
-      border: 1px solid var(--border);
+      background: color-mix(in srgb, var(--on-card) 20%, transparent);
       overflow: hidden;
       flex-shrink: 0;
       cursor: default;
@@ -5372,7 +5347,7 @@
       height: 100%;
       width: 0%;
       border-radius: 9999px;
-      background: var(--ink-muted);
+      background: color-mix(in srgb, var(--on-card) 70%, transparent);
       transition: width .4s ease, background .4s ease;
     }
 
@@ -5734,9 +5709,12 @@
                     <div class="gp-token-box" id="tokenPill" onclick="event.stopPropagation(); openBuyModal()"
                       title="Top up tokens">
                       <div class="gp-token-num"><span id="tokenCount">–</span><span class="gp-token-unit">tokens</span></div>
-                      <button class="gp-topup-btn" type="button" onclick="event.stopPropagation(); openBuyModal()">
-                        [ + Top up ]
-                      </button>
+                      <!-- Code generation eats the balance in fractions; the meter
+                           says how much of the next token is already spent. The
+                           whole tile still opens the top-up modal. -->
+                      <div class="milli-meter" id="codeMilliMeter">
+                        <span class="milli-fill" id="codeMilliFill"></span>
+                      </div>
                     </div>
 
                     <div class="gp-stats-row" id="gpStatsRow">
@@ -6125,10 +6103,6 @@
                       <button class="ui-dropdown-item"
                         onclick="selectCodeModel('deepseek', 'DeepSeek V4 Flash', event)">DeepSeek V4 Flash</button>
                     </div>
-                  </div>
-
-                  <div class="milli-meter" id="codeMilliMeter">
-                    <span class="milli-fill" id="codeMilliFill"></span>
                   </div>
 
                   <div style="position: relative; display:none;" id="imageTypeSelectorWrap">
@@ -7590,7 +7564,9 @@
       const meter = document.getElementById("codeMilliMeter");
       if (!meter) return;
 
-      if (codeDebtMilli === null || activeForceMode !== "code") {
+      // It sits on the account tile now, not in the Code composer row, so the
+      // mode no longer gates it: the debt is on the account either way.
+      if (codeDebtMilli === null) {
         meter.classList.remove("show");
         return;
       }
