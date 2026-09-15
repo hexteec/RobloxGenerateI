@@ -5700,38 +5700,35 @@
 
     .ws.ws-leaving { animation: wsLeave .3s ease both; }
 
-    @keyframes wsLeave {
-      to { opacity: 0; transform: translateY(10px) scale(.99); }
-    }
-
-    /* Light pooling in the middle, in place of a border. */
-    .ws::before {
+    /* The backdrop steps down while work is on the bench: its own grid,
+       darker, over a wash that deepens towards the edges. Drawn as a layer
+       rather than by swapping --gridColor, because custom properties in a
+       gradient cannot fade — and this has to arrive as slowly as the work
+       it is exposing. It paints before every positioned child of the
+       shell, so it darkens the background without touching the content.
+       The wash is black rather than --ink because the dark theme's ink is
+       a pale lilac, which would lighten the page instead of deepening it;
+       the grid lines still follow --ink, so they gain contrast either way. */
+    .app-shell::before {
       content: "";
       position: absolute;
-      inset: -18px -46px -24px;
+      inset: 0;
       z-index: 0;
-      border-radius: 40px;
-      background: radial-gradient(58% 52% at 50% 40%,
-        color-mix(in srgb, var(--accent) 11%, transparent), transparent 72%);
       pointer-events: none;
-      /* Breathing light rather than a drifting panel: it reads as floating
-         without ever moving the text you are trying to read. */
-      animation: wsGlow 1.4s ease both, wsBreathe 9s ease-in-out 1.4s infinite;
+      opacity: 0;
+      transition: opacity .55s ease;
+      background-image:
+        linear-gradient(color-mix(in srgb, var(--ink) 15%, transparent) 1px, transparent 1px),
+        linear-gradient(90deg, color-mix(in srgb, var(--ink) 15%, transparent) 1px, transparent 1px),
+        radial-gradient(130% 98% at 50% 42%, rgba(0, 0, 0, .08) 0%, rgba(0, 0, 0, .24) 100%);
+      background-size: 30px 30px, 30px 30px, cover;
+      background-position: 0 0, 0 0, 0 0;
     }
 
-    @keyframes wsGlow {
-      from { opacity: 0; transform: scale(.9); }
-      to { opacity: 1; transform: none; }
-    }
+    body.ws-on .app-shell::before { opacity: 1; }
 
-    @keyframes wsBreathe {
-      0%, 100% { opacity: 1; transform: none; }
-      50% { opacity: .78; transform: scale(1.035); }
-    }
-
-    .ws > * {
-      position: relative;
-      z-index: 1;
+    @keyframes wsLeave {
+      to { opacity: 0; transform: translateY(10px) scale(.99); }
     }
 
     /* Everything around the work bends towards it. The chat gets a real
@@ -5803,7 +5800,8 @@
       display: flex;
       align-items: center;
       gap: 11px;
-      padding: 0 2px;
+      padding: 0 2px 11px;
+      border-bottom: 1px solid var(--border);
     }
 
     .ws-mode {
@@ -5840,34 +5838,29 @@
       overflow: hidden;
     }
 
+    /* The step strip is a path, written the way this app writes things:
+       plain lowercase, the one you are on in brackets. */
     .ws-step {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      font-size: 11px;
+      font-family: var(--font-mono);
+      font-size: 10.5px;
       color: var(--ink-faint);
       white-space: nowrap;
     }
 
-    .ws-step .ws-dot {
-      width: 5px;
-      height: 5px;
-      border-radius: 50%;
-      background: var(--soft-2);
+    .ws-step.done { color: var(--ink-muted); }
+
+    .ws-step.now {
+      color: var(--accent);
+      font-weight: 600;
     }
 
-    .ws-step.done .ws-dot { background: var(--ink-faint); }
-    .ws-step.now { color: var(--ink-muted); font-weight: 600; }
-
-    .ws-step.now .ws-dot {
-      background: var(--accent);
-      box-shadow: 0 0 0 3px var(--accent-wash);
-    }
+    .ws-step.now::before { content: "[\00a0"; }
+    .ws-step.now::after { content: "\00a0]"; }
 
     .ws-sep {
-      width: 11px;
-      height: 1px;
-      background: var(--soft-2);
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      color: var(--soft-2);
       flex: 0 0 auto;
     }
 
@@ -5895,19 +5888,20 @@
 
     .ws-title {
       font-family: var(--font-display);
-      font-size: 22px;
+      font-size: 17px;
       font-weight: 600;
-      letter-spacing: -.015em;
-      line-height: 1.2;
-      margin: 0 0 6px;
+      letter-spacing: -.01em;
+      line-height: 1.25;
+      margin: 0 0 5px;
     }
 
     .ws-lead {
-      font-size: 13px;
+      font-family: var(--font-mono);
+      font-size: 11px;
       color: var(--ink-muted);
-      line-height: 1.55;
-      margin: 0 0 20px;
-      max-width: 58ch;
+      line-height: 1.6;
+      margin: 0 0 18px;
+      max-width: 72ch;
     }
 
     /* Each child drifts up in turn, so the group settles rather than
@@ -5922,7 +5916,7 @@
       to { opacity: 1; transform: none; }
     }
 
-    .ws-group + .ws-group { margin-top: 24px; }
+    .ws-group + .ws-group { margin-top: 20px; }
 
     .ws-group-title,
     .ws-next-title {
@@ -5931,115 +5925,122 @@
       letter-spacing: .04em;
       text-transform: uppercase;
       color: var(--ink-muted);
-      margin-bottom: 11px;
+      margin-bottom: 8px;
     }
 
-    /* Nothing is boxed until you reach for it: the card materialises on
-       hover instead of sitting there as another frame. */
+    /* An indexed list of things you can ask for, not a grid of feature
+       tiles. Hairlines between, an accent edge and a bracketed verb on the
+       one under the cursor. */
+    .ws-tasks {
+      display: flex;
+      flex-direction: column;
+      border-top: 1px solid var(--border);
+    }
+
     .ws-task {
       position: relative;
       display: flex;
+      align-items: center;
+      gap: 13px;
+      width: 100%;
+      padding: 11px 12px 11px 10px;
       text-align: left;
       background: transparent;
-      border: 1px solid transparent;
-      border-radius: 14px;
+      border: none;
+      border-bottom: 1px solid var(--border);
       color: var(--ink);
       font-family: var(--font-body);
       cursor: pointer;
-      transition: background .2s ease, border-color .2s ease, box-shadow .2s ease, transform .2s cubic-bezier(.16, 1, .3, 1);
+      transition: background .16s ease, padding-left .16s ease;
+    }
+
+    /* The accent edge is drawn rather than bordered, so nothing shifts
+       sideways when it appears. */
+    .ws-task::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: -1px;
+      bottom: -1px;
+      width: 2px;
+      background: var(--accent);
+      transform: scaleY(0);
+      transition: transform .16s ease;
     }
 
     .ws-task:hover:not(:disabled),
     .ws-task:focus-visible {
-      background: var(--card);
-      border-color: var(--border);
-      box-shadow: var(--shadow-md);
-      transform: translateY(-3px);
+      background: var(--soft);
+      padding-left: 14px;
       outline: none;
     }
 
-    .ws-task:hover:not(:disabled) .ws-task-ico {
-      background: var(--accent-wash);
-      color: var(--accent);
-    }
+    .ws-task:hover:not(:disabled)::before,
+    .ws-task:focus-visible::before { transform: scaleY(1); }
+
+    .ws-task:hover:not(:disabled) .ws-task-ico { color: var(--accent); }
+    .ws-task:hover:not(:disabled) .ws-go { opacity: 1; }
 
     .ws-task:disabled { cursor: default; }
 
     .ws-task:disabled .ws-task-name,
-    .ws-task:disabled .ws-task-sub { color: var(--ink-faint); }
+    .ws-task:disabled .ws-task-sub,
+    .ws-task:disabled .ws-task-ico { color: var(--ink-faint); }
+
+    .ws-idx {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--ink-faint);
+      flex: 0 0 auto;
+      width: 16px;
+    }
 
     .ws-task-ico {
       display: flex;
       align-items: center;
       justify-content: center;
       flex: 0 0 auto;
-      border-radius: 12px;
-      background: var(--soft);
+      width: 18px;
+      height: 18px;
       color: var(--ink-muted);
-      transition: background .2s ease, color .2s ease;
+      transition: color .16s ease;
     }
+
+    .ws-task-ico svg { width: 16px; height: 16px; }
+
+    .ws-task-text { flex: 1 1 auto; min-width: 0; }
 
     .ws-task-name {
       display: block;
       font-family: var(--font-display);
+      font-size: 13px;
       font-weight: 600;
-      line-height: 1.25;
+      line-height: 1.3;
     }
 
     .ws-task-sub {
       display: block;
+      font-size: 11.5px;
       font-weight: 500;
       color: var(--ink-muted);
-      line-height: 1.45;
-      margin-top: 3px;
+      line-height: 1.4;
+      margin-top: 1px;
     }
 
-    /* The openers get room; the follow-on work sits quieter beneath. */
-    .ws-tasks-lead {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(156px, 1fr));
-      gap: 6px;
+    .ws-go {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--accent);
+      flex: 0 0 auto;
+      opacity: 0;
+      transition: opacity .16s ease;
     }
-
-    .ws-tasks-lead .ws-task {
-      flex-direction: column;
-      gap: 10px;
-      padding: 15px 14px 16px;
-    }
-
-    .ws-tasks-lead .ws-task-ico { width: 38px; height: 38px; }
-    .ws-tasks-lead .ws-task-ico svg { width: 18px; height: 18px; }
-    .ws-tasks-lead .ws-task-name { font-size: 14px; }
-    .ws-tasks-lead .ws-task-sub { font-size: 11.8px; }
-
-    .ws-tasks-more {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(258px, 1fr));
-      gap: 4px;
-    }
-
-    .ws-tasks-more .ws-task {
-      align-items: center;
-      gap: 11px;
-      padding: 10px 12px;
-    }
-
-    .ws-tasks-more .ws-task-ico { width: 30px; height: 30px; border-radius: 10px; }
-    .ws-tasks-more .ws-task-ico svg { width: 15px; height: 15px; }
-    .ws-tasks-more .ws-task-name { font-size: 12.7px; }
-    .ws-tasks-more .ws-task-sub { font-size: 11.3px; }
 
     .ws-soon {
-      display: inline-block;
-      margin-top: 6px;
-      font-size: 9.5px;
-      font-weight: 700;
-      letter-spacing: .07em;
-      text-transform: uppercase;
-      padding: 2px 6px;
-      border-radius: 5px;
+      font-family: var(--font-mono);
+      font-size: 10px;
       color: var(--amber);
-      background: var(--amber-wash);
+      flex: 0 0 auto;
     }
 
     /* ---------- fields ---------- */
@@ -6370,8 +6371,6 @@
       .ws::before { inset: -14px -22px -18px; }
       .ws-title { font-size: 19px; }
       .ws-steps { display: none; }
-      .ws-tasks-lead,
-      .ws-tasks-more { grid-template-columns: minmax(0, 1fr); }
       .ws-foot { flex-wrap: wrap; }
       .ws-foot-note { flex: 1 1 100%; margin: 0 0 6px; }
       .ws-foot .ws-btn { flex: 1 1 auto; justify-content: center; }
@@ -6379,7 +6378,7 @@
 
     @media (prefers-reduced-motion: reduce) {
       .ws, .ws.ws-leaving, .ws-rise { animation: none; }
-      .ws::before { animation: none; opacity: 1; }
+      .app-shell::before { transition: none; }
       body.ws-lens-on .ws-lens,
       body.ws-lens-on .sidebar,
       body.ws-lens-on .topbar { filter: none; }
@@ -11618,8 +11617,8 @@
       const at = steps.indexOf(s.step);
       const stepsHtml = steps.map((k, i) => {
         const cls = i < at ? "done" : (i === at ? "now" : "");
-        return `<span class="ws-step ${cls}"><span class="ws-dot"></span>${WS_STEP_NAMES[k]}</span>`;
-      }).join(`<span class="ws-sep"></span>`);
+        return `<span class="ws-step ${cls}">${WS_STEP_NAMES[k]}</span>`;
+      }).join(`<span class="ws-sep">·</span>`);
 
       const view = { task: wsViewTask, config: wsViewConfig, run: wsViewRun, result: wsViewResult }[s.step](s, cat);
 
@@ -11643,28 +11642,28 @@
         const tasks = g.tasks.map(t => {
           const blockedByCode = t.needsCode && !hasCode;
           const off = !t.ready || blockedByCode;
-          const soon = !t.ready
-            ? `<span class="ws-soon">Not wired up yet</span>`
-            : (blockedByCode ? `<span class="ws-soon">Needs a script first</span>` : "");
+          const right = !t.ready
+            ? `<span class="ws-soon">not wired up yet</span>`
+            : (blockedByCode ? `<span class="ws-soon">needs a script first</span>` : `<span class="ws-go">[ open ]</span>`);
+          n++;
           return `
-            <button class="ws-task ws-rise" style="--i:${n++}" type="button" ${off ? "disabled" : ""} onclick="wsPickTask('${t.id}')"
+            <button class="ws-task ws-rise" style="--i:${n}" type="button" ${off ? "disabled" : ""} onclick="wsPickTask('${t.id}')"
               ${!t.ready && t.needs ? `title="${escapeHtml(WS_SOON_NOTE[t.needs] || "")}"` : ""}>
+              <span class="ws-idx">${String(n).padStart(2, "0")}</span>
               <span class="ws-task-ico">${t.icon}</span>
-              <span><span class="ws-task-name">${escapeHtml(t.name)}</span>
-                <span class="ws-task-sub">${escapeHtml(t.sub)}</span>${soon}</span>
+              <span class="ws-task-text"><span class="ws-task-name">${escapeHtml(t.name)}</span>
+                <span class="ws-task-sub">${escapeHtml(t.sub)}</span></span>
+              ${right}
             </button>`;
         }).join("");
-        // The first group is what you came here to do; the rest is what you
-        // can do to the result once it exists, so it reads quieter.
-        const shape = gi === 0 ? "ws-tasks-lead" : "ws-tasks-more";
         return `<div class="ws-group"><div class="ws-group-title ws-rise" style="--i:${gi}">${escapeHtml(g.title)}</div>
-                <div class="${shape}">${tasks}</div></div>`;
+                <div class="ws-tasks">${tasks}</div></div>`;
       }).join("");
 
       return {
         html: `<h2 class="ws-title ws-rise">${escapeHtml(cat.title)}</h2>
                <p class="ws-lead ws-rise" style="--i:1">${escapeHtml(cat.lead)}</p>${groups}`,
-        foot: `<span class="ws-foot-note">Whatever you make lands in the chat as a normal message.</span>`
+        foot: `<span class="ws-foot-note">whatever you make lands in the chat as a normal message</span>`
       };
     }
 
