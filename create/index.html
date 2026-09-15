@@ -7095,24 +7095,38 @@
     }
 
     // The counts ride along with the avatar response. null means Roblox would
-    // not answer — a real 0 and an unavailable count must not look alike, so
-    // the row hides rather than claiming the account has no followers.
+    // not answer; that is not the same as zero, so it renders as an em dash
+    // with the reason on hover. Hiding the row on failure, as this did before,
+    // left no number and no explanation for why it was missing.
     function setRobloxStats(data) {
       const row = document.getElementById("robloxStats");
       if (!row) return;
 
-      const followers = data && data.followers;
-      const friends = data && data.friends;
-      if (typeof followers !== "number" || typeof friends !== "number") {
-        row.hidden = true;
-        if (data && data.countsStatus) {
-          console.warn("Roblox counts unavailable:", data.countsStatus);
-        }
-        return;
-      }
+      const status = (data && data.countsStatus) || null;
 
-      document.getElementById("robloxFollowers").textContent = followers.toLocaleString("en-US");
-      document.getElementById("robloxFriends").textContent = friends.toLocaleString("en-US");
+      const fill = (id, value, label, statusCode) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const stat = el.closest(".gp-stat");
+        if (typeof value === "number") {
+          el.textContent = value.toLocaleString("en-US");
+          if (stat) stat.title = label;
+          return;
+        }
+        el.textContent = "\u2014";
+        if (stat) {
+          stat.title = statusCode
+            ? label + " unavailable — Roblox replied " + statusCode
+            : label + " unavailable";
+        }
+      };
+
+      fill("robloxFollowers", data && data.followers, "Followers", status && status.followers);
+      fill("robloxFriends", data && data.friends, "Friends", status && status.friends);
+
+      if (status && (status.followers !== 200 || status.friends !== 200)) {
+        console.warn("Roblox counts unavailable:", status);
+      }
       row.hidden = false;
     }
 
@@ -7141,6 +7155,11 @@
         action.className = "rc-unlink-btn";
         action.title = "Disconnect Roblox";
         action.setAttribute("aria-label", "Disconnect Roblox");
+
+        // Reveal the row up front so it does not pop in once the fetch lands;
+        // it already reads as em dashes until the numbers arrive.
+        const statsNow = document.getElementById("robloxStats");
+        if (statsNow) statsNow.hidden = false;
 
         avatarFallback.style.display = "none";
         avatarImg.style.display = "block";
