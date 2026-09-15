@@ -6199,7 +6199,7 @@
                       <button class="ui-dropdown-item" onclick="selectCodeModel('luna', 'GPT-5.6 Luna', event)">GPT-5.6
                         Luna</button>
                       <button class="ui-dropdown-item"
-                        onclick="selectCodeModel('gemini', 'Gemini 3.7 Flash', event)">Gemini 3.7 Flash</button>
+                        onclick="selectCodeModel('gemini', 'Gemini 3.8 Flash', event)">Gemini 3.8 Flash</button>
                       <button class="ui-dropdown-item"
                         onclick="selectCodeModel('deepseek', 'DeepSeek V4 Flash', event)">DeepSeek V4 Flash</button>
                     </div>
@@ -6257,7 +6257,7 @@
                 <div class="composer-hint" id="composerHint" style="display:none;"></div>
                 <select id="mobileCodeModelSelect" style="display:none;">
                   <option value="luna">GPT-5.6 Luna</option>
-                  <option value="gemini">Gemini 3.7 Flash</option>
+                  <option value="gemini">Gemini 3.8 Flash</option>
                   <option value="deepseek">DeepSeek V4 Flash</option>
                 </select>
               </div>
@@ -6370,7 +6370,7 @@
       style: { api: "image2img", label: "Transfer style", icon: ICONS.spark, sub: "Upload image and reference style.", hint: "Upload image and reference style." }
     };
 
-    const CODE_MODEL_LABELS = { gemini: "Gemini 3.7 Flash", deepseek: "DeepSeek V4 Flash", luna: "GPT-5.6 Luna" };
+    const CODE_MODEL_LABELS = { gemini: "Gemini 3.8 Flash", deepseek: "DeepSeek V4 Flash", luna: "GPT-5.6 Luna" };
     function codeModelBadgeHtml(model, pricingNote) {
       if (!model) return "";
       const label = CODE_MODEL_LABELS[model] || model;
