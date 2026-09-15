@@ -5753,11 +5753,18 @@
 
     body.ws-lens-on .ws-lens { filter: url(#wsFisheye); }
 
-    body.ws-on .msg {
+    /* Scoped to the lens: the result preview renders a .msg of its own
+       inside the workspace, and it must not be pushed back with the chat. */
+    body.ws-on .ws-lens .msg {
       opacity: var(--ws-fade, .3);
       filter: blur(var(--ws-blur, 3px));
       pointer-events: none;
     }
+
+    /* A run writes its own user bubble and placeholder into the chat, which
+       would sit behind the workspace saying the same thing it is already
+       showing. They stay hidden until you step back out to them. */
+    .msg.ws-pending { display: none !important; }
 
     /* The sidebar spans the whole window — its two columns flank the feed —
        so a lens on it bulges around the same centre as the one on the
@@ -5880,10 +5887,11 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      padding: 4px 2px;
-      border: none;
-      background: none;
-      color: var(--ink-faint);
+      padding: 5px 9px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--card);
+      color: var(--ink-muted);
       font-family: var(--font-mono);
       font-size: 10.5px;
       font-weight: 600;
@@ -5891,7 +5899,7 @@
       transition: color .15s ease;
     }
 
-    .ws-x:hover { color: var(--ink); }
+    .ws-x:hover { color: var(--ink); border-color: var(--ink-faint); background: var(--soft); }
     .ws-x svg { width: 12px; height: 12px; }
 
     /* ---------- the middle ---------- */
@@ -5944,9 +5952,10 @@
       position: relative;
       display: flex;
       text-align: left;
-      background: transparent;
-      border: 1px solid transparent;
+      background: var(--card);
+      border: 1px solid var(--border);
       border-radius: 14px;
+      box-shadow: var(--shadow-sm);
       color: var(--ink);
       font-family: var(--font-body);
       cursor: pointer;
@@ -5955,8 +5964,8 @@
 
     .ws-task:hover:not(:disabled),
     .ws-task:focus-visible {
-      background: var(--card);
-      border-color: var(--border);
+      background: var(--accent-wash);
+      border-color: var(--accent);
       box-shadow: var(--shadow-md);
       transform: translateY(-3px);
       outline: none;
@@ -5967,7 +5976,11 @@
       color: var(--accent);
     }
 
-    .ws-task:disabled { cursor: default; }
+    .ws-task:disabled {
+      cursor: default;
+      background: var(--soft);
+      box-shadow: none;
+    }
 
     .ws-task:disabled .ws-task-name,
     .ws-task:disabled .ws-task-sub { color: var(--ink-faint); }
@@ -6204,7 +6217,8 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      background: transparent;
+      background: var(--card);
+      box-shadow: var(--shadow-sm);
       border: 1px solid var(--border);
       color: var(--ink);
       font-family: var(--font-mono);
@@ -6219,7 +6233,7 @@
     }
 
     .ws-btn:hover:not(:disabled) {
-      background: var(--card);
+      background: var(--soft);
       border-color: var(--ink-faint);
       transform: translateY(-1px);
     }
@@ -6248,8 +6262,9 @@
     .ws-btn:disabled { opacity: .4; cursor: default; }
 
     .ws-quiet {
-      border-color: transparent;
+      background: var(--soft);
       color: var(--ink-muted);
+      box-shadow: none;
     }
 
     /* ---------- running ---------- */
@@ -6344,12 +6359,12 @@
        come later in the file and would otherwise win on equal weight. */
     .ws-side .ws-btn:not(.primary) {
       background: var(--soft);
-      border-color: transparent;
+      border-color: var(--border);
     }
 
     .ws-side .ws-btn:not(.primary):hover:not(:disabled) {
       background: var(--card);
-      border-color: var(--border);
+      border-color: var(--ink-faint);
     }
 
     .ws-side .ws-btn svg { color: var(--ink-faint); }
@@ -6418,16 +6433,17 @@
       padding: 7px 12px;
       border: 1px solid var(--border);
       border-radius: var(--radius-sm);
-      background: transparent;
+      background: var(--card);
       color: var(--ink-muted);
       font-family: var(--font-mono);
       font-size: 10.5px;
       font-weight: 600;
       cursor: pointer;
+      box-shadow: var(--shadow-sm);
       transition: color .15s ease, border-color .15s ease, background .15s ease;
     }
 
-    .ws-unfold:hover { color: var(--ink); border-color: var(--ink-faint); background: var(--card); }
+    .ws-unfold:hover { color: var(--ink); border-color: var(--ink-faint); background: var(--soft); }
 
     .ws-unfold svg {
       width: 13px;
@@ -11498,7 +11514,7 @@
     // One lens over all the messages needs them under one element, so they
     // are gathered into a wrapper for as long as the workspace is open and
     // handed straight back when it closes.
-    function wsLensGather() {
+    function wsLensGather(fromRun) {
       const inner = document.getElementById("feedInner");
       if (!inner) return;
       let lens = document.getElementById("wsLens");
@@ -11509,7 +11525,12 @@
         const first = inner.querySelector(":scope > .msg");
         inner.insertBefore(lens, first || inner.firstChild);
       }
-      inner.querySelectorAll(":scope > .msg").forEach(m => lens.appendChild(m));
+      inner.querySelectorAll(":scope > .msg").forEach(m => {
+        // Anything arriving after the workspace opened belongs to the run
+        // it is already narrating, so it waits out of sight.
+        if (fromRun) m.classList.add("ws-pending");
+        lens.appendChild(m);
+      });
     }
 
     function wsLensRelease() {
@@ -11542,7 +11563,7 @@
           // Messages generated while the workspace is open arrive as direct
           // children of the feed: move them under the lens, and keep the
           // workspace itself last so it stays where the next one would go.
-          wsLensGather();
+          wsLensGather(true);
           if (feed.lastElementChild !== me) feed.appendChild(me);
         });
         wsFeedWatcher.observe(inner, { childList: true });
@@ -11558,7 +11579,9 @@
       if (!me || !feed) return;
       const anchor = me.getBoundingClientRect().top;
       const span = Math.max(feed.clientHeight, 1);
-      feed.querySelectorAll(".msg").forEach(m => {
+      // Only the chat recedes. The result preview renders a .msg of its
+      // own inside the workspace and must keep its own sharpness.
+      feed.querySelectorAll("#wsLens > .msg").forEach(m => {
         const r = m.getBoundingClientRect();
         const d = Math.min(1, Math.abs(r.top + r.height / 2 - anchor) / span);
         m.style.setProperty("--ws-fade", (0.62 - 0.26 * d).toFixed(3));
@@ -11583,6 +11606,16 @@
       document.querySelectorAll(".msg").forEach(m => {
         m.style.removeProperty("--ws-fade");
         m.style.removeProperty("--ws-blur");
+      });
+    }
+
+    // Held-back messages either belong to something that ran — in which
+    // case the chat should have them — or they are the scaffolding of a
+    // task that was abandoned half-configured, and nobody wants those.
+    function wsReleasePending(keep) {
+      document.querySelectorAll(".msg.ws-pending").forEach(m => {
+        if (keep) m.classList.remove("ws-pending");
+        else m.remove();
       });
     }
 
@@ -11648,6 +11681,9 @@
       if (!wsState) return;
       if (wsState.busy && !opts.force) return;
 
+      // Captured before the state goes: a run that started or finished has
+      // real messages behind it, a half-filled form has none.
+      const ran = !!(wsState.busy || wsState.result);
       wsState = null;
 
       // The workspace stood in for the in-chat method chooser, so walking
@@ -11660,6 +11696,7 @@
         el.classList.add("ws-leaving");
         setTimeout(() => el.remove(), 190);
       }
+      wsReleasePending(ran);
       document.body.classList.remove("ws-on", "ws-lens-on");
       const shell = document.querySelector(".app-shell");
       if (shell) { shell.style.removeProperty("--ws-cx"); shell.style.removeProperty("--ws-cy"); }
