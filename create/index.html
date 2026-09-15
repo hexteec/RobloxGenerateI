@@ -2047,8 +2047,10 @@
     }
 
     /* A message carrying code gets the full column: fitCodeBlock() then scales
-       the type down until the longest line fits, so there is no sideways scroll.
-       cb-wrap is the fallback for lines still too long at the minimum size. */
+       the type down a little until the longest line fits, so there is no
+       sideways scroll. Lines that would need a smaller size than CB_MIN_FS wrap
+       instead, which keeps the script readable at the cost of the odd long line
+       taking two rows. */
     .msg-bot:has(.code-block) .msg-bubble {
       max-width: 100%;
       /* Flex items refuse to shrink past their content; without this the
@@ -7141,10 +7143,12 @@
 
     // ---- Code blocks fit their message instead of scrolling sideways ----
     // Monospace width scales linearly with font-size, so one measurement gives
-    // the exact ratio to shrink by. Below CB_MIN_FS the text stops being
-    // readable, so the block wraps instead.
+    // the exact ratio to shrink by. The floor is deliberately close to the base
+    // size: shrinking a whole script to fit one outlier line costs more
+    // readability than wrapping that one line, so past CB_MIN_FS the block
+    // wraps instead of getting smaller.
     const CB_BASE_FS = 12.3;
-    const CB_MIN_FS = 9;
+    const CB_MIN_FS = 11;
 
     function fitCodeBlock(block) {
       const pre = block.querySelector("pre");
