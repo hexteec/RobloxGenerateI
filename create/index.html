@@ -75,6 +75,9 @@
 
       --accent: #B45A34;
       --accent-deep: #954A2A;
+      /* Label colour for accent-filled buttons. The dark theme lightens the
+         accent, where white text drops to 2.8:1, so it flips to dark ink. */
+      --on-accent: #ffffff;
       --accent-wash: #FBEEE7;
 
       --mint: #3E7A5F;
@@ -116,6 +119,7 @@
 
       --accent: #E08350;
       --accent-deep: #F0996A;
+      --on-accent: #17161A;
       --accent-wash: #3A2A20;
 
       --mint: #5FAE8A;
@@ -674,7 +678,7 @@
       position: relative;
       background: none;
       border: 1px solid var(--border);
-      border-radius: 0;
+      border-radius: var(--radius-md);
       transition: border-color .15s ease, background .15s ease, box-shadow .15s ease;
       overflow: hidden;
       box-sizing: border-box;
@@ -695,9 +699,11 @@
     /* Shared layout for card states and roblox card */
     .account-card .ac-state,
     .roblox-card {
-      align-items: center;
-      gap: 10px;
-      padding: 9px 11px;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 9px;
+      padding: 10px 11px;
       width: 100%;
       text-align: left;
       box-sizing: border-box;
@@ -706,8 +712,27 @@
       margin: 0;
     }
 
-    .roblox-card {
+    .rc-row {
       display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    /* 232px of sidebar leaves the subtitle about 164px once the avatar and
+       padding are taken out, which "Required for the Studio plugin" overruns.
+       The action sits on its own row now, so let it use two lines rather than
+       cutting the sentence. */
+    .roblox-card .rc-sub {
+      white-space: normal;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      line-height: 1.35;
+    }
+
+    .roblox-card .rc-action {
+      width: 100%;
     }
 
     /* Google Unlinked Button State */
@@ -894,7 +919,7 @@
       font-weight: 600;
       padding: 7px 10px;
       background: var(--accent);
-      color: #ffffff;
+      color: var(--on-accent);
       border: none;
       border-radius: var(--radius-sm);
       cursor: pointer;
@@ -914,10 +939,13 @@
 
     /* Counters read as one line of tally, not three dashboard tiles: no
        dividers, no stacked all-caps captions. */
+    /* The sidebar gives this card 232px. Spelled-out labels overran it once
+       a counter reached three digits, so the icon carries the meaning and the
+       word lives in the tooltip. */
     .gp-stats-row {
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      justify-content: space-around;
       gap: 6px;
       padding: 8px 12px 9px;
       border-top: 1px solid color-mix(in srgb, var(--on-card) 14%, transparent);
@@ -936,9 +964,9 @@
     }
 
     .gp-stat svg {
-      width: 11px;
-      height: 11px;
-      opacity: .55;
+      width: 12px;
+      height: 12px;
+      opacity: .5;
       flex-shrink: 0;
     }
 
@@ -1062,22 +1090,23 @@
     }
 
     .gp-desc {
-      font-size: 10px;
+      font-size: 10.5px;
       color: var(--ink-muted);
-      line-height: 1.35;
-      margin-left: 7px;
+      line-height: 1.4;
     }
 
+    /* Same treatment as Top up, so the two primary actions in this column
+       read as one system rather than two unrelated buttons. */
     .gp-signin-action {
       width: 100%;
-      padding: 8px 8px;
-      background: var(--ink);
-      color: white;
+      padding: 9px 8px;
+      background: var(--accent);
+      color: var(--on-accent);
       border: none;
-      border-radius: 0;
-      font-family: var(--font-display);
-      font-weight: 700;
-      font-size: 10px;
+      border-radius: var(--radius-sm);
+      font-family: var(--font-mono);
+      font-weight: 600;
+      font-size: 10.5px;
       cursor: pointer;
       text-align: center;
       transition: opacity .15s ease, transform .12s ease;
@@ -1222,7 +1251,7 @@
       font-size: 11px;
       font-weight: 700;
       padding: 7px 12px;
-      border-radius: 0;
+      border-radius: var(--radius-sm);
       border: none;
       cursor: pointer;
       display: inline-flex;
@@ -1243,10 +1272,20 @@
     }
 
     /* Unlinked Action Style (Sign in / Connect) */
+    /* --ink inverts with the theme, so white text on it went unreadable in
+       dark mode. The accent is a fixed colour and always takes white, and it
+       matches the sign-in button one card up. */
     .account-card.unlinked .rc-action,
     .btn-google-card .rc-action {
-      background: var(--ink);
-      color: #fff;
+      background: var(--accent);
+      color: var(--on-accent);
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      font-weight: 600;
+    }
+
+    .account-card.unlinked .rc-action:hover {
+      background: var(--accent-deep);
     }
 
     .account-card.unlinked .rc-action:hover,
@@ -1255,14 +1294,19 @@
     }
 
     /* Linked Action Style (Disconnect / Sign out) */
+    /* Disconnecting is routine, not an emergency: the button stays quiet and
+       only turns red once you are actually on it. */
     .account-card.linked .rc-action {
-      background: var(--card);
-      color: var(--coral);
-      border-radius: 0;
+      background: transparent;
+      color: var(--ink-muted);
+      border: none;
+      border-radius: var(--radius-sm);
     }
 
     .account-card.linked .rc-action:hover {
-      opacity: 0.9;
+      opacity: 1;
+      color: var(--coral);
+      background: color-mix(in srgb, var(--coral) 10%, transparent);
     }
 
     /* Sign out button */
@@ -1270,7 +1314,7 @@
       width: 28px;
       height: 28px;
       padding: 0;
-      border-radius: 0;
+      border-radius: var(--radius-sm);
       background: var(--card);
       color: var(--coral);
       border: 1px solid var(--coral);
@@ -5519,26 +5563,26 @@
                     </div>
 
                     <div class="gp-stats-row" id="gpStatsRow">
-                      <span class="gp-stat" title="3D models generated">
+                      <span class="gp-stat" title="3D models generated" aria-label="3D models generated">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                           stroke-linecap="round" stroke-linejoin="round">
                           <path d="M21 16V8a2 2 0 0 0-1-1.73l-6-3.46a2 2 0 0 0-2 0l-6 3.46A2 2 0 0 0 5 8v8a2 2 0 0 0 1 1.73l6 3.46a2 2 0 0 0 2 0l6-3.46A2 2 0 0 0 21 16Z" />
                           <path d="M3.27 6.96 12 12l8.73-5.04M12 22.08V12" />
-                        </svg><b id="statModelsCount">0</b>models
+                        </svg><b id="statModelsCount">0</b>
                       </span>
-                      <span class="gp-stat" title="Images generated">
+                      <span class="gp-stat" title="Images generated" aria-label="Images generated">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                           stroke-linecap="round" stroke-linejoin="round">
                           <rect x="3" y="3" width="18" height="18" rx="2" />
                           <circle cx="8.5" cy="8.5" r="1.5" />
                           <path d="m21 15-5-5L5 21" />
-                        </svg><b id="statImagesCount">0</b>images
+                        </svg><b id="statImagesCount">0</b>
                       </span>
-                      <span class="gp-stat" title="Messages sent">
+                      <span class="gp-stat" title="Messages sent" aria-label="Messages sent">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                           stroke-linecap="round" stroke-linejoin="round">
                           <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
-                        </svg><b id="statMessagesCount">0</b>messages
+                        </svg><b id="statMessagesCount">0</b>
                       </span>
                     </div>
                   </div>
@@ -5547,6 +5591,10 @@
 
               <!-- Roblox Account Card -->
               <div class="account-card roblox-card unlinked" id="robloxCard">
+                <!-- Identity on its own row: at the sidebar's 232px of usable
+                     width the title, the subtitle and the button cannot share
+                     one line without the text being clipped. -->
+                <div class="rc-row">
                 <div class="rc-avatar-wrap">
                   <img class="rc-avatar" id="robloxAvatar"
                     src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E" alt="Roblox avatar"
@@ -5562,6 +5610,7 @@
                 <div class="rc-info">
                   <div class="rc-title" id="robloxTitle">Connect Roblox account</div>
                   <div class="rc-sub" id="robloxSub">Required for the Studio plugin</div>
+                </div>
                 </div>
                 <button class="rc-action" id="robloxAction" onclick="handleRobloxAction()">[ Connect ]</button>
               </div>
