@@ -5709,6 +5709,7 @@
        The wash is black rather than --ink because the dark theme's ink is
        a pale lilac, which would lighten the page instead of deepening it;
        the grid lines still follow --ink, so they gain contrast either way. */
+
     .app-shell::before {
       content: "";
       position: absolute;
@@ -5717,12 +5718,18 @@
       pointer-events: none;
       opacity: 0;
       transition: opacity .55s ease;
+      /* Centred on the work by wsShadeCentre(), and masked to the same
+         radius so the darker grid stops where the pool does instead of
+         greying out the whole page. */
       background-image:
-        linear-gradient(color-mix(in srgb, var(--ink) 15%, transparent) 1px, transparent 1px),
-        linear-gradient(90deg, color-mix(in srgb, var(--ink) 15%, transparent) 1px, transparent 1px),
-        radial-gradient(130% 98% at 50% 42%, rgba(0, 0, 0, .08) 0%, rgba(0, 0, 0, .24) 100%);
+        linear-gradient(color-mix(in srgb, var(--ink) 16%, transparent) 1px, transparent 1px),
+        linear-gradient(90deg, color-mix(in srgb, var(--ink) 16%, transparent) 1px, transparent 1px),
+        radial-gradient(44% 46% at var(--ws-cx, 50%) var(--ws-cy, 45%),
+          rgba(0, 0, 0, .22) 0%, rgba(0, 0, 0, .14) 52%, rgba(0, 0, 0, 0) 100%);
       background-size: 30px 30px, 30px 30px, cover;
       background-position: 0 0, 0 0, 0 0;
+      -webkit-mask-image: radial-gradient(44% 46% at var(--ws-cx, 50%) var(--ws-cy, 45%), #000 0%, #000 40%, transparent 100%);
+      mask-image: radial-gradient(44% 46% at var(--ws-cx, 50%) var(--ws-cy, 45%), #000 0%, #000 40%, transparent 100%);
     }
 
     body.ws-on .app-shell::before { opacity: 1; }
@@ -5800,8 +5807,7 @@
       display: flex;
       align-items: center;
       gap: 11px;
-      padding: 0 2px 11px;
-      border-bottom: 1px solid var(--border);
+      padding: 0 2px;
     }
 
     .ws-mode {
@@ -5838,29 +5844,34 @@
       overflow: hidden;
     }
 
-    /* The step strip is a path, written the way this app writes things:
-       plain lowercase, the one you are on in brackets. */
     .ws-step {
-      font-family: var(--font-mono);
-      font-size: 10.5px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
       color: var(--ink-faint);
       white-space: nowrap;
     }
 
-    .ws-step.done { color: var(--ink-muted); }
-
-    .ws-step.now {
-      color: var(--accent);
-      font-weight: 600;
+    .ws-step .ws-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--soft-2);
     }
 
-    .ws-step.now::before { content: "[\00a0"; }
-    .ws-step.now::after { content: "\00a0]"; }
+    .ws-step.done .ws-dot { background: var(--ink-faint); }
+    .ws-step.now { color: var(--ink-muted); font-weight: 600; }
+
+    .ws-step.now .ws-dot {
+      background: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-wash);
+    }
 
     .ws-sep {
-      font-family: var(--font-mono);
-      font-size: 10.5px;
-      color: var(--soft-2);
+      width: 11px;
+      height: 1px;
+      background: var(--soft-2);
       flex: 0 0 auto;
     }
 
@@ -5888,20 +5899,19 @@
 
     .ws-title {
       font-family: var(--font-display);
-      font-size: 17px;
+      font-size: 22px;
       font-weight: 600;
-      letter-spacing: -.01em;
-      line-height: 1.25;
-      margin: 0 0 5px;
+      letter-spacing: -.015em;
+      line-height: 1.2;
+      margin: 0 0 6px;
     }
 
     .ws-lead {
-      font-family: var(--font-mono);
-      font-size: 11px;
+      font-size: 13px;
       color: var(--ink-muted);
-      line-height: 1.6;
-      margin: 0 0 18px;
-      max-width: 72ch;
+      line-height: 1.55;
+      margin: 0 0 20px;
+      max-width: 58ch;
     }
 
     /* Each child drifts up in turn, so the group settles rather than
@@ -5916,7 +5926,7 @@
       to { opacity: 1; transform: none; }
     }
 
-    .ws-group + .ws-group { margin-top: 20px; }
+    .ws-group + .ws-group { margin-top: 24px; }
 
     .ws-group-title,
     .ws-next-title {
@@ -5928,119 +5938,112 @@
       margin-bottom: 8px;
     }
 
-    /* An indexed list of things you can ask for, not a grid of feature
-       tiles. Hairlines between, an accent edge and a bracketed verb on the
-       one under the cursor. */
-    .ws-tasks {
-      display: flex;
-      flex-direction: column;
-      border-top: 1px solid var(--border);
-    }
-
+    /* Nothing is boxed until you reach for it: the card materialises on
+       hover instead of sitting there as another frame. */
     .ws-task {
       position: relative;
       display: flex;
-      align-items: center;
-      gap: 13px;
-      width: 100%;
-      padding: 11px 12px 11px 10px;
       text-align: left;
       background: transparent;
-      border: none;
-      border-bottom: 1px solid var(--border);
+      border: 1px solid transparent;
+      border-radius: 14px;
       color: var(--ink);
       font-family: var(--font-body);
       cursor: pointer;
-      transition: background .16s ease, padding-left .16s ease;
-    }
-
-    /* The accent edge is drawn rather than bordered, so nothing shifts
-       sideways when it appears. */
-    .ws-task::before {
-      content: "";
-      position: absolute;
-      left: 0;
-      top: -1px;
-      bottom: -1px;
-      width: 2px;
-      background: var(--accent);
-      transform: scaleY(0);
-      transition: transform .16s ease;
+      transition: background .2s ease, border-color .2s ease, box-shadow .2s ease, transform .2s cubic-bezier(.16, 1, .3, 1);
     }
 
     .ws-task:hover:not(:disabled),
     .ws-task:focus-visible {
-      background: var(--soft);
-      padding-left: 14px;
+      background: var(--card);
+      border-color: var(--border);
+      box-shadow: var(--shadow-md);
+      transform: translateY(-3px);
       outline: none;
     }
 
-    .ws-task:hover:not(:disabled)::before,
-    .ws-task:focus-visible::before { transform: scaleY(1); }
-
-    .ws-task:hover:not(:disabled) .ws-task-ico { color: var(--accent); }
-    .ws-task:hover:not(:disabled) .ws-go { opacity: 1; }
+    .ws-task:hover:not(:disabled) .ws-task-ico {
+      background: var(--accent-wash);
+      color: var(--accent);
+    }
 
     .ws-task:disabled { cursor: default; }
 
     .ws-task:disabled .ws-task-name,
-    .ws-task:disabled .ws-task-sub,
-    .ws-task:disabled .ws-task-ico { color: var(--ink-faint); }
-
-    .ws-idx {
-      font-family: var(--font-mono);
-      font-size: 10px;
-      color: var(--ink-faint);
-      flex: 0 0 auto;
-      width: 16px;
-    }
+    .ws-task:disabled .ws-task-sub { color: var(--ink-faint); }
 
     .ws-task-ico {
       display: flex;
       align-items: center;
       justify-content: center;
       flex: 0 0 auto;
-      width: 18px;
-      height: 18px;
+      border-radius: 12px;
+      background: var(--soft);
       color: var(--ink-muted);
-      transition: color .16s ease;
+      transition: background .2s ease, color .2s ease;
     }
-
-    .ws-task-ico svg { width: 16px; height: 16px; }
-
-    .ws-task-text { flex: 1 1 auto; min-width: 0; }
 
     .ws-task-name {
       display: block;
       font-family: var(--font-display);
-      font-size: 13px;
       font-weight: 600;
-      line-height: 1.3;
+      line-height: 1.25;
     }
 
     .ws-task-sub {
       display: block;
-      font-size: 11.5px;
       font-weight: 500;
       color: var(--ink-muted);
-      line-height: 1.4;
-      margin-top: 1px;
+      line-height: 1.45;
+      margin-top: 3px;
     }
 
-    .ws-go {
-      font-family: var(--font-mono);
-      font-size: 10px;
-      color: var(--accent);
-      flex: 0 0 auto;
-      opacity: 0;
-      transition: opacity .16s ease;
+    /* The openers get room; the follow-on work sits quieter beneath. */
+    .ws-tasks-lead {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(156px, 1fr));
+      gap: 6px;
     }
+
+    .ws-tasks-lead .ws-task {
+      flex-direction: column;
+      gap: 10px;
+      padding: 15px 14px 16px;
+    }
+
+    .ws-tasks-lead .ws-task-ico { width: 38px; height: 38px; }
+    .ws-tasks-lead .ws-task-ico svg { width: 18px; height: 18px; }
+    .ws-tasks-lead .ws-task-name { font-size: 14px; }
+    .ws-tasks-lead .ws-task-sub { font-size: 11.8px; }
+
+    .ws-tasks-more {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(258px, 1fr));
+      gap: 4px;
+    }
+
+    .ws-tasks-more .ws-task {
+      align-items: center;
+      gap: 11px;
+      padding: 10px 12px;
+    }
+
+    .ws-tasks-more .ws-task-ico { width: 30px; height: 30px; border-radius: 10px; }
+    .ws-tasks-more .ws-task-ico svg { width: 15px; height: 15px; }
+    .ws-tasks-more .ws-task-name { font-size: 12.7px; }
+    .ws-tasks-more .ws-task-sub { font-size: 11.3px; }
 
     .ws-soon {
-      font-family: var(--font-mono);
-      font-size: 10px;
+      display: inline-block;
+      margin-top: 6px;
+      font-size: 9.5px;
+      font-weight: 700;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      padding: 2px 6px;
+      border-radius: 5px;
       color: var(--amber);
-      flex: 0 0 auto;
+      background: var(--amber-wash);
     }
 
     /* ---------- fields ---------- */
@@ -6309,12 +6312,66 @@
       max-width: 62ch;
     }
 
-    /* ---------- result ---------- */
+    /* ---------- result ----------
+       Two parts: what came out on one side, what you can do with it and
+       how you finish on the other. */
+    .ws-result {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 216px;
+      gap: 18px;
+      align-items: start;
+    }
+
     .ws-preview {
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-bottom: 18px;
+    }
+
+    .ws-side {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .ws-side .ws-btn {
+      width: 100%;
+      justify-content: flex-start;
+    }
+
+    /* :not(.primary) so the accent fill is not softened away — these rules
+       come later in the file and would otherwise win on equal weight. */
+    .ws-side .ws-btn:not(.primary) {
+      background: var(--soft);
+      border-color: transparent;
+    }
+
+    .ws-side .ws-btn:not(.primary):hover:not(:disabled) {
+      background: var(--card);
+      border-color: var(--border);
+    }
+
+    .ws-side .ws-btn svg { color: var(--ink-faint); }
+    .ws-side .ws-btn:hover:not(:disabled) svg { color: var(--accent); }
+
+    .ws-side-end {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 12px;
+      padding-top: 13px;
+      border-top: 1px solid var(--border);
+    }
+
+    .ws-side-end .ws-btn { justify-content: center; }
+
+    .ws-side-note {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--ink-faint);
+      line-height: 1.5;
+      margin: 9px 0 0;
     }
 
     /* The band between the topbar and the dock is what the result has to
@@ -6335,31 +6392,52 @@
       background: transparent;
     }
 
+    /* ---------- D. code arrives folded ----------
+       A script can run to hundreds of lines; showing all of it buries the
+       controls next to it. It opens to a readable slice with a handle to
+       take the rest. */
     .ws-preview.ws-flat {
       display: block;
-      max-height: clamp(240px, calc(100vh - 540px), 460px);
-      overflow: auto;
+      position: relative;
+      overflow: hidden;
     }
+
+    /* Masked rather than covered with a gradient: the fold sits over a
+       dark code block on a light page, so nothing can be faded *to*. */
+    .ws-preview.ws-flat.ws-folded {
+      max-height: 260px;
+      -webkit-mask-image: linear-gradient(#000 68%, transparent 100%);
+      mask-image: linear-gradient(#000 68%, transparent 100%);
+    }
+
+    .ws-unfold {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      margin-top: 9px;
+      padding: 7px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: transparent;
+      color: var(--ink-muted);
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: color .15s ease, border-color .15s ease, background .15s ease;
+    }
+
+    .ws-unfold:hover { color: var(--ink); border-color: var(--ink-faint); background: var(--card); }
+
+    .ws-unfold svg {
+      width: 13px;
+      height: 13px;
+      transition: transform .2s ease;
+    }
+
+    .ws-unfold.on svg { transform: rotate(180deg); }
 
     .ws-next-title { margin-bottom: 9px; }
-
-    .ws-next-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin-bottom: 4px;
-    }
-
-    .ws-next-row .ws-btn {
-      font-size: 12px;
-      padding: 8px 13px;
-      border-color: transparent;
-      background: var(--soft);
-    }
-
-    .ws-next-row .ws-btn:hover:not(:disabled) { background: var(--card); border-color: var(--border); }
-    .ws-next-row .ws-btn svg { color: var(--ink-faint); }
-    .ws-next-row .ws-btn:hover:not(:disabled) svg { color: var(--accent); }
 
     /* The mesh panel is the live node from the chat flow, moved in here.
        Its own generate button sits at the end of a long scroll, so the
@@ -6371,6 +6449,9 @@
       .ws::before { inset: -14px -22px -18px; }
       .ws-title { font-size: 19px; }
       .ws-steps { display: none; }
+      .ws-tasks-lead,
+      .ws-tasks-more { grid-template-columns: minmax(0, 1fr); }
+      .ws-result { grid-template-columns: minmax(0, 1fr); }
       .ws-foot { flex-wrap: wrap; }
       .ws-foot-note { flex: 1 1 100%; margin: 0 0 6px; }
       .ws-foot .ws-btn { flex: 1 1 auto; justify-content: center; }
@@ -11229,6 +11310,7 @@
 
     const WS_ICONS = {
       close: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>`,
+      chevron: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>`,
       back: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5m7-7-7 7 7 7"/></svg>`,
       brush: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 14.5 3 21s3.5.5 5-1 1.5-5.5 1.5-5.5"/><path d="m14 10-4 4"/><path d="M21.3 3.7a2.4 2.4 0 0 0-3.4 0l-6.4 6.4 3.4 3.4 6.4-6.4a2.4 2.4 0 0 0 0-3.4Z"/></svg>`,
       expand: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8V5a2 2 0 0 1 2-2h3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3"/></svg>`,
@@ -11482,6 +11564,19 @@
         m.style.setProperty("--ws-fade", (0.62 - 0.26 * d).toFixed(3));
         m.style.setProperty("--ws-blur", (0.8 + 2.2 * d).toFixed(2) + "px");
       });
+      wsShadeCentre();
+    }
+
+    // The pool of shade is anchored to the middle of the work, so it moves
+    // with it as the feed scrolls rather than sitting at a fixed spot.
+    function wsShadeCentre() {
+      const me = wsEl();
+      const shell = document.querySelector(".app-shell");
+      if (!me || !shell) return;
+      const box = me.getBoundingClientRect();
+      shell.style.setProperty("--ws-cx", (box.left + box.width / 2) / window.innerWidth * 100 + "%");
+      shell.style.setProperty("--ws-cy",
+        Math.max(18, Math.min(82, (box.top + Math.min(box.height, window.innerHeight) / 2) / window.innerHeight * 100)) + "%");
     }
 
     function wsClearFeed() {
@@ -11566,6 +11661,8 @@
         setTimeout(() => el.remove(), 190);
       }
       document.body.classList.remove("ws-on", "ws-lens-on");
+      const shell = document.querySelector(".app-shell");
+      if (shell) { shell.style.removeProperty("--ws-cx"); shell.style.removeProperty("--ws-cy"); }
       wsClearFeed();
       wsLensRelease();
 
@@ -11617,8 +11714,8 @@
       const at = steps.indexOf(s.step);
       const stepsHtml = steps.map((k, i) => {
         const cls = i < at ? "done" : (i === at ? "now" : "");
-        return `<span class="ws-step ${cls}">${WS_STEP_NAMES[k]}</span>`;
-      }).join(`<span class="ws-sep">·</span>`);
+        return `<span class="ws-step ${cls}"><span class="ws-dot"></span>${WS_STEP_NAMES[k]}</span>`;
+      }).join(`<span class="ws-sep"></span>`);
 
       const view = { task: wsViewTask, config: wsViewConfig, run: wsViewRun, result: wsViewResult }[s.step](s, cat);
 
@@ -11629,7 +11726,7 @@
           <button class="ws-x" type="button" onclick="closeWorkspace()">${WS_ICONS.close}Close</button>
         </div>
         <div class="ws-body" id="wsBody">${view.html}</div>
-        <div class="ws-foot">${view.foot || ""}</div>`;
+        ${view.foot ? `<div class="ws-foot">${view.foot}</div>` : ""}`;
 
       if (view.after) view.after();
       wsFocusFeed();
@@ -11642,28 +11739,28 @@
         const tasks = g.tasks.map(t => {
           const blockedByCode = t.needsCode && !hasCode;
           const off = !t.ready || blockedByCode;
-          const right = !t.ready
-            ? `<span class="ws-soon">not wired up yet</span>`
-            : (blockedByCode ? `<span class="ws-soon">needs a script first</span>` : `<span class="ws-go">[ open ]</span>`);
-          n++;
+          const soon = !t.ready
+            ? `<span class="ws-soon">Not wired up yet</span>`
+            : (blockedByCode ? `<span class="ws-soon">Needs a script first</span>` : "");
           return `
-            <button class="ws-task ws-rise" style="--i:${n}" type="button" ${off ? "disabled" : ""} onclick="wsPickTask('${t.id}')"
+            <button class="ws-task ws-rise" style="--i:${n++}" type="button" ${off ? "disabled" : ""} onclick="wsPickTask('${t.id}')"
               ${!t.ready && t.needs ? `title="${escapeHtml(WS_SOON_NOTE[t.needs] || "")}"` : ""}>
-              <span class="ws-idx">${String(n).padStart(2, "0")}</span>
               <span class="ws-task-ico">${t.icon}</span>
-              <span class="ws-task-text"><span class="ws-task-name">${escapeHtml(t.name)}</span>
-                <span class="ws-task-sub">${escapeHtml(t.sub)}</span></span>
-              ${right}
+              <span><span class="ws-task-name">${escapeHtml(t.name)}</span>
+                <span class="ws-task-sub">${escapeHtml(t.sub)}</span>${soon}</span>
             </button>`;
         }).join("");
+        // The first group is what you came here to do; the rest is what you
+        // can do to the result once it exists, so it reads quieter.
+        const shape = gi === 0 ? "ws-tasks-lead" : "ws-tasks-more";
         return `<div class="ws-group"><div class="ws-group-title ws-rise" style="--i:${gi}">${escapeHtml(g.title)}</div>
-                <div class="ws-tasks">${tasks}</div></div>`;
+                <div class="${shape}">${tasks}</div></div>`;
       }).join("");
 
       return {
         html: `<h2 class="ws-title ws-rise">${escapeHtml(cat.title)}</h2>
                <p class="ws-lead ws-rise" style="--i:1">${escapeHtml(cat.lead)}</p>${groups}`,
-        foot: `<span class="ws-foot-note">whatever you make lands in the chat as a normal message</span>`
+        foot: `<span class="ws-foot-note">Whatever you make lands in the chat as a normal message.</span>`
       };
     }
 
@@ -11828,21 +11925,49 @@
       else if (r.kind === "model3d") preview = `<model-viewer src="${escapeHtml(r.modelUrl || "")}" poster="${escapeHtml(r.thumbnailUrl || "")}" camera-controls auto-rotate shadow-intensity="1" exposure="1" loading="eager"></model-viewer>`;
       else if (r.kind === "code") preview = `<div class="msg msg-bot" style="--ws-fade:1;--ws-blur:0px"><div class="msg-bubble" style="max-width:100%">${r.html || ""}</div></div>`;
 
+      const folded = r.kind === "code";
       return {
-        html: `<div class="ws-preview ws-rise ${r.kind === "code" ? "ws-flat" : ""}">${preview}</div>
-               <div class="ws-next ws-rise" style="--i:2">
-                 <div class="ws-next-title">Keep working on it</div>
-                 <div class="ws-next-row">${wsNextFor(s, r)}</div>
+        html: `<div class="ws-result">
+                 <div>
+                   <div class="ws-preview ws-rise ${folded ? "ws-flat ws-folded" : ""}" id="wsPreview">${preview}</div>
+                   ${folded ? `<button class="ws-unfold" type="button" id="wsUnfold" hidden onclick="wsToggleFold(this)">
+                     ${WS_ICONS.chevron}<span>show the rest</span></button>` : ""}
+                 </div>
+                 <aside class="ws-side ws-rise" style="--i:2">
+                   <div class="ws-next-title">Keep working on it</div>
+                   ${wsNextFor(s, r)}
+                   <div class="ws-side-end">
+                     <button class="ws-btn ws-quiet" type="button" onclick="wsGo('task')">Another task</button>
+                     <button class="ws-btn primary" type="button" onclick="closeWorkspace()">Done</button>
+                   </div>
+                   <p class="ws-side-note">it is already saved in the chat</p>
+                 </aside>
                </div>`,
-        foot: `<span class="ws-foot-note">It is already saved in the chat.</span>
-               <button class="ws-btn ws-quiet" type="button" onclick="wsGo('task')">Another task</button>
-               <button class="ws-btn primary" type="button" onclick="closeWorkspace()">Done</button>`
+        foot: "",
+        after: () => {
+          // Only offer the handle when there is actually more to see.
+          const box = document.getElementById("wsPreview");
+          const btn = document.getElementById("wsUnfold");
+          if (box && btn) btn.hidden = box.scrollHeight <= box.clientHeight + 8;
+        }
       };
+    }
+
+    function wsToggleFold(btn) {
+      const box = document.getElementById("wsPreview");
+      if (!box) return;
+      const open = !box.classList.contains("ws-folded");
+      box.classList.toggle("ws-folded", open);
+      btn.classList.toggle("on", !open);
+      btn.querySelector("span").textContent = open ? "show the rest" : "fold it back";
+      if (open) wsScrollIntoView();
     }
 
     function wsNextBtn(label, icon, action, off, title) {
       return `<button class="ws-btn" type="button" ${off ? "disabled" : ""} ${title ? `title="${escapeHtml(title)}"` : ""} onclick="${action}">${icon}${escapeHtml(label)}</button>`;
     }
+
+    function wsResizeShade() { if (wsOpen()) wsShadeCentre(); }
 
     function wsNextFor(s, r) {
       if (r.kind === "refimage") {
