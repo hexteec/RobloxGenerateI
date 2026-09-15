@@ -4985,6 +4985,55 @@
       pointer-events: none !important;
     }
 
+    /* Millitoken meter. Code generation is billed by real API cost, not a flat
+       price: every call adds millitokens and a whole token is deducted at 1000.
+       Without this the deduction looks random, so the bar is that counter. */
+    .milli-meter {
+      display: none;
+      align-items: center;
+      gap: 7px;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      background: var(--soft);
+      border: 1px solid var(--border);
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--ink-muted);
+      white-space: nowrap;
+      cursor: default;
+    }
+
+    .milli-meter.show {
+      display: flex;
+    }
+
+    .milli-track {
+      width: 56px;
+      height: 5px;
+      border-radius: 9999px;
+      background: var(--soft-2);
+      overflow: hidden;
+    }
+
+    .milli-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 9999px;
+      background: var(--ink-faint);
+      transition: width .35s ease, background .35s ease;
+    }
+
+    /* Close to a deduction: worth noticing before the balance drops. */
+    .milli-meter.near {
+      color: var(--accent);
+      border-color: var(--accent);
+      background: var(--accent-wash);
+    }
+
+    .milli-meter.near .milli-fill {
+      background: var(--accent);
+    }
+
     .ui-pill-btn {
       display: flex !important;
       align-items: center !important;
@@ -5696,6 +5745,11 @@
                     </div>
                   </div>
 
+                  <div class="milli-meter" id="codeMilliMeter">
+                    <span class="milli-track"><span class="milli-fill" id="codeMilliFill"></span></span>
+                    <span id="codeMilliLabel"></span>
+                  </div>
+
                   <div style="position: relative; display:none;" id="imageTypeSelectorWrap">
                     <button class="ui-pill-btn" onclick="toggleDropdown('imageTypeDropdown', event)">
                       <span id="activeImageTypeLabel">Normal</span>
@@ -6217,6 +6271,8 @@
     let auth = null;
     let currentUser = null;
     let tokenBalance = null;
+    // null until the worker reports it; see updateCodeMilliBar.
+    let codeDebtMilli = null;
 
     let gameWidgets = [];
     let gameWidgetsPollTimer = null;
@@ -6685,10 +6741,12 @@
         if (!res.ok) throw new Error(await res.text());
         const data = await res.json();
         tokenBalance = data.tokens;
+        codeDebtMilli = Number.isFinite(Number(data.codeDebtMilli)) ? Number(data.codeDebtMilli) : null;
         robloxLinked = !!data.robloxUserId;
         robloxUsername = data.robloxUsername || null;
         robloxUserId = data.robloxUserId || null;
         updateTokenPill();
+        updateCodeMilliBar();
         updateRobloxCard();
       } catch (e) { console.error("Balance:", e); }
     }
@@ -6767,6 +6825,27 @@
       } catch (e) {
         alert("Error disconnecting: " + e.message);
       }
+    }
+
+    // Shows how close the running code-generation cost is to taking a token.
+    // Hidden unless the mode is Code and the worker actually reported a value:
+    // a meter guessing at zero would be worse than no meter.
+    function updateCodeMilliBar() {
+      const meter = document.getElementById("codeMilliMeter");
+      if (!meter) return;
+
+      if (codeDebtMilli === null || activeForceMode !== "code") {
+        meter.classList.remove("show");
+        return;
+      }
+
+      const used = Math.max(0, Math.min(999, Math.round(codeDebtMilli)));
+      const left = 1000 - used;
+      document.getElementById("codeMilliFill").style.width = (used / 10) + "%";
+      document.getElementById("codeMilliLabel").textContent = left + " to next token";
+      meter.title = used + " of 1000 millitokens used. Code generation is billed by real cost, and one token is deducted once this fills.";
+      meter.classList.toggle("near", used >= 800);
+      meter.classList.add("show");
     }
 
     function updateTokenPill() {
@@ -7473,6 +7552,7 @@
 
       const codeWrap = document.getElementById("codeModelSelectorWrap");
       if (codeWrap) codeWrap.style.display = mode === "code" ? "block" : "none";
+      updateCodeMilliBar();
       const imgWrap = document.getElementById("imageTypeSelectorWrap");
       if (imgWrap) imgWrap.style.display = mode === "image" ? "block" : "none";
       const luaWrap = document.getElementById("ui2luaSelectorWrap");
