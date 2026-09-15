@@ -2045,6 +2045,22 @@
       white-space: pre;
     }
 
+    /* A message carrying code gets the full column: fitCodeBlock() then scales
+       the type down until the longest line fits, so there is no sideways scroll.
+       cb-wrap is the fallback for lines still too long at the minimum size. */
+    .msg-bot:has(.code-block) .msg-bubble {
+      max-width: 100%;
+      /* Flex items refuse to shrink past their content; without this the
+         bubble overflows the column and the fit measures a width it never
+         actually gets. */
+      min-width: 0;
+    }
+
+    .code-block.cb-wrap code {
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
     .bot-text code.inline {
       font-family: var(--font-mono);
       background: var(--soft);
@@ -6980,6 +6996,7 @@
       if (isTextReply || isCode) {
         const replyText = m.reply ?? m.content ?? m.text ?? "";
         body.innerHTML = (isCode ? codeModelBadgeHtml(m.model) : "") + renderMarkdown(replyText);
+        fitCodeBlocks(body);
 
         if (isCode) {
           const match = replyText.match(/```(?:\w+)?\n([\s\S]*?)```/);
@@ -7119,6 +7136,73 @@
         } catch (e) { /* fallback to plain */ }
       }
       return escapeHtml(code);
+    }
+
+    // ---- Code blocks fit their message instead of scrolling sideways ----
+    // Monospace width scales linearly with font-size, so one measurement gives
+    // the exact ratio to shrink by. Below CB_MIN_FS the text stops being
+    // readable, so the block wraps instead.
+    const CB_BASE_FS = 12.3;
+    const CB_MIN_FS = 9;
+
+    function fitCodeBlock(block) {
+      const pre = block.querySelector("pre");
+      const code = pre && pre.querySelector("code");
+      if (!pre || !code) return;
+
+      // Always measure from the same starting point, so refits do not compound.
+      block.classList.remove("cb-wrap");
+      code.style.fontSize = CB_BASE_FS + "px";
+
+      const cs = getComputedStyle(pre);
+      const avail = pre.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+      if (!(avail > 0)) return; // not laid out yet — a later refit handles it
+
+      // A range over the contents reports the widest line box, which is what
+      // has to fit; scrollWidth would depend on how the browser counts padding.
+      const range = document.createRange();
+      range.selectNodeContents(code);
+      const needed = range.getBoundingClientRect().width;
+      if (needed <= avail + 0.5) return;
+
+      const scaled = Math.floor((CB_BASE_FS * avail / needed) * 10) / 10;
+      if (scaled >= CB_MIN_FS) {
+        code.style.fontSize = scaled + "px";
+        return;
+      }
+      code.style.fontSize = CB_MIN_FS + "px";
+      block.classList.add("cb-wrap");
+    }
+
+    function fitCodeBlocks(root) {
+      const scope = root && root.querySelectorAll ? root : document;
+      scope.querySelectorAll(".code-block").forEach(fitCodeBlock);
+      ensureCodeFitObserver();
+    }
+
+    let codeFitObserver = null;
+    function ensureCodeFitObserver() {
+      if (codeFitObserver || typeof ResizeObserver === "undefined") return;
+      const feed = document.getElementById("feed");
+      if (!feed) return;
+      // The feed only changes width (sidebar, window); font changes alter its
+      // scroll height, not its box, so this cannot feed back into itself.
+      let queued = false;
+      codeFitObserver = new ResizeObserver(() => {
+        if (queued) return;
+        queued = true;
+        requestAnimationFrame(() => {
+          queued = false;
+          document.querySelectorAll(".code-block").forEach(fitCodeBlock);
+        });
+      });
+      codeFitObserver.observe(feed);
+      // The mono webfont can land after the first measurement.
+      if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(() => {
+          document.querySelectorAll(".code-block").forEach(fitCodeBlock);
+        });
+      }
     }
 
     function renderMarkdown(raw) {
@@ -7278,12 +7362,14 @@
     function botBody(el) { return el.querySelector(".bot-body"); }
     function setBotBody(el, html) {
       botBody(el).innerHTML = html;
+      fitCodeBlocks(el);
       scrollFeedToBottom();
       const mv = el.querySelector("model-viewer");
       if (mv) mv.addEventListener("load", scrollFeedToBottom, { once: true });
     }
     function appendBotBody(el, html) {
       botBody(el).insertAdjacentHTML("beforeend", html);
+      fitCodeBlocks(el);
       scrollFeedToBottom();
       const mv = el.querySelector("model-viewer");
       if (mv) mv.addEventListener("load", scrollFeedToBottom, { once: true });
