@@ -297,6 +297,15 @@
       box-sizing: border-box;
     }
 
+    /* The hidden attribute only works through the UA sheet's [hidden]{display:none},
+       which any author display rule outranks. Several components here set
+       display on elements they then toggle with .hidden — the image type
+       filter and the Roblox counters among them — so state this once with
+       enough weight to actually win. */
+    [hidden] {
+      display: none !important;
+    }
+
     html {
       scroll-behavior: smooth;
       overflow: hidden;
@@ -5641,7 +5650,7 @@
                       <circle cx="9" cy="7" r="4" />
                       <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
                       <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                    </svg><b id="robloxFollowers">0</b>followers
+                    </svg><b id="robloxFollowers">–</b>followers
                   </span>
                   <span class="gp-stat" title="Friends" aria-label="Friends">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -5649,7 +5658,7 @@
                       <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
                       <circle cx="9" cy="7" r="4" />
                       <path d="m17 11 2 2 4-4" />
-                    </svg><b id="robloxFriends">0</b>friends
+                    </svg><b id="robloxFriends">–</b>friends
                   </span>
                 </div>
               </div>
