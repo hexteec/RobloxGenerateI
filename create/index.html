@@ -5734,13 +5734,40 @@
       z-index: 1;
     }
 
-    /* The rest of the page stays put — it just steps back. The falloff is
-       set per message by wsFocusFeed(), so attention thins out with
-       distance instead of the whole feed dropping to one flat grey. */
+    /* Everything around the work bends towards it. The chat gets a real
+       barrel lens — one field over all the messages at once, which is why
+       they are gathered into a wrapper rather than filtered one by one —
+       and on top of that a per-message falloff set by wsFocusFeed(), so
+       attention thins out with distance instead of the whole feed
+       dropping to one flat grey. */
+    .ws-lens {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      transition: filter .5s ease;
+    }
+
+    body.ws-lens-on .ws-lens { filter: url(#wsFisheye); }
+
     body.ws-on .msg {
       opacity: var(--ws-fade, .3);
       filter: blur(var(--ws-blur, 3px));
       pointer-events: none;
+    }
+
+    /* The sidebar spans the whole window — its two columns flank the feed —
+       so a lens on it bulges around the same centre as the one on the
+       chat, and the two read as a single field rather than two bulges.
+       The topbar sits on that centre line too. */
+    body.ws-lens-on .sidebar,
+    body.ws-lens-on .topbar { filter: url(#wsFisheyeSoft); }
+
+    /* The dock is small and dead-centre; distorting it would just smear
+       the icons, so it leans back instead. */
+    body.ws-on .mac-dock-container { transform: translateY(5px) scale(.97); }
+
+    .sidebar, .topbar, .mac-dock-container {
+      transition: transform .5s cubic-bezier(.22, 1, .36, 1), opacity .35s ease, filter .5s ease;
     }
 
     /* The composer stays visible — it just is not where the work is any
@@ -5768,9 +5795,7 @@
 
     .feed { transition: padding-bottom .35s ease; }
 
-    .msg,
-    .sidebar,
-    .topbar { transition: opacity .45s ease, filter .45s ease; }
+    .msg { transition: opacity .45s ease, filter .45s ease; }
     .composer-stage { transition: opacity .45s ease; }
 
     /* ---------- the strip on top ---------- */
@@ -5786,9 +5811,10 @@
       align-items: center;
       gap: 8px;
       font-family: var(--font-display);
-      font-size: 12.5px;
-      font-weight: 600;
-      letter-spacing: .01em;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .04em;
+      text-transform: uppercase;
       color: var(--ink-muted);
       white-space: nowrap;
     }
@@ -5854,8 +5880,8 @@
       border: none;
       background: none;
       color: var(--ink-faint);
-      font-family: var(--font-body);
-      font-size: 11.5px;
+      font-family: var(--font-mono);
+      font-size: 10.5px;
       font-weight: 600;
       cursor: pointer;
       transition: color .15s ease;
@@ -5898,12 +5924,13 @@
 
     .ws-group + .ws-group { margin-top: 24px; }
 
-    .ws-group-title {
-      font-size: 10px;
+    .ws-group-title,
+    .ws-next-title {
+      font-size: 11.5px;
       font-weight: 700;
-      letter-spacing: .1em;
+      letter-spacing: .04em;
       text-transform: uppercase;
-      color: var(--ink-faint);
+      color: var(--ink-muted);
       margin-bottom: 11px;
     }
 
@@ -5954,6 +5981,7 @@
 
     .ws-task-name {
       display: block;
+      font-family: var(--font-display);
       font-weight: 600;
       line-height: 1.25;
     }
@@ -6024,12 +6052,14 @@
     .ws-label {
       display: block;
       font-size: 11.5px;
-      font-weight: 600;
-      color: var(--ink);
-      margin-bottom: 7px;
+      font-weight: 700;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      color: var(--ink-muted);
+      margin-bottom: 8px;
     }
 
-    .ws-label small { font-weight: 500; color: var(--ink-faint); }
+    .ws-label small { font-weight: 600; text-transform: none; letter-spacing: 0; color: var(--ink-faint); }
 
     .ws-note {
       font-size: 11px;
@@ -6080,19 +6110,19 @@
       display: inline-flex;
       align-items: center;
       gap: 7px;
-      border: 1px solid transparent;
+      border: 1px solid var(--border);
       background: var(--soft);
-      color: var(--ink-muted);
+      color: var(--ink);
       font-family: var(--font-body);
       font-size: 12.3px;
       font-weight: 600;
-      padding: 7px 12px;
-      border-radius: 10px;
+      padding: 8px 13px;
+      border-radius: 8px;
       cursor: pointer;
       transition: border-color .15s ease, background .15s ease, color .15s ease;
     }
 
-    .ws-chip:hover { color: var(--ink); background: var(--soft-2); }
+    .ws-chip:hover { border-color: var(--ink-faint); }
 
     .ws-chip.on {
       border-color: var(--accent);
@@ -6157,27 +6187,31 @@
     }
 
     .ws-foot-note {
-      font-size: 11.5px;
+      font-family: var(--font-mono);
+      font-size: 10.5px;
       color: var(--ink-faint);
       line-height: 1.4;
       margin-right: auto;
     }
 
+    /* The house button is mono, small and tight — the same one behind
+       [ Sign in with Google ] and [ Connect ] in the sidebar. */
     .ws-btn {
       display: inline-flex;
       align-items: center;
-      gap: 7px;
+      gap: 6px;
       background: transparent;
       border: 1px solid var(--border);
       color: var(--ink);
-      font-family: var(--font-body);
-      font-size: 12.5px;
+      font-family: var(--font-mono);
+      font-size: 10.8px;
       font-weight: 600;
-      padding: 9px 15px;
-      border-radius: 11px;
+      letter-spacing: .01em;
+      padding: 9px 13px;
+      border-radius: var(--radius-sm);
       cursor: pointer;
       white-space: nowrap;
-      transition: border-color .15s ease, background .15s ease, opacity .15s ease, transform .15s ease;
+      transition: border-color .15s ease, background .15s ease, opacity .15s ease, transform .12s ease;
     }
 
     .ws-btn:hover:not(:disabled) {
@@ -6186,7 +6220,7 @@
       transform: translateY(-1px);
     }
 
-    .ws-btn svg { width: 14px; height: 14px; }
+    .ws-btn svg { width: 13px; height: 13px; }
 
     /* Accent fill rather than the ink fill used elsewhere: the dark theme
        lightens --ink until white labels on it stop being readable. */
@@ -6194,8 +6228,12 @@
       background: var(--accent);
       border-color: var(--accent);
       color: var(--on-accent);
-      box-shadow: var(--shadow-md);
+      box-shadow: 0 1px 2px rgba(20, 20, 15, .1);
+      padding: 9px 15px;
     }
+
+    .ws-btn.primary::before { content: "[\00a0"; }
+    .ws-btn.primary::after { content: "\00a0]"; }
 
     .ws-btn.primary:hover:not(:disabled) {
       background: var(--accent-deep);
@@ -6302,14 +6340,7 @@
       overflow: auto;
     }
 
-    .ws-next-title {
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: .1em;
-      text-transform: uppercase;
-      color: var(--ink-faint);
-      margin-bottom: 9px;
-    }
+    .ws-next-title { margin-bottom: 9px; }
 
     .ws-next-row {
       display: flex;
@@ -6349,6 +6380,10 @@
     @media (prefers-reduced-motion: reduce) {
       .ws, .ws.ws-leaving, .ws-rise { animation: none; }
       .ws::before { animation: none; opacity: 1; }
+      body.ws-lens-on .ws-lens,
+      body.ws-lens-on .sidebar,
+      body.ws-lens-on .topbar { filter: none; }
+      body.ws-on .mac-dock-container { transform: none; }
       .msg, .sidebar, .topbar, .composer-stage { transition: none; }
       .ws-bar.indet span { animation: none; width: 100%; opacity: .5; }
       .ws-task:hover:not(:disabled) { transform: none; }
@@ -11163,6 +11198,23 @@
     }
   </script>
 
+  <!-- The barrel lens the chat bends through while the workspace is open.
+       Its displacement map is drawn once, at runtime, by wsBuildLens(). -->
+  <svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute">
+    <filter id="wsFisheye" primitiveUnits="objectBoundingBox" x="0" y="0" width="1" height="1"
+      color-interpolation-filters="sRGB">
+      <feImage id="wsFisheyeMap" result="wsMap" preserveAspectRatio="none" x="0" y="0" width="1" height="1"></feImage>
+      <feDisplacementMap in="SourceGraphic" in2="wsMap" scale="0.055" xChannelSelector="R" yChannelSelector="G" />
+    </filter>
+    <!-- Same lens, gentler: the chrome carries small text that a full
+         strength displacement turns to mush. -->
+    <filter id="wsFisheyeSoft" primitiveUnits="objectBoundingBox" x="0" y="0" width="1" height="1"
+      color-interpolation-filters="sRGB">
+      <feImage id="wsFisheyeMapSoft" result="wsMapSoft" preserveAspectRatio="none" x="0" y="0" width="1" height="1"></feImage>
+      <feDisplacementMap in="SourceGraphic" in2="wsMapSoft" scale="0.03" xChannelSelector="R" yChannelSelector="G" />
+    </filter>
+  </svg>
+
   <script id="workspaceJS">
 
     /* ==================== WORKSPACE ====================
@@ -11295,12 +11347,97 @@
       v3: "Tripo's mesh, texture and rigging tools only exist on API V3. The worker still calls V2, so this moves with that migration."
     };
 
+    // Closing the workspace used to post the in-chat method chooser, so the
+    // composer would not stay locked waiting on a choice nobody made. The
+    // workspace is that chooser now, so the bubble only echoes what you
+    // just closed — the composer is unlocked directly instead. Flip this
+    // to true to bring the message back for every mode.
+    const WS_RESTORE_CHOOSER = false;
+
     let wsState = null;
     let wsFeedWatcher = null;
+    let wsLensReady = false;
 
     function wsOpen() { return typeof wsState !== "undefined" && !!wsState; }
 
     function wsEl() { return document.getElementById("wsBlock"); }
+
+    // A real barrel displacement, drawn once: R carries the x offset, G the
+    // y offset, both relative to the centre and fading to nothing at the
+    // rim so no pixel is dragged in from outside the element.
+    function wsBuildLens() {
+      if (wsLensReady) return Promise.resolve(true);
+      const fe = document.getElementById("wsFisheyeMap");
+      if (!fe) return Promise.resolve(false);
+      try {
+        const N = 192;
+        const cv = document.createElement("canvas");
+        cv.width = cv.height = N;
+        const ctx = cv.getContext("2d");
+        const img = ctx.createImageData(N, N);
+        const d = img.data;
+        for (let y = 0; y < N; y++) {
+          for (let x = 0; x < N; x++) {
+            const nx = (x + 0.5) / N * 2 - 1;
+            const ny = (y + 0.5) / N * 2 - 1;
+            const r = Math.min(1, Math.hypot(nx, ny));
+            // Peaks mid-radius, zero at the centre and at the rim: the
+            // middle stays true and pulls its surroundings towards it.
+            const k = Math.sin(Math.PI * r) * 0.5;
+            const i = (y * N + x) * 4;
+            d[i] = Math.round((0.5 - nx * k * 0.5) * 255);
+            d[i + 1] = Math.round((0.5 - ny * k * 0.5) * 255);
+            d[i + 2] = 128;
+            d[i + 3] = 255;
+          }
+        }
+        ctx.putImageData(img, 0, 0);
+        const url = cv.toDataURL("image/png");
+        const maps = [document.getElementById("wsFisheyeMap"), document.getElementById("wsFisheyeMapSoft")].filter(Boolean);
+        return new Promise(resolve => {
+          // feImage loads asynchronously, and an empty map displaces
+          // everything diagonally by half the scale — so wait for it.
+          const probe = new Image();
+          probe.onload = () => {
+            maps.forEach(m => {
+              m.setAttribute("href", url);
+              m.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", url);
+            });
+            wsLensReady = true;
+            resolve(true);
+          };
+          probe.onerror = () => resolve(false);
+          probe.src = url;
+        });
+      } catch (e) {
+        return Promise.resolve(false);
+      }
+    }
+
+    // One lens over all the messages needs them under one element, so they
+    // are gathered into a wrapper for as long as the workspace is open and
+    // handed straight back when it closes.
+    function wsLensGather() {
+      const inner = document.getElementById("feedInner");
+      if (!inner) return;
+      let lens = document.getElementById("wsLens");
+      if (!lens) {
+        lens = document.createElement("div");
+        lens.id = "wsLens";
+        lens.className = "ws-lens";
+        const first = inner.querySelector(":scope > .msg");
+        inner.insertBefore(lens, first || inner.firstChild);
+      }
+      inner.querySelectorAll(":scope > .msg").forEach(m => lens.appendChild(m));
+    }
+
+    function wsLensRelease() {
+      const lens = document.getElementById("wsLens");
+      if (!lens || !lens.parentNode) return;
+      const inner = lens.parentNode;
+      while (lens.firstChild) inner.insertBefore(lens.firstChild, lens);
+      lens.remove();
+    }
 
     // ---------- mounting ----------
     // The workspace lives in the feed, as the last thing in it: messages
@@ -11320,7 +11457,12 @@
         wsFeedWatcher = new MutationObserver(() => {
           const me = wsEl();
           const feed = document.getElementById("feedInner");
-          if (me && feed && feed.lastElementChild !== me) feed.appendChild(me);
+          if (!me || !feed) return;
+          // Messages generated while the workspace is open arrive as direct
+          // children of the feed: move them under the lens, and keep the
+          // workspace itself last so it stays where the next one would go.
+          wsLensGather();
+          if (feed.lastElementChild !== me) feed.appendChild(me);
         });
         wsFeedWatcher.observe(inner, { childList: true });
       }
@@ -11388,14 +11530,22 @@
     }
 
     // ---------- open / close ----------
-    function openWorkspace(mode) {
+    async function openWorkspace(mode) {
       if (!WS_CATALOG[mode]) return;
       wsState = { mode, task: null, step: "task", cfg: {}, result: null, busy: false, progress: null };
       if (!wsMount()) { wsState = null; return; }
       document.body.classList.add("ws-on");
+      wsLensGather();
       wsRender();
       wsFocusFeed();
       wsScrollIntoView();
+
+      const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const weak = (navigator.hardwareConcurrency || 8) <= 2;
+      if (!reduced && !weak) {
+        const ok = await wsBuildLens();
+        if (ok && wsOpen()) document.body.classList.add("ws-lens-on");
+      }
     }
 
     function closeWorkspace(opts) {
@@ -11406,11 +11556,9 @@
 
       wsState = null;
 
-      // The workspace stood in for the in-chat method chooser. Walking out
-      // without generating would leave the composer locked, waiting on a
-      // chooser nobody ever posted — so post the normal one now.
-      const needsChooser = typeof flowState !== "undefined" && flowState === "choose_method"
-        && (activeForceMode === "image" || activeForceMode === "model3d")
+      // The workspace stood in for the in-chat method chooser, so walking
+      // out of it leaves the composer waiting on a choice nobody made.
+      const stuck = typeof flowState !== "undefined" && flowState === "choose_method"
         && !document.querySelector(".chooser-3d button:not([disabled])");
 
       if (wsFeedWatcher) { wsFeedWatcher.disconnect(); wsFeedWatcher = null; }
@@ -11418,19 +11566,41 @@
         el.classList.add("ws-leaving");
         setTimeout(() => el.remove(), 190);
       }
-      document.body.classList.remove("ws-on");
+      document.body.classList.remove("ws-on", "ws-lens-on");
       wsClearFeed();
+      wsLensRelease();
 
-      if (needsChooser && typeof appendModeChooser === "function") {
-        const chooser = appendModeChooser(activeForceMode);
-        pendingChoiceMessage = {
-          chatId: (typeof activeChatId !== "undefined" ? activeChatId : null),
-          payload: { type: "chooser", category: activeForceMode, prompt: "" },
-          _tempEl: chooser
-        };
-        if (typeof applyFlowComposerState === "function") applyFlowComposerState();
+      if (stuck) {
+        if (WS_RESTORE_CHOOSER && typeof appendModeChooser === "function") {
+          const chooser = appendModeChooser(activeForceMode);
+          pendingChoiceMessage = {
+            chatId: (typeof activeChatId !== "undefined" ? activeChatId : null),
+            payload: { type: "chooser", category: activeForceMode, prompt: "" },
+            _tempEl: chooser
+          };
+          if (typeof applyFlowComposerState === "function") applyFlowComposerState();
+        } else {
+          wsUnlockComposer();
+        }
       }
       if (typeof scrollFeedToBottom === "function") setTimeout(scrollFeedToBottom, 210);
+    }
+
+    // Hands the composer back in a state it can actually be typed into,
+    // picking the flow step each mode would have reached had the chooser
+    // been answered in the chat.
+    function wsUnlockComposer() {
+      if (typeof flowState === "undefined") return;
+      if (activeForceMode === "image") {
+        currentMethod = "text";
+        flowState = "awaiting_input";
+      } else if (activeForceMode === "model3d") {
+        flowState = "awaiting_description";
+      } else {
+        flowState = "idle";
+      }
+      if (typeof applyFlowComposerState === "function") applyFlowComposerState();
+      if (typeof updateEnhanceButtonLabel === "function") updateEnhanceButtonLabel();
     }
 
     // ---------- rendering ----------
@@ -11667,7 +11837,7 @@
                </div>`,
         foot: `<span class="ws-foot-note">It is already saved in the chat.</span>
                <button class="ws-btn ws-quiet" type="button" onclick="wsGo('task')">Another task</button>
-               <button class="ws-btn primary" type="button" onclick="closeWorkspace()">${WS_ICONS.check}Done</button>`
+               <button class="ws-btn primary" type="button" onclick="closeWorkspace()">Done</button>`
       };
     }
 
