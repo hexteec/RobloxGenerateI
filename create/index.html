@@ -7085,17 +7085,23 @@
       } catch (e) { console.error("Balance:", e); }
     }
 
-    // The counts ride along with the avatar response. Older worker builds do
-    // not send them, so the row stays hidden rather than showing a made-up 0.
+    // The counts ride along with the avatar response. null means Roblox would
+    // not answer — a real 0 and an unavailable count must not look alike, so
+    // the row hides rather than claiming the account has no followers.
     function setRobloxStats(data) {
       const row = document.getElementById("robloxStats");
       if (!row) return;
-      const followers = Number(data && data.followers);
-      const friends = Number(data && data.friends);
-      if (!Number.isFinite(followers) || !Number.isFinite(friends)) {
+
+      const followers = data && data.followers;
+      const friends = data && data.friends;
+      if (typeof followers !== "number" || typeof friends !== "number") {
         row.hidden = true;
+        if (data && data.countsStatus) {
+          console.warn("Roblox counts unavailable:", data.countsStatus);
+        }
         return;
       }
+
       document.getElementById("robloxFollowers").textContent = followers.toLocaleString("en-US");
       document.getElementById("robloxFriends").textContent = friends.toLocaleString("en-US");
       row.hidden = false;
