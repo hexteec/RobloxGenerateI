@@ -7385,6 +7385,12 @@
       if (!pop) return;
 
       const opening = pop.hidden;
+      // position: fixed resolves against the nearest ancestor with a transform,
+      // and .desktop-col-left runs a translateY animation, so the panel was
+      // placed relative to a box that is itself drifting — then clipped by
+      // .desktop-bubble's overflow: hidden. Moving it to <body> leaves it with
+      // no transformed ancestor and nothing to clip it.
+      if (opening && pop.parentElement !== document.body) document.body.appendChild(pop);
       pop.hidden = !opening;
       if (btn) btn.classList.toggle("open", opening);
       if (opening) positionRobloxGroups();
@@ -7501,6 +7507,10 @@
       if (devRow && !robloxLinked) {
         devRow.hidden = true;
         robloxGroupsLoaded = false;
+        // The panel was moved to <body>, so hiding the card no longer hides it.
+        const pop = document.getElementById("robloxGroupsPop");
+        if (pop) pop.hidden = true;
+        document.getElementById("robloxGroupsBtn")?.classList.remove("open");
       }
       if (dot) {
         dot.className = "rc-status-dot " + (robloxLinked ? "linked" : "unlinked");
