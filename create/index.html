@@ -5675,6 +5675,953 @@
       border: none;
     }
   </style>
+  <style id="focusModeCSS">
+    /* ===================== FOCUS MODE (workshop) =====================
+       Picking a generation mode drops the app into a workshop: the chat
+       parts, blurs and desaturates behind a lens, and one lit window in
+       the middle carries the whole job from task choice to finished
+       result. Leaving puts the chat back exactly as it was — the result
+       is already sitting in it as an ordinary message. */
+
+    .focus-stage[hidden] { display: none !important; }
+
+    .focus-stage {
+      position: fixed;
+      inset: 0;
+      z-index: 120;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 26px 18px;
+      /* Workshop palette — deliberately not the app theme. Every control
+         inside the stage reads from these, so the whole window shifts
+         with one set of tokens. */
+      --ws-bg: #1A1A1E;
+      --ws-panel: #24242A;
+      --ws-panel-2: #2C2C33;
+      --ws-line: #383840;
+      --ws-line-soft: #303037;
+      --ws-ink: #ECEBEF;
+      --ws-muted: #9C9BA6;
+      --ws-faint: #6E6D78;
+      --ws-accent: #E08350;
+      --ws-accent-soft: rgba(224, 131, 80, 0.14);
+      --ws-on-accent: #17161A;
+      color: var(--ws-ink);
+      font-family: var(--font-body);
+
+      /* App components get borrowed into the workshop as they are — the
+         3D mesh panel is the live node from the chat flow. Re-pointing
+         the app's own tokens here is what makes them arrive dressed for
+         the bench instead of glowing white in a dark room. */
+      --bg: var(--ws-bg);
+      --card: var(--ws-panel-2);
+      --soft: var(--ws-panel-2);
+      --soft-2: var(--ws-line);
+      --border: var(--ws-line);
+      --ink: var(--ws-ink);
+      --ink-2: var(--ws-ink);
+      --ink-3: var(--ws-muted);
+      --ink-muted: var(--ws-muted);
+      --ink-faint: var(--ws-faint);
+      --accent: var(--ws-accent);
+      --accent-deep: #F0A47C;
+      --accent-wash: var(--ws-accent-soft);
+      --on-accent: var(--ws-on-accent);
+      --on-card: var(--ws-ink);
+      --mint: #6FBF97;
+      --mint-wash: rgba(111, 191, 151, .14);
+      --coral: #E79086;
+      --amber: #D8A657;
+      --amber-wash: rgba(216, 166, 87, .14);
+      --gridColor: rgba(255, 255, 255, .05);
+      --Check-1: #202025;
+      --Check-2: #26262B;
+      --shadow-sm: none;
+      --shadow-md: none;
+      --shadow-lg: none;
+    }
+
+    /* Hardcoded white label on a var(--ink) fill: inverted-for-light, so
+       it needs saying explicitly rather than riding the token swap. */
+    .focus-stage .btn-newchat {
+      background: var(--ws-accent);
+      color: var(--ws-on-accent);
+      border-radius: 10px;
+      box-shadow: none;
+    }
+
+    .focus-stage .btn-newchat:hover { filter: brightness(1.07); }
+
+    /* The mesh panel carries its own generate button at the bottom of a
+       long scroll. In the workshop the footer owns the primary action, so
+       the panel's copy is hidden and driven from there. */
+    .fs-mesh-hosted .m3d-generate { display: none; }
+
+    .fs-veil {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(118% 88% at 50% 44%, rgba(26, 26, 30, 0.62) 0%, rgba(17, 17, 20, 0.92) 58%, rgba(11, 11, 13, 0.97) 100%);
+      animation: fsVeilIn .34s cubic-bezier(.22, 1, .36, 1) both;
+    }
+
+    @keyframes fsVeilIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    /* The chat behind the stage: parts down the middle, pulls back, goes
+       grey and out of focus. fsPart is set per message by partChat(). */
+    body.focus-on .app-shell {
+      filter: grayscale(.72) blur(6px) brightness(.82);
+      transform: scale(.985);
+      transition: filter .42s ease, transform .42s cubic-bezier(.22, 1, .36, 1);
+      pointer-events: none;
+    }
+
+    body.focus-on.focus-lens .app-shell {
+      filter: url(#fsFisheye) grayscale(.72) blur(6px) brightness(.82);
+    }
+
+    .app-shell {
+      transition: filter .38s ease, transform .38s cubic-bezier(.22, 1, .36, 1);
+    }
+
+    .msg {
+      transition: transform .5s cubic-bezier(.22, 1, .36, 1), opacity .4s ease;
+    }
+
+    body.focus-on .msg {
+      transform: translateY(calc(var(--fs-part, 0) * 1px));
+    }
+
+    /* ---------- the window ---------- */
+    .fs-panel {
+      position: relative;
+      width: min(1040px, 100%);
+      max-height: min(880px, calc(100vh - 52px));
+      display: flex;
+      flex-direction: column;
+      background: var(--ws-panel);
+      border: 1px solid var(--ws-line);
+      border-radius: 20px;
+      box-shadow:
+        0 0 0 1px rgba(0, 0, 0, .4),
+        0 40px 90px rgba(0, 0, 0, .55),
+        inset 0 1px 0 rgba(255, 255, 255, .045);
+      overflow: hidden;
+      animation: fsPanelIn .42s cubic-bezier(.22, 1, .36, 1) both;
+    }
+
+    @keyframes fsPanelIn {
+      from { opacity: 0; transform: perspective(1100px) translateY(22px) scale(.955) rotateX(3.5deg); }
+      to { opacity: 1; transform: perspective(1100px) translateY(0) scale(1) rotateX(0); }
+    }
+
+    .focus-stage.fs-closing .fs-panel { animation: fsPanelOut .24s ease both; }
+    .focus-stage.fs-closing .fs-veil { animation: fsVeilIn .24s ease reverse both; }
+
+    @keyframes fsPanelOut {
+      to { opacity: 0; transform: translateY(14px) scale(.97); }
+    }
+
+    /* Blueprint grid — the workbench surface. */
+    .fs-panel::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(var(--ws-line-soft) 1px, transparent 1px),
+        linear-gradient(90deg, var(--ws-line-soft) 1px, transparent 1px);
+      background-size: 34px 34px;
+      opacity: .32;
+      pointer-events: none;
+      mask-image: radial-gradient(85% 70% at 50% 40%, #000 0%, transparent 82%);
+    }
+
+    /* ---------- head ---------- */
+    .fs-head {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 16px 14px 18px;
+      border-bottom: 1px solid var(--ws-line);
+      background: linear-gradient(180deg, rgba(255, 255, 255, .035), transparent);
+      flex: 0 0 auto;
+    }
+
+    .fs-mode {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-display);
+      font-size: 13.5px;
+      font-weight: 600;
+      letter-spacing: .01em;
+      white-space: nowrap;
+    }
+
+    .fs-mode .fs-mode-ico {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 26px;
+      height: 26px;
+      border-radius: 8px;
+      background: var(--ws-accent-soft);
+      color: var(--ws-accent);
+    }
+
+    .fs-mode .fs-mode-ico svg { width: 14px; height: 14px; }
+
+    .fs-steps {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      margin-left: 4px;
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    .fs-step {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11.5px;
+      color: var(--ws-faint);
+      white-space: nowrap;
+    }
+
+    .fs-step .fs-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--ws-line);
+      transition: background .2s ease, box-shadow .2s ease;
+    }
+
+    .fs-step.done { color: var(--ws-muted); }
+    .fs-step.done .fs-dot { background: var(--ws-muted); }
+
+    .fs-step.now { color: var(--ws-ink); }
+
+    .fs-step.now .fs-dot {
+      background: var(--ws-accent);
+      box-shadow: 0 0 0 3px var(--ws-accent-soft);
+    }
+
+    .fs-sep {
+      width: 14px;
+      height: 1px;
+      background: var(--ws-line);
+      flex: 0 0 auto;
+    }
+
+    .fs-head-right {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .fs-exit {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      height: 30px;
+      padding: 0 11px;
+      border-radius: 9px;
+      border: 1px solid var(--ws-line);
+      background: transparent;
+      color: var(--ws-muted);
+      font-family: var(--font-body);
+      font-size: 12px;
+      cursor: pointer;
+      transition: color .16s ease, border-color .16s ease, background .16s ease;
+    }
+
+    .fs-exit:hover {
+      color: var(--ws-ink);
+      border-color: var(--ws-muted);
+      background: rgba(255, 255, 255, .04);
+    }
+
+    .fs-exit svg { width: 13px; height: 13px; }
+
+    .fs-esc {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--ws-faint);
+      border: 1px solid var(--ws-line);
+      border-radius: 5px;
+      padding: 1px 5px;
+    }
+
+    /* ---------- body ---------- */
+    .fs-body {
+      position: relative;
+      flex: 1 1 auto;
+      overflow-y: auto;
+      padding: 22px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--ws-line) transparent;
+    }
+
+    .fs-body::-webkit-scrollbar { width: 9px; }
+    .fs-body::-webkit-scrollbar-thumb { background: var(--ws-line); border-radius: 9px; border: 3px solid transparent; background-clip: content-box; }
+    .fs-body::-webkit-scrollbar-track { background: transparent; }
+
+    .fs-title {
+      font-family: var(--font-display);
+      font-size: 19px;
+      font-weight: 600;
+      letter-spacing: -.01em;
+      margin: 0 0 5px;
+    }
+
+    .fs-lead {
+      font-size: 13px;
+      color: var(--ws-muted);
+      margin: 0 0 18px;
+      max-width: 62ch;
+      line-height: 1.5;
+    }
+
+    /* ---------- task grid ---------- */
+    .fs-group + .fs-group { margin-top: 22px; }
+
+    .fs-group-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 10.5px;
+      font-weight: 600;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+      color: var(--ws-faint);
+      margin-bottom: 10px;
+    }
+
+    .fs-group-title::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: var(--ws-line);
+    }
+
+    .fs-tasks {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(226px, 1fr));
+      gap: 10px;
+    }
+
+    .fs-task {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      padding: 13px 13px 12px;
+      border: 1px solid var(--ws-line);
+      border-radius: 13px;
+      background: var(--ws-panel-2);
+      text-align: left;
+      color: inherit;
+      font-family: inherit;
+      cursor: pointer;
+      overflow: hidden;
+      transition: border-color .16s ease, transform .16s ease, background .16s ease;
+    }
+
+    .fs-task::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background: radial-gradient(90% 120% at 12% 0%, rgba(224, 131, 80, .14), transparent 62%);
+      opacity: 0;
+      transition: opacity .18s ease;
+      pointer-events: none;
+    }
+
+    .fs-task:hover:not(:disabled) {
+      border-color: var(--ws-accent);
+      transform: translateY(-2px);
+    }
+
+    .fs-task:hover:not(:disabled)::after { opacity: 1; }
+
+    .fs-task:disabled {
+      cursor: not-allowed;
+      opacity: .48;
+    }
+
+    .fs-task-top {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+
+    .fs-task-ico {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 30px;
+      flex: 0 0 auto;
+      border-radius: 9px;
+      border: 1px solid var(--ws-line);
+      background: rgba(255, 255, 255, .03);
+      color: var(--ws-accent);
+    }
+
+    .fs-task-ico svg { width: 15px; height: 15px; }
+
+    .fs-task-name {
+      font-family: var(--font-display);
+      font-size: 13px;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+
+    .fs-task-sub {
+      font-size: 11.5px;
+      line-height: 1.45;
+      color: var(--ws-muted);
+    }
+
+    .fs-badge {
+      align-self: flex-start;
+      margin-top: 1px;
+      font-size: 9.5px;
+      font-weight: 600;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      padding: 2.5px 6px;
+      border-radius: 5px;
+      border: 1px solid var(--ws-line);
+      color: var(--ws-faint);
+    }
+
+    .fs-badge.wip {
+      color: #D8A657;
+      border-color: rgba(216, 166, 87, .4);
+      background: rgba(216, 166, 87, .1);
+    }
+
+    /* ---------- config form ---------- */
+    .fs-form {
+      display: grid;
+      gap: 15px;
+      max-width: 720px;
+    }
+
+    .fs-field > label,
+    .fs-field-label {
+      display: block;
+      font-size: 11.5px;
+      font-weight: 600;
+      letter-spacing: .02em;
+      color: var(--ws-ink);
+      margin-bottom: 6px;
+    }
+
+    .fs-field-note {
+      font-size: 11px;
+      color: var(--ws-muted);
+      margin-top: 5px;
+      line-height: 1.45;
+    }
+
+    .fs-input,
+    .fs-area,
+    .fs-select {
+      width: 100%;
+      background: var(--ws-bg);
+      border: 1px solid var(--ws-line);
+      border-radius: 10px;
+      color: var(--ws-ink);
+      font-family: var(--font-body);
+      font-size: 13px;
+      padding: 10px 12px;
+      outline: none;
+      transition: border-color .16s ease, box-shadow .16s ease;
+    }
+
+    .fs-area {
+      min-height: 96px;
+      resize: vertical;
+      line-height: 1.55;
+    }
+
+    .fs-input:focus,
+    .fs-area:focus,
+    .fs-select:focus {
+      border-color: var(--ws-accent);
+      box-shadow: 0 0 0 3px var(--ws-accent-soft);
+    }
+
+    .fs-input::placeholder,
+    .fs-area::placeholder { color: var(--ws-faint); }
+
+    .fs-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+
+    .fs-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 7px 11px;
+      border-radius: 9px;
+      border: 1px solid var(--ws-line);
+      background: var(--ws-panel-2);
+      color: var(--ws-muted);
+      font-family: var(--font-body);
+      font-size: 12px;
+      cursor: pointer;
+      transition: border-color .16s ease, color .16s ease, background .16s ease;
+    }
+
+    .fs-chip:hover { color: var(--ws-ink); border-color: var(--ws-muted); }
+
+    .fs-chip.on {
+      color: var(--ws-ink);
+      border-color: var(--ws-accent);
+      background: var(--ws-accent-soft);
+    }
+
+    .fs-chip .fs-chip-sub {
+      font-size: 10.5px;
+      color: var(--ws-faint);
+    }
+
+    .fs-toggle {
+      display: flex;
+      align-items: flex-start;
+      gap: 11px;
+      padding: 11px 12px;
+      border: 1px solid var(--ws-line);
+      border-radius: 11px;
+      background: var(--ws-panel-2);
+      cursor: pointer;
+    }
+
+    .fs-toggle:hover { border-color: var(--ws-muted); }
+
+    .fs-switch {
+      position: relative;
+      flex: 0 0 auto;
+      width: 34px;
+      height: 19px;
+      border-radius: 10px;
+      background: var(--ws-line);
+      transition: background .18s ease;
+      margin-top: 1px;
+    }
+
+    .fs-switch::after {
+      content: "";
+      position: absolute;
+      top: 2.5px;
+      left: 2.5px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--ws-muted);
+      transition: transform .18s cubic-bezier(.22, 1, .36, 1), background .18s ease;
+    }
+
+    .fs-toggle.on .fs-switch { background: var(--ws-accent); }
+    .fs-toggle.on .fs-switch::after { transform: translateX(15px); background: var(--ws-on-accent); }
+
+    .fs-toggle-text { font-size: 12.5px; line-height: 1.4; }
+    .fs-toggle-text small { display: block; color: var(--ws-muted); font-size: 11px; margin-top: 3px; }
+
+    /* image field */
+    .fs-drop {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 13px;
+      border: 1px dashed var(--ws-line);
+      border-radius: 12px;
+      background: var(--ws-bg);
+      cursor: pointer;
+      transition: border-color .16s ease, background .16s ease;
+    }
+
+    .fs-drop:hover,
+    .fs-drop.drag { border-color: var(--ws-accent); background: rgba(224, 131, 80, .05); }
+
+    .fs-drop-ico {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 38px;
+      height: 38px;
+      flex: 0 0 auto;
+      border-radius: 10px;
+      border: 1px solid var(--ws-line);
+      color: var(--ws-accent);
+      overflow: hidden;
+    }
+
+    .fs-drop-ico img { width: 100%; height: 100%; object-fit: cover; }
+    .fs-drop-ico svg { width: 16px; height: 16px; }
+
+    .fs-drop-text { font-size: 12.5px; }
+    .fs-drop-text small { display: block; color: var(--ws-muted); font-size: 11px; margin-top: 3px; }
+
+    /* ---------- foot ---------- */
+    .fs-foot {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 13px 16px;
+      border-top: 1px solid var(--ws-line);
+      background: linear-gradient(0deg, rgba(0, 0, 0, .18), transparent);
+      flex: 0 0 auto;
+    }
+
+    .fs-foot-note {
+      font-size: 11.5px;
+      color: var(--ws-muted);
+      margin-right: auto;
+      line-height: 1.4;
+    }
+
+    .fs-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      height: 36px;
+      padding: 0 16px;
+      border-radius: 10px;
+      border: 1px solid var(--ws-line);
+      background: transparent;
+      color: var(--ws-ink);
+      font-family: var(--font-body);
+      font-size: 12.5px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: border-color .16s ease, background .16s ease, opacity .16s ease;
+    }
+
+    .fs-btn:hover:not(:disabled) { border-color: var(--ws-muted); background: rgba(255, 255, 255, .04); }
+
+    .fs-btn svg { width: 14px; height: 14px; }
+
+    .fs-btn.primary {
+      border-color: var(--ws-accent);
+      background: var(--ws-accent);
+      color: var(--ws-on-accent);
+      font-weight: 600;
+    }
+
+    .fs-btn.primary:hover:not(:disabled) { filter: brightness(1.07); background: var(--ws-accent); }
+
+    .fs-btn:disabled { opacity: .45; cursor: not-allowed; }
+
+    /* ---------- run ---------- */
+    .fs-run {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      min-height: 320px;
+      text-align: center;
+    }
+
+    .fs-run-ring {
+      position: relative;
+      width: 74px;
+      height: 74px;
+      border-radius: 50%;
+      border: 2px solid var(--ws-line);
+      border-top-color: var(--ws-accent);
+      animation: fsSpin 1s linear infinite;
+    }
+
+    @keyframes fsSpin { to { transform: rotate(360deg); } }
+
+    .fs-run-label { font-size: 13.5px; }
+    .fs-run-sub { font-size: 11.5px; color: var(--ws-muted); max-width: 46ch; line-height: 1.5; }
+
+    .fs-progress {
+      width: min(320px, 80%);
+      height: 5px;
+      border-radius: 3px;
+      background: var(--ws-line);
+      overflow: hidden;
+    }
+
+    .fs-progress span {
+      display: block;
+      height: 100%;
+      width: 0%;
+      border-radius: 3px;
+      background: var(--ws-accent);
+      transition: width .4s ease;
+    }
+
+    /* Only the 3D pipeline reports a percentage. Everything else gets a
+       bar that is honestly indeterminate rather than parked at zero. */
+    .fs-progress.indet span {
+      width: 34%;
+      transition: none;
+      animation: fsIndet 1.5s cubic-bezier(.65, 0, .35, 1) infinite;
+    }
+
+    @keyframes fsIndet {
+      0% { transform: translateX(-105%); }
+      100% { transform: translateX(300%); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .fs-progress.indet span { animation: none; width: 100%; opacity: .5; }
+    }
+
+    .fs-error {
+      max-width: 60ch;
+      font-size: 12.5px;
+      line-height: 1.55;
+      color: #E79086;
+      border: 1px solid rgba(231, 144, 134, .32);
+      background: rgba(231, 144, 134, .08);
+      border-radius: 11px;
+      padding: 11px 13px;
+    }
+
+    /* ---------- result ---------- */
+    .fs-result {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 236px;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .fs-stagebox {
+      position: relative;
+      border: 1px solid var(--ws-line);
+      border-radius: 14px;
+      background:
+        repeating-conic-gradient(rgba(255, 255, 255, .028) 0% 25%, transparent 0% 50%) 50% / 18px 18px,
+        var(--ws-bg);
+      overflow: hidden;
+      min-height: 300px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Code is not an image on a light table: no transparency checker. */
+    .fs-stagebox.fs-flat {
+      display: block;
+      padding: 14px;
+      overflow: auto;
+      max-height: 520px;
+      background: var(--ws-bg);
+    }
+
+    .fs-stagebox img {
+      display: block;
+      max-width: 100%;
+      max-height: 460px;
+      object-fit: contain;
+    }
+
+    .fs-stagebox model-viewer {
+      width: 100%;
+      height: 420px;
+      background: transparent;
+    }
+
+    .fs-rail {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .fs-rail-title {
+      font-size: 10.5px;
+      font-weight: 600;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+      color: var(--ws-faint);
+      margin-bottom: 2px;
+    }
+
+    .fs-rail-btn {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 9px 10px;
+      border: 1px solid var(--ws-line);
+      border-radius: 10px;
+      background: var(--ws-panel-2);
+      color: var(--ws-ink);
+      font-family: var(--font-body);
+      font-size: 12px;
+      text-align: left;
+      cursor: pointer;
+      transition: border-color .16s ease, background .16s ease;
+    }
+
+    .fs-rail-btn:hover:not(:disabled) { border-color: var(--ws-accent); background: rgba(224, 131, 80, .07); }
+    .fs-rail-btn:disabled { opacity: .45; cursor: not-allowed; }
+
+    .fs-rail-btn svg { width: 14px; height: 14px; flex: 0 0 auto; color: var(--ws-accent); }
+
+    .fs-rail-sub {
+      font-size: 11px;
+      color: var(--ws-muted);
+      line-height: 1.5;
+      padding: 2px 2px 0;
+    }
+
+    /* ---------- mask editor ---------- */
+    .fs-mask {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 210px;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .fs-mask-canvas-wrap {
+      position: relative;
+      border: 1px solid var(--ws-line);
+      border-radius: 13px;
+      background:
+        repeating-conic-gradient(rgba(255, 255, 255, .028) 0% 25%, transparent 0% 50%) 50% / 18px 18px,
+        var(--ws-bg);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 300px;
+      touch-action: none;
+    }
+
+    .fs-mask-canvas-wrap canvas {
+      display: block;
+      max-width: 100%;
+      cursor: none;
+    }
+
+    .fs-brush-cursor {
+      position: absolute;
+      border: 1.5px solid var(--ws-accent);
+      border-radius: 50%;
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      box-shadow: 0 0 0 1px rgba(0, 0, 0, .5);
+      display: none;
+    }
+
+    .fs-tool-row {
+      display: flex;
+      gap: 6px;
+    }
+
+    .fs-tool {
+      flex: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      height: 32px;
+      border: 1px solid var(--ws-line);
+      border-radius: 9px;
+      background: var(--ws-panel-2);
+      color: var(--ws-muted);
+      font-family: var(--font-body);
+      font-size: 11.5px;
+      cursor: pointer;
+      transition: border-color .16s ease, color .16s ease, background .16s ease;
+    }
+
+    .fs-tool:hover { color: var(--ws-ink); }
+
+    .fs-tool.on {
+      color: var(--ws-ink);
+      border-color: var(--ws-accent);
+      background: var(--ws-accent-soft);
+    }
+
+    .fs-tool svg { width: 13px; height: 13px; }
+
+    .fs-range {
+      width: 100%;
+      appearance: none;
+      height: 4px;
+      border-radius: 2px;
+      background: var(--ws-line);
+      outline: none;
+    }
+
+    .fs-range::-webkit-slider-thumb {
+      appearance: none;
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      background: var(--ws-accent);
+      cursor: pointer;
+      border: none;
+    }
+
+    .fs-range::-moz-range-thumb {
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      background: var(--ws-accent);
+      cursor: pointer;
+      border: none;
+    }
+
+    /* ---------- responsive ---------- */
+    @media (max-width: 860px) {
+      .fs-result,
+      .fs-mask { grid-template-columns: minmax(0, 1fr); }
+
+      .fs-rail { flex-direction: row; flex-wrap: wrap; }
+      .fs-rail-btn { flex: 1 1 44%; }
+      .fs-rail-title, .fs-rail-sub { flex: 1 1 100%; }
+    }
+
+    @media (max-width: 640px) {
+      .focus-stage { padding: 0; }
+
+      .fs-panel {
+        width: 100%;
+        max-height: 100vh;
+        height: 100vh;
+        border-radius: 0;
+        border: none;
+      }
+
+      .fs-steps { display: none; }
+      .fs-body { padding: 16px; }
+      .fs-tasks { grid-template-columns: minmax(0, 1fr); }
+      .fs-foot { padding: 11px 13px; flex-wrap: wrap; }
+      .fs-foot-note { flex: 1 1 100%; order: -1; margin-bottom: 4px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .fs-panel,
+      .fs-veil,
+      .focus-stage.fs-closing .fs-panel { animation: none; }
+
+      body.focus-on .app-shell,
+      .msg { transition: none; }
+
+      body.focus-on.focus-lens .app-shell { filter: grayscale(.72) blur(6px) brightness(.82); }
+    }
+  </style>
 </head>
 
 <body onload="openComposerStageMode('chat')">
@@ -8455,7 +9402,7 @@
 
       if (flowState !== "busy") {
         flowState = "choose_method";
-        if (!opts.skipAutoChooser && typeof appendModeChooser === 'function') {
+        if (!opts.skipAutoChooser && typeof appendModeChooser === 'function' && !(typeof fsOpen === 'function' && fsOpen())) {
           if (pendingChoiceMessage && pendingChoiceMessage._tempEl && pendingChoiceMessage._tempEl.parentNode) {
             pendingChoiceMessage._tempEl.remove();
           }
@@ -8979,6 +9926,7 @@
 
         setBotBody(pendingEl, imageFrameHtml(blobUrl, currentTemplate, templateLabel(category === "thumbnail" ? "wide" : currentTemplate), true, category === "thumbnail"));
         markNewLastLarge(pendingEl);
+        if (typeof fsNotify === 'function') fsNotify({ stage: "done", kind: "image", url: blobUrl, imageUrl, el: pendingEl });
 
         if (tokenBalance != null) tokenBalance -= 2;
         updateTokenPill();
@@ -9006,14 +9954,22 @@
         resetComposerAfterSend();
         clearMainImage();
         clearRefImage();
-        flowState = "choose_method";
-        const el = appendModeChooser(activeForceMode);
-        pendingChoiceMessage = { chatId, payload: { type: "chooser", category: activeForceMode, prompt: "" }, _tempEl: el };
-        applyFlowComposerState();
+        if (typeof fsOpen === 'function' && fsOpen()) {
+          // The workshop is the chooser right now — a second one in the
+          // chat would be waiting behind the blur for nobody.
+          flowState = "awaiting_input";
+          applyFlowComposerState();
+        } else {
+          flowState = "choose_method";
+          const el = appendModeChooser(activeForceMode);
+          pendingChoiceMessage = { chatId, payload: { type: "chooser", category: activeForceMode, prompt: "" }, _tempEl: el };
+          applyFlowComposerState();
+        }
 
       } catch (e) {
         console.error(e);
         setBotBody(pendingEl, errorHtml("Error: " + e.message));
+        if (typeof fsNotify === 'function') fsNotify({ stage: "error", error: e.message });
         flowState = "awaiting_input";
         applyFlowComposerState();
       } finally {
@@ -9052,6 +10008,7 @@
 
         const replyText = (data.description ? data.description + "\n\n" : "") + "```lua\n" + data.code + "\n```";
         setBotBody(pendingEl, renderMarkdown(replyText));
+        if (typeof fsNotify === 'function') fsNotify({ stage: "done", kind: "code", el: pendingEl });
 
         refreshBalance();
         await persistMessage(chatId, { type: "text", prompt: raw, reply: replyText });
@@ -9062,6 +10019,7 @@
       } catch (e) {
         console.error(e);
         setBotBody(pendingEl, errorHtml("Error: " + e.message));
+        if (typeof fsNotify === 'function') fsNotify({ stage: "error", error: e.message });
       } finally {
         sendBtn.disabled = false;
         sendIcon.innerHTML = ICONS.send;
@@ -9114,6 +10072,7 @@
         stopTyping();
         setBotBody(pendingEl, codeModelBadgeHtml(data.model || selectedCodeModel, data.pricingNote) + renderMarkdown(replyText));
         attachFixButtonToLastCodeBlock(pendingEl, chatId);
+        if (typeof fsNotify === 'function') fsNotify({ stage: "done", kind: "code", el: pendingEl });
 
         currentCodeState = { code: data.code, language: data.language || "lua", chatId, model: data.model || selectedCodeModel };
         document.getElementById("composerHint").textContent = "Mam zapamiętany Twój kod — możesz poprosić o dodanie funkcji, zmianę, refaktor.";
@@ -9127,6 +10086,7 @@
         stopTyping();
         console.error(e);
         setBotBody(pendingEl, errorHtml("Error: " + e.message));
+        if (typeof fsNotify === 'function') fsNotify({ stage: "error", error: e.message });
       } finally {
         sendBtn.disabled = false;
         sendIcon.innerHTML = ICONS.send;
@@ -9547,6 +10507,7 @@
       } catch (e) {
         console.error(e);
         setBotBody(panelEl, errorHtml("Error: " + e.message));
+        if (typeof fsNotify === 'function') fsNotify({ stage: "error", error: e.message });
         pendingModel3DPanelEl = null;
         refreshBalance();
         flowState = "choose_method";
@@ -9569,6 +10530,7 @@
 
       const giveUp = (message) => {
         setBotBody(el, errorHtml(message));
+        if (typeof fsNotify === 'function') fsNotify({ stage: "error", error: message });
         refreshBalance();
         flowState = "choose_method";
         const newEl = appendModeChooser("model3d", el);
@@ -9601,12 +10563,14 @@
               return;
             }
             setBotBody(el, progressHtml(`Generating… ${data.progress || 0}%`, data.progress || 0));
+            if (typeof fsNotify === 'function') fsNotify({ progress: data.progress || 0, label: "Building the mesh…" });
             setTimeout(tick, attempts < 5 ? 2500 : 4500);
             return;
           }
 
           setBotBody(el, modelFrameHtml(data.modelUrl, data.thumbnailUrl, true));
           markNewLastLarge(el);
+          if (typeof fsNotify === 'function') fsNotify({ stage: "done", kind: "model3d", modelUrl: data.modelUrl, thumbnailUrl: data.thumbnailUrl, el });
           if (chatId) {
             if (pendingChoiceMessage && (pendingChoiceMessage.chatId === chatId || pendingChoiceMessage.chatId === null)) {
               await persistMessage(chatId, pendingChoiceMessage.payload);
@@ -9742,12 +10706,14 @@
          </div>`
         );
         markNewLastLarge(pendingEl);
+        if (typeof fsNotify === 'function') fsNotify({ stage: "done", kind: "refimage", url: blobUrl, dataUrl, el: pendingEl });
         flowState = "awaiting_generated_image";
         applyFlowComposerState();
 
       } catch (e) {
         console.error(e);
         setBotBody(pendingEl, errorHtml("Error: " + e.message));
+        if (typeof fsNotify === 'function') fsNotify({ stage: "error", error: e.message });
         flowState = "awaiting_generated_image";
         applyFlowComposerState();
       }
@@ -10441,6 +11407,10 @@
         p.classList.toggle('active', p.dataset.force === mode);
       });
 
+      // The workshop opens first: setForceMode checks whether it is up
+      // before deciding to drop a method chooser into the chat.
+      if (mode !== 'chat' && typeof openFocus === 'function') openFocus(mode);
+
       if (typeof setForceMode === 'function') setForceMode(mode);
       if (typeof expandComposer === 'function') expandComposer();
 
@@ -10452,6 +11422,900 @@
         composer.classList.add('bounce');
       }
     }
+  </script>
+  <!-- Focus mode: the workshop overlay and the lens that bends the chat behind it. -->
+  <svg class="fs-defs" width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute">
+    <filter id="fsFisheye" primitiveUnits="objectBoundingBox" x="0" y="0" width="1" height="1"
+      color-interpolation-filters="sRGB">
+      <feImage id="fsFisheyeMap" result="fsMap" preserveAspectRatio="none" x="0" y="0" width="1" height="1"></feImage>
+      <feDisplacementMap in="SourceGraphic" in2="fsMap" scale="0.055" xChannelSelector="R" yChannelSelector="G" />
+    </filter>
+  </svg>
+  <div class="focus-stage" id="focusStage" hidden></div>
+
+  <script id="focusModeJS">
+
+    /* ==================== FOCUS MODE (workshop) ====================
+       Picking a generation mode hands the screen over to a workshop: the
+       chat parts and falls out of focus behind a lens, and one window in
+       the middle carries the job from "what do you want to do" through
+       configuration to a finished result you can keep working on.
+
+       Nothing here re-implements generation. Every task drives the same
+       pipeline the composer drives, so whatever comes out is already an
+       ordinary chat message by the time you leave — the chat never
+       actually stopped, it just stepped back. */
+
+    const FS_ICONS = {
+      close: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>`,
+      back: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5m7-7-7 7 7 7"/></svg>`,
+      brush: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 14.5 3 21s3.5.5 5-1 1.5-5.5 1.5-5.5"/><path d="m14 10-4 4"/><path d="M21.3 3.7a2.4 2.4 0 0 0-3.4 0l-6.4 6.4 3.4 3.4 6.4-6.4a2.4 2.4 0 0 0 0-3.4Z"/></svg>`,
+      eraser: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m5 16 6-6 7 7-3 3H8Z"/><path d="m11 10 4-4a2 2 0 0 1 2.8 0l3.2 3.2a2 2 0 0 1 0 2.8l-4 4"/><path d="M3 21h18"/></svg>`,
+      expand: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8V5a2 2 0 0 1 2-2h3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3"/></svg>`,
+      copies: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="8" width="13" height="13" rx="2.5"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg>`,
+      cutout: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4 8.1 15.9M14.5 14.5 20 20M8.1 8.1 9.5 9.5"/></svg>`,
+      mesh: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m12 2 9 5.2v9.6L12 22l-9-5.2V7.2Z"/><path d="M12 22V12M3 7.2 12 12l9-4.8M7.5 4.6l9 5.2M16.5 4.6l-9 5.2"/></svg>`,
+      scissors: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h18M7 4v16M17 4v16"/></svg>`,
+      patch: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-4.4 7-9.6V6.2L12 3.5 5 6.2v5.2C5 16.6 12 21 12 21Z"/><path d="m9 11.8 2.2 2.2L15.4 10"/></svg>`,
+      paint: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 11 9 21l-6-6L13 5Z"/><path d="M14 6 9 1"/><path d="M20 16s2 2.5 2 4a2 2 0 1 1-4 0c0-1.5 2-4 2-4Z"/></svg>`,
+      bone: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="2.6"/><circle cx="18" cy="18" r="2.6"/><path d="m8 8 8 8"/></svg>`,
+      run: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4.5 13H11l-1 9 8.5-11H12Z"/></svg>`,
+      box: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.7l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.7l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5M12 22V12"/></svg>`,
+      text: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V5h16v2M9 19h6M12 5v14"/></svg>`,
+      photo: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2.5"/><circle cx="8.5" cy="9.5" r="1.8"/><path d="m3 16 5-4 4 3.5 3-2.5 6 5"/></svg>`,
+      views: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="9" height="12" rx="2"/><rect x="13" y="6" width="9" height="12" rx="2"/></svg>`,
+      bug: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="6" width="8" height="14" rx="4"/><path d="M8 11H3M21 11h-5M8 16H4M20 16h-4M9 6 7.5 3.5M15 6l1.5-2.5"/></svg>`,
+      read: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5.5A16 16 0 0 1 12 8a16 16 0 0 1 10-2.5v13A16 16 0 0 0 12 21a16 16 0 0 0-10-2.5Z"/><path d="M12 8v13"/></svg>`,
+      refactor: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h11a4 4 0 0 1 0 8H7"/><path d="m10 4-3 3 3 3M7 12l3 3-3 3"/></svg>`,
+      download: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7.5 10.5 12 15l4.5-4.5M4 20h16"/></svg>`,
+      check: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m20 6-11 11-5-5"/></svg>`
+    };
+
+    // What you can ask each mode to do. `ready: false` means the task is
+    // designed and reachable but the worker route behind it is not live
+    // yet — it says so instead of pretending.
+    const FOCUS_CATALOG = {
+      image: {
+        title: "What are we making?",
+        lead: "Everything here runs on the images API. Start something new, or put an existing image on the bench and work on it.",
+        groups: [
+          {
+            title: "Create",
+            tasks: [
+              { id: "create", name: "From a description", sub: "Say what you want, pick the asset type, get the image.", icon: FS_ICONS.text, ready: true },
+              { id: "edit-photo", name: "Change an image", sub: "Upload one and describe what should be different.", icon: FS_ICONS.photo, ready: true },
+              { id: "restyle", name: "Borrow a style", sub: "Keep your subject, take the look from a second image.", icon: FS_ICONS.paint, ready: true }
+            ]
+          },
+          {
+            title: "Work on an image",
+            tasks: [
+              { id: "mark", name: "Paint the part to change", sub: "Brush over a region and say what belongs there instead.", icon: FS_ICONS.brush, ready: false, needs: "edits" },
+              { id: "extend", name: "Extend past the edges", sub: "Grow the canvas and let it fill in what continues.", icon: FS_ICONS.expand, ready: false, needs: "edits" },
+              { id: "cutout", name: "Cut out on transparency", sub: "Same asset, no background — ready to drop into Studio.", icon: FS_ICONS.cutout, ready: false, needs: "edits" },
+              { id: "takes", name: "More takes on one image", sub: "Several variations of something you already like.", icon: FS_ICONS.copies, ready: false, needs: "variations" }
+            ]
+          }
+        ]
+      },
+      model3d: {
+        title: "What are we building?",
+        lead: "Generation runs on Tripo. The bench work below — retopology, parts, texturing, rigging — is the V3 pipeline, which the worker has not been moved to yet.",
+        groups: [
+          {
+            title: "Create",
+            tasks: [
+              { id: "m-text", name: "From a description", sub: "Describe the object, tune the mesh, generate.", icon: FS_ICONS.text, ready: true },
+              { id: "m-image", name: "From your image", sub: "Upload a reference photo of the object.", icon: FS_ICONS.photo, ready: true },
+              { id: "m-gen", name: "Draw it first", sub: "Generate the reference image, then the model from it.", icon: FS_ICONS.run, ready: true },
+              { id: "m-multi", name: "From several views", sub: "Front, side and back into one consistent mesh.", icon: FS_ICONS.views, ready: false, needs: "v3" }
+            ]
+          },
+          {
+            title: "Work on a model",
+            tasks: [
+              { id: "m-retopo", name: "Retopologise", sub: "Drop to a face budget, optionally as clean quads.", icon: FS_ICONS.mesh, ready: false, needs: "v3" },
+              { id: "m-segment", name: "Split into parts", sub: "Separate head, limbs, clothing into sub-meshes.", icon: FS_ICONS.scissors, ready: false, needs: "v3" },
+              { id: "m-complete", name: "Close it up", sub: "Fill holes, clear self-intersections, make it watertight.", icon: FS_ICONS.patch, ready: false, needs: "v3" },
+              { id: "m-texture", name: "Re-texture", sub: "Fresh UVs and PBR maps, or another colour variant.", icon: FS_ICONS.paint, ready: false, needs: "v3" },
+              { id: "m-rig", name: "Rig & animate", sub: "Check, rig for its body plan, then apply animations.", icon: FS_ICONS.bone, ready: false, needs: "v3" },
+              { id: "m-convert", name: "Export elsewhere", sub: "FBX, OBJ, STL, USDZ, 3MF and back to GLB.", icon: FS_ICONS.box, ready: false, needs: "v3" }
+            ]
+          }
+        ]
+      },
+      code: {
+        title: "What should the script do?",
+        lead: "I keep the last script in mind, so the tasks below can build on it instead of starting over.",
+        groups: [
+          {
+            title: "Write",
+            tasks: [
+              { id: "c-new", name: "Write a script", sub: "Describe the behaviour you want in your game.", icon: FS_ICONS.text, ready: true },
+              { id: "c-add", name: "Add to the last script", sub: "Another function, another case, another check.", icon: FS_ICONS.run, ready: true, needsCode: true }
+            ]
+          },
+          {
+            title: "Work on the last script",
+            tasks: [
+              { id: "c-fix", name: "Fix what is broken", sub: "Tell me the error or the symptom.", icon: FS_ICONS.bug, ready: true, needsCode: true },
+              { id: "c-refactor", name: "Clean it up", sub: "Same behaviour, better structure and naming.", icon: FS_ICONS.refactor, ready: true, needsCode: true },
+              { id: "c-explain", name: "Explain it", sub: "Walk through what each part actually does.", icon: FS_ICONS.read, ready: true, needsCode: true }
+            ]
+          }
+        ]
+      },
+      ui2lua: {
+        title: "Rebuild a UI as Lua",
+        lead: "Hand me a screenshot of the interface and I will write the script that constructs it.",
+        groups: [
+          {
+            title: "Convert",
+            tasks: [
+              { id: "u-shot", name: "From a screenshot", sub: "A picture of the UI becomes a responsive Lua build script.", icon: FS_ICONS.photo, ready: true }
+            ]
+          }
+        ]
+      }
+    };
+
+    const FOCUS_NEEDS_NOTE = {
+      edits: "This runs on the images edit route, which the worker does not expose yet. It is the next thing going in.",
+      variations: "Variations need their own route in the worker. Coming right after the edit route.",
+      v3: "Tripo's mesh, texture and rigging tools only exist on API V3. The worker still calls V2, so this moves with that migration."
+    };
+
+    let focusState = null;
+    let fsLensReady = false;
+
+    function focusIsOpen() { return !!focusState; }
+
+    // Safe to call from the older script block, which loads first.
+    function fsOpen() { return typeof focusState !== "undefined" && !!focusState; }
+
+    function fsEl() { return document.getElementById("focusStage"); }
+
+    // ---------- the lens ----------
+    // A real barrel displacement, generated once: R carries the x offset,
+    // G the y offset, both relative to the centre, fading out at the rim
+    // so nothing is dragged in from outside the element.
+    function fsBuildLens() {
+      if (fsLensReady) return Promise.resolve(true);
+      try {
+        const N = 192;
+        const cv = document.createElement("canvas");
+        cv.width = cv.height = N;
+        const ctx = cv.getContext("2d");
+        const img = ctx.createImageData(N, N);
+        const d = img.data;
+        for (let y = 0; y < N; y++) {
+          for (let x = 0; x < N; x++) {
+            const nx = (x + 0.5) / N * 2 - 1;
+            const ny = (y + 0.5) / N * 2 - 1;
+            const r = Math.min(1, Math.hypot(nx, ny));
+            // Peaks mid-radius, zero at the centre and at the rim: the
+            // middle stays sharp and pulls the surroundings towards it.
+            const k = Math.sin(Math.PI * r) * 0.5;
+            const i = (y * N + x) * 4;
+            d[i] = Math.round((0.5 - nx * k * 0.5) * 255);
+            d[i + 1] = Math.round((0.5 - ny * k * 0.5) * 255);
+            d[i + 2] = 128;
+            d[i + 3] = 255;
+          }
+        }
+        ctx.putImageData(img, 0, 0);
+        const url = cv.toDataURL("image/png");
+        const fe = document.getElementById("fsFisheyeMap");
+        if (!fe) return Promise.resolve(false);
+        return new Promise(resolve => {
+          const probe = new Image();
+          probe.onload = () => {
+            fe.setAttribute("href", url);
+            fe.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", url);
+            fsLensReady = true;
+            resolve(true);
+          };
+          probe.onerror = () => resolve(false);
+          probe.src = url;
+        });
+      } catch (e) {
+        return Promise.resolve(false);
+      }
+    }
+
+    // ---------- parting the chat ----------
+    function fsPartChat() {
+      const feed = document.getElementById("feed");
+      if (!feed) return;
+      const mid = feed.getBoundingClientRect().top + feed.clientHeight / 2;
+      feed.querySelectorAll(".msg").forEach(m => {
+        const r = m.getBoundingClientRect();
+        const centre = r.top + r.height / 2;
+        const dir = centre < mid ? -1 : 1;
+        const dist = Math.min(1, Math.abs(centre - mid) / (feed.clientHeight / 2 || 1));
+        m.style.setProperty("--fs-part", (dir * (26 + 34 * (1 - dist))).toFixed(1));
+      });
+    }
+
+    function fsUnpartChat() {
+      document.querySelectorAll(".msg").forEach(m => m.style.removeProperty("--fs-part"));
+    }
+
+    // ---------- open / close ----------
+    async function openFocus(mode) {
+      if (!FOCUS_CATALOG[mode]) return;
+      const stage = fsEl();
+      if (!stage) return;
+
+      focusState = { mode, task: null, step: "task", cfg: {}, result: null, busy: false, error: null };
+      stage.classList.remove("fs-closing");
+      stage.hidden = false;
+      document.body.classList.add("focus-on");
+      fsPartChat();
+      fsRender();
+
+      const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const weak = (navigator.hardwareConcurrency || 8) <= 2;
+      if (!reduced && !weak) {
+        const ok = await fsBuildLens();
+        if (ok && focusIsOpen()) document.body.classList.add("focus-lens");
+      }
+    }
+
+    function closeFocus(opts) {
+      opts = opts || {};
+      const stage = fsEl();
+      if (!stage || !focusState) return;
+      if (focusState.busy && !opts.force) return;
+
+      focusState = null;
+
+      // The workshop stood in for the in-chat method chooser. Walking out
+      // without generating would leave the composer locked, waiting on a
+      // chooser nobody ever posted — so post the normal one now.
+      const needsChooser = typeof flowState !== "undefined" && flowState === "choose_method"
+        && (activeForceMode === "image" || activeForceMode === "model3d")
+        && !document.querySelector(".chooser-3d button:not([disabled])");
+      if (needsChooser && typeof appendModeChooser === "function") {
+        const el = appendModeChooser(activeForceMode);
+        pendingChoiceMessage = {
+          chatId: (typeof activeChatId !== "undefined" ? activeChatId : null),
+          payload: { type: "chooser", category: activeForceMode, prompt: "" },
+          _tempEl: el
+        };
+        if (typeof applyFlowComposerState === "function") applyFlowComposerState();
+      }
+
+      stage.classList.add("fs-closing");
+      document.body.classList.remove("focus-lens");
+      setTimeout(() => {
+        stage.hidden = true;
+        stage.classList.remove("fs-closing");
+        stage.innerHTML = "";
+        document.body.classList.remove("focus-on");
+        fsUnpartChat();
+        if (typeof scrollFeedToBottom === "function") scrollFeedToBottom();
+      }, 210);
+    }
+
+    // ---------- rendering ----------
+    const FS_STEP_NAMES = { task: "Task", config: "Setup", mask: "Region", run: "Working", result: "Result" };
+
+    function fsStepsFor(s) {
+      const base = ["task", "config"];
+      if (s.task === "mark") base.push("mask");
+      base.push("run", "result");
+      return base;
+    }
+
+    function fsRender() {
+      const s = focusState;
+      const stage = fsEl();
+      if (!s || !stage) return;
+      const cat = FOCUS_CATALOG[s.mode];
+      const info = (typeof FORCE_MODE_INFO !== "undefined" && FORCE_MODE_INFO[s.mode]) ? FORCE_MODE_INFO[s.mode] : { label: s.mode, icon: "" };
+
+      const steps = fsStepsFor(s);
+      const at = steps.indexOf(s.step);
+      const stepsHtml = steps.map((k, i) => {
+        const cls = i < at ? "done" : (i === at ? "now" : "");
+        return `<span class="fs-step ${cls}"><span class="fs-dot"></span>${FS_STEP_NAMES[k]}</span>`;
+      }).join(`<span class="fs-sep"></span>`);
+
+      const body = { task: fsViewTask, config: fsViewConfig, mask: fsViewMask, run: fsViewRun, result: fsViewResult }[s.step](s, cat);
+
+      stage.innerHTML = `
+        <div class="fs-veil"></div>
+        <div class="fs-panel" role="dialog" aria-modal="true" aria-label="${escapeHtml(info.label)} workshop">
+          <div class="fs-head">
+            <span class="fs-mode"><span class="fs-mode-ico">${info.icon || ""}</span>${escapeHtml(info.label)} workshop</span>
+            <div class="fs-steps">${stepsHtml}</div>
+            <div class="fs-head-right">
+              <span class="fs-esc">esc</span>
+              <button class="fs-exit" type="button" onclick="closeFocus()">${FS_ICONS.close}Back to chat</button>
+            </div>
+          </div>
+          <div class="fs-body" id="fsBody">${body.html}</div>
+          <div class="fs-foot">${body.foot || ""}</div>
+        </div>`;
+
+      if (body.after) body.after();
+    }
+
+    function fsViewTask(s, cat) {
+      const hasCode = typeof currentCodeState !== "undefined" && currentCodeState && currentCodeState.code;
+      const groups = cat.groups.map(g => {
+        const tasks = g.tasks.map(t => {
+          const blockedByCode = t.needsCode && !hasCode;
+          const off = !t.ready || blockedByCode;
+          const badge = !t.ready
+            ? `<span class="fs-badge wip">Not wired up yet</span>`
+            : (blockedByCode ? `<span class="fs-badge">Needs a script first</span>` : "");
+          return `
+            <button class="fs-task" type="button" ${off ? "disabled" : ""} onclick="fsPickTask('${t.id}')"
+              ${t.needs && !t.ready ? `title="${escapeHtml(FOCUS_NEEDS_NOTE[t.needs] || "")}"` : ""}>
+              <span class="fs-task-top">
+                <span class="fs-task-ico">${t.icon}</span>
+                <span class="fs-task-name">${escapeHtml(t.name)}</span>
+              </span>
+              <span class="fs-task-sub">${escapeHtml(t.sub)}</span>
+              ${badge}
+            </button>`;
+        }).join("");
+        return `<div class="fs-group"><div class="fs-group-title">${escapeHtml(g.title)}</div><div class="fs-tasks">${tasks}</div></div>`;
+      }).join("");
+
+      return {
+        html: `<h2 class="fs-title">${escapeHtml(cat.title)}</h2><p class="fs-lead">${escapeHtml(cat.lead)}</p>${groups}`,
+        foot: `<span class="fs-foot-note">The chat is still there behind this — anything you make lands in it as a normal message.</span>
+               <button class="fs-btn" type="button" onclick="closeFocus()">Cancel</button>`
+      };
+    }
+
+    // ---------- fields ----------
+    function fsTaskDef(s) {
+      for (const g of FOCUS_CATALOG[s.mode].groups) {
+        const t = g.tasks.find(x => x.id === s.task);
+        if (t) return t;
+      }
+      return null;
+    }
+
+    function fsFields(s) {
+      switch (s.task) {
+        case "create":
+          return [
+            { key: "type", type: "imagetype", label: "Asset type", note: "Sets the framing, the styling hints and the output size." },
+            { key: "prompt", type: "area", label: "What should be in it", required: true, ph: "A glowing sword icon on a dark background, sharp silhouette, rich colour…", note: "Describe the whole picture — subject, mood, lighting. Not what you do not want." }
+          ];
+        case "edit-photo":
+          return [
+            { key: "image", type: "image", label: "The image to change", required: true },
+            { key: "type", type: "imagetype", label: "Asset type" },
+            { key: "prompt", type: "area", label: "What should be different", required: true, ph: "Make the armour gold and put it against a night sky…" }
+          ];
+        case "restyle":
+          return [
+            { key: "image", type: "image", label: "Your image", required: true },
+            { key: "reference", type: "image", label: "The style to borrow", required: true },
+            { key: "prompt", type: "area", label: "Extra direction", ph: "Optional — anything the reference does not say." }
+          ];
+        case "m-text":
+          return [{ key: "prompt", type: "area", label: "The object", required: true, ph: "A weathered wooden treasure chest with iron bands…", note: "One object, described plainly. Scenes do not turn into good meshes." }];
+        case "m-image":
+          return [
+            { key: "image", type: "image", label: "Reference photo", required: true },
+            { key: "prompt", type: "area", label: "Extra direction", ph: "Optional — texture or material hints." }
+          ];
+        case "m-gen":
+          return [{ key: "prompt", type: "area", label: "The object to draw first", required: true, ph: "A stylised low-poly campfire…" }];
+        case "c-new":
+          return [
+            { key: "codemodel", type: "codemodel", label: "Model" },
+            { key: "prompt", type: "area", label: "What the script should do", required: true, ph: "A shop GUI that opens with E, lists items from a table and deducts coins…" }
+          ];
+        case "c-add":
+          return [{ key: "prompt", type: "area", label: "What to add", required: true, ph: "A save function that writes the player's coins to a DataStore…" }];
+        case "c-fix":
+          return [{ key: "prompt", type: "area", label: "What goes wrong", required: true, ph: "Line 42 errors with 'attempt to index nil'…" }];
+        case "c-refactor":
+          return [{ key: "prompt", type: "area", label: "Anything specific", ph: "Optional — otherwise I clean it up as I see fit." }];
+        case "c-explain":
+          return [{ key: "prompt", type: "area", label: "Anything specific", ph: "Optional — or leave it and I walk through the whole thing." }];
+        case "u-shot":
+          return [
+            { key: "image", type: "image", label: "UI screenshot", required: true },
+            { key: "prompt", type: "area", label: "Extra hints", ph: "Optional — behaviour the picture cannot show." }
+          ];
+        default:
+          return [];
+      }
+    }
+
+    function fsRenderField(f, s) {
+      const v = s.cfg[f.key];
+      // Pickers always have a value, so tagging them "optional" reads as a
+      // question about whether they apply at all. Only free input gets it.
+      const optional = !f.required && f.type !== "imagetype" && f.type !== "codemodel";
+      const label = `<span class="fs-field-label">${escapeHtml(f.label)}${optional ? ` <span style="color:var(--ws-faint);font-weight:400">optional</span>` : ""}</span>`;
+      const note = f.note ? `<div class="fs-field-note">${escapeHtml(f.note)}</div>` : "";
+      let inner = "";
+
+      if (f.type === "area") {
+        inner = `<textarea class="fs-area" placeholder="${escapeHtml(f.ph || "")}" oninput="fsSet('${f.key}', this.value)">${escapeHtml(v || "")}</textarea>`;
+      } else if (f.type === "text") {
+        inner = `<input class="fs-input" value="${escapeHtml(v || "")}" placeholder="${escapeHtml(f.ph || "")}" oninput="fsSet('${f.key}', this.value)">`;
+      } else if (f.type === "image") {
+        const prev = v ? `<img src="${escapeHtml(v)}" alt="">` : FS_ICONS.photo;
+        inner = `
+          <div class="fs-drop" data-key="${f.key}" onclick="fsPickImage('${f.key}')">
+            <span class="fs-drop-ico">${prev}</span>
+            <span class="fs-drop-text">${v ? "Image loaded" : "Click or drop an image here"}
+              <small>${v ? "Click to replace it." : "PNG, JPG or WebP."}</small></span>
+          </div>`;
+      } else if (f.type === "imagetype") {
+        const sections = typeof imageTypeSections === "function" ? imageTypeSections() : [];
+        const cur = v || (typeof selectedImageType !== "undefined" ? selectedImageType : "normal");
+        const popular = (typeof IMAGE_TYPE_POPULAR !== "undefined" ? IMAGE_TYPE_POPULAR : []).filter(k => imagePresets[k]);
+        const chips = popular.map(k => {
+          const size = typeof imageOutputSize === "function" ? imageOutputSize(k) : null;
+          return `<button type="button" class="fs-chip ${cur === k ? "on" : ""}" onclick="fsSet('${f.key}','${k}')">
+            ${imagePresets[k].icon || ""}${escapeHtml(imagePresets[k].label)}
+            ${size ? `<span class="fs-chip-sub">${size.w}×${size.h}</span>` : ""}</button>`;
+        }).join("");
+        const opts = sections.map(sec =>
+          `<optgroup label="${escapeHtml(sec.title)}">` +
+          sec.keys.map(k => `<option value="${k}" ${cur === k ? "selected" : ""}>${escapeHtml(imagePresets[k].label)}</option>`).join("") +
+          `</optgroup>`).join("");
+        inner = `<div class="fs-chips" style="margin-bottom:8px">${chips}</div>
+                 <select class="fs-select" onchange="fsSet('${f.key}', this.value)">${opts}</select>`;
+      } else if (f.type === "codemodel") {
+        const cur = v || (typeof selectedCodeModel !== "undefined" ? selectedCodeModel : "gemini");
+        inner = `<div class="fs-chips">` + Object.keys(CODE_MODEL_LABELS).map(k =>
+          `<button type="button" class="fs-chip ${cur === k ? "on" : ""}" onclick="fsSet('${f.key}','${k}')">${escapeHtml(CODE_MODEL_LABELS[k])}</button>`).join("") + `</div>`;
+      }
+
+      return `<div class="fs-field">${label}${inner}${note}</div>`;
+    }
+
+    function fsViewConfig(s, cat) {
+      const t = fsTaskDef(s);
+      const fields = fsFields(s);
+      const missing = fields.some(f => f.required && !s.cfg[f.key]);
+      const cost = fsCostNote(s);
+
+      return {
+        html: `<h2 class="fs-title">${escapeHtml(t ? t.name : "Setup")}</h2>
+               <p class="fs-lead">${escapeHtml(t ? t.sub : "")}</p>
+               <div class="fs-form">${fields.map(f => fsRenderField(f, s)).join("")}</div>`,
+        foot: `<span class="fs-foot-note">${escapeHtml(cost)}</span>
+               <button class="fs-btn" type="button" onclick="fsGo('task')">${FS_ICONS.back}Back</button>
+               <button class="fs-btn primary" type="button" ${missing ? "disabled" : ""} onclick="fsNext()">
+                 ${s.task === "mark" ? "Pick the region" : (s.mode === "model3d" ? "Set up the mesh" : "Generate")}</button>`,
+        after: () => {
+          const ta = document.querySelector("#fsBody .fs-area");
+          if (ta) { ta.focus(); ta.selectionStart = ta.value.length; }
+        }
+      };
+    }
+
+    function fsCostNote(s) {
+      if (s.mode === "image") return "Costs 2 tokens.";
+      if (s.mode === "ui2lua") return "Costs 2 tokens.";
+      if (s.mode === "code") return "Billed per generation in millitokens.";
+      if (s.mode === "model3d") return "Cost depends on the mesh settings on the next step.";
+      return "";
+    }
+
+    function fsViewRun(s) {
+      return {
+        html: `<div class="fs-run">
+                 <div class="fs-run-ring"></div>
+                 <div class="fs-run-label" id="fsRunLabel">${escapeHtml(s.runLabel || "Working…")}</div>
+                 <div class="fs-progress ${s.progress == null ? "indet" : ""}" id="fsRunBar"><span style="width:${s.progress == null ? "" : s.progress + "%"}"></span></div>
+                 <div class="fs-run-sub">This is running in the chat behind you as well — closing the workshop will not cancel it.</div>
+               </div>`,
+        foot: `<span class="fs-foot-note">Working…</span>
+               <button class="fs-btn" type="button" onclick="closeFocus({force:true})">Leave it running</button>`
+      };
+    }
+
+    function fsViewResult(s) {
+      const r = s.result || {};
+      if (r.error) {
+        return {
+          html: `<h2 class="fs-title">That did not go through</h2><div class="fs-error">${escapeHtml(r.error)}</div>`,
+          foot: `<span class="fs-foot-note">Nothing was kept.</span>
+                 <button class="fs-btn" type="button" onclick="fsGo('config')">${FS_ICONS.back}Change it</button>
+                 <button class="fs-btn primary" type="button" onclick="closeFocus()">Back to chat</button>`
+        };
+      }
+
+      let preview = "";
+      if (r.kind === "image" || r.kind === "refimage") preview = `<img src="${escapeHtml(r.url)}" alt="Result">`;
+      else if (r.kind === "model3d") preview = `<model-viewer src="${escapeHtml(r.modelUrl || "")}" poster="${escapeHtml(r.thumbnailUrl || "")}" camera-controls auto-rotate shadow-intensity="1" exposure="1" loading="eager"></model-viewer>`;
+      else if (r.kind === "code") preview = `<div class="msg msg-bot" style="width:100%"><div class="msg-bubble" style="width:100%">${r.html || ""}</div></div>`;
+
+      const rail = fsRailFor(s, r);
+
+      return {
+        html: `<div class="fs-result">
+                 <div class="fs-stagebox ${r.kind === "code" ? "fs-flat" : ""}">${preview}</div>
+                 <div class="fs-rail">
+                   <div class="fs-rail-title">Keep working on it</div>
+                   ${rail}
+                   <div class="fs-rail-sub">Whatever you do next stacks onto the same chat, one message per step.</div>
+                 </div>
+               </div>`,
+        foot: `<span class="fs-foot-note">It is already saved in the chat.</span>
+               <button class="fs-btn" type="button" onclick="fsGo('task')">Another task</button>
+               <button class="fs-btn primary" type="button" onclick="closeFocus()">${FS_ICONS.check}Done</button>`
+      };
+    }
+
+    function fsRailBtn(label, icon, action, off, title) {
+      return `<button class="fs-rail-btn" type="button" ${off ? "disabled" : ""} ${title ? `title="${escapeHtml(title)}"` : ""} onclick="${action}">${icon}${escapeHtml(label)}</button>`;
+    }
+
+    function fsRailFor(s, r) {
+      if (r.kind === "refimage") {
+        return [
+          fsRailBtn("Use it for the model", FS_ICONS.box, "fsUseRefImage()"),
+          fsRailBtn("Draw a different one", FS_ICONS.run, "fsRedrawRefImage()"),
+          fsRailBtn("Download", FS_ICONS.download, "fsDownload()")
+        ].join("");
+      }
+      if (r.kind === "image") {
+        return [
+          fsRailBtn("Paint a region to change", FS_ICONS.brush, "", true, FOCUS_NEEDS_NOTE.edits),
+          fsRailBtn("Extend past the edges", FS_ICONS.expand, "", true, FOCUS_NEEDS_NOTE.edits),
+          fsRailBtn("Describe another change", FS_ICONS.photo, "fsContinueWithImage('edit-photo')"),
+          fsRailBtn("Borrow a style for it", FS_ICONS.paint, "fsContinueWithImage('restyle')"),
+          fsRailBtn("Turn it into a 3D model", FS_ICONS.box, "fsImageToModel()"),
+          fsRailBtn("Run it again", FS_ICONS.run, "fsRerun()"),
+          fsRailBtn("Download", FS_ICONS.download, "fsDownload()")
+        ].join("");
+      }
+      if (r.kind === "model3d") {
+        return [
+          fsRailBtn("Retopologise", FS_ICONS.mesh, "", true, FOCUS_NEEDS_NOTE.v3),
+          fsRailBtn("Split into parts", FS_ICONS.scissors, "", true, FOCUS_NEEDS_NOTE.v3),
+          fsRailBtn("Re-texture", FS_ICONS.paint, "", true, FOCUS_NEEDS_NOTE.v3),
+          fsRailBtn("Rig & animate", FS_ICONS.bone, "", true, FOCUS_NEEDS_NOTE.v3),
+          fsRailBtn("Export elsewhere", FS_ICONS.box, "", true, FOCUS_NEEDS_NOTE.v3),
+          fsRailBtn("Build another", FS_ICONS.run, "fsGo('task')"),
+          fsRailBtn("Download GLB", FS_ICONS.download, "fsDownload()")
+        ].join("");
+      }
+      return [
+        fsRailBtn("Add a function", FS_ICONS.run, "fsContinueCode('c-add')"),
+        fsRailBtn("Fix a problem", FS_ICONS.bug, "fsContinueCode('c-fix')"),
+        fsRailBtn("Clean it up", FS_ICONS.refactor, "fsContinueCode('c-refactor')"),
+        fsRailBtn("Explain it", FS_ICONS.read, "fsContinueCode('c-explain')")
+      ].join("");
+    }
+
+    function fsViewMask(s) {
+      return {
+        html: `<h2 class="fs-title">Region editing</h2>
+               <div class="fs-error">${escapeHtml(FOCUS_NEEDS_NOTE.edits)}</div>`,
+        foot: `<button class="fs-btn" type="button" onclick="fsGo('config')">${FS_ICONS.back}Back</button>`
+      };
+    }
+
+    // ---------- interaction ----------
+    function fsPickTask(id) {
+      if (!focusState) return;
+      focusState.task = id;
+      focusState.cfg = {};
+      if (id === "create" || id === "edit-photo") {
+        focusState.cfg.type = (typeof selectedImageType !== "undefined" ? selectedImageType : "normal");
+      }
+      if (id === "c-new") focusState.cfg.codemodel = (typeof selectedCodeModel !== "undefined" ? selectedCodeModel : "gemini");
+      focusState.step = "config";
+      fsRender();
+    }
+
+    function fsGo(step) {
+      if (!focusState) return;
+      focusState.step = step;
+      if (step === "task") { focusState.task = null; focusState.cfg = {}; }
+      fsRender();
+    }
+
+    function fsSet(key, value) {
+      if (!focusState) return;
+      const wasBlocking = fsFields(focusState).some(f => f.required && !focusState.cfg[f.key]);
+      focusState.cfg[key] = value;
+      const nowBlocking = fsFields(focusState).some(f => f.required && !focusState.cfg[f.key]);
+      // Chips and selects need the panel redrawn; free text must not lose
+      // the caret, so it only redraws when the run button flips state.
+      const needsRedraw = key === "type" || key === "codemodel" || key === "image" || key === "reference" || wasBlocking !== nowBlocking;
+      if (needsRedraw) {
+        const active = document.activeElement;
+        const isText = active && (active.classList.contains("fs-area") || active.classList.contains("fs-input"));
+        const caret = isText ? active.selectionStart : null;
+        const wasArea = isText && active.classList.contains("fs-area");
+        fsRender();
+        if (isText) {
+          const again = document.querySelector("#fsBody " + (wasArea ? ".fs-area" : ".fs-input"));
+          if (again) { again.focus(); if (caret != null) again.setSelectionRange(caret, caret); }
+        }
+      }
+    }
+
+    function fsPickImage(key) {
+      const input = document.createElement("input");
+      input.type = "file";
+      input.accept = "image/png,image/jpeg,image/webp";
+      input.onchange = async () => {
+        const f = input.files && input.files[0];
+        if (!f) return;
+        const b64 = await fileToBase64(f);
+        fsSet(key, b64);
+      };
+      input.click();
+    }
+
+    function fsNext() {
+      const s = focusState;
+      if (!s) return;
+      if (s.task === "mark") { fsGo("mask"); return; }
+      fsRun();
+    }
+
+    // ---------- running ----------
+    function fsBusy(label) {
+      if (!focusState) return;
+      focusState.busy = true;
+      focusState.runLabel = label;
+      focusState.progress = null;
+      focusState.step = "run";
+      fsRender();
+    }
+
+    function fsDone(result) {
+      if (!focusState) return;
+      focusState.busy = false;
+      focusState.result = result;
+      focusState.step = "result";
+      fsRender();
+    }
+
+    // Everything below hands off to the same functions the composer uses,
+    // so the result is a real chat message with real history behind it.
+    async function fsRun() {
+      const s = focusState;
+      if (!s) return;
+      const c = s.cfg;
+
+      if (typeof currentUser === "undefined" || !currentUser) {
+        fsDone({ error: "Sign in first — generating needs your account to bill it and keep the result." });
+        const b = document.getElementById("signInBtn");
+        if (b) b.click();
+        return;
+      }
+      if ((s.mode === "image" || s.mode === "ui2lua") && (tokenBalance ?? 0) < 2) {
+        fsDone({ error: "This costs 2 tokens and you do not have that many yet." });
+        if (typeof openBuyModal === "function") openBuyModal();
+        return;
+      }
+
+      if (s.mode === "image") {
+        if (typeof selectedImageType !== "undefined" && c.type) {
+          selectedImageType = c.type;
+          if (typeof updateImageTypeTrigger === "function") updateImageTypeTrigger();
+        }
+        currentMethod = s.task === "create" ? "text" : (s.task === "restyle" ? "style" : "image");
+        mainImage = c.image || null;
+        refImage = c.reference || null;
+        document.getElementById("prompt").value = c.prompt || "";
+        fsBusy("Generating the image…");
+        generateImage();
+        return;
+      }
+
+      if (s.mode === "model3d") {
+        if (s.task === "m-gen") {
+          document.getElementById("prompt").value = c.prompt || "";
+          fsBusy("Drawing the reference image first…");
+          generateImageForModel3D(c.prompt || "");
+          return;
+        }
+        // The mesh settings panel is the real one from the chat flow —
+        // adopted into the workshop rather than rebuilt, so presets, the
+        // polygon slider and the running cost all keep working.
+        if (s.task === "m-image") {
+          presentModel3DSettingsStep(c.prompt || "(reference image)", [{ kind: "image", dataUrl: c.image }], c.image);
+        } else {
+          presentModel3DSettingsStep(c.prompt || "");
+        }
+        fsAdoptMeshPanel();
+        return;
+      }
+
+      if (s.mode === "code") {
+        if (c.codemodel && typeof updateSelectedCodeModel === "function") updateSelectedCodeModel(c.codemodel);
+        const instruction = fsCodeInstruction(s);
+        fsBusy("Writing the script…");
+        sendCodeMessage(instruction, s.task === "c-fix");
+        return;
+      }
+
+      if (s.mode === "ui2lua") {
+        mainImage = c.image || null;
+        document.getElementById("prompt").value = c.prompt || "";
+        fsBusy("Reading the screenshot…");
+        sendUiToLua();
+        return;
+      }
+    }
+
+    function fsCodeInstruction(s) {
+      const p = (s.cfg.prompt || "").trim();
+      switch (s.task) {
+        case "c-add": return "Add to the script you already have: " + p;
+        case "c-fix": return "Fix this in the script: " + p;
+        case "c-refactor": return "Refactor the script — same behaviour, clearer structure and naming." + (p ? " Also: " + p : "");
+        case "c-explain": return "Explain the script and what each part does." + (p ? " Focus on: " + p : "");
+        default: return p;
+      }
+    }
+
+    // Moves the live #model3dPanel out of its chat bubble and into the
+    // workshop. It is the same node, so every handler on it still fires;
+    // generation replaces the bubble's contents anyway once it starts.
+    function fsAdoptMeshPanel() {
+      const s = focusState;
+      if (!s) return;
+      s.step = "config";
+      const stage = fsEl();
+      stage.querySelector("#fsBody").innerHTML = `<h2 class="fs-title">Set up the mesh</h2>
+        <p class="fs-lead">Pick a preset or tune it yourself — the cost updates as you go.</p>
+        <div id="fsMeshSlot" class="fs-mesh-hosted"></div>`;
+      const foot = stage.querySelector(".fs-foot");
+      const panel = document.getElementById("model3dPanel");
+      const slot = stage.querySelector("#fsMeshSlot");
+      if (panel && slot) slot.appendChild(panel);
+      if (foot) {
+        foot.innerHTML = `<span class="fs-foot-note">Every setting changes the price — the button keeps the running total.</span>
+          <button class="fs-btn" type="button" onclick="fsGo('task')">${FS_ICONS.back}Start over</button>
+          <button class="fs-btn primary" type="button" id="fsMeshGo" onclick="fsMeshGenerate()">Generate</button>`;
+      }
+      // Anything touched in the panel can move the price, and the panel
+      // rewrites itself on most of them, so the footer button re-reads the
+      // real one rather than tracking the settings itself.
+      if (slot) {
+        ["click", "input", "change"].forEach(ev =>
+          slot.addEventListener(ev, () => setTimeout(fsSyncMeshButton, 0)));
+      }
+      fsSyncMeshButton();
+    }
+
+    function fsSyncMeshButton() {
+      const real = document.querySelector("#fsMeshSlot .m3d-generate");
+      const proxy = document.getElementById("fsMeshGo");
+      if (real && proxy) proxy.textContent = real.textContent.trim();
+    }
+
+    function fsMeshGenerate() {
+      const real = document.querySelector("#fsMeshSlot .m3d-generate");
+      if (!real) return;
+      fsBusy("Building the mesh…");
+      real.click();
+    }
+
+    // ---------- follow-ups ----------
+    function fsContinueWithImage(task) {
+      const s = focusState;
+      if (!s || !s.result) return;
+      const src = s.result.dataUrl || s.result.url;
+      s.task = task;
+      s.cfg = { image: src, type: s.cfg.type, prompt: "" };
+      s.step = "config";
+      fsRender();
+    }
+
+    async function fsImageToModel() {
+      const s = focusState;
+      if (!s || !s.result) return;
+      let src = s.result.dataUrl || s.result.url;
+      if (src && src.startsWith("blob:") && typeof blobUrlToDataUrl === "function") {
+        try { src = await blobUrlToDataUrl(src); } catch (e) { /* keep the blob url */ }
+      }
+      s.mode = "model3d";
+      s.task = "m-image";
+      s.cfg = { image: src, prompt: "" };
+      s.result = null;
+      presentModel3DSettingsStep("(generated image)", [{ kind: "image", dataUrl: src }], src);
+      fsRender();
+      fsAdoptMeshPanel();
+    }
+
+    // The reference image lives in a real chat bubble with its own two
+    // buttons; clicking them keeps the 3D flow on its normal path rather
+    // than building a second one that can drift out of step.
+    function fsUseRefImage() {
+      const s = focusState;
+      const el = s && s.result && s.result.el;
+      const btn = el && el.querySelector(".result-actions button.primary");
+      if (!btn) return;
+      btn.click();
+      const panel = document.getElementById("model3dPanel");
+      if (panel) fsAdoptMeshPanel();
+    }
+
+    function fsRedrawRefImage() {
+      const s = focusState;
+      const el = s && s.result && s.result.el;
+      const btns = el ? el.querySelectorAll(".result-actions button") : [];
+      if (btns.length < 2) return;
+      fsBusy("Drawing another reference image…");
+      btns[1].click();
+    }
+
+    function fsContinueCode(task) {
+      const s = focusState;
+      if (!s) return;
+      s.task = task;
+      s.cfg = { prompt: "" };
+      s.result = null;
+      s.step = "config";
+      fsRender();
+    }
+
+    function fsRerun() {
+      const s = focusState;
+      if (!s) return;
+      s.result = null;
+      fsRun();
+    }
+
+    function fsDownload() {
+      const s = focusState;
+      if (!s || !s.result) return;
+      const r = s.result;
+      const href = r.kind === "model3d" ? r.modelUrl : (r.url || r.dataUrl);
+      if (!href) return;
+      const a = document.createElement("a");
+      a.href = href;
+      a.download = r.kind === "model3d" ? "RoPeak-Model.glb" : "RoPeak-Image.png";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    }
+
+    // ---------- results arriving from the pipeline ----------
+    function fsNotify(payload) {
+      if (!focusIsOpen()) return;
+      if (payload.progress != null && focusState.step === "run") {
+        focusState.progress = payload.progress;
+        const bar = document.querySelector("#fsRunBar span");
+        const wrap = document.getElementById("fsRunBar");
+        const lbl = document.getElementById("fsRunLabel");
+        if (wrap) wrap.classList.remove("indet");
+        if (bar) bar.style.width = payload.progress + "%";
+        if (lbl && payload.label) lbl.textContent = payload.label;
+        return;
+      }
+      if (payload.stage === "done") {
+        if (payload.kind === "code" && payload.el) {
+          const body = payload.el.querySelector(".bot-body") || payload.el;
+          payload.html = body.innerHTML;
+        }
+        fsDone(payload);
+      }
+      else if (payload.stage === "error") fsDone({ error: payload.error });
+    }
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && focusIsOpen()) {
+        e.preventDefault();
+        closeFocus();
+      }
+    });
+
+    window.addEventListener("resize", () => { if (focusIsOpen()) fsPartChat(); });
   </script>
 </body>
 
