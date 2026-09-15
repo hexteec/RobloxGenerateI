@@ -712,11 +712,26 @@
       margin: 0;
     }
 
+    /* The row wraps, so the unlinked Connect button — the only child set to
+       full width — drops onto its own line, while the small unlink button
+       stays beside the name. */
     .rc-row {
       display: flex;
       align-items: center;
       gap: 10px;
       min-width: 0;
+      flex-wrap: wrap;
+    }
+
+    /* Counters reuse .gp-stat from the wallet; only the ink differs, because
+       this card sits on a light surface rather than the dark one. */
+    .rc-stats {
+      --on-card: var(--ink);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding-top: 9px;
+      border-top: 1px solid var(--border);
     }
 
     /* 232px of sidebar leaves the subtitle about 164px once the avatar and
@@ -1039,13 +1054,16 @@
       font-weight: 500;
     }
 
+    /* Same object as the account sign-out button one card up: same size,
+       same radius, same coral outline. It sits in the identity row, not on a
+       line of its own. */
     .rc-unlink-btn {
-      width: 27px;
-      height: 27px;
+      width: 28px;
+      height: 28px;
       padding: 0;
-      border-radius: 0;
+      border-radius: var(--radius-sm);
       background: var(--card);
-      border: 1px solid rgba(193, 80, 47, 0.35);
+      border: 1px solid var(--coral);
       color: var(--coral) !important;
       display: inline-flex;
       align-items: center;
@@ -5611,8 +5629,29 @@
                   <div class="rc-title" id="robloxTitle">Connect Roblox account</div>
                   <div class="rc-sub" id="robloxSub">Required for the Studio plugin</div>
                 </div>
+                  <button class="rc-action" id="robloxAction" onclick="handleRobloxAction()">[ Connect ]</button>
                 </div>
-                <button class="rc-action" id="robloxAction" onclick="handleRobloxAction()">[ Connect ]</button>
+
+                <!-- Only meaningful once an account is attached; hidden until then. -->
+                <div class="rc-stats" id="robloxStats" hidden>
+                  <span class="gp-stat" title="Followers" aria-label="Followers">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                      stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                      <circle cx="9" cy="7" r="4" />
+                      <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+                      <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                    </svg><b id="robloxFollowers">0</b>followers
+                  </span>
+                  <span class="gp-stat" title="Friends" aria-label="Friends">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                      stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                      <circle cx="9" cy="7" r="4" />
+                      <path d="m17 11 2 2 4-4" />
+                    </svg><b id="robloxFriends">0</b>friends
+                  </span>
+                </div>
               </div>
             </div>
           </div>
@@ -7046,6 +7085,22 @@
       } catch (e) { console.error("Balance:", e); }
     }
 
+    // The counts ride along with the avatar response. Older worker builds do
+    // not send them, so the row stays hidden rather than showing a made-up 0.
+    function setRobloxStats(data) {
+      const row = document.getElementById("robloxStats");
+      if (!row) return;
+      const followers = Number(data && data.followers);
+      const friends = Number(data && data.friends);
+      if (!Number.isFinite(followers) || !Number.isFinite(friends)) {
+        row.hidden = true;
+        return;
+      }
+      document.getElementById("robloxFollowers").textContent = followers.toLocaleString("en-US");
+      document.getElementById("robloxFriends").textContent = friends.toLocaleString("en-US");
+      row.hidden = false;
+    }
+
     async function updateRobloxCard() {
       const card = document.getElementById("robloxCard");
       const title = document.getElementById("robloxTitle");
@@ -7058,6 +7113,8 @@
 
       card.classList.toggle("linked", robloxLinked);
       card.classList.toggle("unlinked", !robloxLinked);
+      const statsRow = document.getElementById("robloxStats");
+      if (statsRow && !robloxLinked) statsRow.hidden = true;
       if (dot) {
         dot.className = "rc-status-dot " + (robloxLinked ? "linked" : "unlinked");
       }
@@ -7085,6 +7142,7 @@
                 avatarImg.style.display = "none";
                 avatarFallback.style.display = "flex";
               }
+              setRobloxStats(data);
             }
           } catch (e) {
             avatarImg.style.display = "none";
