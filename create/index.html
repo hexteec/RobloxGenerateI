@@ -4985,6 +4985,78 @@
       pointer-events: none !important;
     }
 
+    /* Image type trigger. It used to be a faint text label, which said
+       nothing about what you would actually get back. The output size is
+       fixed per category in the worker, so it belongs on the button. */
+    .ui-pill-btn.it-trigger {
+      opacity: 1 !important;
+      gap: 7px !important;
+      padding: 4px 10px !important;
+      border: 1px solid var(--border) !important;
+      background: var(--soft) !important;
+    }
+
+    .ui-pill-btn.it-trigger:hover {
+      background: var(--soft-2) !important;
+      border-color: var(--ink-faint) !important;
+    }
+
+    .it-trigger .itt-ico {
+      display: flex;
+      color: var(--ink-muted);
+    }
+
+    .it-trigger .itt-ico svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    .it-trigger .itt-label {
+      color: var(--ink);
+    }
+
+    /* Outline in the shape of the output: square for 1:1, letterbox for 3:2.
+       Reads at a glance, before anyone parses the numbers. */
+    .it-trigger .itt-ar {
+      width: 13px;
+      height: 13px;
+      border: 1.5px solid var(--ink-faint);
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+
+    .it-trigger .itt-ar[data-ar="wide"] {
+      width: 15px;
+      height: 10px;
+    }
+
+    .it-trigger .itt-res {
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      font-weight: 600;
+      color: var(--ink-muted);
+      letter-spacing: -0.02em;
+    }
+
+    .it-trigger .itt-chev {
+      display: flex;
+      color: var(--ink-faint);
+      margin-left: -2px;
+    }
+
+    .it-trigger .itt-chev svg {
+      width: 12px;
+      height: 12px;
+    }
+
+    /* The numbers are the first thing to go when the row gets tight; the
+       shape outline still carries the format. */
+    @media (max-width: 560px) {
+      .it-trigger .itt-res {
+        display: none;
+      }
+    }
+
     /* ── Image type picker ───────────────────────────────────────────────
        28 presets. As a flat one-column list that is ~950px of menu opening
        upward from the composer, so it ran off the top of the screen. Same
@@ -5864,8 +5936,13 @@
                   </div>
 
                   <div style="position: relative; display:none;" id="imageTypeSelectorWrap">
-                    <button class="ui-pill-btn" onclick="toggleDropdown('imageTypeDropdown', event); focusImageTypeSearch()">
-                      <span id="activeImageTypeLabel">Normal</span>
+                    <button class="ui-pill-btn it-trigger"
+                      onclick="toggleDropdown('imageTypeDropdown', event); focusImageTypeSearch()">
+                      <span class="itt-ico" id="imageTypeTriggerIcon"></span>
+                      <span class="itt-label" id="activeImageTypeLabel">Normal Image</span>
+                      <span class="itt-ar" id="imageTypeTriggerAr" data-ar="square"></span>
+                      <span class="itt-res" id="imageTypeTriggerRes">1024&times;1024</span>
+                      <span class="itt-chev" id="imageTypeTriggerChev"></span>
                     </button>
                     <div class="ui-dropdown it-picker" id="imageTypeDropdown">
                     </div>
@@ -6443,6 +6520,40 @@
       return out.filter(sec => sec.keys.length);
     }
 
+    // Output size is decided by the worker's IMAGE_SIZE_BY_CATEGORY, keyed on
+    // the preset's backendCategory. Mirrored here so the trigger can state what
+    // you will actually get back; keep the two in step.
+    const IMAGE_OUTPUT_SIZE = {
+      icon: { w: 1024, h: 1024, ar: "square" },
+      thumbnail: { w: 1920, h: 1080, ar: "wide" }
+    };
+
+    function imageOutputSize(key) {
+      const p = imagePresets[key];
+      return IMAGE_OUTPUT_SIZE[p && p.backendCategory] || IMAGE_OUTPUT_SIZE.icon;
+    }
+
+    function updateImageTypeTrigger() {
+      const p = imagePresets[selectedImageType];
+      if (!p) return;
+      const size = imageOutputSize(selectedImageType);
+
+      const ico = document.getElementById("imageTypeTriggerIcon");
+      if (ico) ico.innerHTML = p.icon || ICONS.icon;
+
+      const lbl = document.getElementById("activeImageTypeLabel");
+      if (lbl) lbl.textContent = p.label;
+
+      const ar = document.getElementById("imageTypeTriggerAr");
+      if (ar) ar.dataset.ar = size.ar;
+
+      const res = document.getElementById("imageTypeTriggerRes");
+      if (res) res.textContent = size.w + "\u00d7" + size.h;
+
+      const chev = document.getElementById("imageTypeTriggerChev");
+      if (chev) chev.innerHTML = ICONS.chevronDown;
+    }
+
     function renderImageTypeMenuDropdown() {
       const dd = document.getElementById("imageTypeDropdown");
       if (!dd) return;
@@ -6540,6 +6651,7 @@
         });
 
         renderImageTypeMenuDropdown();
+        updateImageTypeTrigger();
         initThemeSwitch();
         initLangSwitch();
         bindForceModeBar();
@@ -9778,6 +9890,7 @@
       }
       // Rebuild so the highlighted chip matches on the next open.
       if (typeof renderImageTypeMenuDropdown === 'function') renderImageTypeMenuDropdown();
+      if (typeof updateImageTypeTrigger === 'function') updateImageTypeTrigger();
       closeAllDropdowns();
     }
 
