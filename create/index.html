@@ -4985,6 +4985,133 @@
       pointer-events: none !important;
     }
 
+    /* ── Image type picker ───────────────────────────────────────────────
+       28 presets. As a flat one-column list that is ~950px of menu opening
+       upward from the composer, so it ran off the top of the screen. Same
+       items as a grouped grid with a filter field fit in a panel a third of
+       that height, and typing beats scanning once there are this many. */
+    .ui-dropdown.it-picker {
+      width: min(432px, calc(100vw - 32px)) !important;
+      min-width: 0 !important;
+      max-height: min(400px, 62vh) !important;
+      padding: 0 !important;
+      gap: 0 !important;
+      overflow: hidden !important;
+    }
+
+    .itp-search {
+      padding: 10px 11px 8px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .itp-search input {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      background: var(--soft);
+      padding: 7px 10px;
+      font-size: 12.5px;
+      font-family: inherit;
+      color: var(--ink);
+      outline: none;
+    }
+
+    .itp-search input:focus {
+      border-color: var(--accent);
+      background: var(--card);
+    }
+
+    .itp-search input::placeholder {
+      color: var(--ink-faint);
+    }
+
+    /* Only this part scrolls, so the field stays put while filtering. */
+    .itp-body {
+      overflow-y: auto;
+      padding: 4px 8px 10px;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .itp-sec-title {
+      font-size: 9.5px;
+      font-weight: 700;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+      padding: 10px 4px 6px;
+    }
+
+    .itp-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(94px, 1fr));
+      gap: 5px;
+    }
+
+    .itp-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 5px;
+      padding: 8px 9px;
+      border-radius: 10px;
+      border: 1px solid transparent;
+      background: var(--soft);
+      color: var(--ink-muted);
+      font-family: inherit;
+      font-size: 11.6px;
+      font-weight: 600;
+      line-height: 1.25;
+      text-align: left;
+      /* Grid rows take the tallest chip, so a two-line label like "Normal
+         Image" would leave its whole row taller than the others. */
+      min-height: 68px;
+      justify-content: flex-start;
+      cursor: pointer;
+      transition: background .15s ease, color .15s ease, border-color .15s ease;
+    }
+
+    .itp-chip:hover {
+      background: var(--soft-2);
+      color: var(--ink);
+    }
+
+    .itp-chip.active {
+      background: var(--accent-wash);
+      border-color: var(--accent);
+      color: var(--accent-deep);
+    }
+
+    .itp-chip .itp-ico {
+      display: flex;
+      opacity: .65;
+    }
+
+    .itp-chip.active .itp-ico {
+      opacity: 1;
+    }
+
+    .itp-chip svg {
+      width: 15px;
+      height: 15px;
+    }
+
+    .itp-empty {
+      padding: 26px 12px;
+      text-align: center;
+      font-size: 12px;
+      color: var(--ink-faint);
+    }
+
+    /* Four columns on a phone leaves the longer labels touching the chip
+       edges, so drop to three and let them breathe. */
+    @media (max-width: 520px) {
+      .itp-grid {
+        grid-template-columns: repeat(auto-fill, minmax(108px, 1fr));
+      }
+    }
+
     /* Millitoken meter. Code generation is billed by real API cost, not a flat
        price: every call adds millitokens and a whole token is deducted at 1000.
        Just the bar — the number it is counting toward means nothing to anyone,
@@ -5737,10 +5864,10 @@
                   </div>
 
                   <div style="position: relative; display:none;" id="imageTypeSelectorWrap">
-                    <button class="ui-pill-btn" onclick="toggleDropdown('imageTypeDropdown', event)">
+                    <button class="ui-pill-btn" onclick="toggleDropdown('imageTypeDropdown', event); focusImageTypeSearch()">
                       <span id="activeImageTypeLabel">Normal</span>
                     </button>
-                    <div class="ui-dropdown" id="imageTypeDropdown">
+                    <div class="ui-dropdown it-picker" id="imageTypeDropdown">
                     </div>
                   </div>
 
@@ -6276,12 +6403,113 @@
       document.body.style.overflow = isOpen ? "hidden" : "";
     }
 
+    // Sections for the image type picker. Presets carry no grouping of their
+    // own beyond quick/more, which says nothing about what a type is for.
+    // Anything missing here still shows up under "Other", so adding a preset
+    // can never make it silently disappear from the picker.
+    const IMAGE_TYPE_SECTIONS = [
+      {
+        title: "Popular",
+        fallbackIcon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 2.4 5.9 6.6.5-5 4.3 1.5 6.3L12 16.6 6.5 20l1.5-6.3-5-4.3 6.6-.5Z"/></svg>`
+      },
+      {
+        title: "Items & rewards",
+        keys: ["item", "weapon", "ability", "gamepass", "badge", "rank", "quest", "emote", "shop"],
+        fallbackIcon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8l9 5 9-5Z"/><path d="M3 8v8l9 5 9-5V8"/></svg>`
+      },
+      {
+        title: "Characters",
+        keys: ["character", "npc", "avatar", "ugc", "vehicle"],
+        fallbackIcon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.6"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0"/></svg>`
+      },
+      {
+        title: "Scenes & surfaces",
+        keys: ["environment", "map", "loadingscreen", "banner", "texture", "decal", "gameui"],
+        fallbackIcon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="m3 16 5-5 4 4 3-3 6 6"/></svg>`
+      }
+    ];
+
+    const IMAGE_TYPE_POPULAR = ["normal", "icon", "thumbnail", "logo", "background", "ui", "particle"];
+
+    function imageTypeSections() {
+      const claimed = new Set();
+      const out = IMAGE_TYPE_SECTIONS.map(sec => {
+        const keys = (sec.keys || IMAGE_TYPE_POPULAR).filter(k => imagePresets[k]);
+        keys.forEach(k => claimed.add(k));
+        return { title: sec.title, fallbackIcon: sec.fallbackIcon, keys };
+      });
+      const rest = Object.keys(imagePresets).filter(k => !claimed.has(k));
+      if (rest.length) out.push({ title: "Other", fallbackIcon: "", keys: rest });
+      return out.filter(sec => sec.keys.length);
+    }
+
     function renderImageTypeMenuDropdown() {
       const dd = document.getElementById("imageTypeDropdown");
       if (!dd) return;
-      dd.innerHTML = Object.entries(imagePresets)
-        .map(([key, p]) => `<button class="ui-dropdown-item" onclick="selectImageTypeMenu('${key}','${p.label}',event)">${p.label}</button>`)
-        .join("");
+
+      const body = imageTypeSections().map(sec => {
+        const chips = sec.keys.map(key => {
+          const p = imagePresets[key];
+          const label = p.label;
+          return `<button type="button" class="itp-chip${selectedImageType === key ? " active" : ""}"
+                    data-key="${key}" data-search="${escapeHtml(label.toLowerCase())}"
+                    onclick="selectImageTypeMenu('${key}','${escapeHtml(label)}',event)">
+                    <span class="itp-ico">${p.icon || sec.fallbackIcon}</span>
+                    <span class="itp-name">${escapeHtml(label)}</span>
+                  </button>`;
+        }).join("");
+        return `<div class="itp-sec"><div class="itp-sec-title">${escapeHtml(sec.title)}</div><div class="itp-grid">${chips}</div></div>`;
+      }).join("");
+
+      dd.innerHTML = `
+        <div class="itp-search">
+          <input id="itpSearch" type="text" placeholder="Search types…" autocomplete="off" spellcheck="false"
+                 oninput="filterImageTypes(this.value)" onkeydown="imageTypeSearchKey(event)">
+        </div>
+        <div class="itp-body" id="itpBody">${body}</div>
+        <div class="itp-empty" id="itpEmpty" hidden>Nothing matches that</div>`;
+    }
+
+    function filterImageTypes(query) {
+      const q = String(query || "").trim().toLowerCase();
+      const dd = document.getElementById("imageTypeDropdown");
+      if (!dd) return;
+
+      let visible = 0;
+      dd.querySelectorAll(".itp-chip").forEach(chip => {
+        const hit = !q || chip.dataset.search.includes(q);
+        chip.hidden = !hit;
+        if (hit) visible++;
+      });
+      // A section header with nothing under it reads as a broken filter.
+      dd.querySelectorAll(".itp-sec").forEach(sec => {
+        sec.hidden = !sec.querySelector(".itp-chip:not([hidden])");
+      });
+
+      const empty = dd.querySelector("#itpEmpty");
+      if (empty) empty.hidden = visible > 0;
+      const bodyEl = dd.querySelector("#itpBody");
+      if (bodyEl) bodyEl.hidden = visible === 0;
+    }
+
+    function imageTypeSearchKey(e) {
+      if (e.key === "Escape") { closeAllDropdowns(); return; }
+      if (e.key !== "Enter") return;
+      e.preventDefault();
+      const first = document.querySelector("#imageTypeDropdown .itp-chip:not([hidden])");
+      if (first) first.click();
+    }
+
+    // Opening with the keyboard ready is the point of the field, but focusing
+    // it on a phone throws up the on-screen keyboard over the grid.
+    function focusImageTypeSearch() {
+      if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
+      requestAnimationFrame(() => {
+        const dd = document.getElementById("imageTypeDropdown");
+        if (!dd || !dd.classList.contains("open")) return;
+        const input = dd.querySelector("#itpSearch");
+        if (input) { input.value = ""; filterImageTypes(""); input.focus(); }
+      });
     }
 
     function init() {
@@ -9548,6 +9776,8 @@
       if (typeof imagePresets !== 'undefined' && imagePresets[type]) {
         currentTemplate = imagePresets[type].backendCategory === "thumbnail" ? "wide" : "square";
       }
+      // Rebuild so the highlighted chip matches on the next open.
+      if (typeof renderImageTypeMenuDropdown === 'function') renderImageTypeMenuDropdown();
       closeAllDropdowns();
     }
 
