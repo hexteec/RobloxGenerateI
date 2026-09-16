@@ -5795,6 +5795,21 @@
     body.ws-on .mac-dock-container:hover { opacity: 1; }
     .mac-dock-container { transition: opacity .35s ease; }
 
+    /* Below a certain height there is nowhere for the work to go but under
+       the dock and the composer. wsGuardFloaters() measures the actual
+       overlap and, only while there is one, gets them out of the way — so
+       they are present whenever they can be and never cover the work. */
+    /* Faded almost out, not switched off: the dock is still the way to
+       another mode or back to the chat, and taking that away would leave
+       Close as the only exit. It comes back the moment you reach for it. */
+    body.ws-on.ws-dock-clear .mac-dock-container { opacity: .08; }
+    body.ws-on.ws-dock-clear .mac-dock-container:hover { opacity: 1; }
+
+    body.ws-on.ws-composer-clear .composer-stage {
+      opacity: 0 !important;
+      pointer-events: none !important;
+    }
+
     body.ws-on .sidebar,
     body.ws-on .topbar { opacity: .84; }
 
@@ -6428,7 +6443,12 @@
 
     .ws-canvas-wrap canvas {
       display: block;
-      width: 100%;
+      margin: 0 auto;
+      max-width: 100%;
+      /* Bounded by the window, not by the picture: a tall source would
+         otherwise push the brush controls off the bottom of the screen. */
+      max-height: clamp(200px, calc(100vh - 430px), 560px);
+      width: auto;
       height: auto;
       cursor: none;
     }
@@ -6501,7 +6521,7 @@
     /* Masked rather than covered with a gradient: the fold sits over a
        dark code block on a light page, so nothing can be faded *to*. */
     .ws-preview.ws-flat.ws-folded {
-      max-height: 260px;
+      max-height: clamp(180px, calc(100vh - 560px), 300px);
       -webkit-mask-image: linear-gradient(#000 68%, transparent 100%);
       mask-image: linear-gradient(#000 68%, transparent 100%);
     }
@@ -6540,6 +6560,18 @@
        Its own generate button sits at the end of a long scroll, so the
        action row takes over and this copy stays hidden. */
     .ws-mesh .m3d-generate { display: none; }
+
+    /* A short window cannot afford the full-size type or the roomy tiles. */
+    @media (max-height: 760px) {
+      .ws { padding: 18px 6px 22px; }
+      .ws-title { font-size: 19px; }
+      .ws-lead { margin-bottom: 13px; }
+      .ws-group + .ws-group { margin-top: 16px; }
+      .ws-tasks-lead .ws-task { padding: 12px 13px 13px; gap: 8px; }
+      .ws-tasks-lead .ws-task-ico { width: 32px; height: 32px; }
+      .ws-form { gap: 12px; }
+      .ws-area { min-height: 78px; }
+    }
 
     @media (max-width: 720px) {
       .ws { padding: 22px 2px 26px; }
@@ -11676,6 +11708,7 @@
         m.style.setProperty("--ws-blur", (0.8 + 2.2 * d).toFixed(2) + "px");
       });
       wsShadeCentre();
+      wsGuardFloaters();
     }
 
     // The pool of shade is anchored to the middle of the work, so it moves
@@ -11688,6 +11721,22 @@
       shell.style.setProperty("--ws-cx", (box.left + box.width / 2) / window.innerWidth * 100 + "%");
       shell.style.setProperty("--ws-cy",
         Math.max(18, Math.min(82, (box.top + Math.min(box.height, window.innerHeight) / 2) / window.innerHeight * 100)) + "%");
+    }
+
+    // Whether a floating piece of chrome is actually sitting on top of the
+    // work right now. Measured rather than assumed: the frame changes height
+    // on every step, and the window can be any size.
+    function wsGuardFloaters() {
+      const me = wsEl();
+      if (!me) return;
+      const box = me.getBoundingClientRect();
+      [["macDockContainer", "ws-dock-clear"], ["composerStage", "ws-composer-clear"]].forEach(([id, cls]) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const r = el.getBoundingClientRect();
+        const overlaps = r.height > 0 && box.bottom > r.top - 10 && box.top < r.bottom + 10;
+        document.body.classList.toggle(cls, overlaps);
+      });
     }
 
     function wsClearFeed() {
@@ -11769,9 +11818,10 @@
       if (!wsState) return;
       if (wsState.busy && !opts.force) return;
 
-      // Captured before the state goes: a run that started or finished has
-      // real messages behind it, a half-filled form has none.
-      const ran = !!(wsState.busy || wsState.result);
+      // Sticky, and deliberately not derived from the current step: picking
+      // "Another task" clears the result, and reading it here meant closing
+      // after a finished generation deleted the messages it had produced.
+      const ran = !!wsState.ran;
       wsState = null;
 
       // The workspace stood in for the in-chat method chooser, so walking
@@ -11785,7 +11835,7 @@
         setTimeout(() => el.remove(), 190);
       }
       wsReleasePending(ran);
-      document.body.classList.remove("ws-on", "ws-lens-on");
+      document.body.classList.remove("ws-on", "ws-lens-on", "ws-dock-clear", "ws-composer-clear");
       const shell = document.querySelector(".app-shell");
       if (shell) { shell.style.removeProperty("--ws-cx"); shell.style.removeProperty("--ws-cy"); }
       wsClearFeed();
@@ -11857,6 +11907,8 @@
 
       if (view.after) view.after();
       wsFocusFeed();
+      // Steps differ wildly in height; re-measure once this one has laid out.
+      requestAnimationFrame(wsGuardFloaters);
     }
 
     function wsViewTask(s, cat) {
@@ -12494,6 +12546,9 @@
     function wsBusy(label) {
       if (!wsState) return;
       wsState.busy = true;
+      // Set once and never cleared: from here on this session has real work
+      // in the chat behind it, whatever the user does next.
+      wsState.ran = true;
       wsState.runLabel = label;
       wsState.progress = null;
       wsState.step = "run";
@@ -12962,6 +13017,7 @@
       const real = document.querySelector("#wsMeshSlot .m3d-generate");
       if (!real) return;
       wsBusy("Building the mesh…");
+      if (wsState) wsState.ran = true;
       real.click();
     }
 
@@ -13090,6 +13146,16 @@
     });
 
     window.addEventListener("resize", () => { if (wsOpen()) wsFocusFeed(); });
+
+    // A canvas or a model-viewer settles after its own content loads, which
+    // can change the frame's height well after the step rendered.
+    if (typeof ResizeObserver === "function") {
+      const wsSizeWatch = new ResizeObserver(() => { if (wsOpen()) wsGuardFloaters(); });
+      document.addEventListener("DOMContentLoaded", () => {
+        const inner = document.getElementById("feedInner");
+        if (inner) wsSizeWatch.observe(inner);
+      });
+    }
     document.addEventListener("scroll", () => { if (wsOpen()) wsFocusFeed(); }, true);
   </script>
 </body>
