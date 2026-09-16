@@ -9814,9 +9814,16 @@
         clearMainImage();
         clearRefImage();
         flowState = "choose_method";
-        const el = appendModeChooser(activeForceMode);
-        pendingChoiceMessage = { chatId, payload: { type: "chooser", category: activeForceMode, prompt: "" }, _tempEl: el };
-        applyFlowComposerState();
+        if (typeof wsOpen === 'function' && wsOpen()) {
+          // The frame just opened on this result, and it is the next step.
+          // Posting the chooser now would leave it stranded in the chat if
+          // the answer turns out to be Done.
+          applyFlowComposerState();
+        } else {
+          const el = appendModeChooser(activeForceMode);
+          pendingChoiceMessage = { chatId, payload: { type: "chooser", category: activeForceMode, prompt: "" }, _tempEl: el };
+          applyFlowComposerState();
+        }
 
       } catch (e) {
         console.error(e);
@@ -11526,19 +11533,21 @@
     // with an assistant in it. Close just puts the frame away and leaves
     // the mode alone, in case you are mid-flow and only wanted a look.
     function wsFinish() {
-      closeWorkspace();
+      closeWorkspace({ finishing: true });
       if (typeof setForceMode === "function") setForceMode("chat", { skipAutoChooser: true });
     }
 
     // Another task is still this mode's work, so the choosing goes back to
     // where it belongs: the assistant's own chooser in the chat.
-    function wsAnotherTask() {
-      const mode = wsState && wsState.mode;
-      closeWorkspace();
-      if (!mode || mode === "chat") return;
-      const live = document.querySelector(".chooser-3d button:not([disabled])");
-      if (live || typeof appendModeChooser !== "function") return;
-      // Work started from the frame never posted one, so put it there now.
+    function wsAnotherTask() { closeWorkspace(); }
+
+    // Staying in a generating mode leaves the composer waiting on a choice,
+    // so there has to be something to choose from. Only image and 3D have a
+    // chooser; code and UI→Lua take the prompt directly.
+    function wsEnsureChooser(mode) {
+      if (mode !== "image" && mode !== "model3d") return;
+      if (typeof appendModeChooser !== "function") return;
+      if (document.querySelector(".chooser-3d button:not([disabled])")) return;
       if (typeof activeForceMode !== "undefined") activeForceMode = mode;
       if (typeof flowState !== "undefined") flowState = "choose_method";
       const el = appendModeChooser(mode);
@@ -11743,6 +11752,7 @@
       const el = wsEl();
       if (!wsState) return;
       if (wsState.busy && !opts.force) return;
+      const mode = wsState.mode;
 
       // The frame only ever opens on a finished result, so anything it is
       // holding back has real work behind it. The one exception is mesh
@@ -11765,9 +11775,11 @@
       wsClearFeed();
       wsLensRelease();
 
-      // The chat set its own state when it finished the generation — its
-      // chooser is already sitting there — so leaving the frame puts
-      // nothing back and takes nothing away.
+      // Leaving the frame while staying in the mode puts the chooser back,
+      // because that is what the composer is waiting on. Finishing does
+      // not: the next thing is the chat, and a chooser for a mode you just
+      // walked away from is litter.
+      if (!opts.finishing) wsEnsureChooser(mode);
       if (typeof scrollFeedToBottom === "function") setTimeout(scrollFeedToBottom, 210);
     }
 
