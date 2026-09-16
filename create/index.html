@@ -5949,9 +5949,6 @@
       to { opacity: 1; transform: none; }
     }
 
-    .ws-group + .ws-group { margin-top: 24px; }
-
-    .ws-group-title,
     .ws-next-title {
       font-size: 11.5px;
       font-weight: 700;
@@ -5959,119 +5956,6 @@
       text-transform: uppercase;
       color: var(--ink-muted);
       margin-bottom: 8px;
-    }
-
-    /* Nothing is boxed until you reach for it: the card materialises on
-       hover instead of sitting there as another frame. */
-    .ws-task {
-      position: relative;
-      display: flex;
-      text-align: left;
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      box-shadow: var(--shadow-sm);
-      color: var(--ink);
-      font-family: var(--font-body);
-      cursor: pointer;
-      transition: background .2s ease, border-color .2s ease, box-shadow .2s ease, transform .2s cubic-bezier(.16, 1, .3, 1);
-    }
-
-    .ws-task:hover:not(:disabled),
-    .ws-task:focus-visible {
-      background: var(--accent-wash);
-      border-color: var(--accent);
-      box-shadow: var(--shadow-md);
-      transform: translateY(-3px);
-      outline: none;
-    }
-
-    .ws-task:hover:not(:disabled) .ws-task-ico {
-      background: var(--accent-wash);
-      color: var(--accent);
-    }
-
-    .ws-task:disabled {
-      cursor: default;
-      background: var(--soft);
-      box-shadow: none;
-    }
-
-    .ws-task:disabled .ws-task-name,
-    .ws-task:disabled .ws-task-sub { color: var(--ink-faint); }
-
-    .ws-task-ico {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex: 0 0 auto;
-      border-radius: 12px;
-      background: var(--soft);
-      color: var(--ink-muted);
-      transition: background .2s ease, color .2s ease;
-    }
-
-    .ws-task-name {
-      display: block;
-      font-family: var(--font-display);
-      font-weight: 600;
-      line-height: 1.25;
-    }
-
-    .ws-task-sub {
-      display: block;
-      font-weight: 500;
-      color: var(--ink-muted);
-      line-height: 1.45;
-      margin-top: 3px;
-    }
-
-    /* The openers get room; the follow-on work sits quieter beneath. */
-    .ws-tasks-lead {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(156px, 1fr));
-      gap: 6px;
-    }
-
-    .ws-tasks-lead .ws-task {
-      flex-direction: column;
-      gap: 10px;
-      padding: 15px 14px 16px;
-    }
-
-    .ws-tasks-lead .ws-task-ico { width: 38px; height: 38px; }
-    .ws-tasks-lead .ws-task-ico svg { width: 18px; height: 18px; }
-    .ws-tasks-lead .ws-task-name { font-size: 14px; }
-    .ws-tasks-lead .ws-task-sub { font-size: 11.8px; }
-
-    .ws-tasks-more {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(258px, 1fr));
-      gap: 4px;
-    }
-
-    .ws-tasks-more .ws-task {
-      align-items: center;
-      gap: 11px;
-      padding: 10px 12px;
-    }
-
-    .ws-tasks-more .ws-task-ico { width: 30px; height: 30px; border-radius: 10px; }
-    .ws-tasks-more .ws-task-ico svg { width: 15px; height: 15px; }
-    .ws-tasks-more .ws-task-name { font-size: 12.7px; }
-    .ws-tasks-more .ws-task-sub { font-size: 11.3px; }
-
-    .ws-soon {
-      display: inline-block;
-      margin-top: 6px;
-      font-size: 9.5px;
-      font-weight: 700;
-      letter-spacing: .07em;
-      text-transform: uppercase;
-      padding: 2px 6px;
-      border-radius: 5px;
-      color: var(--amber);
-      background: var(--amber-wash);
     }
 
     /* ---------- fields ---------- */
@@ -6566,9 +6450,6 @@
       .ws { padding: 18px 6px 22px; }
       .ws-title { font-size: 19px; }
       .ws-lead { margin-bottom: 13px; }
-      .ws-group + .ws-group { margin-top: 16px; }
-      .ws-tasks-lead .ws-task { padding: 12px 13px 13px; gap: 8px; }
-      .ws-tasks-lead .ws-task-ico { width: 32px; height: 32px; }
       .ws-form { gap: 12px; }
       .ws-area { min-height: 78px; }
     }
@@ -6578,8 +6459,6 @@
       .ws::before { inset: -14px -22px -18px; }
       .ws-title { font-size: 19px; }
       .ws-steps { display: none; }
-      .ws-tasks-lead,
-      .ws-tasks-more { grid-template-columns: minmax(0, 1fr); }
       .ws-result,
       .ws-mask { grid-template-columns: minmax(0, 1fr); }
       .ws-foot { flex-wrap: wrap; }
@@ -6596,7 +6475,6 @@
       body.ws-on .mac-dock-container { transform: none; }
       .msg, .sidebar, .topbar, .composer-stage { transition: none; }
       .ws-bar.indet span { animation: none; width: 100%; opacity: .5; }
-      .ws-task:hover:not(:disabled) { transform: none; }
     }
   </style>
 </head>
@@ -11644,6 +11522,45 @@
     // The workspace lives in the feed, as the last thing in it: messages
     // generated while it is open stack above it, so it always sits exactly
     // where the next message would go.
+    // Done means the job is finished, so the app goes back to being a chat
+    // with an assistant in it. Close just puts the frame away and leaves
+    // the mode alone, in case you are mid-flow and only wanted a look.
+    function wsFinish() {
+      closeWorkspace();
+      if (typeof setForceMode === "function") setForceMode("chat", { skipAutoChooser: true });
+    }
+
+    // Another task is still this mode's work, so the choosing goes back to
+    // where it belongs: the assistant's own chooser in the chat.
+    function wsAnotherTask() {
+      const mode = wsState && wsState.mode;
+      closeWorkspace();
+      if (!mode || mode === "chat") return;
+      const live = document.querySelector(".chooser-3d button:not([disabled])");
+      if (live || typeof appendModeChooser !== "function") return;
+      // Work started from the frame never posted one, so put it there now.
+      if (typeof activeForceMode !== "undefined") activeForceMode = mode;
+      if (typeof flowState !== "undefined") flowState = "choose_method";
+      const el = appendModeChooser(mode);
+      if (typeof pendingChoiceMessage !== "undefined") {
+        pendingChoiceMessage = {
+          chatId: (typeof activeChatId !== "undefined" ? activeChatId : null),
+          payload: { type: "chooser", category: mode, prompt: "" },
+          _tempEl: el
+        };
+      }
+      if (typeof applyFlowComposerState === "function") applyFlowComposerState();
+      if (typeof scrollFeedToBottom === "function") setTimeout(scrollFeedToBottom, 260);
+    }
+
+    // Stepping out of a setup the rail led you into: back to the result it
+    // started from, or out altogether if there is nothing to go back to.
+    function wsBack() {
+      if (!wsState) return;
+      if (wsState.result) { wsState.step = "result"; wsState.task = null; wsRender(); return; }
+      closeWorkspace();
+    }
+
     function wsMount() {
       const inner = document.getElementById("feedInner");
       if (!inner) return null;
@@ -11788,16 +11705,17 @@
     // chat as the ordinary message it already is.
     async function openWorkspace(mode, opts) {
       opts = opts || {};
-      if (!WS_CATALOG[mode]) return;
+      if (!WS_CATALOG[mode] || !opts.result) return;
       wsState = {
         mode,
         task: null,
-        step: opts.result ? "result" : "task",
+        step: "result",
         cfg: {},
-        result: opts.result || null,
+        result: opts.result,
+        fromChat: true,
         busy: false,
         progress: null,
-        ran: !!opts.result
+        ran: true
       };
       if (!wsMount()) { wsState = null; return; }
       wsSyncMode(mode);
@@ -11806,7 +11724,7 @@
 
       // The chat already holds this result. While the frame is showing it,
       // that message steps aside rather than saying the same thing twice.
-      if (opts.result && opts.result.el) opts.result.el.classList.add("ws-pending");
+      if (opts.result.el) opts.result.el.classList.add("ws-pending");
 
       wsRender();
       wsFocusFeed();
@@ -11865,7 +11783,7 @@
     }
 
     // ---------- rendering ----------
-    const WS_STEP_NAMES = { task: "Task", config: "Setup", mask: "Region", run: "Working", result: "Result" };
+    const WS_STEP_NAMES = { config: "Setup", mask: "Region", run: "Working", result: "Result" };
 
     function wsRender() {
       const s = wsState;
@@ -11875,16 +11793,18 @@
       const info = (typeof FORCE_MODE_INFO !== "undefined" && FORCE_MODE_INFO[s.mode])
         ? FORCE_MODE_INFO[s.mode] : { label: s.mode, icon: "" };
 
+      // A frame that opened straight onto a finished result has no path
+      // behind it to draw, so it does not pretend to one.
       const steps = s.task === "mark"
-        ? ["task", "config", "mask", "run", "result"]
-        : ["task", "config", "run", "result"];
+        ? ["config", "mask", "run", "result"]
+        : ["config", "run", "result"];
       const at = steps.indexOf(s.step);
-      const stepsHtml = steps.map((k, i) => {
+      const stepsHtml = (s.fromChat && s.step === "result") ? "" : steps.map((k, i) => {
         const cls = i < at ? "done" : (i === at ? "now" : "");
         return `<span class="ws-step ${cls}"><span class="ws-dot"></span>${WS_STEP_NAMES[k]}</span>`;
       }).join(`<span class="ws-sep"></span>`);
 
-      const view = { task: wsViewTask, config: wsViewConfig, mask: wsViewMask, run: wsViewRun, result: wsViewResult }[s.step](s, cat);
+      const view = { config: wsViewConfig, mask: wsViewMask, run: wsViewRun, result: wsViewResult }[s.step](s, cat);
 
       el.innerHTML = `
         <div class="ws-head">
@@ -11899,38 +11819,6 @@
       wsFocusFeed();
       // Steps differ wildly in height; re-measure once this one has laid out.
       requestAnimationFrame(wsGuardFloaters);
-    }
-
-    function wsViewTask(s, cat) {
-      const hasCode = typeof currentCodeState !== "undefined" && currentCodeState && currentCodeState.code;
-      let n = 0;
-      const groups = cat.groups.map((g, gi) => {
-        const tasks = g.tasks.map(t => {
-          const blockedByCode = t.needsCode && !hasCode;
-          const off = !t.ready || blockedByCode;
-          const soon = !t.ready
-            ? `<span class="ws-soon">Not wired up yet</span>`
-            : (blockedByCode ? `<span class="ws-soon">Needs a script first</span>` : "");
-          return `
-            <button class="ws-task ws-rise" style="--i:${n++}" type="button" ${off ? "disabled" : ""} onclick="wsPickTask('${t.id}')"
-              ${!t.ready && t.needs ? `title="${escapeHtml(WS_SOON_NOTE[t.needs] || "")}"` : ""}>
-              <span class="ws-task-ico">${t.icon}</span>
-              <span><span class="ws-task-name">${escapeHtml(t.name)}</span>
-                <span class="ws-task-sub">${escapeHtml(t.sub)}</span>${soon}</span>
-            </button>`;
-        }).join("");
-        // The first group is what you came here to do; the rest is what you
-        // can do to the result once it exists, so it reads quieter.
-        const shape = gi === 0 ? "ws-tasks-lead" : "ws-tasks-more";
-        return `<div class="ws-group"><div class="ws-group-title ws-rise" style="--i:${gi}">${escapeHtml(g.title)}</div>
-                <div class="${shape}">${tasks}</div></div>`;
-      }).join("");
-
-      return {
-        html: `<h2 class="ws-title ws-rise">${escapeHtml(cat.title)}</h2>
-               <p class="ws-lead ws-rise" style="--i:1">${escapeHtml(cat.lead)}</p>${groups}`,
-        foot: `<span class="ws-foot-note">Whatever you make lands in the chat as a normal message.</span>`
-      };
     }
 
     // ---------- fields ----------
@@ -12142,7 +12030,7 @@
                <p class="ws-lead ws-rise" style="--i:1">${escapeHtml(t ? t.sub : "")}</p>
                <div class="ws-form">${fields.map((f, i) => wsRenderField(f, s, i)).join("")}</div>`,
         foot: `<span class="ws-foot-note">${escapeHtml(wsCostNote(s))}</span>
-               <button class="ws-btn ws-quiet" type="button" onclick="wsGo('task')">${WS_ICONS.back}Back</button>
+               <button class="ws-btn ws-quiet" type="button" onclick="wsBack()">${WS_ICONS.back}Back</button>
                <button class="ws-btn primary" type="button" ${missing ? "disabled" : ""} onclick="wsRun()">
                  ${(s.task === "m-text" || s.task === "m-image") ? "Set up the mesh" : "Generate"}</button>`,
         after: () => {
@@ -12369,7 +12257,7 @@
           html: `<h2 class="ws-title">That did not go through</h2><div class="ws-error">${escapeHtml(r.error)}</div>`,
           foot: `<span class="ws-foot-note">Nothing was kept.</span>
                  <button class="ws-btn ws-quiet" type="button" onclick="wsGo('config')">${WS_ICONS.back}Change it</button>
-                 <button class="ws-btn primary" type="button" onclick="closeWorkspace()">Back to chat</button>`
+                 <button class="ws-btn primary" type="button" onclick="wsFinish()">Back to chat</button>`
         };
       }
 
@@ -12392,8 +12280,8 @@
                    <div class="ws-next-title">Keep working on it</div>
                    ${wsNextFor(s, r)}
                    <div class="ws-side-end">
-                     <button class="ws-btn ws-quiet" type="button" onclick="wsGo('task')">Another task</button>
-                     <button class="ws-btn primary" type="button" onclick="closeWorkspace()">Done</button>
+                     <button class="ws-btn ws-quiet" type="button" onclick="wsAnotherTask()">Another task</button>
+                     <button class="ws-btn primary" type="button" onclick="wsFinish()">Done</button>
                    </div>
                    <p class="ws-side-note">it is already saved in the chat</p>
                  </aside>
@@ -12448,7 +12336,7 @@
       if (r.kind === "gallery") {
         return [
           wsNextBtn("Make more", WS_ICONS.copies, "wsRerun()"),
-          wsNextBtn("Another task", WS_ICONS.bolt, "wsGo('task')")
+          wsNextBtn("Another task", WS_ICONS.bolt, "wsAnotherTask()")
         ].join("");
       }
       if (r.kind === "model3d") {
@@ -12459,7 +12347,7 @@
           wsNextBtn("Re-texture", WS_ICONS.paint, "wsBenchNext('m-texture')"),
           wsNextBtn("Rig & animate", WS_ICONS.bone, "wsBenchNext('m-rig')"),
           wsNextBtn("Export elsewhere", WS_ICONS.box, "wsBenchNext('m-convert')"),
-          wsNextBtn("Build another", WS_ICONS.bolt, "wsGo('task')"),
+          wsNextBtn("Build another", WS_ICONS.bolt, "wsAnotherTask()"),
           wsNextBtn("Download", WS_ICONS.download, "wsDownload()")
         ].join("");
       }
@@ -12474,6 +12362,7 @@
     // ---------- interaction ----------
     function wsPickTask(id) {
       if (!wsState) return;
+      wsState.fromChat = false;
       wsState.task = id;
       wsState.cfg = {};
       if (id === "create" || id === "edit-photo") {
@@ -12487,7 +12376,6 @@
     function wsGo(step) {
       if (!wsState) return;
       wsState.step = step;
-      if (step === "task") { wsState.task = null; wsState.cfg = {}; wsState.result = null; }
       wsRender();
     }
 
@@ -12991,7 +12879,7 @@
       const foot = el.querySelector(".ws-foot");
       if (foot) {
         foot.innerHTML = `<span class="ws-foot-note">Every setting moves the price — the button keeps the running total.</span>
-          <button class="ws-btn ws-quiet" type="button" onclick="wsGo('task')">${WS_ICONS.back}Start over</button>
+          <button class="ws-btn ws-quiet" type="button" onclick="wsBack()">${WS_ICONS.back}Start over</button>
           <button class="ws-btn primary" type="button" id="wsMeshGo" onclick="wsMeshGenerate()">Generate</button>`;
       }
       // Anything touched in the panel can move the price, and the panel
@@ -13025,7 +12913,6 @@
       if (!s || !s.result) return;
       s.task = task;
       s.cfg = { image: s.result.dataUrl || s.result.url, type: s.cfg.type, prompt: "" };
-      s.result = null;
       s.step = "config";
       wsRender();
     }
@@ -13041,7 +12928,6 @@
       wsSyncMode("model3d");
       s.task = "m-image";
       s.cfg = { image: src, prompt: "" };
-      s.result = null;
       presentModel3DSettingsStep("(generated image)", [{ kind: "image", dataUrl: src }], src);
       wsRender();
       wsAdoptMeshPanel();
@@ -13079,7 +12965,6 @@
       wsSyncMode("model3d");
       s.task = task;
       s.cfg = { model: url };
-      s.result = null;
       s.step = "config";
       wsRender();
     }
@@ -13089,7 +12974,6 @@
       if (!s) return;
       s.task = task;
       s.cfg = { prompt: "" };
-      s.result = null;
       s.step = "config";
       wsRender();
     }
