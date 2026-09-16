@@ -6507,6 +6507,205 @@
       .ws-area { min-height: 78px; }
     }
 
+    /* ---------- laying a screen out by hand ---------- */
+    /* The feed this frame lives in narrows a long way before the viewport
+       does, so the split is made to wrap rather than to a breakpoint: the
+       palette drops under the stage the moment the stage cannot hold its
+       own width, whatever the window happens to be. */
+    .ws-layout {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      align-items: flex-start;
+    }
+
+    .ws-stage-wrap { flex: 1 1 320px; min-width: 0; }
+
+    /* A Roblox screen is 16:9 and so is this, so what you arrange here is
+       what the proportions will be there. */
+    .ws-stage {
+      position: relative;
+      aspect-ratio: 16 / 9;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      touch-action: none;
+      background:
+        linear-gradient(transparent 0, transparent calc(100% - 1px), color-mix(in srgb, var(--border) 60%, transparent) 100%),
+        linear-gradient(90deg, transparent 0, transparent calc(100% - 1px), color-mix(in srgb, var(--border) 60%, transparent) 100%),
+        color-mix(in srgb, var(--card) 88%, var(--bg));
+      background-size: 100% 5.555%, 6.25% 100%, auto;
+      cursor: default;
+    }
+
+    .ws-stage-ink {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    .ws-stage-empty {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      font: 600 12.5px var(--font-mono);
+      color: var(--text-dim);
+      letter-spacing: .02em;
+      pointer-events: none;
+    }
+    .ws-stage-empty[hidden] { display: none; }
+
+    .ws-block {
+      position: absolute;
+      border: 1px solid color-mix(in srgb, var(--text) 30%, transparent);
+      border-radius: 6px;
+      background: var(--fill, var(--card));
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 7px;
+      overflow: hidden;
+      cursor: grab;
+      user-select: none;
+    }
+    .ws-block:active { cursor: grabbing; }
+    .ws-block.on {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px var(--accent), 0 6px 18px -10px rgb(0 0 0 / .6);
+    }
+
+    .ws-block-kind {
+      flex: 0 0 auto;
+      font: 600 9px var(--font-mono);
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      opacity: .65;
+      color: var(--ink, var(--text));
+      pointer-events: none;
+    }
+
+    .ws-block-text {
+      flex: 1 1 auto;
+      min-width: 0;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--ink, var(--text));
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      pointer-events: none;
+    }
+
+    /* The grip is the only part that resizes, so dragging the body can never
+       be mistaken for dragging a corner. */
+    .ws-block-grip {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      width: 16px;
+      height: 16px;
+      cursor: nwse-resize;
+      background: linear-gradient(135deg, transparent 50%, color-mix(in srgb, var(--text) 45%, transparent) 50%);
+      border-bottom-right-radius: 6px;
+    }
+    .ws-block.on .ws-block-grip { background: linear-gradient(135deg, transparent 50%, var(--accent) 50%); }
+
+    .ws-stage-tools {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    .ws-palette { flex: 0 1 210px; min-width: 0; }
+    .ws-palette .ws-chips { margin-top: 6px; }
+
+    .ws-swatches {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 9px;
+    }
+
+    .ws-swatch {
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--sw);
+      cursor: pointer;
+      padding: 0;
+      transition: transform .12s ease, box-shadow .12s ease;
+    }
+    .ws-swatch:hover { transform: translateY(-1px); }
+    .ws-swatch.on { box-shadow: 0 0 0 2px var(--bg), 0 0 0 3px var(--accent); }
+
+    .ws-sel .ws-input { margin-top: 8px; }
+
+    /* ---------- a UI answered twice: as a picture and as a script ---------- */
+    .ui-result {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      background: color-mix(in srgb, var(--card) 70%, transparent);
+    }
+
+    .ui-tabs {
+      display: flex;
+      gap: 2px;
+      padding: 6px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .ui-tab {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 11px;
+      border: 0;
+      border-radius: 7px;
+      background: transparent;
+      color: var(--text-dim);
+      font: 600 10.5px var(--font-mono);
+      letter-spacing: .02em;
+      cursor: pointer;
+      transition: background .15s ease, color .15s ease;
+    }
+    .ui-tab svg { width: 13px; height: 13px; }
+    .ui-tab:hover { color: var(--text); }
+    .ui-tab.on { background: var(--accent); color: var(--on-accent, #fff); }
+
+    .ui-pane { padding: 10px; }
+    .ui-pane[hidden] { display: none; }
+    .ui-pane-code { padding: 0; }
+
+    .ui-screen {
+      position: relative;
+      aspect-ratio: 16 / 9;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #0b0d11;
+      border: 1px solid var(--border);
+    }
+    .ui-screen iframe {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+      display: block;
+    }
+
+    .ui-pane-note {
+      margin: 8px 2px 0;
+      font-size: 11.5px;
+      color: var(--text-dim);
+    }
+
     @media (max-width: 720px) {
       .ws { padding: 22px 2px 26px; }
       .ws::before { inset: -14px -22px -18px; }
@@ -6514,6 +6713,7 @@
       .ws-steps { display: none; }
       .ws-result,
       .ws-mask { grid-template-columns: minmax(0, 1fr); }
+      .ws-palette { flex-basis: 100%; }
       .ws-foot { flex-wrap: wrap; }
       .ws-foot-note { flex: 1 1 100%; margin: 0 0 6px; }
       .ws-foot .ws-btn { flex: 1 1 auto; justify-content: center; }
@@ -7060,6 +7260,16 @@
                     </div>
                   </div>
 
+                  <div style="position: relative; display:none;" id="ui2luaSelectorWrap">
+                    <button class="ui-pill-btn" onclick="toggleDropdown('ui2luaDropdown', event)">
+                      <span id="activeUiModelLabel">Gemini 3.6 Flash</span>
+                    </button>
+                    <div class="ui-dropdown" id="ui2luaDropdown">
+                      <button class="ui-dropdown-item" onclick="selectUiModel('gemini', event)">Gemini 3.6 Flash</button>
+                      <button class="ui-dropdown-item" onclick="selectUiModel('luna', event)">GPT-5.6 Luna</button>
+                    </div>
+                  </div>
+
                   <div style="position: relative; display:none;" id="imageTypeSelectorWrap">
                     <button class="ui-pill-btn it-trigger"
                       onclick="toggleDropdown('imageTypeDropdown', event); focusImageTypeSearch()">
@@ -7226,6 +7436,12 @@
     };
 
     const CODE_MODEL_LABELS = { gemini: "Gemini 3.8 Flash", deepseek: "DeepSeek V4 Flash", luna: "GPT-5.6 Luna" };
+
+    // Reading a design and writing the script for it is one job, so the two
+    // models offered here are the two that can look at a picture. DeepSeek
+    // is not among them — it has no eyes.
+    const UI_MODEL_LABELS = { gemini: "Gemini 3.6 Flash", luna: "GPT-5.6 Luna" };
+    const WS_UI_DEFAULT_MODEL = "gemini";
     function codeModelBadgeHtml(model, pricingNote) {
       if (!model) return "";
       const label = CODE_MODEL_LABELS[model] || model;
@@ -8769,7 +8985,11 @@
 
       if (isTextReply || isCode) {
         const replyText = m.reply ?? m.content ?? m.text ?? "";
-        body.innerHTML = (isCode ? codeModelBadgeHtml(m.model) : "") + renderMarkdown(replyText);
+        const rendered = renderMarkdown(replyText);
+        // A UI answer kept its preview alongside the script, so reopening
+        // the chat gets both back rather than just the code.
+        body.innerHTML = (isCode ? codeModelBadgeHtml(m.model) : "") +
+          (m.uiPreview ? wsUiResultHtml(rendered, m.uiPreview) : rendered);
         fitCodeBlocks(body);
 
         if (isCode) {
@@ -9276,17 +9496,29 @@
         if (isComposerExpanded && typeof syncComposerLayout === 'function') syncComposerLayout();
         return;
       }
+      // Three ways into a UI now, so this mode asks which one the same way
+      // images and models do, rather than assuming a screenshot is coming.
       if (mode === "ui2lua") {
         if (hintEl) hintEl.textContent = info.hint;
         if (promptEl) promptEl.placeholder = "Optional extra hints…";
         if (enhanceBtn) enhanceBtn.style.display = "none";
-        if (dropzoneRow) dropzoneRow.style.display = "flex";
+        if (dropzoneRow) dropzoneRow.style.display = "none";
         if (dzRef) dzRef.style.display = "none";
-        if (modeAttachWrap) modeAttachWrap.style.display = "block";
-        if (typeof updateDropzoneLabels === 'function') updateDropzoneLabels();
+        if (modeAttachWrap) modeAttachWrap.style.display = "none";
         if (typeof clearRefImage === 'function') clearRefImage();
-        flowState = "idle";
-        if (typeof setPromptBoxEnabled === 'function') setPromptBoxEnabled(true);
+        if (flowState !== "busy") {
+          flowState = "choose_method";
+          if (!opts.skipAutoChooser && typeof appendModeChooser === 'function') {
+            if (pendingChoiceMessage && pendingChoiceMessage._tempEl && pendingChoiceMessage._tempEl.parentNode) {
+              pendingChoiceMessage._tempEl.remove();
+            }
+            const el = appendModeChooser(mode);
+            if (typeof activeChatId !== 'undefined') {
+              pendingChoiceMessage = { chatId: activeChatId, payload: { type: "chooser", category: mode, prompt: "" }, _tempEl: el };
+            }
+          }
+          if (typeof applyFlowComposerState === 'function') applyFlowComposerState();
+        }
         if (isComposerExpanded && typeof syncComposerLayout === 'function') syncComposerLayout();
         return;
       }
@@ -9438,7 +9670,16 @@
 
     function appendModeChooser(mode, existingEl) {
       let html;
-      if (mode === "model3d") {
+      if (mode === "ui2lua") {
+        // The screenshot route keeps its composer flow; the other two are
+        // frame work from the first click, so they open it directly.
+        html = `
+        <div class="chooser-3d">
+          <button onclick="chooseUiMethod('shot', this)"><span class="c3-icon">${ICONS.upload}</span><span>From a screenshot<span class="c3-sub">A picture of the UI → a responsive Lua build script</span></span></button>
+          <button onclick="wsChooseTask('ui2lua','u-idea', this)"><span class="c3-icon">${WS_ICONS.idea}</span><span>Describe the interface<span class="c3-sub">Say what it should be — it gets designed as well as built</span></span></button>
+          <button onclick="wsChooseTask('ui2lua','u-blocks', this)"><span class="c3-icon">${WS_ICONS.layout}</span><span>Lay it out with blocks<span class="c3-sub">Arrange the screen yourself, draw over it, then have it built</span></span></button>
+        </div>`;
+      } else if (mode === "model3d") {
         html = `
         <div class="chooser-3d">
           <button onclick="chooseModel3DMethod('describe', this)"><span class="c3-icon">${ICONS.edit}</span><span>Describe in text<span class="c3-sub">Short object description → 3D model</span></span></button>
@@ -9462,7 +9703,9 @@
 
       const introText = mode === "model3d"
         ? "How do you want to create the 3D model?"
-        : "How do you want to create the image?";
+        : mode === "ui2lua"
+          ? "How do you want to build the UI?"
+          : "How do you want to create the image?";
 
       if (existingEl) {
         appendBotBody(existingEl, html);
@@ -9477,7 +9720,8 @@
     // Which catalogue entries the three in-chat options already cover.
     const WS_CHOOSER_COVERS = {
       image: ["create", "edit-photo", "restyle"],
-      model3d: ["m-text", "m-image", "m-gen"]
+      model3d: ["m-text", "m-image", "m-gen"],
+      ui2lua: ["u-shot", "u-idea", "u-blocks"]
     };
 
     function wsChooserExtras(mode) {
@@ -9601,6 +9845,30 @@
       updateEnhanceButtonLabel();
       applyFlowComposerState();
       promptEl.focus();
+    }
+
+    // The screenshot route runs in the composer, exactly as UI -> Lua always
+    // has: drop a picture in, add hints, send. Only the way in changed.
+    function chooseUiMethod(method, btnEl) {
+      if (typeof _composerLockUntil !== 'undefined') _composerLockUntil = Date.now() + 600;
+      if (typeof expandComposer === 'function') expandComposer();
+      if (pendingChoiceMessage) pendingChoiceMessage.payload.selectedOption = method;
+      if (btnEl) {
+        const group = btnEl.closest(".bot-body") || btnEl.closest(".chooser-3d");
+        if (group) group.querySelectorAll(".chooser-3d button, .c3-more").forEach(b => { b.disabled = true; b.classList.remove("chosen"); });
+        btnEl.classList.add("chosen");
+      }
+
+      flowState = "awaiting_input";
+      const promptEl = document.getElementById("prompt");
+      const dropzoneRow = document.getElementById("dropzoneRow");
+      const modeAttachWrap = document.getElementById("modeAttachPillWrap");
+      if (dropzoneRow) dropzoneRow.style.display = "flex";
+      if (modeAttachWrap) modeAttachWrap.style.display = "block";
+      if (typeof updateDropzoneLabels === 'function') updateDropzoneLabels();
+      if (promptEl) promptEl.placeholder = "Optional extra hints…";
+      applyFlowComposerState();
+      if (promptEl) promptEl.focus();
     }
 
     function bindDropzones() {
@@ -9973,17 +10241,26 @@
         const res = await authedFetch("/generate-ui-lua", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ image: mainImage, prompt: raw })
+          body: JSON.stringify({
+            source: "screenshot",
+            model: selectedUiModel,
+            preview: true,
+            image: mainImage,
+            prompt: raw
+          })
         });
         if (!res.ok) { if (res.status === 402) openBuyModal(); throw new Error(await extractError(res)); }
         const data = await res.json();
 
         const replyText = (data.description ? data.description + "\n\n" : "") + "```lua\n" + data.code + "\n```";
-        setBotBody(pendingEl, renderMarkdown(replyText));
-        if (typeof wsNotify === 'function') wsNotify({ stage: "done", kind: "code", el: pendingEl });
+        const codeHtml = renderMarkdown(replyText);
+        setBotBody(pendingEl, wsUiResultHtml(codeHtml, data.html));
+        if (typeof wsNotify === 'function') {
+          wsNotify({ stage: "done", kind: "uilua", el: pendingEl, codeHtml, previewHtml: data.html || "", code: data.code });
+        }
 
         refreshBalance();
-        await persistMessage(chatId, { type: "text", prompt: raw, reply: replyText });
+        await persistMessage(chatId, { type: "text", prompt: raw, reply: replyText, uiPreview: data.html || "" });
 
         resetComposerAfterSend();
         clearMainImage();
@@ -11332,6 +11609,19 @@
       closeAllDropdowns();
     }
 
+    // Which model reads the screenshot. Kept next to the code-model pill so
+    // the choice sits where every other model choice in the composer does.
+    let selectedUiModel = "gemini";
+
+    function selectUiModel(model, event) {
+      if (event) event.stopPropagation();
+      if (!UI_MODEL_LABELS[model]) return;
+      selectedUiModel = model;
+      const lbl = document.getElementById('activeUiModelLabel');
+      if (lbl) lbl.textContent = UI_MODEL_LABELS[model];
+      closeAllDropdowns();
+    }
+
     function selectImageTypeMenu(type, label, event) {
       if (event) event.stopPropagation();
       const lbl = document.getElementById('activeImageTypeLabel');
@@ -11446,6 +11736,12 @@
       read: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5.5A16 16 0 0 1 12 8a16 16 0 0 1 10-2.5v13A16 16 0 0 0 12 21a16 16 0 0 0-10-2.5Z"/><path d="M12 8v13"/></svg>`,
       tidy: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h11a4 4 0 0 1 0 8H7"/><path d="m10 4-3 3 3 3M7 12l3 3-3 3"/></svg>`,
       download: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7.5 10.5 12 15l4.5-4.5M4 20h16"/></svg>`,
+      layout: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 9v12"/></svg>`,
+      idea: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.5.4.8 1 .9 1.6h5.2c.1-.6.4-1.2.9-1.6A6 6 0 0 0 12 3Z"/></svg>`,
+      eye: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>`,
+      code: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18-6-6 6-6M15 6l6 6-6 6"/></svg>`,
+      pointer: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="m5 3 6.5 17 2.4-6.6 6.6-2.4L5 3Z"/></svg>`,
+      trash: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>`,
       check: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m20 6-11 11-5-5"/></svg>`
     };
 
@@ -11524,13 +11820,20 @@
         ]
       },
       ui2lua: {
-        title: "Rebuild a UI as Lua",
-        lead: "Hand me a screenshot of the interface and I will write the script that constructs it.",
+        title: "Build a UI",
+        lead: "A screenshot, a description, or a layout you arrange yourself — each one comes back as the script that builds it and a preview of how it looks.",
         groups: [
           {
-            title: "Convert",
+            title: "From something you have",
             tasks: [
               { id: "u-shot", name: "From a screenshot", sub: "A picture of the UI becomes a responsive Lua build script.", icon: WS_ICONS.photo, ready: true }
+            ]
+          },
+          {
+            title: "From an idea",
+            tasks: [
+              { id: "u-idea", name: "Describe the interface", sub: "Say what it should be and it is designed as well as built.", icon: WS_ICONS.idea, ready: true },
+              { id: "u-blocks", name: "Lay it out with blocks", sub: "Arrange the screen yourself, draw over it, then have it built.", icon: WS_ICONS.layout, ready: true }
             ]
           }
         ]
@@ -11658,7 +11961,7 @@
     // so there has to be something to choose from. Only image and 3D have a
     // chooser; code and UI→Lua take the prompt directly.
     function wsEnsureChooser(mode) {
-      if (mode !== "image" && mode !== "model3d") return;
+      if (mode !== "image" && mode !== "model3d" && mode !== "ui2lua") return;
       if (typeof appendModeChooser !== "function") return;
       if (document.querySelector(".chooser-3d button:not([disabled])")) return;
       if (typeof activeForceMode !== "undefined") activeForceMode = mode;
@@ -11679,6 +11982,9 @@
     // started from, or out altogether if there is nothing to go back to.
     function wsBack() {
       if (!wsState) return;
+      // The stage sits before the setup on a hand-arranged layout, so Back
+      // there means back to the stage, not out of the frame.
+      if (wsState.step === "config" && wsState.task === "u-blocks") { wsState.step = "blocks"; wsRender(); return; }
       if (wsState.result) { wsState.step = "result"; wsState.task = null; wsRender(); return; }
       closeWorkspace();
     }
@@ -11825,14 +12131,24 @@
     // afterwards: it opens on the finished thing, so you can see it
     // properly and work on it, and closing it hands the result back to the
     // chat as the ordinary message it already is.
+    // A field that is a choice rather than an answer starts at the sensible
+    // side of the choice, so nothing has to be switched on to get the
+    // ordinary outcome.
+    function wsTaskDefaults(task) {
+      if (task === "u-shot" || task === "u-idea" || task === "u-blocks") {
+        return { uimodel: WS_UI_DEFAULT_MODEL, preview: true };
+      }
+      return {};
+    }
+
     async function openWorkspace(mode, opts) {
       opts = opts || {};
       if (!WS_CATALOG[mode] || (!opts.result && !opts.task)) return;
       wsState = {
         mode,
         task: opts.task || null,
-        step: opts.result ? "result" : "config",
-        cfg: {},
+        step: opts.result ? "result" : (opts.task === "u-blocks" ? "blocks" : "config"),
+        cfg: wsTaskDefaults(opts.task),
         result: opts.result || null,
         fromChat: !!opts.result,
         busy: false,
@@ -11908,7 +12224,7 @@
     }
 
     // ---------- rendering ----------
-    const WS_STEP_NAMES = { config: "Setup", mask: "Region", run: "Working", result: "Result" };
+    const WS_STEP_NAMES = { config: "Setup", mask: "Region", blocks: "Layout", run: "Working", result: "Result" };
 
     function wsRender() {
       const s = wsState;
@@ -11922,14 +12238,16 @@
       // behind it to draw, so it does not pretend to one.
       const steps = s.task === "mark"
         ? ["config", "mask", "run", "result"]
-        : ["config", "run", "result"];
+        : s.task === "u-blocks"
+          ? ["blocks", "config", "run", "result"]
+          : ["config", "run", "result"];
       const at = steps.indexOf(s.step);
       const stepsHtml = (s.fromChat && s.step === "result") ? "" : steps.map((k, i) => {
         const cls = i < at ? "done" : (i === at ? "now" : "");
         return `<span class="ws-step ${cls}"><span class="ws-dot"></span>${WS_STEP_NAMES[k]}</span>`;
       }).join(`<span class="ws-sep"></span>`);
 
-      const view = { config: wsViewConfig, mask: wsViewMask, run: wsViewRun, result: wsViewResult }[s.step](s, cat);
+      const view = { config: wsViewConfig, mask: wsViewMask, blocks: wsViewBlocks, run: wsViewRun, result: wsViewResult }[s.step](s, cat);
 
       el.innerHTML = `
         <div class="ws-head">
@@ -11999,7 +12317,22 @@
         case "u-shot":
           return [
             { key: "image", type: "image", label: "UI screenshot", required: true },
+            { key: "uimodel", type: "uimodel", label: "Model" },
+            { key: "preview", type: "toggle", label: "Show it as well as script it", note: "Renders the same interface in HTML so you can look at it before you paste anything into Studio." },
             { key: "prompt", type: "area", label: "Extra hints", ph: "Optional — behaviour the picture cannot show." }
+          ];
+        case "u-idea":
+          return [
+            { key: "uimodel", type: "uimodel", label: "Model" },
+            { key: "preview", type: "toggle", label: "Show it as well as script it", note: "Renders the interface in HTML so you can look at it before you paste anything into Studio." },
+            { key: "prompt", type: "area", label: "What the interface should be", required: true,
+              ph: "A shop panel: header with the player's coins, a 3-column grid of item cards each with an icon, name, price and Buy button, and a close X in the corner…",
+              note: "Say what is on the screen and what it is for. Layout, palette and spacing are decided for you unless you state them." }
+          ];
+        case "u-blocks":
+          return [
+            { key: "uimodel", type: "uimodel", label: "Model" },
+            { key: "preview", type: "toggle", label: "Show it as well as script it" }
           ];
 
         case "mark":
@@ -12139,6 +12472,10 @@
             <span class="ws-drop-text">${cur && cur !== mine ? escapeHtml(label || "Model ready") : (cur === mine && mine ? "Or load one from a file" : "Click to choose a model file")}
               <small>${cur && cur !== mine ? "Click to use a different one." : "GLB, GLTF, FBX, OBJ or STL — up to 150 MB."}</small></span>
           </div>`;
+      } else if (f.type === "uimodel") {
+        const cur = v || WS_UI_DEFAULT_MODEL;
+        inner = `<div class="ws-chips">` + Object.keys(UI_MODEL_LABELS).map(k =>
+          `<button type="button" class="ws-chip ${cur === k ? "on" : ""}" onclick="wsSet('${f.key}','${k}')">${escapeHtml(UI_MODEL_LABELS[k])}</button>`).join("") + `</div>`;
       } else if (f.type === "codemodel") {
         const cur = v || (typeof selectedCodeModel !== "undefined" ? selectedCodeModel : "gemini");
         inner = `<div class="ws-chips">` + Object.keys(CODE_MODEL_LABELS).map(k =>
@@ -12166,6 +12503,336 @@
           if (ta) { ta.focus(); ta.selectionStart = ta.value.length; }
         }
       };
+    }
+
+    // ---------- laying the screen out by hand ----------
+    // A Roblox screen is 16:9, so the stage is too, and every block is kept
+    // in screen fractions rather than pixels — that way the same layout means
+    // the same thing whatever size the frame happens to be drawn at, and it
+    // is already in the units the model is asked to read.
+    const WS_BLOCK_KINDS = [
+      { id: "frame",  name: "Panel",  w: 0.42, h: 0.34, color: "#2E3440", text: "" },
+      { id: "header", name: "Header", w: 0.42, h: 0.09, color: "#3B4252", text: "Title" },
+      { id: "button", name: "Button", w: 0.18, h: 0.09, color: "#E08350", text: "Button" },
+      { id: "label",  name: "Text",   w: 0.24, h: 0.06, color: "transparent", text: "Some text" },
+      { id: "image",  name: "Image",  w: 0.14, h: 0.14, color: "#4C566A", text: "" },
+      { id: "list",   name: "List",   w: 0.30, h: 0.40, color: "#333A47", text: "" },
+      { id: "grid",   name: "Grid",   w: 0.44, h: 0.38, color: "#333A47", text: "" },
+      { id: "bar",    name: "Bar",    w: 0.26, h: 0.045, color: "#88C0D0", text: "" },
+      { id: "icon",   name: "Icon",   w: 0.07, h: 0.07, color: "#4C566A", text: "" },
+      { id: "input",  name: "Input",  w: 0.28, h: 0.075, color: "#242A33", text: "Type here…" }
+    ];
+
+    const WS_BLOCK_BY_ID = Object.fromEntries(WS_BLOCK_KINDS.map(b => [b.id, b]));
+
+    let wsLayout = { blocks: [], strokes: [], tool: "select", sel: null, seq: 0 };
+
+    function wsLayoutReset() {
+      wsLayout = { blocks: [], strokes: [], tool: "select", sel: null, seq: 0 };
+    }
+
+    function wsViewBlocks(s) {
+      const sel = wsLayout.blocks.find(b => b.id === wsLayout.sel) || null;
+      const empty = !wsLayout.blocks.length;
+      return {
+        html: `<h2 class="ws-title ws-rise">Lay the screen out</h2>
+               <p class="ws-lead ws-rise" style="--i:1">Drop the pieces where you want them and drag them into place. Rough is fine — this is the structure, not the styling. Anything you draw over the top is read as a note about intent.</p>
+               <div class="ws-layout ws-rise" style="--i:2">
+                 <div class="ws-stage-wrap">
+                   <div class="ws-stage" id="wsStage">
+                     <canvas class="ws-stage-ink" id="wsStageInk"></canvas>
+                     <div class="ws-stage-empty" ${empty ? "" : "hidden"}>Pick a piece on the right to start</div>
+                   </div>
+                   <div class="ws-stage-tools">
+                     <button type="button" class="ws-chip ${wsLayout.tool === "select" ? "on" : ""}" onclick="wsLayoutTool('select')">${WS_ICONS.pointer}Move</button>
+                     <button type="button" class="ws-chip ${wsLayout.tool === "draw" ? "on" : ""}" onclick="wsLayoutTool('draw')">${WS_ICONS.brush}Draw</button>
+                     <button type="button" class="ws-chip" onclick="wsLayoutClearInk()">Clear drawing</button>
+                     <button type="button" class="ws-chip" onclick="wsLayoutClearAll()">Start over</button>
+                   </div>
+                 </div>
+                 <aside class="ws-palette">
+                   <span class="ws-label">Pieces</span>
+                   <div class="ws-chips">${WS_BLOCK_KINDS.map(k =>
+                     `<button type="button" class="ws-chip" onclick="wsLayoutAdd('${k.id}')">${escapeHtml(k.name)}</button>`).join("")}</div>
+                   ${sel ? `
+                     <div class="ws-sel">
+                       <span class="ws-label" style="margin-top:14px">${escapeHtml(WS_BLOCK_BY_ID[sel.type].name)}</span>
+                       <input class="ws-input" id="wsBlockText" value="${escapeHtml(sel.text || "")}"
+                         placeholder="Label on it" oninput="wsLayoutText(this.value)">
+                       <div class="ws-swatches">${["#E08350","#88C0D0","#A3BE8C","#B48EAD","#ECEFF4","#3B4252","#242A33","transparent"].map(c =>
+                         `<button type="button" class="ws-swatch ${sel.color === c ? "on" : ""}" style="--sw:${c === "transparent" ? "repeating-conic-gradient(#8886 0 25%, #0000 0 50%) 50%/8px 8px" : c}"
+                            onclick="wsLayoutColor('${c}')" aria-label="${c}"></button>`).join("")}</div>
+                       <button class="ws-btn ws-quiet" type="button" style="margin-top:12px;width:100%;justify-content:center" onclick="wsLayoutDelete()">${WS_ICONS.trash}Remove it</button>
+                     </div>` : `<div class="ws-note" style="margin-top:14px">Click a piece on the stage to rename or recolour it.</div>`}
+                 </aside>
+               </div>`,
+        foot: `<span class="ws-foot-note">${wsLayout.blocks.length ? `${wsLayout.blocks.length} piece${wsLayout.blocks.length === 1 ? "" : "s"} placed` : "nothing placed yet"}</span>
+               <button class="ws-btn ws-quiet" type="button" onclick="wsBack()">${WS_ICONS.back}Back</button>
+               <button class="ws-btn primary" type="button" ${empty ? "disabled" : ""} onclick="wsGo('config')">Next</button>`,
+        after: wsLayoutMount
+      };
+    }
+
+    function wsLayoutTool(tool) { wsLayout.tool = tool; if (tool === "draw") wsLayout.sel = null; wsRender(); }
+    function wsLayoutClearInk() { wsLayout.strokes = []; wsRender(); }
+    function wsLayoutClearAll() { const t = wsLayout.tool; wsLayoutReset(); wsLayout.tool = t; wsRender(); }
+    function wsLayoutDelete() {
+      wsLayout.blocks = wsLayout.blocks.filter(b => b.id !== wsLayout.sel);
+      wsLayout.sel = null;
+      wsRender();
+    }
+    function wsLayoutColor(c) {
+      const b = wsLayout.blocks.find(x => x.id === wsLayout.sel);
+      if (b) { b.color = c; wsRender(); }
+    }
+    // Typing must not redraw the stage — the caret would be thrown away on
+    // every letter — so the label is written straight onto the block.
+    function wsLayoutText(v) {
+      const b = wsLayout.blocks.find(x => x.id === wsLayout.sel);
+      if (!b) return;
+      b.text = v;
+      const el = document.querySelector(`.ws-block[data-id="${b.id}"] .ws-block-text`);
+      if (el) el.textContent = v;
+    }
+
+    function wsLayoutAdd(kind) {
+      const k = WS_BLOCK_BY_ID[kind];
+      if (!k) return;
+      // Each new piece lands a little below and right of the last, so a run
+      // of clicks makes a readable cascade instead of one stack.
+      const n = wsLayout.blocks.length;
+      const step = 0.035 * (n % 6);
+      wsLayout.blocks.push({
+        id: "b" + (++wsLayout.seq),
+        type: kind,
+        x: Math.min(0.9 - k.w, 0.08 + step),
+        y: Math.min(0.9 - k.h, 0.08 + step),
+        w: k.w, h: k.h, text: k.text, color: k.color
+      });
+      wsLayout.sel = "b" + wsLayout.seq;
+      wsLayout.tool = "select";
+      wsRender();
+    }
+
+    function wsLayoutMount() {
+      const stage = document.getElementById("wsStage");
+      if (!stage) return;
+      wsLayoutPaint();
+      wsLayoutBindStage(stage);
+    }
+
+    function wsLayoutPaint() {
+      const stage = document.getElementById("wsStage");
+      if (!stage) return;
+      stage.querySelectorAll(".ws-block").forEach(el => el.remove());
+      const emptyEl = stage.querySelector(".ws-stage-empty");
+      if (emptyEl) emptyEl.hidden = !!wsLayout.blocks.length;
+
+      for (const b of wsLayout.blocks) {
+        const el = document.createElement("div");
+        el.className = "ws-block k-" + b.type + (b.id === wsLayout.sel ? " on" : "");
+        el.dataset.id = b.id;
+        el.style.left = (b.x * 100) + "%";
+        el.style.top = (b.y * 100) + "%";
+        el.style.width = (b.w * 100) + "%";
+        el.style.height = (b.h * 100) + "%";
+        el.style.setProperty("--fill", b.color);
+        el.style.setProperty("--ink", wsBlockInk(b.color));
+        // The kind only needs saying when nothing else is written on the
+        // block — a button labelled "Buy" does not also need "BUTTON".
+        el.innerHTML = (b.text ? "" : `<span class="ws-block-kind">${escapeHtml(WS_BLOCK_BY_ID[b.type].name)}</span>`) +
+                       `<span class="ws-block-text">${escapeHtml(b.text || "")}</span>
+                        <span class="ws-block-grip"></span>`;
+        stage.appendChild(el);
+      }
+      wsLayoutDrawInk();
+    }
+
+    // A label has to read on whatever the block is filled with, so the ink
+    // is chosen from the fill rather than blended against it — blending gave
+    // orange text on an orange button.
+    function wsBlockInk(fill) {
+      const hex = String(fill || "").trim();
+      if (!/^#[0-9a-f]{6}$/i.test(hex)) return "var(--text)";
+      const n = parseInt(hex.slice(1), 16);
+      const lin = (c) => { c /= 255; return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); };
+      const L = 0.2126 * lin((n >> 16) & 255) + 0.7152 * lin((n >> 8) & 255) + 0.0722 * lin(n & 255);
+      return L > 0.38 ? "#141414" : "#ffffff";
+    }
+
+    function wsLayoutDrawInk() {
+      const cv = document.getElementById("wsStageInk");
+      const stage = document.getElementById("wsStage");
+      if (!cv || !stage) return;
+      const r = stage.getBoundingClientRect();
+      if (!r.width) return;
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      cv.width = Math.round(r.width * dpr);
+      cv.height = Math.round(r.height * dpr);
+      const ctx = cv.getContext("2d");
+      ctx.scale(dpr, dpr);
+      ctx.clearRect(0, 0, r.width, r.height);
+      ctx.strokeStyle = "#E08350";
+      ctx.lineWidth = 2.5;
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+      for (const st of wsLayout.strokes) {
+        if (st.length < 2) continue;
+        ctx.beginPath();
+        ctx.moveTo(st[0][0] * r.width, st[0][1] * r.height);
+        for (let i = 1; i < st.length; i++) ctx.lineTo(st[i][0] * r.width, st[i][1] * r.height);
+        ctx.stroke();
+      }
+    }
+
+    function wsLayoutBindStage(stage) {
+      const at = (e) => {
+        const r = stage.getBoundingClientRect();
+        return { x: (e.clientX - r.left) / r.width, y: (e.clientY - r.top) / r.height, r };
+      };
+      const clamp = (v, lo, hi) => Math.min(Math.max(v, lo), hi);
+
+      stage.addEventListener("pointerdown", (e) => {
+        const p = at(e);
+        let drag = null;
+
+        if (wsLayout.tool === "draw") {
+          drag = { kind: "ink", stroke: [[clamp(p.x, 0, 1), clamp(p.y, 0, 1)]] };
+          wsLayout.strokes.push(drag.stroke);
+        } else {
+          const el = e.target.closest(".ws-block");
+          if (!el) {
+            if (wsLayout.sel) { wsLayout.sel = null; wsLayoutPaint(); wsLayoutSyncPanel(); }
+            return;
+          }
+          const b = wsLayout.blocks.find(x => x.id === el.dataset.id);
+          if (!b) return;
+          // Bring what you touch to the front — a piece you cannot reach
+          // because something else covers it is a piece you cannot edit.
+          wsLayout.blocks = wsLayout.blocks.filter(x => x !== b).concat([b]);
+          drag = { kind: e.target.classList.contains("ws-block-grip") ? "size" : "move",
+                   b, ox: p.x - b.x, oy: p.y - b.y, ow: b.w, oh: b.h, sx: p.x, sy: p.y };
+          // Selecting redraws the pieces and the side panel, never the whole
+          // step: a re-render would replace the stage mid-drag and the
+          // pointer would be left holding an element that no longer exists.
+          wsLayout.sel = b.id;
+          wsLayoutPaint();
+          wsLayoutSyncPanel();
+        }
+
+        const move = (ev) => {
+          const q = at(ev);
+          if (drag.kind === "ink") {
+            drag.stroke.push([clamp(q.x, 0, 1), clamp(q.y, 0, 1)]);
+            wsLayoutDrawInk();
+            return;
+          }
+          const b = drag.b;
+          if (drag.kind === "move") {
+            b.x = clamp(q.x - drag.ox, 0, 1 - b.w);
+            b.y = clamp(q.y - drag.oy, 0, 1 - b.h);
+          } else {
+            b.w = clamp(drag.ow + (q.x - drag.sx), 0.04, 1 - b.x);
+            b.h = clamp(drag.oh + (q.y - drag.sy), 0.03, 1 - b.y);
+          }
+          const el = stage.querySelector(`.ws-block[data-id="${b.id}"]`);
+          if (el) {
+            el.style.left = (b.x * 100) + "%";
+            el.style.top = (b.y * 100) + "%";
+            el.style.width = (b.w * 100) + "%";
+            el.style.height = (b.h * 100) + "%";
+          }
+        };
+
+        // The move and release listeners live on the window for the length
+        // of one drag, so letting go outside the stage still ends it.
+        const up = () => {
+          window.removeEventListener("pointermove", move);
+          window.removeEventListener("pointerup", up);
+          window.removeEventListener("pointercancel", up);
+          if (drag.kind === "ink") wsLayoutDrawInk();
+          else wsLayoutSyncFoot();
+          drag = null;
+        };
+        window.addEventListener("pointermove", move);
+        window.addEventListener("pointerup", up);
+        window.addEventListener("pointercancel", up);
+        e.preventDefault();
+      });
+    }
+
+    // Only the parts that the selection actually changes. The stage element
+    // has the drag listeners on it and must outlive a click.
+    function wsLayoutSyncPanel() {
+      const aside = document.querySelector("#wsBody .ws-palette");
+      if (!aside) return;
+      const view = wsViewBlocks(wsState);
+      const tmp = document.createElement("div");
+      tmp.innerHTML = view.html;
+      const fresh = tmp.querySelector(".ws-palette");
+      if (fresh) aside.innerHTML = fresh.innerHTML;
+      wsLayoutSyncFoot();
+    }
+
+    function wsLayoutSyncFoot() {
+      const note = document.querySelector("#wsBlock .ws-foot .ws-foot-note");
+      const n = wsLayout.blocks.length;
+      if (note) note.textContent = n ? `${n} piece${n === 1 ? "" : "s"} placed` : "nothing placed yet";
+      const go = document.querySelector("#wsBlock .ws-foot .ws-btn.primary");
+      if (go) go.disabled = !n;
+    }
+
+    // What goes to the model: the arrangement as numbers, and a picture of
+    // the same arrangement. The numbers carry the structure exactly; the
+    // picture carries what numbers cannot — how it reads at a glance.
+    function wsLayoutPayload() {
+      return {
+        screen: { w: 16, h: 9 },
+        blocks: wsLayout.blocks.map(b => ({
+          type: b.type, x: b.x, y: b.y, w: b.w, h: b.h,
+          text: b.text || "", color: b.color
+        })),
+        strokes: wsLayout.strokes.map(st => st.map(([x, y]) => [Math.round(x * 1000) / 1000, Math.round(y * 1000) / 1000]))
+      };
+    }
+
+    function wsLayoutSnapshot() {
+      const W = 1280, H = 720;
+      const cv = document.createElement("canvas");
+      cv.width = W; cv.height = H;
+      const ctx = cv.getContext("2d");
+      ctx.fillStyle = "#11151b";
+      ctx.fillRect(0, 0, W, H);
+      for (const b of wsLayout.blocks) {
+        const x = b.x * W, y = b.y * H, w = b.w * W, h = b.h * H;
+        if (b.color && b.color !== "transparent") {
+          ctx.fillStyle = b.color;
+          ctx.fillRect(x, y, w, h);
+        }
+        ctx.strokeStyle = "rgba(255,255,255,.45)";
+        ctx.lineWidth = 2;
+        ctx.strokeRect(x, y, w, h);
+        ctx.fillStyle = "rgba(255,255,255,.55)";
+        ctx.font = "500 13px system-ui, sans-serif";
+        ctx.fillText(WS_BLOCK_BY_ID[b.type].name, x + 7, y + 18);
+        if (b.text) {
+          ctx.fillStyle = "#fff";
+          ctx.font = "600 17px system-ui, sans-serif";
+          ctx.fillText(String(b.text).slice(0, 40), x + 7, y + 40);
+        }
+      }
+      ctx.strokeStyle = "#E08350";
+      ctx.lineWidth = 3;
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+      for (const st of wsLayout.strokes) {
+        if (st.length < 2) continue;
+        ctx.beginPath();
+        ctx.moveTo(st[0][0] * W, st[0][1] * H);
+        for (let i = 1; i < st.length; i++) ctx.lineTo(st[i][0] * W, st[i][1] * H);
+        ctx.stroke();
+      }
+      return cv.toDataURL("image/png");
     }
 
     // ---------- painting the region ----------
@@ -12412,8 +13079,12 @@
         (r.urls || []).map(u => `<img src="${escapeHtml(u)}" alt="">`).join("") + `</div>`;
       else if (r.kind === "model3d") preview = `<model-viewer src="${escapeHtml(r.modelUrl || "")}" poster="${escapeHtml(r.thumbnailUrl || "")}" camera-controls auto-rotate shadow-intensity="1" exposure="1" loading="eager"></model-viewer>`;
       else if (r.kind === "code") preview = `<div class="msg msg-bot" style="--ws-fade:1;--ws-blur:0px"><div class="msg-bubble" style="max-width:100%">${r.html || ""}</div></div>`;
+      else if (r.kind === "uilua") preview = `<div class="msg msg-bot" style="--ws-fade:1;--ws-blur:0px"><div class="msg-bubble" style="max-width:100%">${
+        wsUiResultHtml(r.codeHtml || "", r.previewHtml || "")}</div></div>`;
 
-      const folded = r.kind === "code";
+      // A script is folded because it runs long. A preview is the whole point
+      // of looking, so it is shown at full height.
+      const folded = r.kind === "code" || (r.kind === "uilua" && !r.previewHtml);
       return {
         html: `<div class="ws-result">
                  <div>
@@ -12496,12 +13167,71 @@
           wsNextBtn("Download", WS_ICONS.download, "wsDownload()")
         ].join("");
       }
+      if (r.kind === "uilua") {
+        return [
+          wsNextBtn("Change something", WS_ICONS.brush, "wsUiRefine()"),
+          wsNextBtn("Try the other model", WS_ICONS.bolt, "wsUiSwapModel()", false, "Same design, read by the model you did not pick."),
+          wsNextBtn("Lay one out by hand", WS_ICONS.layout, "wsUiNewTask('u-blocks')"),
+          wsNextBtn("Describe another", WS_ICONS.idea, "wsUiNewTask('u-idea')"),
+          wsNextBtn("Copy the script", WS_ICONS.read, "wsUiCopy(this)")
+        ].join("");
+      }
       return [
         wsNextBtn("Add a function", WS_ICONS.bolt, "wsContinueCode('c-add')"),
         wsNextBtn("Fix a problem", WS_ICONS.bug, "wsContinueCode('c-fix')"),
         wsNextBtn("Clean it up", WS_ICONS.tidy, "wsContinueCode('c-refactor')"),
         wsNextBtn("Explain it", WS_ICONS.read, "wsContinueCode('c-explain')")
       ].join("");
+    }
+
+    // ---------- following up on a UI ----------
+    // A change to a finished UI goes back through the same designing path
+    // with the script in hand, so the model revises rather than starts over.
+    function wsUiRefine() {
+      const s = wsState;
+      if (!s || !s.result) return;
+      const prev = s.result.code || "";
+      s.task = "u-idea";
+      s.cfg = {
+        uimodel: s.cfg.uimodel || WS_UI_DEFAULT_MODEL,
+        preview: s.cfg.preview !== false,
+        prompt: "",
+        carry: prev
+      };
+      s.step = "config";
+      wsRender();
+    }
+
+    function wsUiSwapModel() {
+      const s = wsState;
+      if (!s || !s.result) return;
+      s.cfg.uimodel = (s.cfg.uimodel || WS_UI_DEFAULT_MODEL) === "luna" ? "gemini" : "luna";
+      s.step = "config";
+      wsRender();
+    }
+
+    function wsUiNewTask(task) {
+      const s = wsState;
+      if (!s) return;
+      if (task === "u-blocks") wsLayoutReset();
+      s.task = task;
+      s.cfg = wsTaskDefaults(task);
+      s.step = task === "u-blocks" ? "blocks" : "config";
+      wsRender();
+    }
+
+    // No toast anywhere else in the app, so the button reports on itself.
+    function wsUiCopy(btn) {
+      const code = wsState && wsState.result && wsState.result.code;
+      if (!code) return;
+      const say = (text) => {
+        if (!btn) return;
+        const span = btn.lastChild;
+        const was = span.textContent;
+        span.textContent = text;
+        setTimeout(() => { if (btn.isConnected) span.textContent = was; }, 1600);
+      };
+      navigator.clipboard.writeText(code).then(() => say("Copied"), () => say("Clipboard blocked"));
     }
 
     // ---------- interaction ----------
@@ -12698,10 +13428,101 @@
       }
 
       if (s.mode === "ui2lua") {
-        mainImage = c.image || null;
-        wsBusy("Reading the screenshot…");
-        wsLendPrompt(c.prompt, sendUiToLua);
+        wsRunUiLua(s, c);
       }
+    }
+
+    // ---------- UI → Lua ----------
+    // Three ways in, one call out. The frame drives the endpoint itself here
+    // rather than lending the composer its text, because a layout and a model
+    // choice have nowhere to sit in a composer.
+    const WS_UI_LABELS = {
+      "u-shot": { busy: "Reading the screenshot…", said: "Rebuild this UI as a script" },
+      "u-idea": { busy: "Designing the interface…", said: "" },
+      "u-blocks": { busy: "Building your layout…", said: "Build this layout as a UI" }
+    };
+
+    // A revision carries the script it is revising, so the model changes that
+    // UI instead of designing a fresh one that happens to sound similar.
+    function wsUiPrompt(c) {
+      const said = (c.prompt || "").trim();
+      if (!c.carry) return said;
+      return "This is a revision of an interface you already built. Keep everything the " +
+        "instruction does not ask you to change.\n\nWHAT TO CHANGE:\n" + said +
+        "\n\nTHE CURRENT SCRIPT:\n```lua\n" + String(c.carry).slice(0, 24000) + "\n```";
+    }
+
+    function wsRunUiLua(s, c) {
+      const meta = WS_UI_LABELS[s.task] || WS_UI_LABELS["u-shot"];
+      const source = s.task === "u-idea" ? "text" : (s.task === "u-blocks" ? "layout" : "screenshot");
+      const layout = source === "layout" ? wsLayoutPayload() : null;
+      const shot = source === "layout" ? wsLayoutSnapshot() : (c.image || null);
+      const attachments = shot ? [{ kind: "image", dataUrl: shot }] : [];
+
+      wsRunJob({
+        label: meta.busy,
+        userText: (c.prompt || "").trim() || meta.said || "Design this UI",
+        attachments,
+        work: async () => {
+          const res = await authedFetch("/generate-ui-lua", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              source,
+              model: c.uimodel || WS_UI_DEFAULT_MODEL,
+              preview: c.preview !== false,
+              image: shot,
+              layout,
+              prompt: wsUiPrompt(c)
+            })
+          });
+          if (!res.ok) throw new Error(await wsApiError(res, "/generate-ui-lua"));
+          const data = await res.json();
+
+          const reply = (data.description ? data.description + "\n\n" : "") + "```lua\n" + data.code + "\n```";
+          const codeHtml = renderMarkdown(reply);
+          const html = wsUiResultHtml(codeHtml, data.html);
+          return {
+            html,
+            persist: { type: "text", prompt: (c.prompt || "").trim() || meta.said, reply, uiPreview: data.html || "" },
+            result: { kind: "uilua", codeHtml, previewHtml: data.html || "", code: data.code }
+          };
+        }
+      });
+    }
+
+    // The preview and the script are two readings of one answer, so they sit
+    // in one card with a switch rather than as two things to scroll between.
+    // The frame is sandboxed with no allow-same-origin: the page inside gets
+    // scripts for its own hover and tab behaviour and nothing else — no
+    // access to this document, its storage or its session.
+    let wsUiTabSeq = 0;
+
+    function wsUiResultHtml(codeHtml, previewHtml) {
+      if (!previewHtml) return codeHtml;
+      const id = "uir" + (++wsUiTabSeq);
+      return `<div class="ui-result" id="${id}">
+        <div class="ui-tabs">
+          <button type="button" class="ui-tab on" onclick="wsUiTab('${id}','preview')">${WS_ICONS.eye}Preview</button>
+          <button type="button" class="ui-tab" onclick="wsUiTab('${id}','code')">${WS_ICONS.code}Script</button>
+        </div>
+        <div class="ui-pane ui-pane-preview">
+          <div class="ui-screen">
+            <iframe sandbox="allow-scripts" loading="lazy" title="UI preview"
+              srcdoc="${escapeHtml(previewHtml)}"></iframe>
+          </div>
+          <p class="ui-pane-note">A rendering of what the script builds — not the script's own output.</p>
+        </div>
+        <div class="ui-pane ui-pane-code" hidden>${codeHtml}</div>
+      </div>`;
+    }
+
+    function wsUiTab(id, which) {
+      const root = document.getElementById(id);
+      if (!root) return;
+      root.querySelectorAll(".ui-tab").forEach((b, i) => b.classList.toggle("on", i === (which === "preview" ? 0 : 1)));
+      root.querySelector(".ui-pane-preview").hidden = which !== "preview";
+      root.querySelector(".ui-pane-code").hidden = which !== "code";
     }
 
     // generateImage, sendUiToLua and friends take their text from the
@@ -12805,9 +13626,6 @@
       }
     }
 
-    // The worker answers an unknown path with an empty error object, which
-    // arrives as {"error":""} and explains nothing. These routes are new, so
-    // a 404 has exactly one cause worth naming.
     // A 404 can mean two very different things: the worker has no such route,
     // or the route is there and whatever it called upstream answered 404. The
     // worker's own catch-all replies with the bare text "Not Found", so that
@@ -13251,7 +14069,8 @@
         payload.html = body.innerHTML;
       }
       if (payload.kind === "model3d") wsRememberModel(payload.modelUrl, "the one you just made");
-      const mode = { image: "image", refimage: "model3d", model3d: "model3d", code: activeForceMode === "ui2lua" ? "ui2lua" : "code" }[payload.kind];
+      const mode = { image: "image", refimage: "model3d", model3d: "model3d", uilua: "ui2lua",
+                     code: activeForceMode === "ui2lua" ? "ui2lua" : "code" }[payload.kind];
       if (!mode || !WS_CATALOG[mode]) return;
       openWorkspace(mode, { result: payload });
     }
