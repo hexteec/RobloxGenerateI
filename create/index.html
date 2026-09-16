@@ -2342,7 +2342,10 @@
       align-items: flex-start;
     }
 
-    .msg-bot:has(.chooser-3d) .bot-body> :not(.chooser-3d) {
+    /* The intro line in a chooser message gets a bubble; the divider
+       between the two halves of the list is a label, not another line of
+       the assistant talking. */
+    .msg-bot:has(.chooser-3d) .bot-body> :not(.chooser-3d):not(.c3-more-label) {
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: 5px 15px 15px 15px;
@@ -2435,6 +2438,19 @@
     .chooser-3d button.chosen .c3-icon {
       color: var(--mint);
     }
+
+    /* The second half of the chooser: the same buttons, introduced as what
+       they are so the first three still read as the usual way in. */
+    .c3-more-label {
+      margin: 14px 0 7px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+    }
+
+    .chooser-3d.chooser-more { margin-top: 0; }
 
     .chooser-templates {
       display: flex;
@@ -9401,6 +9417,12 @@
         </div>`;
       }
 
+      // The three above are the ones with a flow in the chat. Everything
+      // else this mode can do lives in the frame, which is where picking one
+      // of them goes — so the chooser is the whole menu rather than the part
+      // that happens to fit the composer.
+      html += wsChooserExtras(mode);
+
       const introText = mode === "model3d"
         ? "How do you want to create the 3D model?"
         : "How do you want to create the image?";
@@ -9413,6 +9435,43 @@
         setBotBody(el, renderInlineMarkdown(introText) + html);
         return el;
       }
+    }
+
+    // Which catalogue entries the three in-chat options already cover.
+    const WS_CHOOSER_COVERS = {
+      image: ["create", "edit-photo", "restyle"],
+      model3d: ["m-text", "m-image", "m-gen"]
+    };
+
+    function wsChooserExtras(mode) {
+      if (typeof WS_CATALOG === "undefined" || !WS_CATALOG[mode]) return "";
+      const covered = WS_CHOOSER_COVERS[mode] || [];
+      const hasCode = typeof currentCodeState !== "undefined" && currentCodeState && currentCodeState.code;
+      const rows = WS_CATALOG[mode].groups
+        .flatMap(g => g.tasks)
+        .filter(t => t.ready && !covered.includes(t.id) && !(t.needsCode && !hasCode))
+        .map(t => `
+          <button onclick="wsChooseTask('${mode}','${t.id}', this)">
+            <span class="c3-icon">${t.icon}</span>
+            <span>${escapeHtml(t.name)}<span class="c3-sub">${escapeHtml(t.sub)}</span></span>
+          </button>`).join("");
+      if (!rows) return "";
+      return `<div class="c3-more-label">or work on something you already have</div>
+              <div class="chooser-3d chooser-more">${rows}</div>`;
+    }
+
+    // These have no composer flow of their own — their setup is a form, and
+    // the form lives in the frame. Choosing one opens it there.
+    function wsChooseTask(mode, taskId, btnEl) {
+      if (btnEl) {
+        const group = btnEl.closest(".bot-body") || btnEl.closest(".msg-bubble");
+        if (group) group.querySelectorAll(".chooser-3d button").forEach(b => { b.disabled = true; b.classList.remove("chosen"); });
+        btnEl.classList.add("chosen");
+      }
+      if (typeof pendingChoiceMessage !== "undefined" && pendingChoiceMessage) {
+        pendingChoiceMessage.payload.selectedOption = taskId;
+      }
+      if (typeof openWorkspace === "function") openWorkspace(mode, { task: taskId });
     }
 
     function applyFlowComposerState() {
@@ -9471,8 +9530,8 @@
       if (typeof expandComposer === 'function') expandComposer();
       if (typeof expandComposer === 'function') expandComposer();
       if (pendingChoiceMessage) pendingChoiceMessage.payload.selectedOption = method;
-      const group = btnEl.closest(".chooser-3d");
-      group.querySelectorAll("button").forEach(b => { b.disabled = true; b.classList.remove("chosen"); });
+      const group = btnEl.closest(".bot-body") || btnEl.closest(".chooser-3d");
+      group.querySelectorAll(".chooser-3d button").forEach(b => { b.disabled = true; b.classList.remove("chosen"); });
       btnEl.classList.add("chosen");
 
       currentMethod = method;
@@ -10471,8 +10530,8 @@
       if (typeof _composerLockUntil !== 'undefined') _composerLockUntil = Date.now() + 600;
       if (typeof expandComposer === 'function') expandComposer();
       if (pendingChoiceMessage) pendingChoiceMessage.payload.selectedOption = choice;
-      const group = btnEl.closest(".chooser-3d");
-      group.querySelectorAll("button").forEach(b => { b.disabled = true; b.classList.remove("chosen"); });
+      const group = btnEl.closest(".bot-body") || btnEl.closest(".chooser-3d");
+      group.querySelectorAll(".chooser-3d button").forEach(b => { b.disabled = true; b.classList.remove("chosen"); });
       btnEl.classList.add("chosen");
 
       const promptEl = document.getElementById("prompt");
@@ -11714,17 +11773,17 @@
     // chat as the ordinary message it already is.
     async function openWorkspace(mode, opts) {
       opts = opts || {};
-      if (!WS_CATALOG[mode] || !opts.result) return;
+      if (!WS_CATALOG[mode] || (!opts.result && !opts.task)) return;
       wsState = {
         mode,
-        task: null,
-        step: "result",
+        task: opts.task || null,
+        step: opts.result ? "result" : "config",
         cfg: {},
-        result: opts.result,
-        fromChat: true,
+        result: opts.result || null,
+        fromChat: !!opts.result,
         busy: false,
         progress: null,
-        ran: true
+        ran: !!opts.result
       };
       if (!wsMount()) { wsState = null; return; }
       wsSyncMode(mode);
@@ -11733,7 +11792,7 @@
 
       // The chat already holds this result. While the frame is showing it,
       // that message steps aside rather than saying the same thing twice.
-      if (opts.result.el) opts.result.el.classList.add("ws-pending");
+      if (opts.result && opts.result.el) opts.result.el.classList.add("ws-pending");
 
       wsRender();
       wsFocusFeed();
