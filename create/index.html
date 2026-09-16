@@ -9383,7 +9383,7 @@
 
       if (flowState !== "busy") {
         flowState = "choose_method";
-        if (!opts.skipAutoChooser && typeof appendModeChooser === 'function' && !(typeof wsOpen === 'function' && wsOpen())) {
+        if (!opts.skipAutoChooser && typeof appendModeChooser === 'function') {
           if (pendingChoiceMessage && pendingChoiceMessage._tempEl && pendingChoiceMessage._tempEl.parentNode) {
             pendingChoiceMessage._tempEl.remove();
           }
@@ -9935,17 +9935,10 @@
         resetComposerAfterSend();
         clearMainImage();
         clearRefImage();
-        if (typeof wsOpen === 'function' && wsOpen()) {
-          // The workshop is the chooser right now — a second one in the
-          // chat would be waiting behind the blur for nobody.
-          flowState = "awaiting_input";
-          applyFlowComposerState();
-        } else {
-          flowState = "choose_method";
-          const el = appendModeChooser(activeForceMode);
-          pendingChoiceMessage = { chatId, payload: { type: "chooser", category: activeForceMode, prompt: "" }, _tempEl: el };
-          applyFlowComposerState();
-        }
+        flowState = "choose_method";
+        const el = appendModeChooser(activeForceMode);
+        pendingChoiceMessage = { chatId, payload: { type: "chooser", category: activeForceMode, prompt: "" }, _tempEl: el };
+        applyFlowComposerState();
 
       } catch (e) {
         console.error(e);
@@ -11389,13 +11382,6 @@
         p.classList.toggle('active', p.dataset.force === mode);
       });
 
-      // The workspace opens first: setForceMode checks whether it is up
-      // before deciding to drop a method chooser into the chat. The dock
-      // stays live throughout, so it also switches between modes and
-      // hands the chat back.
-      if (mode !== 'chat' && typeof openWorkspace === 'function') openWorkspace(mode);
-      else if (mode === 'chat' && typeof closeWorkspace === 'function') closeWorkspace({ force: true });
-
       if (typeof setForceMode === 'function') setForceMode(mode);
       if (typeof expandComposer === 'function') expandComposer();
 
@@ -11563,13 +11549,6 @@
     const WS_RIG_TYPES = ["biped", "quadruped", "hexapod", "octopod", "avian", "serpentine", "aquatic"];
     const WS_ANIMATIONS = ["idle", "walk", "run", "jump", "climb"];
     const WS_EXPORT_FORMATS = ["fbx", "obj", "glb", "gltf", "stl", "usdz", "3mf"];
-
-    // Closing the workspace used to post the in-chat method chooser, so the
-    // composer would not stay locked waiting on a choice nobody made. The
-    // workspace is that chooser now, so the bubble only echoes what you
-    // just closed — the composer is unlocked directly instead. Flip this
-    // to true to bring the message back for every mode.
-    const WS_RESTORE_CHOOSER = false;
 
     let wsState = null;
     let wsFeedWatcher = null;
@@ -11746,6 +11725,14 @@
       });
     }
 
+    // The 3D flow writes its settings panel into the chat before anything
+    // runs. If the frame still has that panel when you leave, nothing was
+    // generated, and the bubble it came from is an empty shell.
+    function wsDropScaffolding() {
+      if (!document.querySelector("#wsMeshSlot #model3dPanel")) return;
+      document.querySelectorAll(".msg.ws-scaffold").forEach(m => m.remove());
+    }
+
     // Held-back messages either belong to something that ran — in which
     // case the chat should have them — or they are the scaffolding of a
     // task that was abandoned half-configured, and nobody wants those.
@@ -11794,13 +11781,33 @@
     }
 
     // ---------- open / close ----------
-    async function openWorkspace(mode) {
+    // Setting up a generation is the chat's job — the mode chooser, the
+    // composer, the dock, exactly as before. The frame is what happens
+    // afterwards: it opens on the finished thing, so you can see it
+    // properly and work on it, and closing it hands the result back to the
+    // chat as the ordinary message it already is.
+    async function openWorkspace(mode, opts) {
+      opts = opts || {};
       if (!WS_CATALOG[mode]) return;
-      wsState = { mode, task: null, step: "task", cfg: {}, result: null, busy: false, progress: null, ran: false };
+      wsState = {
+        mode,
+        task: null,
+        step: opts.result ? "result" : "task",
+        cfg: {},
+        result: opts.result || null,
+        busy: false,
+        progress: null,
+        ran: !!opts.result
+      };
       if (!wsMount()) { wsState = null; return; }
       wsSyncMode(mode);
       document.body.classList.add("ws-on");
       wsLensGather();
+
+      // The chat already holds this result. While the frame is showing it,
+      // that message steps aside rather than saying the same thing twice.
+      if (opts.result && opts.result.el) opts.result.el.classList.add("ws-pending");
+
       wsRender();
       wsFocusFeed();
       wsScrollIntoView();
@@ -11819,17 +11826,15 @@
       if (!wsState) return;
       if (wsState.busy && !opts.force) return;
 
-      // Sticky, and deliberately not derived from the current step: picking
-      // "Another task" clears the result, and reading it here meant closing
-      // after a finished generation deleted the messages it had produced.
-      const ran = !!wsState.ran;
+      // The frame only ever opens on a finished result, so anything it is
+      // holding back has real work behind it. The one exception is mesh
+      // settings adopted but never generated, dropped just below.
+      const ran = true;
+      wsDropScaffolding();
       wsState = null;
 
       // The workspace stood in for the in-chat method chooser, so walking
       // out of it leaves the composer waiting on a choice nobody made.
-      const stuck = typeof flowState !== "undefined" && flowState === "choose_method"
-        && !document.querySelector(".chooser-3d button:not([disabled])");
-
       if (wsFeedWatcher) { wsFeedWatcher.disconnect(); wsFeedWatcher = null; }
       if (el) {
         el.classList.add("ws-leaving");
@@ -11842,35 +11847,10 @@
       wsClearFeed();
       wsLensRelease();
 
-      // WS_RESTORE_CHOOSER keeps the old behaviour whole: the chooser only
-      // makes sense if you stay in the mode it belongs to.
-      if (!WS_RESTORE_CHOOSER) {
-        wsUnlockComposer();
-      } else if (stuck) {
-        if (typeof appendModeChooser === "function") {
-          const chooser = appendModeChooser(activeForceMode);
-          pendingChoiceMessage = {
-            chatId: (typeof activeChatId !== "undefined" ? activeChatId : null),
-            payload: { type: "chooser", category: activeForceMode, prompt: "" },
-            _tempEl: chooser
-          };
-          if (typeof applyFlowComposerState === "function") applyFlowComposerState();
-        }
-      }
+      // The chat set its own state when it finished the generation — its
+      // chooser is already sitting there — so leaving the frame puts
+      // nothing back and takes nothing away.
       if (typeof scrollFeedToBottom === "function") setTimeout(scrollFeedToBottom, 210);
-    }
-
-    // Walking out of the workspace is going back to the conversation, so
-    // the app goes with you: chat mode, the dock lit on Chat, the composer
-    // a plain message box again. Leaving it in image or 3D mode meant the
-    // dock still claimed you were somewhere you had just left.
-    function wsUnlockComposer() {
-      if (typeof setForceMode === "function") {
-        setForceMode("chat", { skipAutoChooser: true });
-      } else if (typeof flowState !== "undefined") {
-        flowState = "idle";
-        if (typeof applyFlowComposerState === "function") applyFlowComposerState();
-      }
     }
 
     // And going the other way: the workspace can change its own mode —
@@ -12998,7 +12978,15 @@
         <div id="wsMeshSlot" class="ws-mesh ws-rise" style="--i:2"></div>`;
       const panel = document.getElementById("model3dPanel");
       const slot = el.querySelector("#wsMeshSlot");
-      if (panel && slot) slot.appendChild(panel);
+      if (panel && slot) {
+        const bubble = panel.closest(".msg");
+        if (bubble) {
+          bubble.classList.add("ws-scaffold");
+          const asked = bubble.previousElementSibling;
+          if (asked && asked.classList.contains("msg-user")) asked.classList.add("ws-scaffold");
+        }
+        slot.appendChild(panel);
+      }
 
       const foot = el.querySelector(".ws-foot");
       if (foot) {
@@ -13128,7 +13116,12 @@
 
     // ---------- results arriving from the pipeline ----------
     function wsNotify(payload) {
-      if (!wsOpen()) return;
+      if (!wsOpen()) {
+        // Nothing is open, so this is the chat finishing a generation of
+        // its own: that is the moment the frame is for.
+        if (payload.stage === "done") wsOpenForResult(payload);
+        return;
+      }
       if (payload.progress != null && wsState.step === "run") {
         wsState.progress = payload.progress;
         const bar = document.querySelector("#wsRunBar span");
@@ -13148,6 +13141,17 @@
       } else if (payload.stage === "error") {
         wsDone({ error: payload.error });
       }
+    }
+
+    function wsOpenForResult(payload) {
+      if (payload.kind === "code" && payload.el) {
+        const body = payload.el.querySelector(".bot-body") || payload.el;
+        payload.html = body.innerHTML;
+      }
+      if (payload.kind === "model3d") wsRememberModel(payload.modelUrl, "the one you just made");
+      const mode = { image: "image", refimage: "model3d", model3d: "model3d", code: activeForceMode === "ui2lua" ? "ui2lua" : "code" }[payload.kind];
+      if (!mode || !WS_CATALOG[mode]) return;
+      openWorkspace(mode, { result: payload });
     }
 
     document.addEventListener("keydown", (e) => {
