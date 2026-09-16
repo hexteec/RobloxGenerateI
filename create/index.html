@@ -86,6 +86,16 @@
       --amber: #A87A2A;
       --amber-wash: #F7F0E2;
 
+      /* Instance-family colours for the system tree. */
+      --c-server: #6B6862;
+      --c-client: #2F6FD0;
+      --c-module: #7A52C7;
+      --c-event:  #C2611C;
+      --c-func:   #9046B8;
+      --c-ui:     #1E7A8C;
+      --c-world:  #3E7A5F;
+      --c-value:  #A87A2A;
+
       --radius-lg: 16px;
       --radius-md: 12px;
       --radius-sm: 9px;
@@ -127,6 +137,15 @@
       --coral: #E17A63;
       --amber: #D3A657;
       --amber-wash: #332A1A;
+
+      --c-server: #A19FA8;
+      --c-client: #6FA8F0;
+      --c-module: #B08CE8;
+      --c-event:  #E8944A;
+      --c-func:   #C79BE8;
+      --c-ui:     #5BB6C7;
+      --c-world:  #6FBE93;
+      --c-value:  #D3A657;
 
       --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.25);
       --shadow-md: 0 6px 20px rgba(0, 0, 0, 0.3);
@@ -3807,8 +3826,34 @@
       margin-top: 3px;
     }
 
-    .sys-all {
+    .sys-acts {
       margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .sys-act {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--ink);
+      font-size: 11.8px;
+      font-weight: 600;
+      padding: 7px 11px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: border-color .15s ease, background .15s ease;
+    }
+
+    .sys-act svg { width: 13px; height: 13px; }
+    .sys-act:hover { border-color: var(--accent); background: var(--accent-wash); }
+
+    .sys-all {
       flex-shrink: 0;
       background: var(--soft);
       border: 1px solid var(--border);
@@ -3854,7 +3899,14 @@
     }
 
     .sys-row:disabled { cursor: default; }
+
+    /* A row that opens is the only one worth reaching for, so it is the only
+       one that reacts, and the one that is open stays marked while you read
+       the code underneath it. */
     .sys-node.has-code .sys-row:hover { background: var(--soft); }
+    .sys-node.has-code .sys-row:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+    .sys-node.open > .sys-row { background: var(--soft); }
+    .sys-node.open > .sys-row .sys-name { color: var(--accent-deep); }
 
     /* The service already exists in every place, so it reads as the heading
        it is rather than as another thing to go and make. */
@@ -3864,20 +3916,31 @@
     .sys-service .sys-ico { opacity: .45; }
 
     .sys-ico {
-      width: 17px;
-      height: 17px;
+      width: 22px;
+      height: 22px;
       flex-shrink: 0;
-      color: var(--ink-faint);
       display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      color: var(--tone, var(--ink-faint));
+      background: color-mix(in srgb, var(--tone, var(--ink-faint)) 13%, transparent);
     }
 
-    .sys-ico svg { width: 100%; height: 100%; }
+    .sys-ico svg { width: 15px; height: 15px; }
 
-    /* The three script classes are the ones you paste into, so they are the
-       ones that carry the accent. */
-    .sys-ico.c-Script,
-    .sys-ico.c-LocalScript,
-    .sys-ico.c-ModuleScript { color: var(--accent); }
+    /* One colour per family, so the tree reads as groups before it reads as
+       names: server grey, client blue, module purple, events orange,
+       functions purple, interface teal, world green. */
+    .sys-ico.t-server { --tone: var(--c-server); }
+    .sys-ico.t-client { --tone: var(--c-client); }
+    .sys-ico.t-module { --tone: var(--c-module); }
+    .sys-ico.t-event  { --tone: var(--c-event); }
+    .sys-ico.t-func   { --tone: var(--c-func); }
+    .sys-ico.t-ui     { --tone: var(--c-ui); }
+    .sys-ico.t-world  { --tone: var(--c-world); }
+    .sys-ico.t-value  { --tone: var(--c-value); }
+    .sys-ico.t-plain  { --tone: var(--ink-faint); background: transparent; }
 
     .sys-name {
       font-family: var(--font-mono);
@@ -3885,6 +3948,8 @@
       font-weight: 600;
       flex-shrink: 0;
     }
+
+    .sys-node:not(.has-code):not(.sys-service) .sys-name { font-weight: 500; color: var(--ink-muted); }
 
     .sys-class {
       font-family: var(--font-mono);
@@ -3902,18 +3967,34 @@
       min-width: 0;
     }
 
+    /* Studio puts the disclosure arrow before the icon, so this does too:
+       leading, it is the first thing on the row and reads as "there is more
+       in here". Trailing, it was a grey chevron nobody found. */
+    .sys-twist {
+      width: 13px;
+      height: 13px;
+      flex-shrink: 0;
+      color: var(--ink-faint);
+      display: flex;
+      align-items: center;
+      transition: transform .18s ease, color .15s ease;
+    }
+
+    .sys-twist svg { width: 100%; height: 100%; }
+    .sys-node.has-code .sys-row:hover .sys-twist { color: var(--accent); }
+    .sys-node.open > .sys-row .sys-twist { transform: rotate(180deg); color: var(--accent); }
+
+    /* How much is folded away in there. */
     .sys-open {
       margin-left: auto;
       flex-shrink: 0;
-      width: 14px;
-      height: 14px;
+      font-family: var(--font-mono);
+      font-size: 10.5px;
       color: var(--ink-faint);
-      display: flex;
-      transition: transform .18s ease;
+      white-space: nowrap;
     }
 
-    .sys-open svg { width: 100%; height: 100%; }
-    .sys-node.open .sys-open { transform: rotate(180deg); }
+    .sys-node.has-code .sys-row:hover .sys-open { color: var(--ink-muted); }
 
     .sys-code {
       padding: 4px 8px 12px;
@@ -3953,6 +4034,12 @@
       .sys-class,
       .sys-note { display: none; }
       .sys-node { padding-left: calc(var(--d, 0) * 10px); }
+
+      /* Three right-aligned buttons became three lines of header. They go
+         under the title instead, as one row that shares the width. */
+      .sys-head { flex-wrap: wrap; gap: 10px; }
+      .sys-acts { margin-left: 0; width: 100%; justify-content: flex-start; }
+      .sys-act, .sys-all { flex: 1 1 auto; justify-content: center; text-align: center; }
     }
 
     .msg-attach-grid {
@@ -14237,27 +14324,70 @@
     // Roblox developers read the Explorer tree fluently, so a system is shown
     // as one: every node has its place, its class and why it exists, and the
     // scripts open where they sit rather than in a separate list of files.
+    // Studio tells its instances apart by colour before you read a word, so
+    // this does too. The three script kinds share one page-of-code mark and
+    // differ only in colour — grey for server, blue for client, purple for a
+    // module — because that is the one distinction you need at a glance.
+    const SYS_PAGE_ICON = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8l-5-5Z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h4"/></svg>`;
+
     const SYS_CLASS_ICON = {
-      Script: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>`,
-      LocalScript: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z"/></svg>`,
-      ModuleScript: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="m12 3 8 4.5v9L12 21l-8-4.5v-9L12 3Z"/><path d="M12 12v9M4 7.5l8 4.5 8-4.5"/></svg>`,
+      Script: SYS_PAGE_ICON,
+      LocalScript: SYS_PAGE_ICON,
+      ModuleScript: SYS_PAGE_ICON,
       Folder: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z"/></svg>`,
-      RemoteEvent: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/><path d="M5 7v10"/></svg>`,
-      RemoteFunction: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M19 8H7a3 3 0 0 0 0 6h10a3 3 0 0 1 0 6H5"/><path d="m16 5 3 3-3 3"/></svg>`,
-      ScreenGui: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/></svg>`
+      // The bolt fires one way and nothing comes back; the function's line
+      // goes out and returns, which is the whole difference between them.
+      RemoteEvent: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z"/></svg>`,
+      RemoteFunction: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 3 5 11h4l-1 5"/><path d="M8 19h8a3.5 3.5 0 0 0 0-7h-2"/><path d="m11 16-3 3 3 3"/></svg>`,
+      BindableEvent: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M14 3 7 13h5l-1 8 7-11h-5l1-7Z"/></svg>`,
+      BindableFunction: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M18 8H8a3 3 0 0 0 0 6h8a3 3 0 0 1 0 6H6"/></svg>`,
+      // The interface objects look like what they are on screen.
+      ScreenGui: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><rect x="2" y="4" width="20" height="14" rx="2"/><path d="M8 21h8M12 18v3"/></svg>`,
+      Frame: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/></svg>`,
+      TextLabel: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 6h14M12 6v12M9 18h6"/></svg>`,
+      TextButton: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><rect x="2" y="7" width="20" height="10" rx="5"/><path d="M13 14l3 4 1-2 2 1-3-4Z" fill="currentColor" stroke="none"/></svg>`,
+      ImageLabel: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="m4 18 5-5 4 4 3-3 4 4"/></svg>`,
+      ImageButton: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="m4 18 5-5 3 3"/><path d="M14 15l3 5 1-2 2 1-3-4Z" fill="currentColor" stroke="none"/></svg>`,
+      // A value is a labelled box holding one thing.
+      Value: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M8 12h8"/></svg>`,
+      Part: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="m12 3 8 4.5v9L12 21l-8-4.5v-9L12 3Z"/><path d="M12 12v9M4 7.5l8 4.5 8-4.5"/></svg>`,
+      Tool: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 1 1-5 5L4 17v3h3l5.7-5.7"/><path d="m15 9 5-5"/></svg>`
     };
 
     function sysIcon(cls) {
       if (SYS_CLASS_ICON[cls]) return SYS_CLASS_ICON[cls];
-      if (/Value$/.test(cls)) return SYS_CLASS_ICON.ModuleScript;
-      if (/^Bindable/.test(cls)) return SYS_CLASS_ICON.RemoteEvent;
+      if (/Value$/.test(cls)) return SYS_CLASS_ICON.Value;
+      if (/^Bindable/.test(cls)) return SYS_CLASS_ICON.BindableEvent;
       return SYS_CLASS_ICON.Folder;
+    }
+
+    // Which colour a class wears. Everything in one family shares one, so a
+    // tree reads as groups before it reads as names.
+    const SYS_CLASS_TONE = {
+      Script: "server", LocalScript: "client", ModuleScript: "module",
+      RemoteEvent: "event", BindableEvent: "event",
+      RemoteFunction: "func", BindableFunction: "func",
+      Folder: "plain", Configuration: "plain",
+      ScreenGui: "ui", Frame: "ui", TextLabel: "ui", TextButton: "ui",
+      ImageLabel: "ui", ImageButton: "ui",
+      Part: "world", Model: "world", Tool: "world", Attachment: "world", ProximityPrompt: "world"
+    };
+
+    function sysTone(cls) {
+      if (SYS_CLASS_TONE[cls]) return SYS_CLASS_TONE[cls];
+      if (/Value$/.test(cls)) return "value";
+      return "plain";
     }
 
     const SYS_SCRIPT_CLASSES = ["Script", "LocalScript", "ModuleScript"];
 
     let sysStore = {};
     let sysSeq = 0;
+
+    function sysLineCount(code) {
+      const n = String(code || "").split("\n").length;
+      return n + (n === 1 ? " line" : " lines");
+    }
 
     // Where a node lives, said the way someone would say it out loud. The
     // service is the part that tells you which panel to open, so it stays
@@ -14270,10 +14400,13 @@
     function systemHtml(data) {
       const id = "sys" + (++sysSeq);
       const tree = Array.isArray(data.tree) ? data.tree : [];
-      sysStore[id] = { name: data.name || "System", tree };
+      sysStore[id] = { name: data.name || "System", description: data.description || "", tree };
 
       const scripts = tree.filter(n => n.code);
       const others = tree.length - scripts.length;
+      // A system with a screen in it has a UI worth designing properly,
+      // rather than whatever the client script happened to build inline.
+      const hasUi = tree.some(n => SYS_UI_CLASSES.includes(n.class));
 
       // The service is the row that tells you which panel to open, and it is
       // the one thing a path hides once it is indented away. It gets its own
@@ -14294,16 +14427,16 @@
           lastService = null;
         }
         const isScript = !!n.code;
-        const rowId = `${id}-${i}`;
         return head + `<div class="sys-node ${isScript ? "has-code" : ""}" style="--d:${Math.min(depth, 5)}">
-          <button type="button" class="sys-row" ${isScript ? `onclick="sysToggle('${rowId}')"` : "disabled"}>
-            <span class="sys-ico c-${escapeHtml(n.class)}">${sysIcon(n.class)}</span>
+          <button type="button" class="sys-row" ${isScript ? 'onclick="sysToggle(this)"' : "disabled"}>
+            <span class="sys-twist">${isScript ? WS_ICONS.chevron : ""}</span>
+            <span class="sys-ico t-${sysTone(n.class)}">${sysIcon(n.class)}</span>
             <span class="sys-name">${escapeHtml(name)}</span>
             <span class="sys-class">${escapeHtml(n.class)}</span>
             ${n.note ? `<span class="sys-note">${escapeHtml(n.note)}</span>` : ""}
-            ${isScript ? `<span class="sys-open">${WS_ICONS ? WS_ICONS.chevron : ""}</span>` : ""}
+            ${isScript ? `<span class="sys-open">${escapeHtml(sysLineCount(n.code))}</span>` : ""}
           </button>
-          ${isScript ? `<div class="sys-code" id="${rowId}" hidden>${renderMarkdown("```lua\n" + n.code + "\n```")}</div>` : ""}
+          ${isScript ? `<div class="sys-code" hidden>${renderMarkdown("```lua\n" + n.code + "\n```")}</div>` : ""}
         </div>`;
       }).join("");
 
@@ -14316,7 +14449,11 @@
             <div class="sys-count">${scripts.length} script${scripts.length === 1 ? "" : "s"}${
               others ? ` and ${others} instance${others === 1 ? "" : "s"} to create` : ""}</div>
           </div>
-          <button type="button" class="sys-all" onclick="sysExpandAll('${id}', this)">Open every script</button>
+          <div class="sys-acts">
+            ${hasUi ? `<button type="button" class="sys-act" onclick="sysDesignUi(this)">${WS_ICONS.layout}Design its UI</button>` : ""}
+            <button type="button" class="sys-act" onclick="sysMakeTest(this)">${WS_ICONS.bug}Write a test for it</button>
+            <button type="button" class="sys-all" onclick="sysExpandAll(this)">Open every script</button>
+          </div>
         </div>
         ${data.description ? `<p class="sys-lead">${escapeHtml(data.description)}</p>` : ""}
         <div class="sys-tree">${rows}</div>
@@ -14325,6 +14462,78 @@
           <ol>${steps.map(x => `<li>${escapeHtml(x)}</li>`).join("")}</ol>
         </div>` : ""}
       </div>`;
+    }
+
+    const SYS_UI_CLASSES = ["ScreenGui", "Frame", "TextLabel", "TextButton", "ImageLabel", "ImageButton"];
+
+    // The brief that makes a generated interface fit THIS system rather than
+    // being a nice-looking panel with nothing behind it: the screen it has to
+    // be, the remotes it has to talk to, and the client script it has to
+    // stand in for.
+    function sysUiBrief(sys) {
+      const tree = sys.tree || [];
+      const ui = tree.filter(n => SYS_UI_CLASSES.includes(n.class));
+      const remotes = tree.filter(n => /^(Remote|Bindable)/.test(n.class));
+      const client = tree.find(n => n.class === "LocalScript" && n.code);
+      const screen = ui.find(n => n.class === "ScreenGui");
+
+      const lines = [];
+      lines.push(`Build the interface for a Roblox system called "${sys.name || "this system"}".`);
+      if (sys.description) lines.push("", "What the system does:", sys.description);
+
+      if (screen) {
+        lines.push("", `The ScreenGui is called ${screen.path.split("/").pop()} and lives at ${screen.path}. Keep that name — the system's scripts look it up by it.`);
+      }
+      if (ui.length > 1) {
+        lines.push("", "Elements the system already expects, by name:");
+        ui.filter(n => n !== screen).forEach(n => {
+          lines.push(`- ${n.path.split("/").pop()} (${n.class})${n.note ? " — " + n.note : ""}`);
+        });
+      }
+      if (remotes.length) {
+        lines.push("", "It talks to the server through these, so wire the buttons to them:");
+        remotes.forEach(n => lines.push(`- ${n.path} (${n.class})${n.note ? " — " + n.note : ""}`));
+      }
+      if (client) {
+        lines.push("", "The client script it has to work with:", "```lua", String(client.code).slice(0, 6000), "```");
+      }
+      lines.push("", "Keep every name the scripts already use. Where the system has no opinion, design it well.");
+      return lines.join("\n");
+    }
+
+    // Hands the system's UI over to the interface builder, already briefed.
+    function sysDesignUi(btn) {
+      const sys = sysFor(btn);
+      if (!sys) return;
+      if (wsOpen()) closeWorkspace({ force: true });
+      openWorkspace("ui2lua", { task: "u-idea" });
+      if (!wsState) return;
+      wsState.cfg = Object.assign(wsTaskDefaults("u-idea"), { prompt: sysUiBrief(sys) });
+      wsRender();
+      wsScrollIntoView();
+    }
+
+    // Writes the harness that proves the system works, from the system.
+    function sysMakeTest(btn) {
+      const sys = sysFor(btn);
+      if (!sys) return;
+      const listing = (sys.tree || []).filter(n => n.code)
+        .map(n => "-- ===== " + n.path + " (" + n.class + ") =====\n" + n.code).join("\n\n");
+      const plain = (sys.tree || []).filter(n => !n.code)
+        .map(n => "-- " + n.path + " (" + n.class + ")").join("\n");
+      currentCodeState = Object.assign({}, currentCodeState, {
+        code: listing + (plain ? "\n\n-- Instances that exist alongside the scripts:\n" + plain : ""),
+        language: "lua"
+      });
+      if (wsOpen()) closeWorkspace({ force: true });
+      sendCodeMessage("Test " + (sys.name || "this system"), false, "test");
+    }
+
+    // Both copies of a system — the one in the chat and the one the frame
+    // drew from it — carry the same id, and both mean the same system.
+    function sysFor(btn) {
+      const root = btn.closest(".sys");
+      return root ? sysStore[root.id] : null;
     }
 
     // What gets saved to the chat and read back after a reload. The tree is
@@ -14355,20 +14564,25 @@
         .join("\n\n");
     }
 
-    function sysToggle(rowId) {
-      const pane = document.getElementById(rowId);
+    // The frame shows the result by copying the message's own HTML, so every
+    // id in a system exists twice on the page. Looking one up by id found the
+    // copy in the chat — which is hidden while the frame is open — so
+    // clicking a script in the frame opened it somewhere nobody could see.
+    // Nothing here is resolved by id any more: the row finds its own pane.
+    function sysToggle(btn) {
+      const node = btn.closest(".sys-node");
+      const pane = node && node.querySelector(".sys-code");
       if (!pane) return;
       const open = pane.hidden;
       pane.hidden = !open;
-      const node = pane.closest(".sys-node");
-      if (node) node.classList.toggle("open", open);
+      node.classList.toggle("open", open);
       // A code block on the hidden side of a fold has no width to be
       // measured against, so it is sized the moment it is shown.
       if (open && typeof fitCodeBlocks === "function") fitCodeBlocks(pane);
     }
 
-    function sysExpandAll(id, btn) {
-      const root = document.getElementById(id);
+    function sysExpandAll(btn) {
+      const root = btn.closest(".sys");
       if (!root) return;
       const panes = [...root.querySelectorAll(".sys-code")];
       const opening = panes.some(p => p.hidden);
