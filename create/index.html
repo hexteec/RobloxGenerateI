@@ -11796,8 +11796,9 @@
     // ---------- open / close ----------
     async function openWorkspace(mode) {
       if (!WS_CATALOG[mode]) return;
-      wsState = { mode, task: null, step: "task", cfg: {}, result: null, busy: false, progress: null };
+      wsState = { mode, task: null, step: "task", cfg: {}, result: null, busy: false, progress: null, ran: false };
       if (!wsMount()) { wsState = null; return; }
+      wsSyncMode(mode);
       document.body.classList.add("ws-on");
       wsLensGather();
       wsRender();
@@ -11841,8 +11842,12 @@
       wsClearFeed();
       wsLensRelease();
 
-      if (stuck) {
-        if (WS_RESTORE_CHOOSER && typeof appendModeChooser === "function") {
+      // WS_RESTORE_CHOOSER keeps the old behaviour whole: the chooser only
+      // makes sense if you stay in the mode it belongs to.
+      if (!WS_RESTORE_CHOOSER) {
+        wsUnlockComposer();
+      } else if (stuck) {
+        if (typeof appendModeChooser === "function") {
           const chooser = appendModeChooser(activeForceMode);
           pendingChoiceMessage = {
             chatId: (typeof activeChatId !== "undefined" ? activeChatId : null),
@@ -11850,28 +11855,33 @@
             _tempEl: chooser
           };
           if (typeof applyFlowComposerState === "function") applyFlowComposerState();
-        } else {
-          wsUnlockComposer();
         }
       }
       if (typeof scrollFeedToBottom === "function") setTimeout(scrollFeedToBottom, 210);
     }
 
-    // Hands the composer back in a state it can actually be typed into,
-    // picking the flow step each mode would have reached had the chooser
-    // been answered in the chat.
+    // Walking out of the workspace is going back to the conversation, so
+    // the app goes with you: chat mode, the dock lit on Chat, the composer
+    // a plain message box again. Leaving it in image or 3D mode meant the
+    // dock still claimed you were somewhere you had just left.
     function wsUnlockComposer() {
-      if (typeof flowState === "undefined") return;
-      if (activeForceMode === "image") {
-        currentMethod = "text";
-        flowState = "awaiting_input";
-      } else if (activeForceMode === "model3d") {
-        flowState = "awaiting_description";
-      } else {
+      if (typeof setForceMode === "function") {
+        setForceMode("chat", { skipAutoChooser: true });
+      } else if (typeof flowState !== "undefined") {
         flowState = "idle";
+        if (typeof applyFlowComposerState === "function") applyFlowComposerState();
       }
-      if (typeof applyFlowComposerState === "function") applyFlowComposerState();
-      if (typeof updateEnhanceButtonLabel === "function") updateEnhanceButtonLabel();
+    }
+
+    // And going the other way: the workspace can change its own mode —
+    // an image becomes the basis for a model, a model goes back onto the
+    // bench — so the dock is told each time rather than only on the click
+    // that opened it.
+    function wsSyncMode(mode) {
+      if (!mode) return;
+      if (typeof activeForceMode !== "undefined") activeForceMode = mode;
+      if (typeof syncForceModeDock === "function") syncForceModeDock(mode);
+      if (typeof renderModeContextBar === "function") renderModeContextBar(mode);
     }
 
     // ---------- rendering ----------
@@ -13040,6 +13050,7 @@
         try { src = await blobUrlToDataUrl(src); } catch (e) { /* keep the blob url */ }
       }
       s.mode = "model3d";
+      wsSyncMode("model3d");
       s.task = "m-image";
       s.cfg = { image: src, prompt: "" };
       s.result = null;
@@ -13077,6 +13088,7 @@
       const url = s.result.modelUrl;
       wsRememberModel(url, "the one you just made");
       s.mode = "model3d";
+      wsSyncMode("model3d");
       s.task = task;
       s.cfg = { model: url };
       s.result = null;
