@@ -3775,6 +3775,186 @@
       padding: 0;
     }
 
+    /* ---------- a system, shown as the Explorer it will become ---------- */
+    .sys {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      background: var(--card);
+      overflow: hidden;
+      margin-top: 10px;
+    }
+
+    .sys-head {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 13px 14px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .sys-title {
+      font-family: var(--font-display);
+      font-size: 14.5px;
+      font-weight: 700;
+      color: var(--ink);
+      letter-spacing: -0.01em;
+    }
+
+    .sys-count {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--ink-faint);
+      margin-top: 3px;
+    }
+
+    .sys-all {
+      margin-left: auto;
+      flex-shrink: 0;
+      background: var(--soft);
+      border: 1px solid var(--border);
+      color: var(--ink);
+      font-size: 11.8px;
+      font-weight: 600;
+      padding: 7px 11px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: border-color .15s ease, background .15s ease;
+    }
+
+    .sys-all:hover { border-color: var(--ink-faint); background: var(--soft-2); }
+
+    .sys-lead {
+      margin: 0;
+      padding: 12px 14px 0;
+      font-size: 13.2px;
+      line-height: 1.6;
+      color: var(--ink-muted);
+      max-width: 68ch;
+    }
+
+    .sys-tree { padding: 10px 6px 6px; }
+
+    /* The indent is the tree: how deep a node sits says who its parent is,
+       which is exactly how it will look in Studio. */
+    .sys-node { padding-left: calc(var(--d, 0) * 15px); }
+
+    .sys-row {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 6px 8px;
+      background: none;
+      border: 0;
+      border-radius: 7px;
+      text-align: left;
+      color: var(--ink);
+      cursor: pointer;
+      transition: background .13s ease;
+    }
+
+    .sys-row:disabled { cursor: default; }
+    .sys-node.has-code .sys-row:hover { background: var(--soft); }
+
+    /* The service already exists in every place, so it reads as the heading
+       it is rather than as another thing to go and make. */
+    .sys-service { margin-top: 9px; }
+    .sys-service:first-child { margin-top: 0; }
+    .sys-service .sys-name { color: var(--ink-muted); font-weight: 700; }
+    .sys-service .sys-ico { opacity: .45; }
+
+    .sys-ico {
+      width: 17px;
+      height: 17px;
+      flex-shrink: 0;
+      color: var(--ink-faint);
+      display: flex;
+    }
+
+    .sys-ico svg { width: 100%; height: 100%; }
+
+    /* The three script classes are the ones you paste into, so they are the
+       ones that carry the accent. */
+    .sys-ico.c-Script,
+    .sys-ico.c-LocalScript,
+    .sys-ico.c-ModuleScript { color: var(--accent); }
+
+    .sys-name {
+      font-family: var(--font-mono);
+      font-size: 12.5px;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+
+    .sys-class {
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      color: var(--ink-faint);
+      flex-shrink: 0;
+    }
+
+    .sys-note {
+      font-size: 11.8px;
+      color: var(--ink-muted);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      min-width: 0;
+    }
+
+    .sys-open {
+      margin-left: auto;
+      flex-shrink: 0;
+      width: 14px;
+      height: 14px;
+      color: var(--ink-faint);
+      display: flex;
+      transition: transform .18s ease;
+    }
+
+    .sys-open svg { width: 100%; height: 100%; }
+    .sys-node.open .sys-open { transform: rotate(180deg); }
+
+    .sys-code {
+      padding: 4px 8px 12px;
+      min-width: 0;
+    }
+
+    .sys-code[hidden] { display: none; }
+
+    .sys-steps {
+      border-top: 1px solid var(--border);
+      padding: 13px 16px 15px;
+      background: var(--soft);
+    }
+
+    .sys-steps-title {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 7px;
+    }
+
+    .sys-steps ol {
+      margin: 0;
+      padding-left: 19px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .sys-steps li {
+      font-size: 12.8px;
+      line-height: 1.55;
+      color: var(--ink-muted);
+    }
+
+    @media (max-width: 720px) {
+      .sys-class,
+      .sys-note { display: none; }
+      .sys-node { padding-left: calc(var(--d, 0) * 10px); }
+    }
+
     .msg-attach-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
@@ -7279,6 +7459,16 @@
                     </div>
                   </div>
 
+                  <div style="position: relative; display:none;" id="codeShapeSelectorWrap">
+                    <button class="ui-pill-btn" onclick="toggleDropdown('codeShapeDropdown', event)">
+                      <span id="activeCodeShapeLabel">One script</span>
+                    </button>
+                    <div class="ui-dropdown" id="codeShapeDropdown">
+                      <button class="ui-dropdown-item" onclick="selectCodeShape('script', event)">One script</button>
+                      <button class="ui-dropdown-item" onclick="selectCodeShape('system', event)">A whole system</button>
+                    </div>
+                  </div>
+
                   <div style="position: relative; display:none;" id="ui2luaSelectorWrap">
                     <button class="ui-pill-btn" onclick="toggleDropdown('ui2luaDropdown', event)">
                       <span id="activeUiModelLabel">GPT-5.6 Luna</span>
@@ -9004,7 +9194,13 @@
 
       if (isTextReply || isCode) {
         const replyText = m.reply ?? m.content ?? m.text ?? "";
-        const rendered = renderMarkdown(replyText);
+        // A saved system comes back as the Explorer it was, not as the
+        // flattened markdown that stands in for it.
+        let saved = null;
+        if (m.system) { try { saved = JSON.parse(m.system); } catch (e) { saved = null; } }
+        const rendered = (saved && Array.isArray(saved.tree) && saved.tree.length)
+          ? systemHtml(saved)
+          : renderMarkdown(replyText);
         // A UI answer kept its preview alongside the script, so reopening
         // the chat gets both back rather than just the code.
         body.innerHTML = (isCode ? codeModelBadgeHtml(m.model) : "") +
@@ -9492,6 +9688,8 @@
       if (imgWrap) imgWrap.style.display = mode === "image" ? "block" : "none";
       const luaWrap = document.getElementById("ui2luaSelectorWrap");
       if (luaWrap) luaWrap.style.display = mode === "ui2lua" ? "block" : "none";
+      const shapeWrap = document.getElementById("codeShapeSelectorWrap");
+      if (shapeWrap) shapeWrap.style.display = mode === "code" ? "block" : "none";
       const modeAttachWrap = document.getElementById("modeAttachPillWrap");
 
       const info = (typeof FORCE_MODE_INFO !== 'undefined' && FORCE_MODE_INFO[mode]) ? FORCE_MODE_INFO[mode] : { hint: '', label: '', icon: '' };
@@ -10118,7 +10316,7 @@
       else if (activeForceMode === "image") handleImageFlowSend();
       else if (activeForceMode === "model3d") handleModel3DSend();
       else if (activeForceMode === "ui2lua") sendUiToLua();
-      else if (activeForceMode === "code") sendCodeMessage();
+      else if (activeForceMode === "code") sendCodeMessage(null, false, selectedCodeShape);
     }
 
     function setPromptBoxEnabled(enabled) {
@@ -10311,7 +10509,7 @@
       }
     }
 
-    async function sendCodeMessage(instructionOverride = null, isFix = false) {
+    async function sendCodeMessage(instructionOverride = null, isFix = false, mode = "script") {
       if (!currentUser) { document.getElementById("signInBtn").click(); return; }
 
       const promptEl = document.getElementById("prompt");
@@ -10337,6 +10535,7 @@
           previousCode: currentCodeState.code,
           previousLanguage: currentCodeState.language,
           isFix,
+          mode,
           model: selectedCodeModel
         };
 
@@ -10352,19 +10551,36 @@
         }
 
         const data = await res.json();
-        const replyText = (data.description ? data.description + "\n\n" : "") + "```" + (data.language || "lua") + "\n" + data.code + "\n```";
-
         stopTyping();
-        setBotBody(pendingEl, codeModelBadgeHtml(data.model || selectedCodeModel, data.pricingNote) + renderMarkdown(replyText));
-        attachFixButtonToLastCodeBlock(pendingEl, chatId);
+
+        // A system answers as a tree of instances; a script answers as a
+        // script. Everything after this point is the same either way.
+        const isSystem = data.mode === "system" && Array.isArray(data.tree);
+        const replyText = isSystem
+          ? systemReplyText(data)
+          : (data.description ? data.description + "\n\n" : "") + "```" + (data.language || "lua") + "\n" + data.code + "\n```";
+
+        const badge = codeModelBadgeHtml(data.model || selectedCodeModel, data.pricingNote);
+        setBotBody(pendingEl, badge + (isSystem ? systemHtml(data) : renderMarkdown(replyText)));
+        if (!isSystem) attachFixButtonToLastCodeBlock(pendingEl, chatId);
         if (typeof wsNotify === 'function') wsNotify({ stage: "done", kind: "code", el: pendingEl });
 
-        currentCodeState = { code: data.code, language: data.language || "lua", chatId, model: data.model || selectedCodeModel };
+        // "Add a function" and "Fix this" need something to work on. For a
+        // system that is every script at once, laid out the way it was
+        // handed over, so the next turn can see the whole thing.
+        currentCodeState = {
+          code: isSystem ? systemAsOneListing(data) : data.code,
+          language: data.language || "lua", chatId, model: data.model || selectedCodeModel
+        };
         document.getElementById("composerHint").textContent = "Mam zapamiętany Twój kod — możesz poprosić o dodanie funkcji, zmianę, refaktor.";
         document.getElementById("prompt").placeholder = "np. dodaj funkcję do zapisu stanu, dodaj walidację…";
 
         refreshBalance();
-        await persistMessage(chatId, { type: "code", prompt: raw, reply: replyText, language: data.language, model: data.model || selectedCodeModel });
+        await persistMessage(chatId, {
+          type: "code", prompt: raw, reply: replyText,
+          language: data.language, model: data.model || selectedCodeModel,
+          system: isSystem ? JSON.stringify({ name: data.name, description: data.description, tree: data.tree, steps: data.steps }) : ""
+        });
         if (!instructionOverride) resetComposerAfterSend();
 
       } catch (e) {
@@ -11645,6 +11861,31 @@
       closeAllDropdowns();
     }
 
+    // One script or the whole system it belongs to. It sits next to the
+    // model pill rather than behind a chooser message, so the common case —
+    // type, send — still takes no extra click.
+    let selectedCodeShape = "script";
+
+    function selectCodeShape(shape, event) {
+      if (event) event.stopPropagation();
+      selectedCodeShape = shape === "system" ? "system" : "script";
+      const lbl = document.getElementById("activeCodeShapeLabel");
+      if (lbl) lbl.textContent = selectedCodeShape === "system" ? "A whole system" : "One script";
+      const hint = document.getElementById("composerHint");
+      if (hint && activeForceMode === "code") {
+        hint.textContent = selectedCodeShape === "system"
+          ? "Describe the feature. You get every script and instance it needs, and where each one goes."
+          : (typeof FORCE_MODE_INFO !== "undefined" ? FORCE_MODE_INFO.code.hint : "");
+      }
+      const promptEl = document.getElementById("prompt");
+      if (promptEl && activeForceMode === "code") {
+        promptEl.placeholder = selectedCodeShape === "system"
+          ? "np. sklep otwierany na E, serwer pilnuje monet, stan zapisywany między sesjami…"
+          : "Describe what script/code you want to generate…";
+      }
+      closeAllDropdowns();
+    }
+
     // Which model reads the design. Kept next to the code-model pill so
     // the choice sits where every other model choice in the composer does.
     let selectedUiModel = WS_UI_DEFAULT_MODEL;
@@ -11835,13 +12076,14 @@
         ]
       },
       code: {
-        title: "What should the script do?",
+        title: "What should it do?",
         lead: "I keep the last script in mind, so the tasks below can build on it instead of starting over.",
         groups: [
           {
             title: "Write",
             tasks: [
               { id: "c-new", name: "Write a script", sub: "Describe the behaviour you want in your game.", icon: WS_ICONS.text, ready: true },
+              { id: "c-system", name: "Build a whole system", sub: "Every script and instance it needs, and where each one goes.", icon: WS_ICONS.mesh, ready: true },
               { id: "c-add", name: "Add to the last script", sub: "Another function, another case, another check.", icon: WS_ICONS.bolt, ready: true, needsCode: true }
             ]
           },
@@ -12341,6 +12583,13 @@
           return [
             { key: "codemodel", type: "codemodel", label: "Model" },
             { key: "prompt", type: "area", label: "What the script should do", required: true, ph: "A shop GUI that opens with E, lists items from a table and deducts coins…" }
+          ];
+        case "c-system":
+          return [
+            { key: "codemodel", type: "codemodel", label: "Model" },
+            { key: "prompt", type: "area", label: "What the system should do", required: true,
+              ph: "A shop players open with E: items come from a config, buying deducts coins on the server, and what they own is saved between sessions…",
+              note: "Describe the feature, not the files. The scripts, the remotes and where each one goes are worked out for you." }
           ];
         case "c-add":
           return [{ key: "prompt", type: "area", label: "What to add", required: true, ph: "A save function that writes the player's coins to a DataStore…" }];
@@ -13458,8 +13707,10 @@
       if (s.mode === "code") {
         if (c.codemodel && typeof updateSelectedCodeModel === "function") updateSelectedCodeModel(c.codemodel);
         const instruction = wsCodeInstruction(s);
-        wsBusy("Writing the script…");
-        sendCodeMessage(instruction, s.task === "c-fix");
+        const asSystem = s.task === "c-system";
+        if (typeof selectCodeShape === "function") selectCodeShape(asSystem ? "system" : "script");
+        wsBusy(asSystem ? "Designing the system…" : "Writing the script…");
+        sendCodeMessage(instruction, s.task === "c-fix", asSystem ? "system" : "script");
         return;
       }
 
@@ -13919,6 +14170,7 @@
     function wsCodeInstruction(s) {
       const p = (s.cfg.prompt || "").trim();
       switch (s.task) {
+        case "c-system": return p;
         case "c-add": return "Add to the script you already have: " + p;
         case "c-fix": return "Fix this in the script: " + p;
         case "c-refactor": return "Refactor the script — same behaviour, clearer structure and naming." + (p ? " Also: " + p : "");
@@ -13979,6 +14231,154 @@
       wsBusy("Building the mesh…");
       if (wsState) wsState.ran = true;
       real.click();
+    }
+
+    // ---------- a whole system, not one script ----------
+    // Roblox developers read the Explorer tree fluently, so a system is shown
+    // as one: every node has its place, its class and why it exists, and the
+    // scripts open where they sit rather than in a separate list of files.
+    const SYS_CLASS_ICON = {
+      Script: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>`,
+      LocalScript: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z"/></svg>`,
+      ModuleScript: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="m12 3 8 4.5v9L12 21l-8-4.5v-9L12 3Z"/><path d="M12 12v9M4 7.5l8 4.5 8-4.5"/></svg>`,
+      Folder: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z"/></svg>`,
+      RemoteEvent: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/><path d="M5 7v10"/></svg>`,
+      RemoteFunction: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M19 8H7a3 3 0 0 0 0 6h10a3 3 0 0 1 0 6H5"/><path d="m16 5 3 3-3 3"/></svg>`,
+      ScreenGui: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/></svg>`
+    };
+
+    function sysIcon(cls) {
+      if (SYS_CLASS_ICON[cls]) return SYS_CLASS_ICON[cls];
+      if (/Value$/.test(cls)) return SYS_CLASS_ICON.ModuleScript;
+      if (/^Bindable/.test(cls)) return SYS_CLASS_ICON.RemoteEvent;
+      return SYS_CLASS_ICON.Folder;
+    }
+
+    const SYS_SCRIPT_CLASSES = ["Script", "LocalScript", "ModuleScript"];
+
+    let sysStore = {};
+    let sysSeq = 0;
+
+    // Where a node lives, said the way someone would say it out loud. The
+    // service is the part that tells you which panel to open, so it stays
+    // whole and the rest is the trail down to the node.
+    function sysSplitPath(path) {
+      const segs = String(path || "").split("/");
+      return { name: segs[segs.length - 1] || path, parents: segs.slice(0, -1), depth: segs.length - 1 };
+    }
+
+    function systemHtml(data) {
+      const id = "sys" + (++sysSeq);
+      const tree = Array.isArray(data.tree) ? data.tree : [];
+      sysStore[id] = { name: data.name || "System", tree };
+
+      const scripts = tree.filter(n => n.code);
+      const others = tree.length - scripts.length;
+
+      // The service is the row that tells you which panel to open, and it is
+      // the one thing a path hides once it is indented away. It gets its own
+      // row whenever it changes, exactly as it sits in the Explorer.
+      let lastService = null;
+      const rows = tree.map((n, i) => {
+        const { name, depth } = sysSplitPath(n.path);
+        const service = String(n.path || "").split("/")[0];
+        let head = "";
+        if (service && service !== lastService && depth > 0) {
+          lastService = service;
+          head = `<div class="sys-node sys-service" style="--d:0">
+            <div class="sys-row" aria-hidden="true">
+              <span class="sys-ico">${sysIcon("Folder")}</span>
+              <span class="sys-name">${escapeHtml(service)}</span>
+            </div></div>`;
+        } else if (depth === 0) {
+          lastService = null;
+        }
+        const isScript = !!n.code;
+        const rowId = `${id}-${i}`;
+        return head + `<div class="sys-node ${isScript ? "has-code" : ""}" style="--d:${Math.min(depth, 5)}">
+          <button type="button" class="sys-row" ${isScript ? `onclick="sysToggle('${rowId}')"` : "disabled"}>
+            <span class="sys-ico c-${escapeHtml(n.class)}">${sysIcon(n.class)}</span>
+            <span class="sys-name">${escapeHtml(name)}</span>
+            <span class="sys-class">${escapeHtml(n.class)}</span>
+            ${n.note ? `<span class="sys-note">${escapeHtml(n.note)}</span>` : ""}
+            ${isScript ? `<span class="sys-open">${WS_ICONS ? WS_ICONS.chevron : ""}</span>` : ""}
+          </button>
+          ${isScript ? `<div class="sys-code" id="${rowId}" hidden>${renderMarkdown("```lua\n" + n.code + "\n```")}</div>` : ""}
+        </div>`;
+      }).join("");
+
+      const steps = (Array.isArray(data.steps) ? data.steps : []).filter(Boolean);
+
+      return `<div class="sys" id="${id}">
+        <div class="sys-head">
+          <div>
+            <div class="sys-title">${escapeHtml(data.name || "System")}</div>
+            <div class="sys-count">${scripts.length} script${scripts.length === 1 ? "" : "s"}${
+              others ? ` and ${others} instance${others === 1 ? "" : "s"} to create` : ""}</div>
+          </div>
+          <button type="button" class="sys-all" onclick="sysExpandAll('${id}', this)">Open every script</button>
+        </div>
+        ${data.description ? `<p class="sys-lead">${escapeHtml(data.description)}</p>` : ""}
+        <div class="sys-tree">${rows}</div>
+        ${steps.length ? `<div class="sys-steps">
+          <div class="sys-steps-title">Then, in Studio</div>
+          <ol>${steps.map(x => `<li>${escapeHtml(x)}</li>`).join("")}</ol>
+        </div>` : ""}
+      </div>`;
+    }
+
+    // What gets saved to the chat and read back after a reload. The tree is
+    // written as headed code blocks, so an old client — or a plain markdown
+    // reader — still shows every script with its path above it.
+    function systemReplyText(data) {
+      const parts = [];
+      if (data.description) parts.push(data.description);
+      for (const n of data.tree) {
+        if (!n.code) continue;
+        parts.push("**" + n.path + "** · " + n.class + (n.note ? "\n" + n.note : "") +
+          "\n\n```lua\n" + n.code + "\n```");
+      }
+      const plain = data.tree.filter(n => !n.code);
+      if (plain.length) {
+        parts.push("**Also create:**\n" + plain.map(n => "- " + n.path + " (" + n.class + ")").join("\n"));
+      }
+      if (Array.isArray(data.steps) && data.steps.length) {
+        parts.push("**Then, in Studio:**\n" + data.steps.map((x, i) => (i + 1) + ". " + x).join("\n"));
+      }
+      return parts.join("\n\n");
+    }
+
+    // One listing of the whole system, for the next turn to work on.
+    function systemAsOneListing(data) {
+      return data.tree.filter(n => n.code)
+        .map(n => "-- ===== " + n.path + " (" + n.class + ") =====\n" + n.code)
+        .join("\n\n");
+    }
+
+    function sysToggle(rowId) {
+      const pane = document.getElementById(rowId);
+      if (!pane) return;
+      const open = pane.hidden;
+      pane.hidden = !open;
+      const node = pane.closest(".sys-node");
+      if (node) node.classList.toggle("open", open);
+      // A code block on the hidden side of a fold has no width to be
+      // measured against, so it is sized the moment it is shown.
+      if (open && typeof fitCodeBlocks === "function") fitCodeBlocks(pane);
+    }
+
+    function sysExpandAll(id, btn) {
+      const root = document.getElementById(id);
+      if (!root) return;
+      const panes = [...root.querySelectorAll(".sys-code")];
+      const opening = panes.some(p => p.hidden);
+      panes.forEach(p => {
+        p.hidden = !opening;
+        const node = p.closest(".sys-node");
+        if (node) node.classList.toggle("open", opening);
+      });
+      if (opening && typeof fitCodeBlocks === "function") fitCodeBlocks(root);
+      btn.textContent = opening ? "Fold them up" : "Open every script";
     }
 
     // ---------- follow-ups ----------
