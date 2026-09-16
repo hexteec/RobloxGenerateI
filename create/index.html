@@ -2345,7 +2345,7 @@
     /* The intro line in a chooser message gets a bubble; the divider
        between the two halves of the list is a label, not another line of
        the assistant talking. */
-    .msg-bot:has(.chooser-3d) .bot-body> :not(.chooser-3d):not(.c3-more-label) {
+    .msg-bot:has(.chooser-3d) .bot-body> :not(.chooser-3d):not(.c3-more) {
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: 5px 15px 15px 15px;
@@ -2439,18 +2439,55 @@
       color: var(--mint);
     }
 
-    /* The second half of the chooser: the same buttons, introduced as what
-       they are so the first three still read as the usual way in. */
-    .c3-more-label {
-      margin: 14px 0 7px;
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: .04em;
-      text-transform: uppercase;
-      color: var(--ink-faint);
+    /* The rest of what the mode can do, folded behind one line. */
+    .c3-more {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      margin-top: 8px;
+      padding: 7px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--card);
+      color: var(--ink-muted);
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: var(--shadow-sm);
+      transition: color .15s ease, border-color .15s ease;
     }
 
-    .chooser-3d.chooser-more { margin-top: 0; }
+    .c3-more:hover:not(:disabled) { color: var(--ink); border-color: var(--ink-faint); }
+    .c3-more:disabled { opacity: .4; cursor: default; }
+
+    .c3-more svg {
+      width: 12px;
+      height: 12px;
+      transition: transform .2s ease;
+    }
+
+    .c3-more.on svg { transform: rotate(180deg); }
+
+    /* Denser than the three above, and name-only: these are picked by
+       someone who already knows what they came for. */
+    .chooser-3d.c3-extra {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(186px, 1fr));
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .chooser-3d.c3-extra button {
+      padding: 9px 11px;
+      gap: 9px;
+      font-size: 12.2px;
+      box-shadow: none;
+      background: var(--soft);
+    }
+
+    .chooser-3d.c3-extra .c3-icon { width: 22px; height: 22px; }
+    .chooser-3d.c3-extra .c3-icon svg { width: 13px; height: 13px; }
 
     .chooser-templates {
       display: flex;
@@ -9447,17 +9484,34 @@
       if (typeof WS_CATALOG === "undefined" || !WS_CATALOG[mode]) return "";
       const covered = WS_CHOOSER_COVERS[mode] || [];
       const hasCode = typeof currentCodeState !== "undefined" && currentCodeState && currentCodeState.code;
-      const rows = WS_CATALOG[mode].groups
+      const extras = WS_CATALOG[mode].groups
         .flatMap(g => g.tasks)
-        .filter(t => t.ready && !covered.includes(t.id) && !(t.needsCode && !hasCode))
-        .map(t => `
-          <button onclick="wsChooseTask('${mode}','${t.id}', this)">
-            <span class="c3-icon">${t.icon}</span>
-            <span>${escapeHtml(t.name)}<span class="c3-sub">${escapeHtml(t.sub)}</span></span>
+        .filter(t => t.ready && !covered.includes(t.id) && !(t.needsCode && !hasCode));
+      if (!extras.length) return "";
+
+      // Folded away by default. The three above are how most of this gets
+      // started; the rest is a list you go looking for, not one you read
+      // past every time.
+      const rows = extras.map(t => `
+          <button title="${escapeHtml(t.sub)}" onclick="wsChooseTask('${mode}','${t.id}', this)">
+            <span class="c3-icon">${t.icon}</span><span>${escapeHtml(t.name)}</span>
           </button>`).join("");
-      if (!rows) return "";
-      return `<div class="c3-more-label">or work on something you already have</div>
-              <div class="chooser-3d chooser-more">${rows}</div>`;
+      return `<button class="c3-more" type="button" onclick="wsToggleMore(this)">
+                ${WS_ICONS.chevron}<span>${extras.length} more ways</span>
+              </button>
+              <div class="chooser-3d c3-extra" hidden>${rows}</div>`;
+    }
+
+    function wsToggleMore(btn) {
+      const list = btn.nextElementSibling;
+      if (!list) return;
+      const open = list.hidden;
+      list.hidden = !open;
+      btn.classList.toggle("on", open);
+      btn.querySelector("span").textContent = open
+        ? "fewer ways"
+        : list.querySelectorAll("button").length + " more ways";
+      if (open && typeof scrollFeedToBottom === "function") setTimeout(scrollFeedToBottom, 60);
     }
 
     // These have no composer flow of their own — their setup is a form, and
@@ -9465,7 +9519,7 @@
     function wsChooseTask(mode, taskId, btnEl) {
       if (btnEl) {
         const group = btnEl.closest(".bot-body") || btnEl.closest(".msg-bubble");
-        if (group) group.querySelectorAll(".chooser-3d button").forEach(b => { b.disabled = true; b.classList.remove("chosen"); });
+        if (group) group.querySelectorAll(".chooser-3d button, .c3-more").forEach(b => { b.disabled = true; b.classList.remove("chosen"); });
         btnEl.classList.add("chosen");
       }
       if (typeof pendingChoiceMessage !== "undefined" && pendingChoiceMessage) {
@@ -9531,7 +9585,7 @@
       if (typeof expandComposer === 'function') expandComposer();
       if (pendingChoiceMessage) pendingChoiceMessage.payload.selectedOption = method;
       const group = btnEl.closest(".bot-body") || btnEl.closest(".chooser-3d");
-      group.querySelectorAll(".chooser-3d button").forEach(b => { b.disabled = true; b.classList.remove("chosen"); });
+      group.querySelectorAll(".chooser-3d button, .c3-more").forEach(b => { b.disabled = true; b.classList.remove("chosen"); });
       btnEl.classList.add("chosen");
 
       currentMethod = method;
@@ -10531,7 +10585,7 @@
       if (typeof expandComposer === 'function') expandComposer();
       if (pendingChoiceMessage) pendingChoiceMessage.payload.selectedOption = choice;
       const group = btnEl.closest(".bot-body") || btnEl.closest(".chooser-3d");
-      group.querySelectorAll(".chooser-3d button").forEach(b => { b.disabled = true; b.classList.remove("chosen"); });
+      group.querySelectorAll(".chooser-3d button, .c3-more").forEach(b => { b.disabled = true; b.classList.remove("chosen"); });
       btnEl.classList.add("chosen");
 
       const promptEl = document.getElementById("prompt");
