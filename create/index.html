@@ -6293,7 +6293,21 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      /* A flex item will not shrink below its content by default, and a long
+         line of Lua is very wide content. Without this the script pushes the
+         card past the column it was given. */
+      min-width: 0;
     }
+
+    .ws-preview > .msg,
+    .ws-preview > .msg > .msg-bubble { min-width: 0; max-width: 100%; }
+
+    /* A UI card carries a 16:9 picture on one side and a script on the other.
+       Letting it size to its contents would make it jump between the two, so
+       for this one result it takes the column. */
+    .ws-preview.ws-wide,
+    .ws-preview.ws-wide > .msg,
+    .ws-preview.ws-wide > .msg > .msg-bubble { width: 100%; display: block; }
 
     .ws-side {
       display: flex;
@@ -6651,6 +6665,10 @@
       border: 1px solid var(--border);
       border-radius: var(--radius-md);
       overflow: hidden;
+      /* One width for both sides of the switch: the card should not jump
+         when you look at the script instead of the picture. */
+      width: 100%;
+      min-width: 0;
       background: color-mix(in srgb, var(--card) 70%, transparent);
     }
 
@@ -6679,9 +6697,10 @@
     .ui-tab:hover { color: var(--text); }
     .ui-tab.on { background: var(--accent); color: var(--on-accent, #fff); }
 
-    .ui-pane { padding: 10px; }
+    .ui-pane { padding: 10px; min-width: 0; max-width: 100%; }
     .ui-pane[hidden] { display: none; }
-    .ui-pane-code { padding: 0; }
+    .ui-pane-code { overflow-x: hidden; }
+    .ui-pane-code .md-p:first-child { margin-top: 0; }
 
     .ui-screen {
       position: relative;
@@ -7292,7 +7311,7 @@
                         <circle cx="8.5" cy="8.5" r="1.5" />
                         <polyline points="21 15 16 10 5 21" />
                       </svg>
-                      <span id="modeAttachPillText">Attach screenshot</span>
+                      <span id="modeAttachPillText">Attach an image</span>
                     </button>
                   </div>
 
@@ -7425,7 +7444,7 @@
       chat: { label: "Chat", icon: ICONS.chat, hint: "Tell me what you need - I'll figure out the intent and suggest a generation." },
       image: { label: "Image", icon: ICONS.icon, hint: "Choose a creation method in the message below." },
       model3d: { label: "3D Model", icon: ICONS.cube, hint: "Choose how you want to create the 3D model." },
-      ui2lua: { label: "UI → Lua", icon: ICONS.layout, hint: "Upload a Roblox UI screenshot — I'll create a responsive LUA script that recreates it." },
+      ui2lua: { label: "UI → Lua", icon: ICONS.layout, hint: "A picture of an interface, a description, or blocks you arrange — each becomes a responsive LUA script." },
       code: { label: "Code", icon: ICONS.code, hint: "Describe what the script should do. I can also add functions to existing code." }
     };
 
@@ -9506,6 +9525,7 @@
         if (dzRef) dzRef.style.display = "none";
         if (modeAttachWrap) modeAttachWrap.style.display = "none";
         if (typeof clearRefImage === 'function') clearRefImage();
+        uiMethod = null;
         if (flowState !== "busy") {
           flowState = "choose_method";
           if (!opts.skipAutoChooser && typeof appendModeChooser === 'function') {
@@ -9642,10 +9662,10 @@
         if (badge) badge.textContent = "Required";
         if (pillText) pillText.textContent = mainImage ? "✓ 3D Reference attached" : "Attach 3D reference";
       } else if (activeForceMode === "ui2lua") {
-        if (label) label.textContent = "UI Screenshot";
-        if (sub) sub.textContent = "Upload Roblox UI image to recreate as script";
+        if (label) label.textContent = "Interface image";
+        if (sub) sub.textContent = "A screenshot, mockup or render to rebuild as a script";
         if (badge) badge.textContent = "Required";
-        if (pillText) pillText.textContent = mainImage ? "✓ UI Screenshot attached" : "Attach UI screenshot";
+        if (pillText) pillText.textContent = mainImage ? "✓ Interface image attached" : "Attach the interface image";
       } else if (currentMethod === "style") {
         if (label) label.textContent = "Content Image";
         if (sub) sub.textContent = "Base image that will receive the new style";
@@ -9675,7 +9695,7 @@
         // frame work from the first click, so they open it directly.
         html = `
         <div class="chooser-3d">
-          <button onclick="chooseUiMethod('shot', this)"><span class="c3-icon">${ICONS.upload}</span><span>From a screenshot<span class="c3-sub">A picture of the UI → a responsive Lua build script</span></span></button>
+          <button onclick="chooseUiMethod('shot', this)"><span class="c3-icon">${ICONS.upload}</span><span>Image → UI<span class="c3-sub">A picture of an interface → a responsive Lua build script</span></span></button>
           <button onclick="wsChooseTask('ui2lua','u-idea', this)"><span class="c3-icon">${WS_ICONS.idea}</span><span>Describe the interface<span class="c3-sub">Say what it should be — it gets designed as well as built</span></span></button>
           <button onclick="wsChooseTask('ui2lua','u-blocks', this)"><span class="c3-icon">${WS_ICONS.layout}</span><span>Lay it out with blocks<span class="c3-sub">Arrange the screen yourself, draw over it, then have it built</span></span></button>
         </div>`;
@@ -9804,6 +9824,22 @@
         return;
       }
 
+      // UI -> Lua has its own methods, so it must not fall through to the
+      // image ones below: currentMethod is left over from whatever the image
+      // mode last did, and it was hiding the dropzone the picture goes in.
+      if (activeForceMode === "ui2lua") {
+        const wantsImage = uiMethod === "shot";
+        if (dropzoneRow) dropzoneRow.style.display = wantsImage ? "flex" : "none";
+        if (dzRef) dzRef.style.display = "none";
+        if (modeAttachWrap) modeAttachWrap.style.display = wantsImage ? "block" : "none";
+        if (wantsImage) updateDropzoneLabels();
+        document.getElementById("composerHint").textContent = wantsImage
+          ? "Add the interface image. Extra hints are optional."
+          : FORCE_MODE_INFO.ui2lua.hint;
+        if (isComposerExpanded && typeof syncComposerLayout === 'function') syncComposerLayout();
+        return;
+      }
+
       if (currentMethod === "text") {
         if (dropzoneRow) dropzoneRow.style.display = "none";
         if (dzRef) dzRef.style.display = "none";
@@ -9847,7 +9883,11 @@
       promptEl.focus();
     }
 
-    // The screenshot route runs in the composer, exactly as UI -> Lua always
+    // Which of this mode's routes the composer is set up for. Only "shot"
+    // runs there; the other two are frame work from the first click.
+    let uiMethod = null;
+
+    // The picture route runs in the composer, exactly as UI -> Lua always
     // has: drop a picture in, add hints, send. Only the way in changed.
     function chooseUiMethod(method, btnEl) {
       if (typeof _composerLockUntil !== 'undefined') _composerLockUntil = Date.now() + 600;
@@ -9859,13 +9899,9 @@
         btnEl.classList.add("chosen");
       }
 
+      uiMethod = method;
       flowState = "awaiting_input";
       const promptEl = document.getElementById("prompt");
-      const dropzoneRow = document.getElementById("dropzoneRow");
-      const modeAttachWrap = document.getElementById("modeAttachPillWrap");
-      if (dropzoneRow) dropzoneRow.style.display = "flex";
-      if (modeAttachWrap) modeAttachWrap.style.display = "block";
-      if (typeof updateDropzoneLabels === 'function') updateDropzoneLabels();
       if (promptEl) promptEl.placeholder = "Optional extra hints…";
       applyFlowComposerState();
       if (promptEl) promptEl.focus();
@@ -10220,7 +10256,7 @@
 
     async function sendUiToLua() {
       if (!currentUser) { document.getElementById("signInBtn").click(); return; }
-      if (!mainImage) { alert("First upload a UI screenshot you want to recreate as a script."); return; }
+      if (!mainImage) { alert("First add the interface image you want rebuilt as a script."); return; }
       if ((tokenBalance ?? 0) < 2) { openBuyModal(); return; }
 
       const promptEl = document.getElementById("prompt");
@@ -11609,7 +11645,7 @@
       closeAllDropdowns();
     }
 
-    // Which model reads the screenshot. Kept next to the code-model pill so
+    // Which model reads the design. Kept next to the code-model pill so
     // the choice sits where every other model choice in the composer does.
     let selectedUiModel = "gemini";
 
@@ -11821,12 +11857,12 @@
       },
       ui2lua: {
         title: "Build a UI",
-        lead: "A screenshot, a description, or a layout you arrange yourself — each one comes back as the script that builds it and a preview of how it looks.",
+        lead: "A picture, a description, or a layout you arrange yourself — each one comes back as the script that builds it and a preview of how it looks.",
         groups: [
           {
-            title: "From something you have",
+            title: "From a picture",
             tasks: [
-              { id: "u-shot", name: "From a screenshot", sub: "A picture of the UI becomes a responsive Lua build script.", icon: WS_ICONS.photo, ready: true }
+              { id: "u-shot", name: "Image → UI", sub: "A picture of an interface becomes a responsive Lua build script.", icon: WS_ICONS.photo, ready: true }
             ]
           },
           {
@@ -12316,7 +12352,7 @@
           return [{ key: "prompt", type: "area", label: "Anything specific", ph: "Optional — or leave it and I walk through the whole thing." }];
         case "u-shot":
           return [
-            { key: "image", type: "image", label: "UI screenshot", required: true },
+            { key: "image", type: "image", label: "The interface to rebuild", required: true, note: "A screenshot, a mockup, a render — anything that shows the layout." },
             { key: "uimodel", type: "uimodel", label: "Model" },
             { key: "preview", type: "toggle", label: "Show it as well as script it", note: "Renders the same interface in HTML so you can look at it before you paste anything into Studio." },
             { key: "prompt", type: "area", label: "Extra hints", ph: "Optional — behaviour the picture cannot show." }
@@ -13088,7 +13124,7 @@
       return {
         html: `<div class="ws-result">
                  <div>
-                   <div class="ws-preview ws-rise ${folded ? "ws-flat ws-folded" : ""}" id="wsPreview">${preview}</div>
+                   <div class="ws-preview ws-rise ${folded ? "ws-flat ws-folded" : ""} ${r.kind === "uilua" && r.previewHtml ? "ws-wide" : ""}" id="wsPreview">${preview}</div>
                    ${folded ? `<button class="ws-unfold" type="button" id="wsUnfold" hidden onclick="wsToggleFold(this)">
                      ${WS_ICONS.chevron}<span>show the rest</span></button>` : ""}
                  </div>
@@ -13437,7 +13473,7 @@
     // rather than lending the composer its text, because a layout and a model
     // choice have nowhere to sit in a composer.
     const WS_UI_LABELS = {
-      "u-shot": { busy: "Reading the screenshot…", said: "Rebuild this UI as a script" },
+      "u-shot": { busy: "Reading the interface…", said: "Rebuild this UI as a script" },
       "u-idea": { busy: "Designing the interface…", said: "" },
       "u-blocks": { busy: "Building your layout…", said: "Build this layout as a UI" }
     };
@@ -13521,8 +13557,12 @@
       const root = document.getElementById(id);
       if (!root) return;
       root.querySelectorAll(".ui-tab").forEach((b, i) => b.classList.toggle("on", i === (which === "preview" ? 0 : 1)));
+      const code = root.querySelector(".ui-pane-code");
       root.querySelector(".ui-pane-preview").hidden = which !== "preview";
-      root.querySelector(".ui-pane-code").hidden = which !== "code";
+      code.hidden = which !== "code";
+      // The script starts on the hidden side of the switch, where it has no
+      // width to be measured against, so it is sized the moment it is shown.
+      if (which === "code" && typeof fitCodeBlocks === "function") fitCodeBlocks(code);
     }
 
     // generateImage, sendUiToLua and friends take their text from the
