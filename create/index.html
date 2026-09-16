@@ -7281,11 +7281,11 @@
 
                   <div style="position: relative; display:none;" id="ui2luaSelectorWrap">
                     <button class="ui-pill-btn" onclick="toggleDropdown('ui2luaDropdown', event)">
-                      <span id="activeUiModelLabel">Gemini 3.8 Flash</span>
+                      <span id="activeUiModelLabel">GPT-5.6 Luna</span>
                     </button>
                     <div class="ui-dropdown" id="ui2luaDropdown">
-                      <button class="ui-dropdown-item" onclick="selectUiModel('gemini', event)">Gemini 3.8 Flash</button>
                       <button class="ui-dropdown-item" onclick="selectUiModel('luna', event)">GPT-5.6 Luna</button>
+                      <button class="ui-dropdown-item" onclick="selectUiModel('gemini', event)">Gemini 3.8 Flash</button>
                     </div>
                   </div>
 
@@ -7459,8 +7459,8 @@
     // Reading a design and writing the script for it is one job, so the two
     // models offered here are the two that can look at a picture. DeepSeek
     // is not among them — it has no eyes.
-    const UI_MODEL_LABELS = { gemini: "Gemini 3.8 Flash", luna: "GPT-5.6 Luna" };
-    const WS_UI_DEFAULT_MODEL = "gemini";
+    const UI_MODEL_LABELS = { luna: "GPT-5.6 Luna", gemini: "Gemini 3.8 Flash" };
+    const WS_UI_DEFAULT_MODEL = "luna";
     function codeModelBadgeHtml(model, pricingNote) {
       if (!model) return "";
       const label = CODE_MODEL_LABELS[model] || model;
@@ -11647,7 +11647,7 @@
 
     // Which model reads the design. Kept next to the code-model pill so
     // the choice sits where every other model choice in the composer does.
-    let selectedUiModel = "gemini";
+    let selectedUiModel = WS_UI_DEFAULT_MODEL;
 
     function selectUiModel(model, event) {
       if (event) event.stopPropagation();
