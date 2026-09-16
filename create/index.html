@@ -1782,12 +1782,8 @@
       padding: 0 30px;
       display: flex;
       flex-direction: column;
-      gap: 26px;
+      gap: 20px;
     }
-
-    /* An ask and what came back are one exchange, so they sit together and
-       the air goes between exchanges instead of being spread evenly. */
-    .feed-inner .msg-user + .msg-bot { margin-top: -16px; }
 
     .welcome {
       max-width: 480px;
@@ -1844,10 +1840,6 @@
       border-radius: 999px;
     }
 
-    /* Nobody comes here to converse — they come to walk away with a file.
-       So the made thing gets the only frame in the column, what you asked
-       for sits above it as a caption, and plain talk is just text on the
-       page. Left and right already say who spoke; avatars said it twice. */
     .msg {
       display: flex;
       gap: 11px;
@@ -1857,8 +1849,6 @@
     .msg-user {
       flex-direction: row-reverse;
     }
-
-    .msg .msg-avatar { display: none; }
 
     .msg-avatar {
       width: 28px;
@@ -1896,38 +1886,29 @@
       max-width: 78%;
     }
 
-    /* --ink is the text colour, and it was being used here as a surface.
-       In the dark theme that made the bubble lilac with white text on it,
-       at about 2:1. A surface and its text have to be a matched pair. */
     .msg-user .msg-bubble {
-      background: var(--soft);
-      border: 1px solid var(--border);
-      color: var(--ink);
-      border-radius: var(--radius-md);
-      padding: 10px 14px;
-      font-size: 13.6px;
+      background: var(--ink);
+      color: #fff;
+      border-radius: 14px 14px 3px 14px;
+      padding: 11px 15px;
+      font-size: 13.8px;
       line-height: 1.55;
-      max-width: 62%;
     }
 
     .msg-user .msg-meta {
-      font-family: var(--font-mono);
       font-size: 10.5px;
-      color: var(--ink-faint);
-      margin-top: 5px;
+      color: rgba(255, 255, 255, 0.6);
+      margin-top: 6px;
       display: flex;
       gap: 8px;
       justify-content: flex-end;
     }
 
-    .msg-user .msg-meta:empty,
-    .msg-user .msg-meta span:empty { display: none; }
-
     .chat-image-chip {
       display: flex;
       align-items: center;
       gap: 8px;
-      background: var(--soft-2);
+      background: rgba(255, 255, 255, 0.14);
       border-radius: 9px;
       padding: 5px 6px;
       margin-bottom: 8px;
@@ -1946,19 +1927,12 @@
       opacity: .9;
     }
 
-    /* The assistant's replies carry objects that already have a frame of
-       their own — a code block, a result, a preview. A card around them
-       was a card inside a card, and a card around "Any time." was
-       ceremony around nothing. */
     .msg-bot .msg-bubble {
-      background: transparent;
-      border: 0;
-      border-radius: 0;
-      padding: 0;
-      box-shadow: none;
-      max-width: 100%;
-      min-width: 0;
-      flex: 1 1 auto;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 5px 15px 15px 15px;
+      padding: 15px 16px;
+      box-shadow: var(--shadow-sm);
     }
 
     .bot-text {
@@ -2008,11 +1982,7 @@
     }
 
     .progress-track {
-      /* It used to be as wide as the bubble around it. With the bubble gone
-         it needs its own measure, or it reads as a rule across the page
-         rather than as progress on the line above. */
       width: 100%;
-      max-width: 320px;
       height: 4px;
       background: var(--soft-2);
       border-radius: 4px;
@@ -2029,19 +1999,10 @@
 
     .result-frame-wrap {
       display: flex;
-      align-items: center;
-      gap: 14px;
+      align-items: flex-start;
+      gap: 16px;
       flex-wrap: wrap;
       margin-top: 10px;
-    }
-
-    /* Older results shrink back to a line in the record: the thing, what it
-       was, and the one thing you still want from it. */
-    .result-frame-wrap:not(:has(.result-frame.latest)):not(:has(.model-frame)) .result-meta {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      flex-wrap: wrap;
     }
 
     .result-frame-wrap:first-child {
@@ -2084,72 +2045,32 @@
       display: block;
     }
 
-    /* The newest result is the thing the whole screen is for, so it stops
-       being a thumbnail beside some buttons and becomes the object: one
-       card, the width of the column, with its facts and its actions along
-       the bottom edge where they belong to it. */
     .result-frame.latest {
-      width: 100%;
-      height: auto;
-      aspect-ratio: 1 / 1;
+      width: 320px;
+      height: 320px;
       max-width: 100%;
-      border: 0;
-      border-radius: 0;
-      box-shadow: none;
-      background: var(--soft);
+      box-shadow: var(--shadow-lg);
+      border: 1px solid var(--soft-2);
     }
 
-    .result-frame.t-square.latest,
-    .result-frame.t-pass.latest,
-    .result-frame.t-wide.latest { border-radius: 0; }
-
-    .result-frame.t-wide.latest { aspect-ratio: 3 / 2; }
-
-    .result-frame.t-circle.latest,
-    .result-frame.t-hex.latest {
-      width: min(320px, 100%);
-      margin: 18px auto;
+    .result-frame.t-wide.latest {
+      width: min(420px, 100%);
+      height: calc(min(420px, 100%) * 0.667);
     }
 
-    .result-frame.t-circle.latest { border-radius: 50%; }
-
-    .result-frame-wrap:has(.result-frame.latest),
-    .result-frame-wrap:has(.model-frame) {
+    .result-frame-wrap:has(.result-frame.latest) {
       flex-direction: column;
-      gap: 0;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      overflow: hidden;
-      background: var(--card);
-      box-shadow: var(--shadow-md);
-      max-width: 400px;
-    }
-
-    .result-frame-wrap:has(.result-frame.latest) .result-meta,
-    .result-frame-wrap:has(.model-frame) .result-meta {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex-wrap: wrap;
-      width: 100%;
-      padding: 11px 13px;
-      border-top: 1px solid var(--border);
-      background: var(--card);
-    }
-
-    .result-frame-wrap:has(.result-frame.latest) .result-actions,
-    .result-frame-wrap:has(.model-frame) .result-actions {
-      margin: 0 0 0 auto;
+      gap: 12px;
     }
 
     .model-frame {
-      width: 100%;
+      width: 280px;
       max-width: 100%;
       aspect-ratio: 1/1;
-      border-radius: 0;
+      border-radius: 14px;
       overflow: hidden;
-      border: 0;
-      box-shadow: none;
+      border: 1px solid var(--soft-2);
+      box-shadow: var(--shadow-lg);
       background: var(--soft-2);
     }
 
@@ -2158,21 +2079,26 @@
       height: 100%;
     }
 
+    .result-frame-wrap:has(.model-frame) {
+      flex-direction: column;
+      gap: 12px;
+    }
+
     .result-meta {
       padding-top: 2px;
     }
 
-    /* Mono is this app's machine voice: it carries counts, formats and
-       ids. A pill border around one word was decoration. */
     .result-meta .r-tag {
-      font-family: var(--font-mono);
       font-size: 11px;
       font-weight: 600;
       color: var(--ink-muted);
+      background: var(--soft);
+      margin-bottom: 10px;
       display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
     }
-
-
 
     .result-actions {
       display: flex;
@@ -2204,15 +2130,14 @@
     }
 
     .result-actions button.primary {
-      background: var(--accent);
-      border-color: var(--accent);
-      color: var(--on-accent);
+      background: var(--ink);
+      border-color: var(--ink);
+      color: #fff;
     }
 
     .result-actions button.primary:hover {
-      background: var(--accent-deep);
-      border-color: var(--accent-deep);
-      color: var(--on-accent);
+      background: #34322D;
+      color: #fff;
     }
 
     .analysis-box {
@@ -2421,6 +2346,11 @@
        between the two halves of the list is a label, not another line of
        the assistant talking. */
     .msg-bot:has(.chooser-3d) .bot-body> :not(.chooser-3d):not(.c3-more) {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 5px 15px 15px 15px;
+      padding: 13px 16px;
+      box-shadow: var(--shadow-sm);
       max-width: 100%;
     }
 
@@ -3858,10 +3788,8 @@
       aspect-ratio: 1/1;
       border-radius: 8px;
       overflow: hidden;
-      /* These were white overlays for the old near-black bubble. The bubble
-         is a light surface now, so they take the theme's own border. */
-      border: 1px solid var(--border);
-      background: var(--soft-2);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.1);
     }
 
     .msg-attach-grid .ag-item img {
@@ -9053,10 +8981,6 @@
       const promptText = (m.prompt || "").trim();
       const hasInputImage = !!m.inputThumbnail;
       const imageChip = hasInputImage ? `<div class="msg-attach-grid"><div class="ag-item"><img src="${m.inputThumbnail}" alt=""></div></div>` : "";
-      // A chooser has no prompt behind it, so there is nothing for the
-      // "you" side to show; a chip holding only a category label is not a
-      // turn anyone took.
-      const saidSomething = !!(promptText || hasInputImage);
       userMsg.innerHTML = `
       <div class="msg-avatar"><img src="${currentUser && currentUser.photoURL ? currentUser.photoURL : ""}" alt=""></div>
       <div class="msg-bubble">
@@ -9065,7 +8989,7 @@
         <div class="msg-meta"><span>${historyBadge(m)}</span></div>
       </div>
     `;
-      if (saidSomething) inner.appendChild(userMsg);
+      inner.appendChild(userMsg);
 
       const botMsg = document.createElement("div");
       botMsg.className = "msg msg-bot";
@@ -9133,14 +9057,10 @@
       }
     }
 
-    // One fact each, and no overlap: the result carries what it is, so the
-    // ask above it carries only how it was made. A plain message needs no
-    // label saying it was a message.
     function historyBadge(m) {
-      if (m.type === "text") return "";
-      if (m.type === "model3d") return "";
-      const how = methodShortLabel(m.mode);
-      return how ? String(how).toLowerCase() : "";
+      if (m.type === "text") return "Chat";
+      if (m.type === "model3d") return "Model 3D";
+      return categoryLabel(m.category) + " · " + methodShortLabel(m.mode);
     }
 
     function categoryLabel(cat) { return cat === "thumbnail" ? "Thumbnail" : "Icon"; }
