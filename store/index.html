@@ -1485,9 +1485,19 @@
       appId: "1:757756598032:web:938b366449268558e13795"
     };
 
-    document.getElementById("brandMark").innerHTML = ICONS.ropeak;
-    document.getElementById("signOutIcon").innerHTML = ICONS.power;
-    document.getElementById("eyebrowIcon").innerHTML = ICONS.spark;
+    // These run at the top level, so one missing element used to throw here
+    // and stop the rest of the script dead — which left every const below
+    // undeclared and turned a cosmetic markup change into "Cannot access
+    // currentUser before initialization" on the first click.
+    function paintIcon(id, svg) {
+      const el = document.getElementById(id);
+      if (el) el.innerHTML = svg;
+      else console.warn("No element to draw the icon into:", id);
+    }
+
+    paintIcon("brandMark", ICONS.ropeak);
+    paintIcon("signOutIcon", ICONS.power);
+    paintIcon("eyebrowIcon", ICONS.spark);
 
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
