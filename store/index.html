@@ -57,6 +57,9 @@
 
   <style>
     :root {
+      /* Label colour for accent-filled surfaces. The dark theme lightens
+         the accent, where white text drops to 2.8:1, so it flips to ink. */
+      --on-accent: #ffffff;
       --bg: #FAFAF9;
       --card: #FFFFFF;
       --soft: #F4F3F1;
@@ -95,6 +98,9 @@
     }
 
     [data-theme="dark"] {
+      /* Label colour for accent-filled surfaces. The dark theme lightens
+         the accent, where white text drops to 2.8:1, so it flips to ink. */
+      --on-accent: #17161A;
       --bg: #17161A;
       --card: #1F1E23;
       --soft: #26252B;
@@ -121,6 +127,9 @@
     }
 
     [data-theme="sea"] {
+      /* Label colour for accent-filled surfaces. The dark theme lightens
+         the accent, where white text drops to 2.8:1, so it flips to ink. */
+      --on-accent: #ffffff;
       --bg: #F3F7F9;
       --card: #FFFFFF;
       --soft: #E7EFF3;
@@ -147,6 +156,9 @@
     }
 
     [data-theme="forest"] {
+      /* Label colour for accent-filled surfaces. The dark theme lightens
+         the accent, where white text drops to 2.8:1, so it flips to ink. */
+      --on-accent: #ffffff;
       --bg: #F5F7F2;
       --card: #FFFFFF;
       --soft: #EAEEE3;
@@ -173,6 +185,9 @@
     }
 
     [data-theme="sun"] {
+      /* Label colour for accent-filled surfaces. The dark theme lightens
+         the accent, where white text drops to 2.8:1, so it flips to ink. */
+      --on-accent: #ffffff;
       --bg: #FCF8F1;
       --card: #FFFFFF;
       --soft: #F5EDDC;
@@ -356,8 +371,8 @@
     }
 
     .store-nav-link.active {
-      color: #fff;
-      background: var(--ink);
+      color: var(--on-accent);
+      background: var(--accent);
     }
 
     .nav-right {
@@ -533,35 +548,11 @@
       margin: 0 auto;
     }
 
-    /* ---------------- Hero (editorial, matches tokens hero) ---------------- */
+    /* One spine down the page. The head block, the filters and the grid used
+       to sit in three different column widths (760, 1040, 1280), so the eye
+       had to re-find where the content started three times. */
     .store-hero {
-      max-width: 760px;
-      margin: 0 auto;
-      text-align: center;
-      padding: 40px 24px 8px;
-    }
-
-    .hero-eyebrow {
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      font-family: var(--font-mono);
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: .06em;
-      text-transform: uppercase;
-      color: var(--ink-faint);
-      background: var(--soft);
-      border: 1px solid var(--border);
-      padding: 6px 12px;
-      border-radius: 999px;
-      margin-bottom: 18px;
-    }
-
-    .hero-eyebrow svg {
-      width: 12px;
-      height: 12px;
-      color: var(--accent);
+      padding: 34px 0 4px;
     }
 
     .sh-title {
@@ -578,14 +569,13 @@
       color: var(--ink-muted);
       font-size: 14px;
       line-height: 1.6;
-      max-width: 480px;
-      margin: 0 auto;
+      max-width: 52ch;
+      margin: 0;
     }
 
     /* ---------------- Filters ---------------- */
     .store-filters {
-      max-width: 1040px;
-      margin: 30px auto 6px;
+      margin: 26px 0 6px;
       display: flex;
       flex-direction: column;
       gap: 14px;
@@ -690,9 +680,9 @@
     }
 
     .cat-pill.active {
-      background: var(--ink);
-      color: #fff;
-      border-color: var(--ink);
+      background: var(--accent);
+      color: var(--on-accent);
+      border-color: var(--accent);
     }
 
     /* ---------------- Asset grid ---------------- */
@@ -712,7 +702,6 @@
       flex-direction: column;
       transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
       cursor: pointer;
-      animation: floatUp .25s ease both;
     }
 
     .asset-card:hover {
@@ -780,8 +769,10 @@
     .asset-stats span {
       display: flex;
       align-items: center;
-      gap: 3px;
+      gap: 4px;
     }
+
+    .asset-stats svg { width: 12px; height: 12px; }
 
     .asset-stats svg {
       width: 11px;
@@ -1106,8 +1097,8 @@
     .detail-buy-btn {
       width: 100%;
       padding: 13px;
-      background: var(--ink);
-      color: #fff;
+      background: var(--accent);
+      color: var(--on-accent);
       border: none;
       border-radius: 999px;
       font-size: 14px;
@@ -1167,8 +1158,12 @@
       bottom: 22px;
       left: 50%;
       transform: translateX(-50%) translateY(12px);
-      background: var(--ink);
-      color: #fff;
+      /* --ink is the text colour, so using it as a surface made this lilac
+         with white on it in the dark theme. A raised card reads in all of
+         them. */
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--ink);
       font-size: 12.5px;
       font-weight: 600;
       padding: 11px 18px;
@@ -1188,6 +1183,8 @@
 
     .status-toast.error {
       background: var(--coral);
+      border-color: var(--coral);
+      color: #fff;
     }
 
     /* ---------------- Responsive ---------------- */
@@ -1300,10 +1297,8 @@
         <div class="store-content-inner">
 
           <div class="store-hero">
-            <div class="hero-eyebrow"><span id="eyebrowIcon"></span>Community Store</div>
-            <h1 class="sh-title">Discover premium community assets</h1>
-            <p class="sh-sub">High‑quality 3D models, props and UI scripts made by the RoPeak community — ready to drop
-              into your Roblox experience.</p>
+            <h1 class="sh-title">Assets from the community</h1>
+            <p class="sh-sub">Models, props and UI scripts you can drop straight into a place.</p>
           </div>
 
           <div class="store-filters">
@@ -1657,6 +1652,15 @@
       };
     }
 
+    // The stats sat in the card as raw star and arrow glyphs while every
+    // other mark on the page is a drawn icon. These match the rest of the
+    // set. Declared as a function so a card can still draw itself if
+    // something earlier in this script threw.
+    function storeStatIcon(kind) {
+      if (kind === "likes") return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M12 20s-7-4.4-7-9.3A4 4 0 0 1 12 8a4 4 0 0 1 7 2.7C19 15.6 12 20 12 20Z"/></svg>`;
+      return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11m0 0 4-4m-4 4-4-4M5 19h14"/></svg>`;
+    }
+
     function renderAssets(assets, containerId) {
       const container = document.getElementById(containerId);
       if (!assets || assets.length === 0) {
@@ -1678,11 +1682,11 @@
           <div class="asset-meta">
             ${a.owned
           ? '<span class="asset-owned-badge">Owned</span>'
-          : `<span class="asset-price">${a.priceTokens} T</span>`
+          : `<span class="asset-price">${a.priceTokens} tokens</span>`
         }
             <div class="asset-stats">
-              <span>★ ${a.likesCount || 0}</span>
-              <span>⬇ ${a.salesCount || 0}</span>
+              <span title="${a.likesCount || 0} likes">${storeStatIcon("likes")}${a.likesCount || 0}</span>
+              <span title="${a.salesCount || 0} downloads">${storeStatIcon("sales")}${a.salesCount || 0}</span>
             </div>
           </div>
         </div>
