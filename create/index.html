@@ -7262,10 +7262,10 @@
 
                   <div style="position: relative; display:none;" id="ui2luaSelectorWrap">
                     <button class="ui-pill-btn" onclick="toggleDropdown('ui2luaDropdown', event)">
-                      <span id="activeUiModelLabel">Gemini 3.6 Flash</span>
+                      <span id="activeUiModelLabel">Gemini 3.8 Flash</span>
                     </button>
                     <div class="ui-dropdown" id="ui2luaDropdown">
-                      <button class="ui-dropdown-item" onclick="selectUiModel('gemini', event)">Gemini 3.6 Flash</button>
+                      <button class="ui-dropdown-item" onclick="selectUiModel('gemini', event)">Gemini 3.8 Flash</button>
                       <button class="ui-dropdown-item" onclick="selectUiModel('luna', event)">GPT-5.6 Luna</button>
                     </div>
                   </div>
@@ -7440,7 +7440,7 @@
     // Reading a design and writing the script for it is one job, so the two
     // models offered here are the two that can look at a picture. DeepSeek
     // is not among them — it has no eyes.
-    const UI_MODEL_LABELS = { gemini: "Gemini 3.6 Flash", luna: "GPT-5.6 Luna" };
+    const UI_MODEL_LABELS = { gemini: "Gemini 3.8 Flash", luna: "GPT-5.6 Luna" };
     const WS_UI_DEFAULT_MODEL = "gemini";
     function codeModelBadgeHtml(model, pricingNote) {
       if (!model) return "";
