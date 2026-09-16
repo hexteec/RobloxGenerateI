@@ -12584,10 +12584,13 @@
           });
           if (!res.ok) throw new Error(await wsApiError(res, "/tripo/upload"));
           const data = await res.json();
-          if (!data.fileToken) throw new Error("The upload came back without a file token.");
+          // The worker answers with the address the file is now served
+          // from; older workers called the same thing a file token.
+          const ref = data.ref || data.fileToken;
+          if (!ref) throw new Error("The upload came back without anything to point at.");
           if (!wsState) return;
           wsState.cfg[key + "Name"] = file.name;
-          wsSet(key, data.fileToken);
+          wsSet(key, ref);
         } catch (e) {
           if (!wsState) return;
           wsState.cfg[key + "Name"] = "";
