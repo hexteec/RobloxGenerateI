@@ -12805,13 +12805,33 @@
     // The worker answers an unknown path with an empty error object, which
     // arrives as {"error":""} and explains nothing. These routes are new, so
     // a 404 has exactly one cause worth naming.
+    // A 404 can mean two very different things: the worker has no such route,
+    // or the route is there and whatever it called upstream answered 404. The
+    // worker's own catch-all replies with the bare text "Not Found", so that
+    // is the only 404 worth blaming the worker for — everything else has to
+    // say what actually went wrong, however deeply it is wrapped.
+    function wsUnwrapError(body) {
+      let cur = String(body == null ? "" : body).trim();
+      for (let i = 0; i < 4; i++) {
+        if (!cur.startsWith("{") && !cur.startsWith("[")) break;
+        let parsed;
+        try { parsed = JSON.parse(cur); } catch (e) { break; }
+        const next = parsed && (parsed.error ?? parsed.message ?? parsed.detail);
+        if (next == null) break;
+        cur = typeof next === "string" ? next.trim() : JSON.stringify(next);
+      }
+      return cur;
+    }
+
     async function wsApiError(res, route) {
-      if (res.status === 404) {
+      if (res.status === 402) openBuyModal();
+      let body = "";
+      try { body = await res.text(); } catch (e) { body = ""; }
+      const msg = wsUnwrapError(body);
+      if (res.status === 404 && (!msg || /^not found\.?$/i.test(msg))) {
         return `This needs the ${route} route, which your worker does not have yet — paste the updated worker.js and try again.`;
       }
-      if (res.status === 402) openBuyModal();
-      const msg = await extractError(res);
-      return msg && msg !== '{"error":""}' ? msg : `The request failed (${res.status}).`;
+      return msg || `The request failed (${res.status}).`;
     }
 
     async function wsPostImageEdit(payload) {
