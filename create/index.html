@@ -5742,6 +5742,10 @@
       flex-direction: column;
       gap: 16px;
       padding: 26px 6px 30px;
+      /* A breath of the accent under the work — the only colour on an
+         otherwise empty field. */
+      background: radial-gradient(62% 46% at 50% 38%,
+        color-mix(in srgb, var(--accent) 5%, transparent), transparent 76%);
       scroll-margin: 74px 0 24px;
       animation: wsArrive .85s cubic-bezier(.16, 1, .3, 1) both;
     }
@@ -5763,6 +5767,12 @@
        a pale lilac, which would lighten the page instead of deepening it;
        the grid lines still follow --ink, so they gain contrast either way. */
 
+    /* The page clears around the work rather than darkening. Shading it
+       only added another grey surface next to all the others; wiping the
+       grid away leaves plain paper, and the bend of the lens across the
+       edge of that clearing is what says where to look. Centred on the
+       frame by wsShadeCentre(), and painted before every positioned child
+       of the shell, so it sits under the content. */
     .app-shell::before {
       content: "";
       position: absolute;
@@ -5771,18 +5781,8 @@
       pointer-events: none;
       opacity: 0;
       transition: opacity .55s ease;
-      /* Centred on the work by wsShadeCentre(), and masked to the same
-         radius so the darker grid stops where the pool does instead of
-         greying out the whole page. */
-      background-image:
-        linear-gradient(color-mix(in srgb, var(--ink) 16%, transparent) 1px, transparent 1px),
-        linear-gradient(90deg, color-mix(in srgb, var(--ink) 16%, transparent) 1px, transparent 1px),
-        radial-gradient(44% 46% at var(--ws-cx, 50%) var(--ws-cy, 45%),
-          rgba(0, 0, 0, .22) 0%, rgba(0, 0, 0, .14) 52%, rgba(0, 0, 0, 0) 100%);
-      background-size: 30px 30px, 30px 30px, cover;
-      background-position: 0 0, 0 0, 0 0;
-      -webkit-mask-image: radial-gradient(44% 46% at var(--ws-cx, 50%) var(--ws-cy, 45%), #000 0%, #000 40%, transparent 100%);
-      mask-image: radial-gradient(44% 46% at var(--ws-cx, 50%) var(--ws-cy, 45%), #000 0%, #000 40%, transparent 100%);
+      background: radial-gradient(48% 52% at var(--ws-cx, 50%) var(--ws-cy, 45%),
+        var(--bg) 0%, var(--bg) 46%, transparent 100%);
     }
 
     body.ws-on .app-shell::before { opacity: 1; }
@@ -12003,10 +12003,9 @@
           ];
 
         case "mark":
-          return [
-            { key: "image", type: "image", label: "The image to work on", required: true },
-            { key: "prompt", type: "area", label: "What belongs in the painted area", required: true, ph: "A brass lantern hanging from the beam, warm light spilling onto the wall…", note: "Describe the whole scene as it should end up, not just the new object — and never what to remove." }
-          ];
+          // Only the picture here. What changes is decided with the brush
+          // in hand, on the next step, where you can see what you marked.
+          return [{ key: "image", type: "image", label: "The image to work on", required: true }];
         case "extend":
           return [
             { key: "image", type: "image", label: "The image to extend", required: true },
@@ -12127,15 +12126,19 @@
           <button type="button" class="ws-chip ${v ? "" : "on"}" onclick="wsSet('${f.key}', false)">Off</button>
           <button type="button" class="ws-chip ${v ? "on" : ""}" onclick="wsSet('${f.key}', true)">On</button></div>`;
       } else if (f.type === "model") {
-        // The bench takes a public URL, so the model you just made is one
-        // click away and anything else is a link you can paste.
+        // Either the one you just made, or a file off your disk. Nobody
+        // has a URL to a mesh lying around.
         const cur = v || "";
         const mine = wsLastModel && wsLastModel.url;
+        const label = s.cfg[f.key + "Name"] || (cur && cur === mine ? (wsLastModel.label || "the one you just made") : "");
         inner = `${mine ? `<div class="ws-chips" style="margin-bottom:7px">
-            <button type="button" class="ws-chip ${cur === mine ? "on" : ""}" onclick="wsSet('${f.key}', ${JSON.stringify(mine)})">
+            <button type="button" class="ws-chip ${cur === mine ? "on" : ""}" onclick="wsPickMadeModel('${f.key}')">
               ${WS_ICONS.box}${escapeHtml(wsLastModel.label || "the one you just made")}</button></div>` : ""}
-          <input class="ws-input" value="${escapeHtml(cur)}" placeholder="https://… .glb / .fbx / .obj / .stl"
-            oninput="wsSet('${f.key}', this.value)">`;
+          <div class="ws-drop" onclick="wsPickModelFile('${f.key}')">
+            <span class="ws-drop-ico">${WS_ICONS.box}</span>
+            <span class="ws-drop-text">${cur && cur !== mine ? escapeHtml(label || "Model ready") : (cur === mine && mine ? "Or load one from a file" : "Click to choose a model file")}
+              <small>${cur && cur !== mine ? "Click to use a different one." : "GLB, GLTF, FBX, OBJ or STL — up to 150 MB."}</small></span>
+          </div>`;
       } else if (f.type === "codemodel") {
         const cur = v || (typeof selectedCodeModel !== "undefined" ? selectedCodeModel : "gemini");
         inner = `<div class="ws-chips">` + Object.keys(CODE_MODEL_LABELS).map(k =>
@@ -12176,7 +12179,7 @@
     function wsViewMask(s) {
       return {
         html: `<h2 class="ws-title ws-rise">Paint what should change</h2>
-               <p class="ws-lead ws-rise" style="--i:1">Everything you cover is open for repainting. The rest of the picture is left exactly as it is.</p>
+               <p class="ws-lead ws-rise" style="--i:1">Everything you cover is open for repainting; the rest is left exactly as it is. Say what belongs there underneath.</p>
                <div class="ws-mask ws-rise" style="--i:2">
                  <div class="ws-canvas-wrap" id="wsCanvasWrap">
                    <canvas id="wsMaskCanvas"></canvas>
@@ -12191,12 +12194,26 @@
                    <input type="range" class="ws-range" min="8" max="180" value="${wsBrush.size}" oninput="wsBrushSize(this.value)">
                    <button class="ws-btn ws-quiet" type="button" style="margin-top:12px;width:100%;justify-content:center" onclick="wsMaskClear()">Clear it</button>
                  </div>
+               </div>
+               <div class="ws-field ws-rise" style="--i:3;margin-top:16px">
+                 <span class="ws-label">What belongs in the painted area</span>
+                 <textarea class="ws-area" placeholder="A brass lantern hanging from the beam, warm light spilling onto the wall…"
+                   oninput="wsMaskPrompt(this.value)">${escapeHtml(s.cfg.prompt || "")}</textarea>
+                 <div class="ws-note">Describe the whole scene as it should end up, not just the new object — and never what to take away.</div>
                </div>`,
         foot: `<span class="ws-foot-note">costs 2 tokens</span>
-               <button class="ws-btn ws-quiet" type="button" onclick="wsGo('config')">${WS_ICONS.back}Back</button>
-               <button class="ws-btn primary" type="button" onclick="wsRunMaskEdit()">Generate</button>`,
+               <button class="ws-btn ws-quiet" type="button" onclick="wsBack()">${WS_ICONS.back}Back</button>
+               <button class="ws-btn primary" type="button" ${(s.cfg.prompt || "").trim() ? "" : "disabled"} onclick="wsRunMaskEdit()">Generate</button>`,
         after: wsMaskInit
       };
+    }
+
+    // The painting must not be thrown away every time a letter is typed, so
+    // the run button is flipped by hand instead of redrawing the step.
+    function wsMaskPrompt(value) {
+      wsSet("prompt", value);
+      const btn = document.querySelector("#wsFoot .ws-btn.primary, .ws-foot .ws-btn.primary");
+      if (btn) btn.disabled = !String(value || "").trim();
     }
 
     async function wsMaskInit() {
@@ -12204,17 +12221,20 @@
       const cv = document.getElementById("wsMaskCanvas");
       if (!s || !cv) return;
       try {
-        const norm = await wsNormalisePng(s.cfg.image);
-        s.maskBase = norm;
-        const img = await wsLoadImage(norm.dataUrl);
-        cv.width = norm.width;
-        cv.height = norm.height;
-        cv.style.width = "100%";
-        const ctx = cv.getContext("2d");
-        s.maskStrokes = document.createElement("canvas");
-        s.maskStrokes.width = norm.width;
-        s.maskStrokes.height = norm.height;
-        s.maskImage = img;
+        // Switching brush or typing re-renders the step. The strokes are
+        // kept across that — losing the mask because you reached for the
+        // eraser would be its own kind of joke.
+        if (!s.maskBase || s.maskBase.src !== s.cfg.image) {
+          const norm = await wsNormalisePng(s.cfg.image);
+          norm.src = s.cfg.image;
+          s.maskBase = norm;
+          s.maskImage = await wsLoadImage(norm.dataUrl);
+          s.maskStrokes = document.createElement("canvas");
+          s.maskStrokes.width = norm.width;
+          s.maskStrokes.height = norm.height;
+        }
+        cv.width = s.maskBase.width;
+        cv.height = s.maskBase.height;
         wsMaskRedraw();
         wsBindBrush(cv);
       } catch (e) {
@@ -12490,6 +12510,7 @@
       wsState.fromChat = false;
       wsState.task = id;
       wsState.cfg = {};
+      wsState.maskBase = null;
       if (id === "create" || id === "edit-photo") {
         wsState.cfg.type = (typeof selectedImageType !== "undefined" ? selectedImageType : "normal");
       }
@@ -12511,7 +12532,7 @@
       const nowBlocking = wsFields(wsState).some(f => f.required && !wsState.cfg[f.key]);
       // Chips and pickers need the panel redrawn; free text must not lose
       // the caret, so it only redraws when the run button flips state.
-      const redraw = key !== "prompt" && key !== "model" && key !== "textureSeed" || wasBlocking !== nowBlocking;
+      const redraw = key !== "prompt" && key !== "textureSeed" || wasBlocking !== nowBlocking;
       if (!redraw) return;
 
       const active = document.activeElement;
@@ -12531,6 +12552,50 @@
       const at = cur.indexOf(value);
       if (at >= 0) cur.splice(at, 1); else cur.push(value);
       wsSet(key, cur);
+    }
+
+    function wsPickMadeModel(key) {
+      if (!wsState || !wsLastModel) return;
+      wsState.cfg[key + "Name"] = wsLastModel.label || "the one you just made";
+      wsSet(key, wsLastModel.url);
+    }
+
+    // Tripo takes a task id, a file token or a public URL. A file off the
+    // disk is none of those until it has been uploaded, so it goes up as
+    // soon as it is chosen and what gets stored is the token.
+    function wsPickModelFile(key) {
+      const input = document.createElement("input");
+      input.type = "file";
+      input.accept = ".glb,.gltf,.fbx,.obj,.stl,model/gltf-binary,model/gltf+json";
+      input.onchange = async () => {
+        const file = input.files && input.files[0];
+        if (!file || !wsState) return;
+        if (file.size > 150 * 1024 * 1024) {
+          alert("That file is over Tripo's 150 MB limit.");
+          return;
+        }
+        wsState.cfg[key + "Name"] = "Uploading " + file.name + "…";
+        wsSet(key, "");
+        try {
+          const res = await authedFetch(`/tripo/upload?name=${encodeURIComponent(file.name)}`, {
+            method: "POST",
+            headers: { "Content-Type": file.type || "application/octet-stream" },
+            body: file
+          });
+          if (!res.ok) throw new Error(await wsApiError(res, "/tripo/upload"));
+          const data = await res.json();
+          if (!data.fileToken) throw new Error("The upload came back without a file token.");
+          if (!wsState) return;
+          wsState.cfg[key + "Name"] = file.name;
+          wsSet(key, data.fileToken);
+        } catch (e) {
+          if (!wsState) return;
+          wsState.cfg[key + "Name"] = "";
+          wsSet(key, "");
+          alert(e.message);
+        }
+      };
+      input.click();
     }
 
     function wsPickImage(key) {
@@ -12588,7 +12653,7 @@
       }
 
       // Painting a region has a step of its own between setup and running.
-      if (s.task === "mark") { wsGo("mask"); return; }
+      if (s.task === "mark") { wsState.maskBase = null; wsGo("mask"); return; }
 
       if (WS_IMAGE_JOBS[s.task]) { WS_IMAGE_JOBS[s.task](s, c); return; }
       if (WS_BENCH_JOBS[s.task]) { WS_BENCH_JOBS[s.task](s, c); return; }
@@ -12737,16 +12802,25 @@
       }
     }
 
+    // The worker answers an unknown path with an empty error object, which
+    // arrives as {"error":""} and explains nothing. These routes are new, so
+    // a 404 has exactly one cause worth naming.
+    async function wsApiError(res, route) {
+      if (res.status === 404) {
+        return `This needs the ${route} route, which your worker does not have yet — paste the updated worker.js and try again.`;
+      }
+      if (res.status === 402) openBuyModal();
+      const msg = await extractError(res);
+      return msg && msg !== '{"error":""}' ? msg : `The request failed (${res.status}).`;
+    }
+
     async function wsPostImageEdit(payload) {
       const res = await authedFetch("/images/edit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
       });
-      if (!res.ok) {
-        if (res.status === 402) openBuyModal();
-        throw new Error(await extractError(res));
-      }
+      if (!res.ok) throw new Error(await wsApiError(res, "/images/edit"));
       const blob = await res.blob();
       return { blobUrl: URL.createObjectURL(blob), imageUrl: res.headers.get("X-Image-Url") || "" };
     }
@@ -12758,7 +12832,7 @@
       for (let attempt = 0; attempt < 300; attempt++) {
         await new Promise(r => setTimeout(r, attempt < 4 ? 2500 : 4000));
         const res = await authedFetch(`/tripo/bench/status?id=${encodeURIComponent(taskId)}`);
-        if (!res.ok) throw new Error(await extractError(res));
+        if (!res.ok) throw new Error(await wsApiError(res, "/tripo/bench/status"));
         const data = await res.json();
         if (data.status === "SUCCEEDED") return data;
         if (data.status === "FAILED" || data.status === "CANCELED") {
@@ -12775,10 +12849,7 @@
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ op, input, params: params || {} })
       });
-      if (!res.ok) {
-        if (res.status === 402) openBuyModal();
-        throw new Error(await extractError(res));
-      }
+      if (!res.ok) throw new Error(await wsApiError(res, "/tripo/bench"));
       return await res.json();
     }
 
@@ -12862,10 +12933,7 @@
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ image: norm.dataUrl, count: parseInt(c.count, 10) || 3 })
           });
-          if (!res.ok) {
-            if (res.status === 402) openBuyModal();
-            throw new Error(await extractError(res));
-          }
+          if (!res.ok) throw new Error(await wsApiError(res, "/images/variations"));
           const data = await res.json();
           const urls = (data.images || []).map(i => i.imageUrl || ("data:image/png;base64," + i.base64));
           if (!urls.length) throw new Error("No variations came back.");
@@ -13038,7 +13106,9 @@
       if (!s || !s.result) return;
       s.task = task;
       s.cfg = { image: s.result.dataUrl || s.result.url, type: s.cfg.type, prompt: "" };
-      s.step = "config";
+      s.maskBase = null;
+      // The picture is already in hand, so painting is the first thing.
+      s.step = task === "mark" ? "mask" : "config";
       wsRender();
     }
 
