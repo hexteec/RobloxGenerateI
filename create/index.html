@@ -6407,6 +6407,87 @@
       background: transparent;
     }
 
+    /* ---------- painting a region ---------- */
+    .ws-mask {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 190px;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .ws-canvas-wrap {
+      position: relative;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      background:
+        repeating-conic-gradient(var(--Check-1) 0% 25%, var(--Check-2) 0% 50%) 50% / 18px 18px;
+      overflow: hidden;
+      line-height: 0;
+      touch-action: none;
+    }
+
+    .ws-canvas-wrap canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+      cursor: none;
+    }
+
+    .ws-brush-dot {
+      position: absolute;
+      display: none;
+      border: 1.5px solid var(--accent);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      box-shadow: 0 0 0 1px rgba(255, 255, 255, .7);
+      pointer-events: none;
+    }
+
+    .ws-mask-tools .ws-chip { flex: 1; justify-content: center; }
+
+    .ws-range {
+      width: 100%;
+      appearance: none;
+      height: 4px;
+      border-radius: 2px;
+      background: var(--soft-2);
+      outline: none;
+    }
+
+    .ws-range::-webkit-slider-thumb {
+      appearance: none;
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: none;
+      cursor: pointer;
+    }
+
+    .ws-range::-moz-range-thumb {
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: none;
+      cursor: pointer;
+    }
+
+    /* several results at once, from variations */
+    .ws-gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 8px;
+      width: 100%;
+    }
+
+    .ws-gallery img {
+      width: 100%;
+      border-radius: 12px;
+      box-shadow: var(--shadow-md);
+      display: block;
+    }
+
     /* ---------- D. code arrives folded ----------
        A script can run to hundreds of lines; showing all of it buries the
        controls next to it. It opens to a readable slice with a handle to
@@ -6467,7 +6548,8 @@
       .ws-steps { display: none; }
       .ws-tasks-lead,
       .ws-tasks-more { grid-template-columns: minmax(0, 1fr); }
-      .ws-result { grid-template-columns: minmax(0, 1fr); }
+      .ws-result,
+      .ws-mask { grid-template-columns: minmax(0, 1fr); }
       .ws-foot { flex-wrap: wrap; }
       .ws-foot-note { flex: 1 1 100%; margin: 0 0 6px; }
       .ws-foot .ws-btn { flex: 1 1 auto; justify-content: center; }
@@ -10438,6 +10520,7 @@
           setBotBody(el, modelFrameHtml(data.modelUrl, data.thumbnailUrl, true));
           markNewLastLarge(el);
           if (typeof wsNotify === 'function') wsNotify({ stage: "done", kind: "model3d", modelUrl: data.modelUrl, thumbnailUrl: data.thumbnailUrl, el });
+          if (typeof wsRememberModel === 'function') wsRememberModel(data.modelUrl, "the one you just made");
           if (chatId) {
             if (pendingChoiceMessage && (pendingChoiceMessage.chatId === chatId || pendingChoiceMessage.chatId === null)) {
               await persistMessage(chatId, pendingChoiceMessage.payload);
@@ -11329,6 +11412,7 @@
       chevron: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>`,
       back: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5m7-7-7 7 7 7"/></svg>`,
       brush: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 14.5 3 21s3.5.5 5-1 1.5-5.5 1.5-5.5"/><path d="m14 10-4 4"/><path d="M21.3 3.7a2.4 2.4 0 0 0-3.4 0l-6.4 6.4 3.4 3.4 6.4-6.4a2.4 2.4 0 0 0 0-3.4Z"/></svg>`,
+      eraser: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m5 16 6-6 7 7-3 3H8Z"/><path d="m11 10 4-4a2 2 0 0 1 2.8 0l3.2 3.2a2 2 0 0 1 0 2.8l-4 4"/><path d="M3 21h18"/></svg>`,
       expand: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8V5a2 2 0 0 1 2-2h3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3"/></svg>`,
       copies: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="8" width="13" height="13" rx="2.5"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg>`,
       cutout: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4 8.1 15.9M14.5 14.5 20 20M8.1 8.1 9.5 9.5"/></svg>`,
@@ -11368,17 +11452,17 @@
           {
             title: "Work on an image",
             tasks: [
-              { id: "mark", name: "Paint the part to change", sub: "Brush over a region and say what belongs there instead.", icon: WS_ICONS.brush, ready: false, needs: "mask" },
-              { id: "extend", name: "Extend past the edges", sub: "Grow the canvas and let it fill in what continues.", icon: WS_ICONS.expand, ready: false, needs: "mask" },
-              { id: "cutout", name: "Cut out on transparency", sub: "Same asset, no background — ready to drop into Studio.", icon: WS_ICONS.cutout, ready: false, needs: "bg" },
-              { id: "takes", name: "More takes on one image", sub: "Several variations of something you already like.", icon: WS_ICONS.copies, ready: false, needs: "variations" }
+              { id: "mark", name: "Paint the part to change", sub: "Brush over a region and say what belongs there instead.", icon: WS_ICONS.brush, ready: true },
+              { id: "extend", name: "Extend past the edges", sub: "Grow the canvas and let it fill in what continues.", icon: WS_ICONS.expand, ready: true },
+              { id: "cutout", name: "Cut out on transparency", sub: "Same asset, no background — ready to drop into Studio.", icon: WS_ICONS.cutout, ready: true },
+              { id: "takes", name: "More takes on one image", sub: "Several variations of something you already like.", icon: WS_ICONS.copies, ready: true }
             ]
           }
         ]
       },
       model3d: {
         title: "What are we building?",
-        lead: "Generation runs on Tripo. The bench work below — retopology, parts, texturing, rigging — is the V3 pipeline, which the worker has not been moved to yet.",
+        lead: "Generation runs on Tripo V2; the bench work below runs on V3, which takes the finished model by its URL. Anything you build here can go straight back onto the bench.",
         groups: [
           {
             title: "Create",
@@ -11386,18 +11470,18 @@
               { id: "m-text", name: "From a description", sub: "Describe the object, tune the mesh, generate.", icon: WS_ICONS.text, ready: true },
               { id: "m-image", name: "From your image", sub: "Upload a reference photo of the object.", icon: WS_ICONS.photo, ready: true },
               { id: "m-gen", name: "Draw it first", sub: "Generate the reference image, then the model from it.", icon: WS_ICONS.bolt, ready: true },
-              { id: "m-multi", name: "From several views", sub: "Front, side and back into one consistent mesh.", icon: WS_ICONS.views, ready: false, needs: "v3" }
+              { id: "m-multi", name: "From several views", sub: "Front, side and back into one consistent mesh.", icon: WS_ICONS.views, ready: true }
             ]
           },
           {
             title: "Work on a model",
             tasks: [
-              { id: "m-retopo", name: "Retopologise", sub: "Drop to a face budget, optionally as clean quads.", icon: WS_ICONS.mesh, ready: false, needs: "v3" },
-              { id: "m-segment", name: "Split into parts", sub: "Separate head, limbs, clothing into sub-meshes.", icon: WS_ICONS.split, ready: false, needs: "v3" },
-              { id: "m-complete", name: "Close it up", sub: "Fill holes, clear self-intersections, make it watertight.", icon: WS_ICONS.seal, ready: false, needs: "v3" },
-              { id: "m-texture", name: "Re-texture", sub: "Fresh UVs and PBR maps, or another colour variant.", icon: WS_ICONS.paint, ready: false, needs: "v3" },
-              { id: "m-rig", name: "Rig & animate", sub: "Check, rig for its body plan, then apply animations.", icon: WS_ICONS.bone, ready: false, needs: "v3" },
-              { id: "m-convert", name: "Export elsewhere", sub: "FBX, OBJ, STL, USDZ, 3MF and back to GLB.", icon: WS_ICONS.box, ready: false, needs: "v3" }
+              { id: "m-retopo", name: "Retopologise", sub: "Drop to a face budget, optionally as clean quads.", icon: WS_ICONS.mesh, ready: true },
+              { id: "m-segment", name: "Split into parts", sub: "Separate head, limbs, clothing into sub-meshes.", icon: WS_ICONS.split, ready: true },
+              { id: "m-complete", name: "Close it up", sub: "Fill holes, clear self-intersections, make it watertight.", icon: WS_ICONS.seal, ready: true },
+              { id: "m-texture", name: "Re-texture", sub: "Fresh UVs and PBR maps, or another colour variant.", icon: WS_ICONS.paint, ready: true },
+              { id: "m-rig", name: "Rig & animate", sub: "Check, rig for its body plan, then apply animations.", icon: WS_ICONS.bone, ready: true },
+              { id: "m-convert", name: "Export elsewhere", sub: "FBX, OBJ, STL, USDZ, 3MF and back to GLB.", icon: WS_ICONS.box, ready: true }
             ]
           }
         ]
@@ -11437,12 +11521,16 @@
       }
     };
 
-    const WS_SOON_NOTE = {
-      mask: "The worker already posts to the images edit route, but does not pass a mask yet. That is the next piece going in.",
-      bg: "Needs the transparent-background option passed through the worker's image call.",
-      variations: "Variations need their own route in the worker.",
-      v3: "Tripo's mesh, texture and rigging tools only exist on API V3. The worker still calls V2, so this moves with that migration."
-    };
+    const WS_SOON_NOTE = {};
+
+    // What the bench can be pointed at. Set whenever a model comes back, so
+    // the next operation can offer "the one you just made" instead of asking
+    // for a URL you would have to go and find.
+    let wsLastModel = null;
+
+    const WS_RIG_TYPES = ["biped", "quadruped", "hexapod", "octopod", "avian", "serpentine", "aquatic"];
+    const WS_ANIMATIONS = ["idle", "walk", "run", "jump", "climb"];
+    const WS_EXPORT_FORMATS = ["fbx", "obj", "glb", "gltf", "stl", "usdz", "3mf"];
 
     // Closing the workspace used to post the in-chat method chooser, so the
     // composer would not stay locked waiting on a choice nobody made. The
@@ -11737,7 +11825,7 @@
     }
 
     // ---------- rendering ----------
-    const WS_STEP_NAMES = { task: "Task", config: "Setup", run: "Working", result: "Result" };
+    const WS_STEP_NAMES = { task: "Task", config: "Setup", mask: "Region", run: "Working", result: "Result" };
 
     function wsRender() {
       const s = wsState;
@@ -11747,14 +11835,16 @@
       const info = (typeof FORCE_MODE_INFO !== "undefined" && FORCE_MODE_INFO[s.mode])
         ? FORCE_MODE_INFO[s.mode] : { label: s.mode, icon: "" };
 
-      const steps = ["task", "config", "run", "result"];
+      const steps = s.task === "mark"
+        ? ["task", "config", "mask", "run", "result"]
+        : ["task", "config", "run", "result"];
       const at = steps.indexOf(s.step);
       const stepsHtml = steps.map((k, i) => {
         const cls = i < at ? "done" : (i === at ? "now" : "");
         return `<span class="ws-step ${cls}"><span class="ws-dot"></span>${WS_STEP_NAMES[k]}</span>`;
       }).join(`<span class="ws-sep"></span>`);
 
-      const view = { task: wsViewTask, config: wsViewConfig, run: wsViewRun, result: wsViewResult }[s.step](s, cat);
+      const view = { task: wsViewTask, config: wsViewConfig, mask: wsViewMask, run: wsViewRun, result: wsViewResult }[s.step](s, cat);
 
       el.innerHTML = `
         <div class="ws-head">
@@ -11856,6 +11946,77 @@
             { key: "image", type: "image", label: "UI screenshot", required: true },
             { key: "prompt", type: "area", label: "Extra hints", ph: "Optional — behaviour the picture cannot show." }
           ];
+
+        case "mark":
+          return [
+            { key: "image", type: "image", label: "The image to work on", required: true },
+            { key: "prompt", type: "area", label: "What belongs in the painted area", required: true, ph: "A brass lantern hanging from the beam, warm light spilling onto the wall…", note: "Describe the whole scene as it should end up, not just the new object — and never what to remove." }
+          ];
+        case "extend":
+          return [
+            { key: "image", type: "image", label: "The image to extend", required: true },
+            { key: "grow", type: "options", label: "Grow it", options: [
+              { v: "all", t: "On every side" }, { v: "wide", t: "Wider" }, { v: "tall", t: "Taller" }] },
+            { key: "amount", type: "options", label: "By how much", options: [
+              { v: "25", t: "A quarter" }, { v: "50", t: "A half" }, { v: "100", t: "Double" }] },
+            { key: "prompt", type: "area", label: "What continues out there", required: true, ph: "The same forest clearing carrying on, more trees to the sides, same light…" }
+          ];
+        case "cutout":
+          return [
+            { key: "image", type: "image", label: "The image to cut out", required: true },
+            { key: "prompt", type: "area", label: "What to keep", ph: "Optional — name the subject if the picture is busy." }
+          ];
+        case "takes":
+          return [
+            { key: "image", type: "image", label: "The image to vary", required: true, note: "Variations run on dall-e-2, which takes a square PNG — anything else is squared off first." },
+            { key: "count", type: "options", label: "How many", options: [
+              { v: "2", t: "Two" }, { v: "3", t: "Three" }, { v: "4", t: "Four" }] }
+          ];
+
+        case "m-multi":
+          return [
+            { key: "front", type: "image", label: "Front view", required: true },
+            { key: "side", type: "image", label: "Side view", required: true },
+            { key: "back", type: "image", label: "Back view" },
+            { key: "faceLimit", type: "options", label: "Face budget", options: [
+              { v: "5000", t: "5K" }, { v: "10000", t: "10K" }, { v: "20000", t: "20K" }] }
+          ];
+        case "m-retopo":
+          return [
+            { key: "model", type: "model", label: "The model", required: true },
+            { key: "faceLimit", type: "options", label: "Face budget", options: [
+              { v: "1000", t: "1K" }, { v: "2500", t: "2.5K" }, { v: "5000", t: "5K" }, { v: "10000", t: "10K" }, { v: "20000", t: "20K" }] },
+            { key: "quad", type: "toggle", label: "Quads", note: "Clean edge loops and fresh UVs, rather than triangles." }
+          ];
+        case "m-segment":
+          return [{ key: "model", type: "model", label: "The model", required: true, note: "Comes back as separate sub-meshes — head, limbs, clothing — each downloadable on its own." }];
+        case "m-complete":
+          return [{ key: "model", type: "model", label: "The model", required: true, note: "Fills holes, clears self-intersections and non-manifold edges, and makes it watertight." }];
+        case "m-texture":
+          return [
+            { key: "model", type: "model", label: "The model", required: true },
+            { key: "textureQuality", type: "options", label: "Texture quality", options: [
+              { v: "standard", t: "Standard" }, { v: "detailed", t: "Detailed" }, { v: "HD", t: "HD" }] },
+            { key: "pbr", type: "toggle", label: "PBR maps", note: "Albedo, roughness, metallic and normal, rather than colour alone." },
+            { key: "textureSeed", type: "text", label: "Seed", ph: "Optional — a number, for another colourway of the same model." }
+          ];
+        case "m-rig":
+          return [
+            { key: "model", type: "model", label: "The model", required: true },
+            { key: "rigType", type: "options", label: "Body plan", options:
+              [{ v: "auto", t: "Let it decide" }].concat(WS_RIG_TYPES.map(r => ({ v: r, t: r }))) },
+            { key: "spec", type: "options", label: "Skeleton", options: [
+              { v: "mixamo", t: "Mixamo" }, { v: "tripo", t: "Tripo" }] },
+            { key: "animations", type: "multi", label: "Animations", options: WS_ANIMATIONS.map(a => ({ v: a, t: a })),
+              note: "Optional. Anything picked here is retargeted onto the rig once it is built." },
+            { key: "outFormat", type: "options", label: "Format", options: [
+              { v: "glb", t: "GLB" }, { v: "fbx", t: "FBX" }] }
+          ];
+        case "m-convert":
+          return [
+            { key: "model", type: "model", label: "The model", required: true },
+            { key: "format", type: "options", label: "Export as", options: WS_EXPORT_FORMATS.map(f => ({ v: f, t: f.toUpperCase() })) }
+          ];
         default:
           return [];
       }
@@ -11865,7 +12026,7 @@
       const v = s.cfg[f.key];
       // Pickers always carry a value, so tagging them "optional" reads as a
       // question about whether they apply at all. Only free input gets it.
-      const optional = !f.required && f.type !== "imagetype" && f.type !== "codemodel";
+      const optional = !f.required && !["imagetype", "codemodel", "options", "multi", "toggle", "model"].includes(f.type);
       const label = `<span class="ws-label">${escapeHtml(f.label)}${optional ? " <small>optional</small>" : ""}</span>`;
       const note = f.note ? `<div class="ws-note">${escapeHtml(f.note)}</div>` : "";
       let inner = "";
@@ -11898,6 +12059,28 @@
           `</optgroup>`).join("");
         inner = `<div class="ws-chips" style="margin-bottom:7px">${chips}</div>
                  <select class="ws-select" onchange="wsSet('${f.key}', this.value)">${opts}</select>`;
+      } else if (f.type === "options") {
+        const cur = v != null ? v : (f.options[0] && f.options[0].v);
+        inner = `<div class="ws-chips">` + f.options.map(o =>
+          `<button type="button" class="ws-chip ${cur === o.v ? "on" : ""}" onclick="wsSet('${f.key}','${o.v}')">${escapeHtml(o.t)}</button>`).join("") + `</div>`;
+      } else if (f.type === "multi") {
+        const picked = Array.isArray(v) ? v : [];
+        inner = `<div class="ws-chips">` + f.options.map(o =>
+          `<button type="button" class="ws-chip ${picked.includes(o.v) ? "on" : ""}" onclick="wsToggleMulti('${f.key}','${o.v}')">${escapeHtml(o.t)}</button>`).join("") + `</div>`;
+      } else if (f.type === "toggle") {
+        inner = `<div class="ws-chips">
+          <button type="button" class="ws-chip ${v ? "" : "on"}" onclick="wsSet('${f.key}', false)">Off</button>
+          <button type="button" class="ws-chip ${v ? "on" : ""}" onclick="wsSet('${f.key}', true)">On</button></div>`;
+      } else if (f.type === "model") {
+        // The bench takes a public URL, so the model you just made is one
+        // click away and anything else is a link you can paste.
+        const cur = v || "";
+        const mine = wsLastModel && wsLastModel.url;
+        inner = `${mine ? `<div class="ws-chips" style="margin-bottom:7px">
+            <button type="button" class="ws-chip ${cur === mine ? "on" : ""}" onclick="wsSet('${f.key}', ${JSON.stringify(mine)})">
+              ${WS_ICONS.box}${escapeHtml(wsLastModel.label || "the one you just made")}</button></div>` : ""}
+          <input class="ws-input" value="${escapeHtml(cur)}" placeholder="https://… .glb / .fbx / .obj / .stl"
+            oninput="wsSet('${f.key}', this.value)">`;
       } else if (f.type === "codemodel") {
         const cur = v || (typeof selectedCodeModel !== "undefined" ? selectedCodeModel : "gemini");
         inner = `<div class="ws-chips">` + Object.keys(CODE_MODEL_LABELS).map(k =>
@@ -11919,7 +12102,7 @@
         foot: `<span class="ws-foot-note">${escapeHtml(wsCostNote(s))}</span>
                <button class="ws-btn ws-quiet" type="button" onclick="wsGo('task')">${WS_ICONS.back}Back</button>
                <button class="ws-btn primary" type="button" ${missing ? "disabled" : ""} onclick="wsRun()">
-                 ${s.mode === "model3d" ? "Set up the mesh" : "Generate"}</button>`,
+                 ${(s.task === "m-text" || s.task === "m-image") ? "Set up the mesh" : "Generate"}</button>`,
         after: () => {
           const ta = document.querySelector("#wsBody .ws-area");
           if (ta) { ta.focus(); ta.selectionStart = ta.value.length; }
@@ -11927,10 +12110,201 @@
       };
     }
 
+    // ---------- painting the region ----------
+    // OpenAI reads the mask through its ALPHA channel and nothing else:
+    // alpha 0 is what may be repainted, alpha 255 is protected, and there is
+    // no in-between — a soft edge is a spec error, not a soft edit. So the
+    // brush paints an opaque marker layer here and it is thresholded on the
+    // way out.
+    let wsBrush = { size: 48, mode: "paint", painting: false, last: null };
+
+    function wsViewMask(s) {
+      return {
+        html: `<h2 class="ws-title ws-rise">Paint what should change</h2>
+               <p class="ws-lead ws-rise" style="--i:1">Everything you cover is open for repainting. The rest of the picture is left exactly as it is.</p>
+               <div class="ws-mask ws-rise" style="--i:2">
+                 <div class="ws-canvas-wrap" id="wsCanvasWrap">
+                   <canvas id="wsMaskCanvas"></canvas>
+                   <span class="ws-brush-dot" id="wsBrushDot"></span>
+                 </div>
+                 <div class="ws-mask-tools">
+                   <div class="ws-chips">
+                     <button type="button" class="ws-chip ${wsBrush.mode === "paint" ? "on" : ""}" onclick="wsBrushMode('paint')">${WS_ICONS.brush}Paint</button>
+                     <button type="button" class="ws-chip ${wsBrush.mode === "erase" ? "on" : ""}" onclick="wsBrushMode('erase')">${WS_ICONS.eraser}Erase</button>
+                   </div>
+                   <label class="ws-label" style="margin-top:14px">Brush size</label>
+                   <input type="range" class="ws-range" min="8" max="180" value="${wsBrush.size}" oninput="wsBrushSize(this.value)">
+                   <button class="ws-btn ws-quiet" type="button" style="margin-top:12px;width:100%;justify-content:center" onclick="wsMaskClear()">Clear it</button>
+                 </div>
+               </div>`,
+        foot: `<span class="ws-foot-note">costs 2 tokens</span>
+               <button class="ws-btn ws-quiet" type="button" onclick="wsGo('config')">${WS_ICONS.back}Back</button>
+               <button class="ws-btn primary" type="button" onclick="wsRunMaskEdit()">Generate</button>`,
+        after: wsMaskInit
+      };
+    }
+
+    async function wsMaskInit() {
+      const s = wsState;
+      const cv = document.getElementById("wsMaskCanvas");
+      if (!s || !cv) return;
+      try {
+        const norm = await wsNormalisePng(s.cfg.image);
+        s.maskBase = norm;
+        const img = await wsLoadImage(norm.dataUrl);
+        cv.width = norm.width;
+        cv.height = norm.height;
+        cv.style.width = "100%";
+        const ctx = cv.getContext("2d");
+        s.maskStrokes = document.createElement("canvas");
+        s.maskStrokes.width = norm.width;
+        s.maskStrokes.height = norm.height;
+        s.maskImage = img;
+        wsMaskRedraw();
+        wsBindBrush(cv);
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    function wsMaskRedraw() {
+      const s = wsState;
+      const cv = document.getElementById("wsMaskCanvas");
+      if (!s || !cv || !s.maskImage) return;
+      const ctx = cv.getContext("2d");
+      ctx.clearRect(0, 0, cv.width, cv.height);
+      ctx.drawImage(s.maskImage, 0, 0);
+      ctx.save();
+      ctx.globalAlpha = 0.55;
+      ctx.drawImage(s.maskStrokes, 0, 0);
+      ctx.restore();
+    }
+
+    function wsBindBrush(cv) {
+      const s = wsState;
+      const dot = document.getElementById("wsBrushDot");
+      const at = (e) => {
+        const r = cv.getBoundingClientRect();
+        return { x: (e.clientX - r.left) * (cv.width / r.width), y: (e.clientY - r.top) * (cv.height / r.height), r };
+      };
+      const stroke = (from, to) => {
+        const ctx = s.maskStrokes.getContext("2d");
+        ctx.globalCompositeOperation = wsBrush.mode === "erase" ? "destination-out" : "source-over";
+        ctx.strokeStyle = "#E08350";
+        ctx.fillStyle = "#E08350";
+        ctx.lineWidth = wsBrush.size;
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
+        ctx.beginPath();
+        ctx.moveTo(from.x, from.y);
+        ctx.lineTo(to.x, to.y);
+        ctx.stroke();
+        ctx.globalCompositeOperation = "source-over";
+        wsMaskRedraw();
+      };
+      cv.addEventListener("pointerdown", e => {
+        cv.setPointerCapture(e.pointerId);
+        wsBrush.painting = true;
+        const p = at(e);
+        wsBrush.last = p;
+        stroke(p, p);
+      });
+      cv.addEventListener("pointermove", e => {
+        const p = at(e);
+        if (dot) {
+          const scale = p.r.width / cv.width;
+          dot.style.display = "block";
+          dot.style.width = dot.style.height = (wsBrush.size * scale) + "px";
+          dot.style.left = (e.clientX - p.r.left) + "px";
+          dot.style.top = (e.clientY - p.r.top) + "px";
+        }
+        if (!wsBrush.painting) return;
+        stroke(wsBrush.last, p);
+        wsBrush.last = p;
+      });
+      ["pointerup", "pointercancel", "pointerleave"].forEach(ev =>
+        cv.addEventListener(ev, () => { wsBrush.painting = false; if (dot && ev === "pointerleave") dot.style.display = "none"; }));
+    }
+
+    function wsBrushMode(mode) { wsBrush.mode = mode; wsRender(); }
+    function wsBrushSize(v) { wsBrush.size = parseInt(v, 10) || 48; }
+
+    function wsMaskClear() {
+      const s = wsState;
+      if (!s || !s.maskStrokes) return;
+      s.maskStrokes.getContext("2d").clearRect(0, 0, s.maskStrokes.width, s.maskStrokes.height);
+      wsMaskRedraw();
+    }
+
+    // Anything the brush touched at all becomes fully open; everything else
+    // fully protected. No partial alpha survives this.
+    function wsBuildMaskPng() {
+      const s = wsState;
+      if (!s || !s.maskStrokes) return null;
+      const w = s.maskStrokes.width, h = s.maskStrokes.height;
+      const src = s.maskStrokes.getContext("2d").getImageData(0, 0, w, h).data;
+      const out = document.createElement("canvas");
+      out.width = w; out.height = h;
+      const ctx = out.getContext("2d");
+      const img = ctx.createImageData(w, h);
+      let painted = 0;
+      for (let i = 0; i < w * h; i++) {
+        const open = src[i * 4 + 3] > 24;
+        if (open) painted++;
+        img.data[i * 4] = 0;
+        img.data[i * 4 + 1] = 0;
+        img.data[i * 4 + 2] = 0;
+        img.data[i * 4 + 3] = open ? 0 : 255;
+      }
+      if (!painted) return null;
+      ctx.putImageData(img, 0, 0);
+      return out.toDataURL("image/png");
+    }
+
+    function wsRunMaskEdit() {
+      const s = wsState;
+      if (!s) return;
+      const mask = wsBuildMaskPng();
+      if (!mask) {
+        alert("Paint over the part you want changed first.");
+        return;
+      }
+      const base = s.maskBase;
+      wsRunJob({
+        label: "Repainting the marked area…",
+        userText: s.cfg.prompt,
+        attachments: [{ kind: "image", dataUrl: base.dataUrl }],
+        work: async () => {
+          const out = await wsPostImageEdit({
+            image: base.dataUrl, mask, prompt: s.cfg.prompt,
+            size: `${base.width}x${base.height}`
+          });
+          return {
+            html: imageFrameHtml(out.blobUrl, "square", "Edited region", true, false),
+            persist: { type: "generation", imageUrl: out.imageUrl, prompt: s.cfg.prompt, mode: "image2img", template: "square", category: "icon" },
+            result: { kind: "image", url: out.blobUrl, imageUrl: out.imageUrl }
+          };
+        }
+      });
+    }
+
+    // Mirrors TOKEN_COSTS in the worker. Kept here so the price is on the
+    // button rather than a surprise after the fact.
+    const WS_TASK_COST = {
+      "m-retopo": 5, "m-segment": 5, "m-complete": 5,
+      "m-texture": 12, "m-convert": 2, "m-multi": 35
+    };
+
     function wsCostNote(s) {
-      if (s.mode === "image" || s.mode === "ui2lua") return "Costs 2 tokens.";
-      if (s.mode === "code") return "Billed per generation in millitokens.";
-      if (s.mode === "model3d") return "Cost depends on the mesh settings on the next step.";
+      if (s.task === "m-rig") {
+        const anims = Array.isArray(s.cfg.animations) ? s.cfg.animations.length : 0;
+        return anims ? "costs 8 tokens to rig, 6 more to animate" : "costs 8 tokens — the check beforehand is free";
+      }
+      if (WS_TASK_COST[s.task]) return `costs ${WS_TASK_COST[s.task]} tokens`;
+      if (s.task === "takes") return `costs ${2 * (parseInt(s.cfg.count, 10) || 3)} tokens`;
+      if (s.task === "m-text" || s.task === "m-image" || s.task === "m-gen") return "cost depends on the mesh settings on the next step";
+      if (s.mode === "image" || s.mode === "ui2lua") return "costs 2 tokens";
+      if (s.mode === "code") return "billed per generation in millitokens";
       return "";
     }
 
@@ -11959,6 +12333,8 @@
 
       let preview = "";
       if (r.kind === "image" || r.kind === "refimage") preview = `<img src="${escapeHtml(r.url)}" alt="Result">`;
+      else if (r.kind === "gallery") preview = `<div class="ws-gallery">` +
+        (r.urls || []).map(u => `<img src="${escapeHtml(u)}" alt="">`).join("") + `</div>`;
       else if (r.kind === "model3d") preview = `<model-viewer src="${escapeHtml(r.modelUrl || "")}" poster="${escapeHtml(r.thumbnailUrl || "")}" camera-controls auto-rotate shadow-intensity="1" exposure="1" loading="eager"></model-viewer>`;
       else if (r.kind === "code") preview = `<div class="msg msg-bot" style="--ws-fade:1;--ws-blur:0px"><div class="msg-bubble" style="max-width:100%">${r.html || ""}</div></div>`;
 
@@ -12016,8 +12392,10 @@
       }
       if (r.kind === "image") {
         return [
-          wsNextBtn("Paint a region", WS_ICONS.brush, "", true, WS_SOON_NOTE.mask),
-          wsNextBtn("Extend the edges", WS_ICONS.expand, "", true, WS_SOON_NOTE.mask),
+          wsNextBtn("Paint a region", WS_ICONS.brush, "wsContinueWithImage('mark')"),
+          wsNextBtn("Extend the edges", WS_ICONS.expand, "wsContinueWithImage('extend')"),
+          wsNextBtn("Cut it out", WS_ICONS.cutout, "wsContinueWithImage('cutout')"),
+          wsNextBtn("More takes", WS_ICONS.copies, "wsContinueWithImage('takes')"),
           wsNextBtn("Describe another change", WS_ICONS.photo, "wsContinueWithImage('edit-photo')"),
           wsNextBtn("Borrow a style", WS_ICONS.paint, "wsContinueWithImage('restyle')"),
           wsNextBtn("Turn it into a 3D model", WS_ICONS.box, "wsImageToModel()"),
@@ -12025,15 +12403,22 @@
           wsNextBtn("Download", WS_ICONS.download, "wsDownload()")
         ].join("");
       }
+      if (r.kind === "gallery") {
+        return [
+          wsNextBtn("Make more", WS_ICONS.copies, "wsRerun()"),
+          wsNextBtn("Another task", WS_ICONS.bolt, "wsGo('task')")
+        ].join("");
+      }
       if (r.kind === "model3d") {
         return [
-          wsNextBtn("Retopologise", WS_ICONS.mesh, "", true, WS_SOON_NOTE.v3),
-          wsNextBtn("Split into parts", WS_ICONS.split, "", true, WS_SOON_NOTE.v3),
-          wsNextBtn("Re-texture", WS_ICONS.paint, "", true, WS_SOON_NOTE.v3),
-          wsNextBtn("Rig & animate", WS_ICONS.bone, "", true, WS_SOON_NOTE.v3),
-          wsNextBtn("Export elsewhere", WS_ICONS.box, "", true, WS_SOON_NOTE.v3),
+          wsNextBtn("Retopologise", WS_ICONS.mesh, "wsBenchNext('m-retopo')"),
+          wsNextBtn("Split into parts", WS_ICONS.split, "wsBenchNext('m-segment')"),
+          wsNextBtn("Close it up", WS_ICONS.seal, "wsBenchNext('m-complete')"),
+          wsNextBtn("Re-texture", WS_ICONS.paint, "wsBenchNext('m-texture')"),
+          wsNextBtn("Rig & animate", WS_ICONS.bone, "wsBenchNext('m-rig')"),
+          wsNextBtn("Export elsewhere", WS_ICONS.box, "wsBenchNext('m-convert')"),
           wsNextBtn("Build another", WS_ICONS.bolt, "wsGo('task')"),
-          wsNextBtn("Download GLB", WS_ICONS.download, "wsDownload()")
+          wsNextBtn("Download", WS_ICONS.download, "wsDownload()")
         ].join("");
       }
       return [
@@ -12071,7 +12456,7 @@
       const nowBlocking = wsFields(wsState).some(f => f.required && !wsState.cfg[f.key]);
       // Chips and pickers need the panel redrawn; free text must not lose
       // the caret, so it only redraws when the run button flips state.
-      const redraw = key === "type" || key === "codemodel" || key === "image" || key === "reference" || wasBlocking !== nowBlocking;
+      const redraw = key !== "prompt" && key !== "model" && key !== "textureSeed" || wasBlocking !== nowBlocking;
       if (!redraw) return;
 
       const active = document.activeElement;
@@ -12083,6 +12468,14 @@
         const again = document.querySelector("#wsBody " + (wasArea ? ".ws-area" : ".ws-input"));
         if (again) { again.focus(); if (caret != null) again.setSelectionRange(caret, caret); }
       }
+    }
+
+    function wsToggleMulti(key, value) {
+      if (!wsState) return;
+      const cur = Array.isArray(wsState.cfg[key]) ? wsState.cfg[key].slice() : [];
+      const at = cur.indexOf(value);
+      if (at >= 0) cur.splice(at, 1); else cur.push(value);
+      wsSet(key, cur);
     }
 
     function wsPickImage(key) {
@@ -12135,6 +12528,12 @@
         if (typeof openBuyModal === "function") openBuyModal();
         return;
       }
+
+      // Painting a region has a step of its own between setup and running.
+      if (s.task === "mark") { wsGo("mask"); return; }
+
+      if (WS_IMAGE_JOBS[s.task]) { WS_IMAGE_JOBS[s.task](s, c); return; }
+      if (WS_BENCH_JOBS[s.task]) { WS_BENCH_JOBS[s.task](s, c); return; }
 
       if (s.mode === "image") {
         if (typeof selectedImageType !== "undefined" && c.type) {
@@ -12197,6 +12596,318 @@
         }
       }
     }
+
+    // ---------- canvas plumbing ----------
+    // gpt-image-2 wants PNG with an alpha channel, sides that are multiples
+    // of 16, and a mask that matches the image pixel for pixel. Everything
+    // going out of here is put through this first so none of that can drift.
+    const WS_MAX_SIDE = 1536;
+
+    function wsFitSize(w, h) {
+      const scale = Math.min(1, WS_MAX_SIDE / Math.max(w, h));
+      const round16 = n => Math.max(256, Math.round(n * scale / 16) * 16);
+      return { w: round16(w), h: round16(h) };
+    }
+
+    function wsLoadImage(src) {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        img.onload = () => resolve(img);
+        img.onerror = () => reject(new Error("Could not read that image."));
+        img.src = src;
+      });
+    }
+
+    async function wsNormalisePng(src, opts) {
+      opts = opts || {};
+      const img = await wsLoadImage(src);
+      const size = opts.square
+        ? (() => { const n = wsFitSize(Math.min(img.width, img.height), Math.min(img.width, img.height)); return { w: n.w, h: n.w }; })()
+        : wsFitSize(img.width, img.height);
+      const cv = document.createElement("canvas");
+      cv.width = size.w; cv.height = size.h;
+      const ctx = cv.getContext("2d");
+      if (opts.square) {
+        const side = Math.min(img.width, img.height);
+        ctx.drawImage(img, (img.width - side) / 2, (img.height - side) / 2, side, side, 0, 0, size.w, size.h);
+      } else {
+        ctx.drawImage(img, 0, 0, size.w, size.h);
+      }
+      return { dataUrl: cv.toDataURL("image/png"), width: size.w, height: size.h };
+    }
+
+    // Outpainting needs no mask: the hole is cut straight into the image's
+    // own alpha by placing it on a bigger transparent canvas.
+    async function wsGrowCanvas(src, grow, amountPct) {
+      const img = await wsLoadImage(src);
+      const pad = Math.max(0.1, (parseInt(amountPct, 10) || 50) / 100);
+      let w = img.width, h = img.height, x = 0, y = 0;
+      if (grow === "wide") { w = img.width * (1 + pad); x = (w - img.width) / 2; }
+      else if (grow === "tall") { h = img.height * (1 + pad); y = (h - img.height) / 2; }
+      else { w = img.width * (1 + pad); h = img.height * (1 + pad); x = (w - img.width) / 2; y = (h - img.height) / 2; }
+      const size = wsFitSize(w, h);
+      const sx = size.w / w, sy = size.h / h;
+      const cv = document.createElement("canvas");
+      cv.width = size.w; cv.height = size.h;
+      const ctx = cv.getContext("2d");
+      ctx.drawImage(img, Math.round(x * sx), Math.round(y * sy), Math.round(img.width * sx), Math.round(img.height * sy));
+      return { dataUrl: cv.toDataURL("image/png"), width: size.w, height: size.h };
+    }
+
+    // ---------- running the new work ----------
+    // One shape for every operation the workspace drives itself: write the
+    // request into the chat, do the work, put the answer in both places.
+    async function wsRunJob({ label, userText, attachments, work }) {
+      wsBusy(label);
+      let pendingEl = null;
+      try {
+        const chatId = await ensureActiveChat(userText || label);
+        appendUserBubble(userText || label, attachments || []);
+        pendingEl = appendBotPlaceholder(label);
+        const out = await work({ chatId, pendingEl });
+        setBotBody(pendingEl, out.html);
+        markNewLastLarge(pendingEl);
+        if (out.persist) await persistMessage(chatId, out.persist);
+        if (typeof refreshBalance === "function") refreshBalance();
+        wsDone(out.result);
+      } catch (e) {
+        console.error(e);
+        if (pendingEl) setBotBody(pendingEl, errorHtml("Error: " + e.message));
+        if (typeof refreshBalance === "function") refreshBalance();
+        wsDone({ error: e.message });
+      }
+    }
+
+    async function wsPostImageEdit(payload) {
+      const res = await authedFetch("/images/edit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) {
+        if (res.status === 402) openBuyModal();
+        throw new Error(await extractError(res));
+      }
+      const blob = await res.blob();
+      return { blobUrl: URL.createObjectURL(blob), imageUrl: res.headers.get("X-Image-Url") || "" };
+    }
+
+    // Tripo answers with a task id and then takes its time. Two seconds is
+    // its own floor — anything faster is rate limited — and the workspace
+    // shows the progress it reports rather than a guess.
+    async function wsPollBench(taskId, label) {
+      for (let attempt = 0; attempt < 300; attempt++) {
+        await new Promise(r => setTimeout(r, attempt < 4 ? 2500 : 4000));
+        const res = await authedFetch(`/tripo/bench/status?id=${encodeURIComponent(taskId)}`);
+        if (!res.ok) throw new Error(await extractError(res));
+        const data = await res.json();
+        if (data.status === "SUCCEEDED") return data;
+        if (data.status === "FAILED" || data.status === "CANCELED") {
+          throw new Error((data.errorMessage || "The task failed.") + " Your tokens have been refunded.");
+        }
+        wsNotify({ progress: data.progress || 0, label });
+      }
+      throw new Error("Still running after a long wait. Task id: " + taskId);
+    }
+
+    async function wsStartBench(op, input, params) {
+      const res = await authedFetch("/tripo/bench", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ op, input, params: params || {} })
+      });
+      if (!res.ok) {
+        if (res.status === 402) openBuyModal();
+        throw new Error(await extractError(res));
+      }
+      return await res.json();
+    }
+
+    // A bench result is not always something model-viewer can show: a
+    // conversion hands back an FBX, a segmentation hands back a pile of
+    // parts. Each gets the frame that actually fits it.
+    function wsBenchResultHtml(data, title) {
+      if (data.parts && data.parts.length) {
+        return `<div class="result-frame-wrap"><div class="result-meta">
+            <span class="r-tag">${escapeHtml(title)} — ${data.parts.length} parts</span></div>
+          <div class="result-actions" style="flex-wrap:wrap">` +
+          data.parts.map(part => `<a href="${escapeHtml(part.modelUrl)}" download class="dl-glb-btn" style="text-decoration:none">
+            ${WS_ICONS.download}${escapeHtml(part.name)}</a>`).join("") + `</div></div>`;
+      }
+      if (data.format && data.format !== "glb") {
+        return `<div class="result-frame-wrap"><div class="result-meta">
+            <span class="r-tag">${escapeHtml(title)} (.${escapeHtml(data.format)})</span>
+            <div class="result-actions">
+              <a href="${escapeHtml(data.modelUrl)}" download class="dl-glb-btn" style="text-decoration:none">
+                ${WS_ICONS.download}Download .${escapeHtml(data.format)}</a>
+            </div></div></div>`;
+      }
+      return modelFrameHtml(data.modelUrl, data.thumbnailUrl, true);
+    }
+
+    function wsRememberModel(url, label) {
+      if (url) wsLastModel = { url, label: label || "the one you just made" };
+    }
+
+    // ---------- the image bench ----------
+    const WS_IMAGE_JOBS = {
+      extend: (s, c) => wsRunJob({
+        label: "Extending past the edges…",
+        userText: c.prompt,
+        attachments: [{ kind: "image", dataUrl: c.image }],
+        work: async () => {
+          const grown = await wsGrowCanvas(c.image, c.grow || "all", c.amount || "50");
+          const out = await wsPostImageEdit({
+            image: grown.dataUrl, prompt: c.prompt, size: `${grown.width}x${grown.height}`
+          });
+          return {
+            html: imageFrameHtml(out.blobUrl, "wide", "Extended", true, false),
+            persist: { type: "generation", imageUrl: out.imageUrl, prompt: c.prompt, mode: "image2img", template: "wide", category: "icon" },
+            result: { kind: "image", url: out.blobUrl, imageUrl: out.imageUrl }
+          };
+        }
+      }),
+
+      cutout: (s, c) => wsRunJob({
+        label: "Cutting it out…",
+        userText: c.prompt || "Cut out on transparency",
+        attachments: [{ kind: "image", dataUrl: c.image }],
+        work: async () => {
+          const norm = await wsNormalisePng(c.image);
+          const subject = (c.prompt || "").trim();
+          const out = await wsPostImageEdit({
+            image: norm.dataUrl,
+            background: "transparent",
+            size: `${norm.width}x${norm.height}`,
+            prompt: (subject ? subject : "The same subject") +
+              ", kept exactly as it is, isolated on a fully transparent background, clean edges, nothing else in frame."
+          });
+          return {
+            html: imageFrameHtml(out.blobUrl, "square", "Cut out", true, false),
+            persist: { type: "generation", imageUrl: out.imageUrl, prompt: subject, mode: "image2img", template: "square", category: "icon" },
+            result: { kind: "image", url: out.blobUrl, imageUrl: out.imageUrl }
+          };
+        }
+      }),
+
+      takes: (s, c) => wsRunJob({
+        label: "Making other takes…",
+        userText: "More takes on one image",
+        attachments: [{ kind: "image", dataUrl: c.image }],
+        work: async () => {
+          // dall-e-2 is the only model with variations, and it takes a
+          // square PNG — so the source is squared off before it goes.
+          const norm = await wsNormalisePng(c.image, { square: true });
+          const res = await authedFetch("/images/variations", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ image: norm.dataUrl, count: parseInt(c.count, 10) || 3 })
+          });
+          if (!res.ok) {
+            if (res.status === 402) openBuyModal();
+            throw new Error(await extractError(res));
+          }
+          const data = await res.json();
+          const urls = (data.images || []).map(i => i.imageUrl || ("data:image/png;base64," + i.base64));
+          if (!urls.length) throw new Error("No variations came back.");
+          return {
+            html: `<div class="msg-attach-grid">` + urls.map(u =>
+              `<a class="ag-item" href="${escapeHtml(u)}" target="_blank" rel="noopener"><img src="${escapeHtml(u)}" alt=""></a>`).join("") + `</div>`,
+            persist: { type: "generation", imageUrl: urls[0], prompt: "variations", mode: "image2img", template: "square", category: "icon" },
+            result: { kind: "gallery", urls }
+          };
+        }
+      })
+    };
+
+    // ---------- the mesh bench ----------
+    function wsBenchJob(label, op, paramsOf, title) {
+      return (s, c) => wsRunJob({
+        label,
+        userText: `${title}: ${c.model ? c.model.split("/").pop() : "model"}`,
+        work: async () => {
+          const started = await wsStartBench(op, c.model, paramsOf(c));
+          const data = await wsPollBench(started.taskId, label);
+          wsRememberModel(data.modelUrl, title.toLowerCase());
+          return {
+            html: wsBenchResultHtml(data, title),
+            persist: { type: "model3d", prompt: title, modelUrl: data.modelUrl || "", thumbnailUrl: data.thumbnailUrl || "", taskType: "tripo-v3-" + op },
+            result: { kind: "model3d", modelUrl: data.modelUrl, thumbnailUrl: data.thumbnailUrl, parts: data.parts, format: data.format }
+          };
+        }
+      });
+    }
+
+    const WS_BENCH_JOBS = {
+      "m-retopo": wsBenchJob("Rebuilding the topology…", "decimate",
+        c => ({ faceLimit: c.faceLimit || 10000, quad: !!c.quad }), "Retopologised"),
+      "m-segment": wsBenchJob("Splitting it into parts…", "segment", () => ({}), "Split into parts"),
+      "m-complete": wsBenchJob("Closing it up…", "complete", () => ({}), "Closed up"),
+      "m-texture": wsBenchJob("Baking new textures…", "texture",
+        c => ({ textureQuality: c.textureQuality || "detailed", pbr: c.pbr !== false, textureSeed: c.textureSeed }), "Re-textured"),
+      "m-convert": wsBenchJob("Converting…", "convert", c => ({ format: c.format || "fbx" }), "Converted"),
+
+      "m-multi": (s, c) => wsRunJob({
+        label: "Building the mesh from your views…",
+        userText: "3D model from several views",
+        attachments: [c.front, c.side, c.back].filter(Boolean).map(d => ({ kind: "image", dataUrl: d })),
+        work: async () => {
+          const images = [c.front, c.side, c.back].filter(Boolean);
+          const started = await wsStartBench("multiview", null, { images, faceLimit: c.faceLimit || 10000 });
+          const data = await wsPollBench(started.taskId, "Building the mesh…");
+          wsRememberModel(data.modelUrl, "the multiview model");
+          return {
+            html: wsBenchResultHtml(data, "Model from several views"),
+            persist: { type: "model3d", prompt: "multiview", modelUrl: data.modelUrl || "", thumbnailUrl: data.thumbnailUrl || "", taskType: "tripo-v3-multiview" },
+            result: { kind: "model3d", modelUrl: data.modelUrl, thumbnailUrl: data.thumbnailUrl }
+          };
+        }
+      }),
+
+      // The one chain with an order to it: ask whether it can be rigged at
+      // all, rig it, and only then put animations on the rig — retarget
+      // refuses a raw model outright.
+      "m-rig": (s, c) => wsRunJob({
+        label: "Checking whether it can be rigged…",
+        userText: "Rig" + (c.animations && c.animations.length ? " and animate" : ""),
+        work: async () => {
+          const check = await wsStartBench("rig-check", c.model, {});
+          if (check.done && !check.riggable) {
+            throw new Error("This mesh cannot be rigged — it has no recognisable body plan. Try closing it up first.");
+          }
+          const rigType = (c.rigType && c.rigType !== "auto") ? c.rigType : (check.rigType || "biped");
+
+          wsNotify({ progress: 5, label: `Rigging as ${rigType}…` });
+          const rig = await wsStartBench("rig", c.model, {
+            rigType, spec: c.spec || "mixamo", outFormat: c.outFormat || "glb"
+          });
+          const rigged = await wsPollBench(rig.taskId, `Rigging as ${rigType}…`);
+
+          const anims = Array.isArray(c.animations) ? c.animations : [];
+          if (!anims.length) {
+            wsRememberModel(rigged.modelUrl, "the rigged model");
+            return {
+              html: wsBenchResultHtml(rigged, `Rigged (${rigType})`),
+              persist: { type: "model3d", prompt: "rig", modelUrl: rigged.modelUrl || "", thumbnailUrl: rigged.thumbnailUrl || "", taskType: "tripo-v3-rig" },
+              result: { kind: "model3d", modelUrl: rigged.modelUrl, thumbnailUrl: rigged.thumbnailUrl, format: rigged.format }
+            };
+          }
+
+          wsNotify({ progress: 5, label: "Applying the animations…" });
+          const retarget = await wsStartBench("retarget", rig.taskId, {
+            animations: anims.map(a => "preset:" + a), outFormat: c.outFormat || "glb"
+          });
+          const done = await wsPollBench(retarget.taskId, "Applying the animations…");
+          wsRememberModel(done.modelUrl, "the animated model");
+          return {
+            html: wsBenchResultHtml(done, `Rigged and animated (${anims.join(", ")})`),
+            persist: { type: "model3d", prompt: "rig+animate", modelUrl: done.modelUrl || "", thumbnailUrl: done.thumbnailUrl || "", taskType: "tripo-v3-retarget" },
+            result: { kind: "model3d", modelUrl: done.modelUrl, thumbnailUrl: done.thumbnailUrl, format: done.format }
+          };
+        }
+      })
+    };
 
     function wsCodeInstruction(s) {
       const p = (s.cfg.prompt || "").trim();
@@ -12302,6 +13013,21 @@
       btns[1].click();
     }
 
+    // Carrying the finished model straight onto the next bench operation,
+    // so a chain of them never needs a URL pasted in the middle.
+    function wsBenchNext(task) {
+      const s = wsState;
+      if (!s || !s.result) return;
+      const url = s.result.modelUrl;
+      wsRememberModel(url, "the one you just made");
+      s.mode = "model3d";
+      s.task = task;
+      s.cfg = { model: url };
+      s.result = null;
+      s.step = "config";
+      wsRender();
+    }
+
     function wsContinueCode(task) {
       const s = wsState;
       if (!s) return;
@@ -12322,11 +13048,11 @@
       const s = wsState;
       if (!s || !s.result) return;
       const r = s.result;
-      const href = r.kind === "model3d" ? r.modelUrl : (r.url || r.dataUrl);
+      const href = r.kind === "model3d" ? r.modelUrl : (r.url || r.dataUrl || (r.urls && r.urls[0]));
       if (!href) return;
       const a = document.createElement("a");
       a.href = href;
-      a.download = r.kind === "model3d" ? "RoPeak-Model.glb" : "RoPeak-Image.png";
+      a.download = r.kind === "model3d" ? ("RoPeak-Model." + (r.format || "glb")) : "RoPeak-Image.png";
       document.body.appendChild(a);
       a.click();
       a.remove();
