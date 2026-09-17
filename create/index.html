@@ -3847,12 +3847,23 @@
       display: flex;
       flex-direction: column;
       transform: translateX(100%);
-      transition: transform .28s cubic-bezier(.4, 0, .2, 1);
+      /* Sliding it out only moves it past the right edge of its own column,
+         which is not the edge of the window — parked, it still painted over
+         the chats rail. It has to stop being drawn once it is away, and the
+         visibility flip waits for the slide so the animation survives. */
+      visibility: hidden;
+      pointer-events: none;
+      transition: transform .28s cubic-bezier(.4, 0, .2, 1), visibility 0s linear .28s;
       z-index: 40;
       box-shadow: var(--shadow-lg);
     }
 
-    body.studio-on .studio-panel { transform: translateX(0); }
+    body.studio-on .studio-panel {
+      transform: translateX(0);
+      visibility: visible;
+      pointer-events: auto;
+      transition: transform .28s cubic-bezier(.4, 0, .2, 1), visibility 0s;
+    }
 
     .st-head {
       display: flex;
@@ -4102,6 +4113,205 @@
 
     .st-send:hover { background: var(--accent-deep); border-color: var(--accent-deep); }
 
+    .st-tabs {
+      display: flex;
+      gap: 2px;
+      padding: 8px 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .st-tab {
+      background: none;
+      border: 0;
+      border-bottom: 2px solid transparent;
+      color: var(--ink-faint);
+      font-size: 12.3px;
+      font-weight: 600;
+      padding: 7px 10px 8px;
+      cursor: pointer;
+      transition: color .15s ease, border-color .15s ease;
+    }
+
+    .st-tab:hover { color: var(--ink); }
+    .st-tab.on { color: var(--ink); border-bottom-color: var(--accent); }
+
+    /* The agent's own state, above whatever tab you are on: it is true
+       whichever one you are looking at. */
+    .st-agent {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 9px 16px;
+      border-bottom: 1px solid var(--border);
+      background: var(--soft);
+      font-size: 12.2px;
+      color: var(--ink);
+    }
+
+    .st-agent[hidden] { display: none; }
+
+    .st-agent-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      background: var(--ink-faint);
+    }
+
+    .st-agent-dot.busy { background: var(--accent); animation: stBreathe 1.6s ease-in-out infinite; }
+
+    .st-agent-text {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      min-width: 0;
+    }
+
+    .st-agent-tag {
+      margin-left: auto;
+      flex-shrink: 0;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--ink-faint);
+    }
+
+    /* ---------- the place, as a tree ---------- */
+    .pj-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .pj-place {
+      font-family: var(--font-display);
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--ink);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .pj-reload {
+      margin-left: auto;
+      flex-shrink: 0;
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      color: var(--ink-faint);
+      padding: 5px 7px;
+      cursor: pointer;
+      display: flex;
+    }
+
+    .pj-reload svg { width: 12px; height: 12px; }
+    .pj-reload:hover { color: var(--accent); border-color: var(--accent); }
+
+    .pj-node { padding-left: calc(var(--d, 0) * 13px); }
+
+    .pj-row {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: none;
+      border: 0;
+      border-radius: 6px;
+      padding: 4px 6px;
+      text-align: left;
+      color: var(--ink);
+      cursor: pointer;
+    }
+
+    .pj-row:disabled { cursor: default; }
+    .pj-row:not(:disabled):hover { background: var(--soft); }
+    .pj-row.on { background: var(--accent-wash); }
+    .pj-row.on .pj-name { color: var(--accent-deep); font-weight: 700; }
+    .pj-row.muted .pj-name { color: var(--ink-faint); font-style: italic; }
+
+    .pj-twist {
+      width: 11px;
+      height: 11px;
+      flex-shrink: 0;
+      color: var(--ink-faint);
+      display: flex;
+      align-items: center;
+    }
+
+    .pj-twist svg { width: 100%; height: 100%; }
+
+    .pj-name {
+      font-family: var(--font-mono);
+      font-size: 11.8px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .pj-lines {
+      margin-left: auto;
+      flex-shrink: 0;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--ink-faint);
+    }
+
+    .pj-file-head {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin-bottom: 10px;
+    }
+
+    .pj-back {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      color: var(--ink-muted);
+      padding: 5px 7px;
+      cursor: pointer;
+      display: flex;
+      flex-shrink: 0;
+    }
+
+    .pj-back svg { width: 12px; height: 12px; }
+    .pj-back:hover { color: var(--ink); border-color: var(--ink-faint); }
+
+    .pj-file-path {
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      color: var(--ink-muted);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* Editing by hand, in the place's own voice. */
+    .pj-src {
+      width: 100%;
+      min-height: 320px;
+      resize: vertical;
+      background: #181712;
+      color: #EAE8E4;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-family: var(--font-mono);
+      font-size: 11.8px;
+      line-height: 1.65;
+      padding: 11px 12px;
+      tab-size: 4;
+    }
+
+    .pj-src:focus { outline: none; border-color: var(--accent); }
+
+    .pj-file-acts {
+      display: flex;
+      gap: 7px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+
     .sys-act.primary {
       background: var(--accent);
       border-color: var(--accent);
@@ -4119,7 +4329,8 @@
 
     @media (prefers-reduced-motion: reduce) {
       .st-dot.on { animation: none; }
-      .studio-panel { transition: none; }
+      .studio-panel,
+      body.studio-on .studio-panel { transition: none; }
     }
 
     /* ---------- a system, shown as the Explorer it will become ---------- */
@@ -7669,6 +7880,11 @@
           </div>
           <button type="button" class="st-x" onclick="studioClosePanel()" aria-label="Close">✕</button>
         </div>
+        <div class="st-tabs">
+          <button type="button" class="st-tab" id="studioTabActivity" onclick="studioSetTab('activity')">Activity</button>
+          <button type="button" class="st-tab" id="studioTabProject" onclick="studioSetTab('project')">Project</button>
+        </div>
+        <div class="st-agent" id="studioAgent" hidden></div>
         <div class="st-body" id="studioBody"></div>
         <div class="st-ask">
           <textarea id="studioAsk" rows="2" placeholder="Tell the agent in Studio what to do…"
@@ -14885,6 +15101,226 @@
       studioStart();
     }
 
+    // ---------- the place, browsed from here ----------
+    // The same Explorer the systems draw, fed from the open place instead of
+    // from something just generated. Clicking a script fetches its source;
+    // editing it goes back as the write ops the editor already runs.
+    let studioTab = "activity";
+    let studioTree = null;
+    let studioTreeAt = 0;
+    let studioOpen = {};
+    let studioSel = null;
+    let studioFile = null;
+    let studioPending = {};
+
+    function studioSetTab(tab) {
+      studioTab = tab;
+      if (tab === "project" && !studioTree) studioLoadTree();
+      studioRenderPanel();
+    }
+
+    // A read is a job like any other, so it waits for Studio the same way.
+    async function studioAsk(payload) {
+      const res = await authedFetch("/studio/deploy", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(Object.assign({ placeId: studioState.presence.placeId || "" }, payload))
+      });
+      if (!res.ok) throw new Error(await wsApiError(res, "/studio/deploy"));
+      const { jobId } = await res.json();
+
+      // Poll this one job until the place answers. Studio may be mid-deploy,
+      // so this waits rather than giving up on the first look.
+      for (let i = 0; i < 60; i++) {
+        await new Promise(r => setTimeout(r, i < 4 ? 400 : 1000));
+        const st = await authedFetch("/studio/status?job=" + encodeURIComponent(jobId));
+        if (!st.ok) continue;
+        const data = await st.json();
+        const job = (data.jobs || []).find(j => j.id === jobId);
+        if (!job) continue;
+        if (job.status === "done") return job.result;
+        if (job.status === "failed" || job.status === "expired" || job.status === "cancelled") {
+          throw new Error(job.error || "Studio could not answer that.");
+        }
+      }
+      throw new Error("Studio did not answer in time.");
+    }
+
+    async function studioLoadTree() {
+      if (studioPending.tree) return;
+      studioPending.tree = true;
+      studioRenderPanel();
+      try {
+        studioTree = await studioAsk({ kind: "query", query: "tree" });
+        studioTreeAt = Date.now();
+      } catch (e) {
+        studioTree = { error: e.message };
+      } finally {
+        studioPending.tree = false;
+        studioRenderPanel();
+      }
+    }
+
+    async function studioOpenFile(path) {
+      studioSel = path;
+      studioFile = null;
+      studioPending.file = true;
+      studioRenderPanel();
+      try {
+        const got = await studioAsk({ kind: "query", query: "source", path });
+        studioFile = { path, source: (got && (got.source || got.text)) || "", dirty: false };
+      } catch (e) {
+        studioFile = { path, error: e.message };
+      } finally {
+        studioPending.file = false;
+        studioRenderPanel();
+      }
+    }
+
+    function studioNodeTone(cls) {
+      if (cls === "_service") return "plain";
+      if (cls === "_collapsed") return "plain";
+      return sysTone(cls);
+    }
+
+    function studioTreeHtml(nodes, depth) {
+      return (nodes || []).map(n => {
+        const isScript = SYS_SCRIPT_CLASSES.includes(n.class);
+        const kids = n.children && n.children.length;
+        const openKey = n.path || (n.name + depth);
+        const isOpen = studioOpen[openKey];
+        const sel = studioSel === n.path;
+        return `<div class="pj-node" style="--d:${Math.min(depth, 6)}">
+          <button type="button" class="pj-row ${sel ? "on" : ""} ${n.class === "_collapsed" ? "muted" : ""}"
+            ${kids ? `onclick="studioFold('${escapeHtml(openKey)}')"`
+              : isScript ? `onclick="studioOpenFile('${escapeHtml(n.path)}')"` : "disabled"}>
+            <span class="pj-twist">${kids ? WS_ICONS.chevron : ""}</span>
+            <span class="sys-ico t-${studioNodeTone(n.class)}">${
+              n.class === "_service" || n.class === "_collapsed" ? sysIcon("Folder") : sysIcon(n.class)}</span>
+            <span class="pj-name">${escapeHtml(n.name)}</span>
+            ${n.lines ? `<span class="pj-lines">${n.lines}</span>` : ""}
+          </button>
+          ${kids && isOpen ? `<div>${studioTreeHtml(n.children, depth + 1)}</div>` : ""}
+        </div>`;
+      }).join("");
+    }
+
+    function studioFold(key) {
+      studioOpen[key] = !studioOpen[key];
+      studioRenderPanel();
+    }
+
+    function studioProjectHtml() {
+      if (studioPending.tree) return `<p class="st-empty">Reading the place…</p>`;
+      if (!studioTree) return `<p class="st-empty">Open the project to see what is in this place.
+        <button type="button" class="st-send" style="margin-top:10px" onclick="studioLoadTree()">Read the place</button></p>`;
+      if (studioTree.error) return `<div class="st-error">${escapeHtml(studioTree.error)}
+        <button type="button" class="st-replace" onclick="studioLoadTree()">Try again</button></div>`;
+
+      if (studioFile) return studioFileHtml();
+
+      return `<div class="pj-head">
+          <span class="pj-place">${escapeHtml(studioTree.place || "This place")}</span>
+          <button type="button" class="pj-reload" onclick="studioLoadTree()" title="Read it again">${WS_ICONS.bolt}</button>
+        </div>
+        <div class="pj-tree">${studioTreeHtml(studioTree.roots, 0)}</div>`;
+    }
+
+    function studioFileHtml() {
+      const f = studioFile;
+      if (f.error) return `<div class="st-error">${escapeHtml(f.error)}
+        <button type="button" class="st-replace" onclick="studioBackToTree()">Back to the place</button></div>`;
+      const busy = studioPending.file || studioPending.save;
+      return `<div class="pj-file">
+        <div class="pj-file-head">
+          <button type="button" class="pj-back" onclick="studioBackToTree()">${WS_ICONS.back}</button>
+          <span class="pj-file-path">${escapeHtml(f.path)}</span>
+        </div>
+        <textarea class="pj-src" id="studioSrc" spellcheck="false"
+          oninput="studioMarkDirty()" ${busy ? "disabled" : ""}>${escapeHtml(f.source || "")}</textarea>
+        <div class="pj-file-acts">
+          <button type="button" class="st-send" style="width:auto" onclick="studioSaveFile()"
+            ${f.dirty ? "" : "disabled"}>${studioPending.save ? "Saving…" : "Save to Studio"}</button>
+          <button type="button" class="st-cancel" style="margin-top:0" onclick="studioAskAboutFile()">Ask the agent about it</button>
+          <button type="button" class="st-cancel" style="margin-top:0" onclick="studioDeleteSelected()">Delete it</button>
+        </div>
+      </div>`;
+    }
+
+    function studioMarkDirty() {
+      if (studioFile) studioFile.dirty = true;
+      const btn = document.querySelector(".pj-file-acts .st-send");
+      if (btn) btn.disabled = false;
+    }
+
+    function studioBackToTree() {
+      studioFile = null;
+      studioSel = null;
+      studioRenderPanel();
+    }
+
+    // Saving is a deploy of one script, allowed to replace: you opened the
+    // thing that is already there, so replacing it is the whole point.
+    async function studioSaveFile() {
+      const box = document.getElementById("studioSrc");
+      if (!studioFile || !box) return;
+      const path = studioFile.path;
+      const dot = path.split(".");
+      studioPending.save = true;
+      studioRenderPanel();
+      try {
+        await studioAsk({
+          kind: "ops", name: "Save " + dot[dot.length - 1],
+          ops: [{ name: "write_script", args: {
+            parent: dot.slice(0, -1).join("."),
+            name: dot[dot.length - 1],
+            className: studioClassOf(path) || "Script",
+            source: box.value,
+            overwrite: true
+          } }]
+        });
+        studioFile.source = box.value;
+        studioFile.dirty = false;
+      } catch (e) {
+        alert(e.message);
+      } finally {
+        studioPending.save = false;
+        studioRenderPanel();
+      }
+    }
+
+    function studioClassOf(path) {
+      let found = null;
+      const walk = (nodes) => (nodes || []).forEach(n => {
+        if (n.path === path) found = n.class;
+        if (n.children) walk(n.children);
+      });
+      walk(studioTree && studioTree.roots);
+      return found;
+    }
+
+    async function studioDeleteSelected() {
+      const path = studioFile ? studioFile.path : studioSel;
+      if (!path) return;
+      if (!confirm("Delete " + path + " from the place?\n\nIt is one Ctrl+Z in Studio, but it is a real deletion.")) return;
+      try {
+        await studioAsk({ kind: "ops", name: "Delete " + path.split(".").pop(),
+          ops: [{ name: "delete", args: { paths: [path] } }] });
+        studioFile = null;
+        studioSel = null;
+        await studioLoadTree();
+      } catch (e) { alert(e.message); }
+    }
+
+    // Pointing the agent at something you are looking at, rather than
+    // describing where it is.
+    function studioAskAboutFile() {
+      const path = studioFile ? studioFile.path : studioSel;
+      const what = prompt("What should the agent do with " + (path || "this place") + "?");
+      if (!what || !what.trim()) return;
+      studioSendAgent(path ? `In ${path}: ${what.trim()}` : what.trim());
+      studioSetTab("activity");
+    }
+
     function studioChipHtml() {
       const p = studioState.presence || {};
       if (!p.online) {
@@ -14981,9 +15417,37 @@
       return WS_ICONS.bolt;
     }
 
+    // What the agent in Studio is doing, whoever set it going — so the panel
+    // is a window onto the agent, not only onto what this page asked for.
+    function studioRenderAgent() {
+      const el = document.getElementById("studioAgent");
+      if (!el) return;
+      const a = studioState.presence && studioState.presence.agent;
+      if (!a || !studioState.presence.online || (!a.busy && !a.say && !a.activity)) {
+        el.hidden = true;
+        return;
+      }
+      el.hidden = false;
+      const line = a.busy ? (a.activity || a.thinking || "Working…") : (a.say || "Idle");
+      el.innerHTML = `<span class="st-agent-dot ${a.busy ? "busy" : ""}"></span>
+        <span class="st-agent-text">${escapeHtml(String(line).slice(0, 220))}</span>
+        <span class="st-agent-tag">${a.busy ? "agent working" : "agent idle"}</span>`;
+    }
+
     function studioRenderPanel() {
       const body = document.getElementById("studioBody");
       if (!body || !document.body.classList.contains("studio-on")) return;
+
+      ["activity", "project"].forEach(t => {
+        const b = document.getElementById("studioTab" + t[0].toUpperCase() + t.slice(1));
+        if (b) b.classList.toggle("on", studioTab === t);
+      });
+      studioRenderAgent();
+
+      const ask = document.querySelector(".st-ask");
+      if (ask) ask.hidden = studioTab !== "activity";
+
+      if (studioTab === "project") { body.innerHTML = studioProjectHtml(); return; }
 
       const jobs = studioState.jobs;
       if (!jobs.length) {
