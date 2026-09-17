@@ -3997,6 +3997,21 @@
     .st-line.k-error { color: var(--coral); }
     .st-line.k-done  { color: var(--mint); }
 
+    .st-replace {
+      display: block;
+      margin-top: 9px;
+      background: var(--card);
+      border: 1px solid var(--coral);
+      color: var(--coral);
+      font-size: 11.8px;
+      font-weight: 600;
+      padding: 7px 11px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+    }
+
+    .st-replace:hover { background: color-mix(in srgb, var(--coral) 12%, transparent); }
+
     .st-cancel {
       margin-top: 11px;
       background: var(--card);
@@ -14813,6 +14828,9 @@
     let studioState = { presence: { online: false }, jobs: [], watching: null };
     let studioTimer = null;
     let studioBusy = false;
+    // What each job sent, kept only for this page's lifetime — enough to
+    // offer the same deploy again with replacing allowed.
+    let studioLastTree = {};
 
     function studioPollMs() {
       // Quick while something is in flight, unhurried when nothing is — but
@@ -14927,6 +14945,7 @@
         });
         if (!res.ok) throw new Error(await wsApiError(res, "/studio/deploy"));
         const data = await res.json();
+        studioLastTree[data.jobId] = { name: sys.name, tree: sys.tree };
         studioState.watching = data.jobId;
         studioOpenPanel();
         studioKick();
@@ -14987,7 +15006,10 @@
             <span class="st-job-state">${escapeHtml(studioStatusWord(watched))}</span>
           </div>
           ${watched.total ? `<div class="st-bar ${live ? "live" : ""}"><span style="width:${pct}%"></span></div>` : ""}
-          ${watched.error ? `<div class="st-error">${escapeHtml(watched.error)}</div>` : ""}
+          ${watched.error ? `<div class="st-error">${escapeHtml(watched.error)}
+            ${studioLooksLikeClash(watched) ? `<button type="button" class="st-replace"
+              onclick="studioRedeploy('${watched.id}')">Replace what is there and deploy again</button>` : ""}
+          </div>` : ""}
           <div class="st-log">${(watched.log || []).map(l =>
             `<div class="st-line k-${escapeHtml(l.kind || "info")}">
                <span class="st-time">${studioClock(l.t)}</span>${escapeHtml(l.text || "")}</div>`).join("")
@@ -15003,6 +15025,32 @@
               <span class="st-other-state">${escapeHtml(studioStatusWord(j))}</span>
             </button>`).join("")}
         </div>` : ""}`;
+    }
+
+    // The editor refuses a name that is already taken rather than replacing
+    // it, which is the right default and a dead end without this: the deploy
+    // that got refused is offered again, this time allowed to replace.
+    function studioLooksLikeClash(job) {
+      if (job.kind !== "system" || job.status !== "failed") return false;
+      return (job.log || []).some(l => /already exists/i.test(l.text || ""));
+    }
+
+    async function studioRedeploy(jobId) {
+      const job = studioState.jobs.find(j => j.id === jobId);
+      const sys = job && studioLastTree[jobId];
+      if (!sys) { alert("That deploy is no longer in this page's memory — press Deploy on the system again."); return; }
+      try {
+        const res = await authedFetch("/studio/deploy", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ kind: "system", name: sys.name, tree: sys.tree,
+            overwrite: true, placeId: studioState.presence.placeId || "" })
+        });
+        if (!res.ok) throw new Error(await wsApiError(res, "/studio/deploy"));
+        const data = await res.json();
+        studioLastTree[data.jobId] = sys;
+        studioState.watching = data.jobId;
+        studioKick();
+      } catch (e) { alert(e.message); }
     }
 
     function studioStatusWord(j) {
