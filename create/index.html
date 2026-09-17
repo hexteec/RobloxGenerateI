@@ -4328,6 +4328,16 @@
 
     .pj-wait-title { font-size: 12.8px; font-weight: 600; color: var(--ink); }
     .pj-wait-sub { font-size: 11.5px; color: var(--ink-faint); margin-top: 2px; }
+    .pj-wait-secs {
+      font-variant-numeric: tabular-nums; font-weight: 500;
+      font-size: 11.5px; color: var(--ink-faint); margin-left: 4px;
+    }
+    .pj-wait-stop {
+      margin-top: 8px; padding: 4px 9px; border-radius: 7px; cursor: pointer;
+      font: inherit; font-size: 11px; color: var(--ink-faint);
+      background: transparent; border: 1px solid var(--line);
+    }
+    .pj-wait-stop:hover { color: var(--ink); border-color: var(--ink-faint); }
 
     .pj-note {
       align-self: center;
@@ -15076,7 +15086,7 @@
     // page leaves work on the worker and watches it get picked up. The
     // plugin's poll is also its heartbeat, which is how this knows Studio is
     // open at all and which place is in front of you.
-    let studioState = { presence: { online: false }, jobs: [], watching: null };
+    let studioState = { presence: { online: false }, presenceAt: 0, jobs: [], watching: null };
     let studioTimer = null;
     let studioBusy = false;
     // What each job sent, kept only for this page's lifetime — enough to
@@ -15099,12 +15109,14 @@
         if (!res.ok) throw new Error(await wsApiError(res, "/studio/status"));
         const data = await res.json();
         studioState.presence = data.presence || { online: false };
+        studioState.presenceAt = Date.now();
         studioState.jobs = data.jobs || [];
         studioRender();
       } catch (e) {
         // A status poll that fails is not worth shouting about; the chip just
         // stops claiming Studio is there.
         studioState.presence = { online: false, error: e.message };
+        studioState.presenceAt = Date.now();
         studioRender();
       } finally {
         studioBusy = false;
@@ -15154,8 +15166,53 @@
       studioRenderPanel();
     }
 
+    // A wait with no clock on it reads as a hang, and the only honest answer to
+    // "is this still going?" is the number of seconds. This writes into the
+    // line already on screen instead of redrawing the pane, which would take
+    // the editor's text with it.
+    let studioWait = { since: 0, timer: null, cancel: false };
+
+    function studioWaitStart() {
+      studioWait = { since: Date.now(), timer: null, cancel: false };
+      studioWait.timer = setInterval(() => {
+        const el = document.getElementById("studioWaitSecs");
+        if (el) el.textContent = Math.round((Date.now() - studioWait.since) / 1000) + "s";
+      }, 1000);
+    }
+
+    function studioWaitStop() {
+      if (studioWait.timer) clearInterval(studioWait.timer);
+      studioWait.timer = null;
+      studioWait.since = 0;
+    }
+
+    function studioWaitCancel() {
+      studioWait.cancel = true;
+    }
+
+    // The first status answer may still be on its way when the panel opens, and
+    // a poll already in flight will turn a second request away. Waiting for the
+    // one answer costs a moment; calling Studio absent on the strength of never
+    // having looked would send someone off to restart a plugin that is fine.
+    async function studioPresenceKnown() {
+      if (studioState.presenceAt) return;
+      studioRefresh();
+      for (let i = 0; i < 20 && !studioState.presenceAt; i++) {
+        await new Promise(r => setTimeout(r, 150));
+      }
+    }
+
     // A read is a job like any other, so it waits for Studio the same way.
     async function studioAsk(payload) {
+      // Nothing is listening, so say so now rather than after a minute of
+      // spinner. The plugin writes its presence on the same poll that would
+      // collect this job. Nobody has looked yet is not the same as nobody is
+      // there, though, so a page that has only just opened asks first.
+      await studioPresenceKnown();
+      if (!studioState.presence.online) {
+        throw new Error("Studio is not connected. Open your place in Studio with the RoPeak plugin running.");
+      }
+
       const res = await authedFetch("/studio/deploy", {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify(Object.assign({ placeId: studioState.presence.placeId || "" }, payload))
@@ -15164,25 +15221,43 @@
       const { jobId } = await res.json();
 
       // Poll this one job until the place answers. Studio may be mid-deploy,
-      // so this waits rather than giving up on the first look.
+      // so this waits rather than giving up on the first look. A stop from an
+      // earlier wait belongs to that wait: carrying it over would call off a
+      // save the moment it was asked for.
+      studioWait.cancel = false;
+      let picked = false;
       for (let i = 0; i < 60; i++) {
         await new Promise(r => setTimeout(r, i < 4 ? 400 : 1000));
+        if (studioWait.cancel) {
+          authedFetch("/studio/cancel", {
+            method: "POST", headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ jobId })
+          }).catch(() => {});
+          throw new Error("Cancelled.");
+        }
         const st = await authedFetch("/studio/status?job=" + encodeURIComponent(jobId));
         if (!st.ok) continue;
         const data = await st.json();
         const job = (data.jobs || []).find(j => j.id === jobId);
         if (!job) continue;
+        if (job.status === "running") picked = true;
         if (job.status === "done") return job.result;
         if (job.status === "failed" || job.status === "expired" || job.status === "cancelled") {
           throw new Error(job.error || "Studio could not answer that.");
         }
       }
-      throw new Error("Studio did not answer in time.");
+      // Which half of the trip failed is the whole of the useful diagnosis:
+      // never collected means the plugin is not taking work off the queue,
+      // collected but silent means the place itself is struggling with it.
+      throw new Error(picked
+        ? "Studio took the request but has not answered yet. Give the place a moment, then try again."
+        : "Studio never picked this up. Check that the place is open and the plugin is running, then try again.");
     }
 
     async function studioLoadTree() {
       if (studioPending.tree) return;
       studioPending.tree = true;
+      studioWaitStart();
       studioRenderPanel();
       try {
         studioTree = await studioAsk({ kind: "query", query: "tree" });
@@ -15190,6 +15265,7 @@
       } catch (e) {
         studioTree = { error: e.message };
       } finally {
+        studioWaitStop();
         studioPending.tree = false;
         studioRenderPanel();
       }
@@ -15199,6 +15275,7 @@
       studioSel = path;
       studioFile = null;
       studioPending.file = true;
+      studioWaitStart();
       studioRenderPanel();
       try {
         const got = await studioAsk({ kind: "query", query: "source", path });
@@ -15206,6 +15283,7 @@
       } catch (e) {
         studioFile = { path, error: e.message };
       } finally {
+        studioWaitStop();
         studioPending.file = false;
         studioRenderPanel();
       }
@@ -15245,17 +15323,15 @@
     }
 
     function studioProjectHtml() {
-      if (studioPending.tree) return `<p class="st-empty">Reading the place…</p>`;
+      if (studioPending.tree) return studioWaitHtml("Reading the place",
+        "Studio answers on its next poll, so give it a few seconds.");
       if (!studioTree) return `<p class="st-empty">Open the project to see what is in this place.
         <button type="button" class="st-send" style="margin-top:10px" onclick="studioLoadTree()">Read the place</button></p>`;
       if (studioTree.error) return `<div class="st-error">${escapeHtml(studioTree.error)}
         <button type="button" class="st-replace" onclick="studioLoadTree()">Try again</button></div>`;
 
-      if (studioPending.file) return `<div class="pj-wait">
-        <span class="pj-spin"></span>
-        <div><div class="pj-wait-title">Opening ${escapeHtml(studioSel || "the script")}</div>
-        <div class="pj-wait-sub">Studio answers between polls, so this takes a moment.</div></div>
-      </div>`;
+      if (studioPending.file) return studioWaitHtml("Opening " + (studioSel || "the script"),
+        "Studio answers between polls, so this takes a moment.");
 
       if (studioFile) return studioFileHtml();
 
@@ -15264,6 +15340,17 @@
           <button type="button" class="pj-reload" onclick="studioLoadTree()" title="Read it again">${WS_ICONS.bolt}</button>
         </div>
         <div class="pj-tree">${studioTreeHtml(studioTree.roots, 0)}</div>`;
+    }
+
+    function studioWaitHtml(title, sub) {
+      return `<div class="pj-wait">
+        <span class="pj-spin"></span>
+        <div>
+          <div class="pj-wait-title">${escapeHtml(title)} <span class="pj-wait-secs" id="studioWaitSecs">0s</span></div>
+          <div class="pj-wait-sub">${escapeHtml(sub)}</div>
+          <button type="button" class="pj-wait-stop" onclick="studioWaitCancel()">Stop waiting</button>
+        </div>
+      </div>`;
     }
 
     function studioFileHtml() {
