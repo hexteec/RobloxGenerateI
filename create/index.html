@@ -4305,6 +4305,41 @@
 
     .pj-src:focus { outline: none; border-color: var(--accent); }
 
+    /* Studio answers between polls, so a read is never instant. Saying so
+       beats a pane that looks like the click did nothing. */
+    .pj-wait {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 18px 4px;
+    }
+
+    .pj-spin {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+      border-radius: 50%;
+      border: 2px solid var(--soft-2);
+      border-top-color: var(--accent);
+      animation: pjSpin .8s linear infinite;
+    }
+
+    @keyframes pjSpin { to { transform: rotate(360deg); } }
+
+    .pj-wait-title { font-size: 12.8px; font-weight: 600; color: var(--ink); }
+    .pj-wait-sub { font-size: 11.5px; color: var(--ink-faint); margin-top: 2px; }
+
+    .pj-note {
+      align-self: center;
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      color: var(--ink-faint);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .pj-spin { animation: none; border-top-color: var(--accent); }
+    }
+
     .pj-file-acts {
       display: flex;
       gap: 7px;
@@ -15216,6 +15251,12 @@
       if (studioTree.error) return `<div class="st-error">${escapeHtml(studioTree.error)}
         <button type="button" class="st-replace" onclick="studioLoadTree()">Try again</button></div>`;
 
+      if (studioPending.file) return `<div class="pj-wait">
+        <span class="pj-spin"></span>
+        <div><div class="pj-wait-title">Opening ${escapeHtml(studioSel || "the script")}</div>
+        <div class="pj-wait-sub">Studio answers between polls, so this takes a moment.</div></div>
+      </div>`;
+
       if (studioFile) return studioFileHtml();
 
       return `<div class="pj-head">
@@ -15239,17 +15280,27 @@
           oninput="studioMarkDirty()" ${busy ? "disabled" : ""}>${escapeHtml(f.source || "")}</textarea>
         <div class="pj-file-acts">
           <button type="button" class="st-send" style="width:auto" onclick="studioSaveFile()"
-            ${f.dirty ? "" : "disabled"}>${studioPending.save ? "Saving…" : "Save to Studio"}</button>
+            ${f.dirty && !studioPending.save ? "" : "disabled"}>${studioPending.save ? "Saving…" : "Save to Studio"}</button>
           <button type="button" class="st-cancel" style="margin-top:0" onclick="studioAskAboutFile()">Ask the agent about it</button>
           <button type="button" class="st-cancel" style="margin-top:0" onclick="studioDeleteSelected()">Delete it</button>
+          <span class="pj-note" id="studioSaveNote">${
+            studioPending.save ? "sending to Studio…" : f.saved ? "saved" : f.dirty ? "unsaved" : ""}</span>
         </div>
       </div>`;
     }
 
+    // What is in the box is the truth about the file from the moment it is
+    // typed, so a redraw for any other reason cannot lose it.
     function studioMarkDirty() {
-      if (studioFile) studioFile.dirty = true;
+      const box = document.getElementById("studioSrc");
+      if (!studioFile || !box) return;
+      studioFile.source = box.value;
+      studioFile.dirty = true;
+      studioFile.saved = false;
       const btn = document.querySelector(".pj-file-acts .st-send");
       if (btn) btn.disabled = false;
+      const note = document.getElementById("studioSaveNote");
+      if (note) note.textContent = "unsaved";
     }
 
     function studioBackToTree() {
@@ -15265,6 +15316,10 @@
       if (!studioFile || !box) return;
       const path = studioFile.path;
       const dot = path.split(".");
+      // Hold the text before anything redraws, so a save can never be the
+      // thing that loses the edit it was sent to keep.
+      const text = box.value;
+      studioFile.source = text;
       studioPending.save = true;
       studioRenderPanel();
       try {
@@ -15274,12 +15329,13 @@
             parent: dot.slice(0, -1).join("."),
             name: dot[dot.length - 1],
             className: studioClassOf(path) || "Script",
-            source: box.value,
+            source: text,
             overwrite: true
           } }]
         });
-        studioFile.source = box.value;
+        studioFile.source = text;
         studioFile.dirty = false;
+        studioFile.saved = true;
       } catch (e) {
         alert(e.message);
       } finally {
@@ -15348,7 +15404,7 @@
           : "Not connected";
       }
       document.querySelectorAll(".sys-deploy").forEach(b => studioSyncDeployBtn(b));
-      studioRenderPanel();
+      studioRenderPanel(true);
     }
 
     // The button says what will happen, including when nothing can.
@@ -15434,7 +15490,12 @@
         <span class="st-agent-tag">${a.busy ? "agent working" : "agent idle"}</span>`;
     }
 
-    function studioRenderPanel() {
+    // Two callers with different rights. The poll may refresh what changes
+    // on its own — presence, the agent line, the job list — and must not
+    // touch the project pane: rebuilding it every couple of seconds threw
+    // away whatever was typed into the editor, which made editing
+    // impossible. Only an action the user took redraws that side.
+    function studioRenderPanel(fromPoll) {
       const body = document.getElementById("studioBody");
       if (!body || !document.body.classList.contains("studio-on")) return;
 
@@ -15447,7 +15508,10 @@
       const ask = document.querySelector(".st-ask");
       if (ask) ask.hidden = studioTab !== "activity";
 
-      if (studioTab === "project") { body.innerHTML = studioProjectHtml(); return; }
+      if (studioTab === "project") {
+        if (!fromPoll) body.innerHTML = studioProjectHtml();
+        return;
+      }
 
       const jobs = studioState.jobs;
       if (!jobs.length) {
