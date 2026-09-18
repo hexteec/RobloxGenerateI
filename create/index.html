@@ -15093,28 +15093,52 @@
     // offer the same deploy again with replacing allowed.
     let studioLastTree = {};
 
+    // The panel is open for minutes and the page for hours, so every poll is
+    // paid for over and over. What is on screen decides the price: a closed
+    // panel is a status chip and nothing more, and there is no work to watch
+    // until someone sends some.
+    function studioPanelOpen() {
+      return document.body.classList.contains("studio-on");
+    }
+
+    // A failing status poll is usually the whole account being out of Firestore
+    // for the day. Carrying on at the same rate is how a bad minute becomes a
+    // bad afternoon, so each failure doubles the wait and one answer clears it.
+    let studioFailures = 0;
+
     function studioPollMs() {
-      // Quick while something is in flight, unhurried when nothing is — but
-      // never so unhurried that Studio opening goes unnoticed for long.
+      if (studioFailures) return Math.min(60000, 8000 * Math.pow(2, studioFailures - 1));
       const live = studioState.jobs.some(j => j.status === "queued" || j.status === "running");
-      return live ? 1500 : 4000;
+      if (live) return 2000;
+      if (!studioPanelOpen()) return 12000;
+      return 6000;
     }
 
     async function studioRefresh() {
       if (studioBusy || !currentUser) return;
       studioBusy = true;
       try {
-        const q = studioState.watching ? "?job=" + encodeURIComponent(studioState.watching) : "";
-        const res = await authedFetch("/studio/status" + q);
+        // The job list is drawn by the activity tab and nothing else, so it is
+        // read for the activity tab and nothing else.
+        const wantList = studioPanelOpen() && studioTab === "activity";
+        const q = [
+          studioState.watching ? "job=" + encodeURIComponent(studioState.watching) : "",
+          wantList ? "" : "list=0"
+        ].filter(Boolean).join("&");
+        const res = await authedFetch("/studio/status" + (q ? "?" + q : ""));
         if (!res.ok) throw new Error(await wsApiError(res, "/studio/status"));
         const data = await res.json();
+        studioFailures = 0;
         studioState.presence = data.presence || { online: false };
         studioState.presenceAt = Date.now();
-        studioState.jobs = data.jobs || [];
+        // Nothing was asked for, so nothing came back: keep what is known
+        // rather than drawing an empty activity list over it.
+        if (wantList || studioState.watching) studioState.jobs = data.jobs || [];
         studioRender();
       } catch (e) {
         // A status poll that fails is not worth shouting about; the chip just
         // stops claiming Studio is there.
+        studioFailures = Math.min(studioFailures + 1, 6);
         studioState.presence = { online: false, error: e.message };
         studioState.presenceAt = Date.now();
         studioRender();
@@ -15235,7 +15259,7 @@
           }).catch(() => {});
           throw new Error("Cancelled.");
         }
-        const st = await authedFetch("/studio/status?job=" + encodeURIComponent(jobId));
+        const st = await authedFetch("/studio/status?list=0&job=" + encodeURIComponent(jobId));
         if (!st.ok) continue;
         const data = await st.json();
         const job = (data.jobs || []).find(j => j.id === jobId);
