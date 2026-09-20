@@ -1737,12 +1737,16 @@
          It thins out on the way in instead, the further in the fainter, and
          how far the fade reaches is whatever they actually cover - measured,
          because the composer grows with what is typed into it.
+         It thins rather than disappears, because the dock steps back when a
+         message arrives under it and there has to be something left to see.
          The same at the top, where the bar floats: it carries no band of its
          own, so the feed thins out under it instead and the buttons stay
-         legible over whatever is passing beneath them. */
+         legible over whatever is passing beneath them. That one does go all
+         the way - nothing should read through a button. */
       --feed-mask: linear-gradient(to bottom,
           transparent 0, #000 var(--feed-fade-top, 0px),
-          #000 calc(100% - var(--feed-fade, 150px)), transparent 100%);
+          #000 calc(100% - var(--feed-fade, 150px)),
+          rgba(0, 0, 0, .38) 100%);
       -webkit-mask-image: var(--feed-mask);
       mask-image: var(--feed-mask);
       scrollbar-width: none;
@@ -6739,6 +6743,39 @@
       pointer-events: none !important;
     }
 
+    /* WHEN THE CHAT REACHES THE DOCK
+
+       The dock and the composer float over the foot of the feed, so a message
+       scrolled up to them ends up behind them. They step back while that is
+       true rather than sitting on top of it, and come straight back the
+       moment you reach for them - getting out of the way must never cost you
+       the thing you were reaching for. The workspace runs its own version of
+       this against the work itself, and keeps it. */
+    body.dock-clear:not(.ws-on) #macDockContainer { opacity: .45; }
+    body.dock-clear:not(.ws-on) #composerIsland { opacity: .6; }
+
+    /* A fade you can undo by pointing at it can afford to go further than one
+       you cannot: on a touch screen the only way back is to tap what is left,
+       so enough of it has to stay to be aimed at. */
+    @media (hover: hover) {
+      body.dock-clear:not(.ws-on) #macDockContainer { opacity: .14; }
+      body.dock-clear:not(.ws-on) #composerIsland { opacity: .42; }
+    }
+
+    /* Reaching for it beats hiding it - and an id in the rules above means
+       saying so takes more than a class.
+
+       Not :focus-within, which reads as use and is not: the prompt is focused
+       the moment the page loads and stays focused, so it would hold the dock
+       up permanently and none of this would ever happen. Something typed into
+       it is use. Pointing at it is use. An empty field waiting is not. */
+    body.dock-clear .composer-wrap:hover #macDockContainer,
+    body.dock-clear .composer-wrap:hover #composerIsland,
+    body.dock-clear.composer-live #macDockContainer,
+    body.dock-clear.composer-live #composerIsland { opacity: 1; }
+
+    #composerIsland { transition: opacity .32s ease; }
+
     body.ws-on .sidebar,
     body.ws-on .topbar { opacity: .84; }
 
@@ -8815,6 +8852,47 @@
     let codeBlockSeq = 0;
     const codeBlockStore = {};
 
+    // WHEN THE CHAT REACHES THE DOCK
+    //
+    // The dock and the composer float over the foot of the feed, so a message
+    // scrolled up to them ends up behind them. Whether that is happening is
+    // measured rather than guessed: both of them change height, and so does
+    // every message. The CSS decides what stepping back looks like.
+    let dockGuardQueued = false;
+
+    function dockGuard() {
+      const feed = document.getElementById("feed");
+      const dock = document.getElementById("macDockContainer");
+      const box = document.getElementById("composerIsland");
+      // The workspace runs its own version of this against the work itself.
+      if (!feed || !dock || !box || document.body.classList.contains("ws-on")) return;
+
+      const dr = dock.getBoundingClientRect();
+      const br = box.getBoundingClientRect();
+      const top = Math.min(dr.height ? dr.top : Infinity, br.height ? br.top : Infinity);
+      if (!isFinite(top)) return;
+
+      // From the bottom up, because that is where the dock is. The first
+      // message that ends above the dock ends the search: everything before
+      // it is further up still.
+      const msgs = feed.querySelectorAll(".msg");
+      let behind = false;
+      for (let i = msgs.length - 1; i >= 0; i--) {
+        const r = msgs[i].getBoundingClientRect();
+        if (r.bottom <= top) break;
+        if (r.height && r.top < window.innerHeight) { behind = true; break; }
+      }
+      document.body.classList.toggle("dock-clear", behind);
+    }
+
+    // Scrolling fires far faster than the screen is drawn, and every call
+    // measures the chat.
+    function dockGuardSoon() {
+      if (dockGuardQueued) return;
+      dockGuardQueued = true;
+      requestAnimationFrame(() => { dockGuardQueued = false; dockGuard(); });
+    }
+
     // THE TOP BAR ON A PHONE
     //
     // It floats over the feed, so while you are reading it gets out of the way
@@ -8871,6 +8949,7 @@
       if (!feed) return;
 
       feed.addEventListener("scroll", () => {
+        dockGuardSoon();
         if (!barIsMobile()) return;
         const y = feed.scrollTop;
         const dy = y - barLastY;
@@ -8910,8 +8989,25 @@
         peek.addEventListener("touchend", () => barShow(), { passive: true });
       }
 
-      window.addEventListener("resize", barSync);
+      window.addEventListener("resize", () => { barSync(); dockGuardSoon(); });
       barSync();
+
+      // Something in the field is the difference between the composer being
+      // used and merely being focused, which it is from the moment the page
+      // opens.
+      const prompt = document.getElementById("prompt");
+      if (prompt) {
+        const live = () => document.body.classList.toggle("composer-live", !!prompt.value.trim());
+        prompt.addEventListener("input", live);
+        live();
+      }
+
+      // A message arriving is as good a reason to look again as one scrolling
+      // past, and the answer changes while it is still being typed out.
+      const inner = document.getElementById("feedInner");
+      if (inner) new MutationObserver(dockGuardSoon)
+        .observe(inner, { childList: true, subtree: true, characterData: true });
+      dockGuardSoon();
     }
 
     window.addEventListener("load", () => { barWire(); initComposerHeightSync(); });
@@ -10181,6 +10277,8 @@
         // reach. They change height - the composer grows as you type, the
         // dock shrinks when a stage opens - so it is measured, not guessed.
         feed.style.setProperty("--feed-fade", h + "px");
+        // Where the dock is has just moved, so what it is over may have too.
+        dockGuardSoon();
       };
 
       sync();
