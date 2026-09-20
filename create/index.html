@@ -332,7 +332,14 @@
 
     body {
       margin: 0;
+      /* A phone's 100vh is the height with the address bar out of the way, so
+         while it is showing, the bottom of the layout - the dock and the
+         composer, which hang off the bottom edge - sits below the screen, and
+         nothing scrolls to it because this is the frame, not the content.
+         100dvh is the height there actually is right now. The vh line stays
+         as the fallback for anything that does not know dvh. */
       height: 100vh;
+      height: 100dvh;
       overflow: hidden;
       background: var(--bg);
       color: var(--ink);
@@ -419,6 +426,7 @@
     .app-shell {
       display: flex;
       height: 100vh;
+      height: 100dvh;
       width: 100vw;
       position: relative;
       background-image:
@@ -450,6 +458,7 @@
 
       margin: 0;
       min-height: 100vh;
+      min-height: 100dvh;
     }
 
     /* ===================== SIDEBAR ===================== */
@@ -2832,7 +2841,10 @@
       bottom: 0;
       z-index: 30;
       background: transparent;
+      /* The home indicator on a phone is drawn over the page, so the composer
+         has to stop above it rather than under it. */
       padding: 0 0 22px;
+      padding-bottom: calc(22px + env(safe-area-inset-bottom, 0px));
       pointer-events: none;
     }
 
