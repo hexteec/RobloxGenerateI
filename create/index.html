@@ -7589,6 +7589,75 @@
       .ws-foot .ws-btn { flex: 1 1 auto; justify-content: center; }
     }
 
+    /* THE TOP BAR ON A PHONE
+
+       It floats over the feed, so solid it sits on top of whatever is being
+       read, and transparent the messages run straight through the menu
+       button. It does neither now: it steps out of the way while you read and
+       comes back when you pull down for it, with a surface of its own to sit
+       on. These rules come last on purpose - the workspace dims the bar by
+       opacity, and would otherwise light a hidden one back up. */
+    .bar-peek { display: none; }
+
+    @media (max-width: 768px) {
+      .topbar {
+        padding-top: calc(12px + env(safe-area-inset-top, 0px));
+        transform: translateY(-104%);
+        opacity: 0 !important;
+        pointer-events: none;
+        transition: transform .26s cubic-bezier(.4, 0, .2, 1), opacity .2s ease;
+      }
+
+      body.bar-on .topbar {
+        transform: translateY(0);
+        opacity: 1 !important;
+        pointer-events: auto;
+        background: var(--card) !important;
+        background: color-mix(in srgb, var(--card) 88%, transparent) !important;
+        backdrop-filter: blur(16px) saturate(140%);
+        -webkit-backdrop-filter: blur(16px) saturate(140%);
+        border-bottom: 1px solid var(--border) !important;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, .10) !important;
+      }
+
+      /* The first message must not be born underneath it. */
+      .feed { padding-top: calc(var(--topbar-h) + 16px); }
+
+      /* Something has to say the bar is there at all, or the menu is a
+         gesture nobody was told about. A thin handle at the very top edge:
+         pull it down, or just tap it. */
+      .bar-peek {
+        display: block;
+        position: absolute;
+        top: calc(env(safe-area-inset-top, 0px) + 4px);
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 11;
+        width: 56px;
+        height: 20px;
+        padding: 0;
+        border: 0;
+        background: none;
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      .bar-peek::before {
+        content: "";
+        display: block;
+        width: 100%;
+        height: 4px;
+        margin-top: 8px;
+        border-radius: 999px;
+        background: var(--ink-faint);
+        opacity: .3;
+        transition: opacity .2s ease, transform .2s ease;
+      }
+
+      body.bar-on .bar-peek { pointer-events: none; }
+      body.bar-on .bar-peek::before { opacity: 0; transform: scaleX(.4); }
+    }
+
     @media (prefers-reduced-motion: reduce) {
       .ws, .ws.ws-leaving, .ws-rise { animation: none; }
       .app-shell::before { transition: none; }
@@ -7597,6 +7666,7 @@
       body.ws-lens-on .topbar { filter: none; }
       body.ws-on .mac-dock-container { transform: none; }
       .msg, .sidebar, .topbar, .composer-stage { transition: none; }
+      .bar-peek::before { transition: none; }
       .ws-bar.indet span { animation: none; width: 100%; opacity: .5; }
     }
   </style>
@@ -7894,6 +7964,9 @@
     </aside>
 
     <main class="main">
+      <button class="bar-peek" id="barPeek" type="button" onclick="barPeekTap()"
+        aria-label="Show the top bar"></button>
+
       <div class="topbar">
         <div class="topbar-title">
           <button class="sb-toggle" onclick="toggleSidebar(true)" aria-label="Open chats menu"></button>
@@ -8718,6 +8791,107 @@
     let codeBlockSeq = 0;
     const codeBlockStore = {};
 
+    // THE TOP BAR ON A PHONE
+    //
+    // It floats over the feed, so while you are reading it gets out of the way
+    // entirely and the screen is yours. Pull down - the same gesture that
+    // takes you back towards the start of the conversation - and it comes
+    // back, with the menu button and everything else that lives up there. It
+    // leaves again once you carry on reading, or after a few quiet seconds.
+    const BAR_IDLE_MS = 3200;
+    const BAR_EDGE = 8;      // close enough to the top to count as at the top
+    let barTimer = null;
+    let barLastY = 0;
+    let barTouchY = 0;
+
+    function barIsMobile() {
+      return window.matchMedia("(max-width: 768px)").matches;
+    }
+
+    // Held means there is nothing to get out of the way of - the top of the
+    // conversation, or a finger on the bar itself - so no clock runs.
+    function barShow(held) {
+      if (barTimer) { clearTimeout(barTimer); barTimer = null; }
+      document.body.classList.add("bar-on");
+      if (!held) barTimer = setTimeout(barHide, BAR_IDLE_MS);
+    }
+
+    function barHide() {
+      if (barTimer) { clearTimeout(barTimer); barTimer = null; }
+      const sidebar = document.getElementById("sidebar");
+      // The menu was opened from this bar and closes back onto it.
+      if (sidebar && sidebar.classList.contains("open")) return;
+      document.body.classList.remove("bar-on");
+    }
+
+    function barPeekTap() {
+      if (document.body.classList.contains("bar-on")) barHide();
+      else barShow();
+    }
+
+    // A feed with nothing to scroll can never be scrolled back to the top, so
+    // the bar would have no way of being asked for except the handle.
+    function barNothingToRead(feed) {
+      return feed.scrollHeight <= feed.clientHeight + 40;
+    }
+
+    function barSync() {
+      const feed = document.getElementById("feed");
+      if (!feed) return;
+      if (!barIsMobile()) { document.body.classList.remove("bar-on"); return; }
+      if (feed.scrollTop <= BAR_EDGE || barNothingToRead(feed)) barShow(true);
+    }
+
+    function barWire() {
+      const feed = document.getElementById("feed");
+      if (!feed) return;
+
+      feed.addEventListener("scroll", () => {
+        if (!barIsMobile()) return;
+        const y = feed.scrollTop;
+        const dy = y - barLastY;
+        barLastY = y;
+        if (y <= BAR_EDGE || barNothingToRead(feed)) { barShow(true); return; }
+        if (dy < -6) barShow();
+        else if (dy > 6) barHide();
+      }, { passive: true });
+
+      // At the very top there is nothing left to scroll, so no scroll event
+      // fires and the pull itself has to be read.
+      feed.addEventListener("touchstart", e => {
+        barTouchY = e.touches[0].clientY;
+      }, { passive: true });
+
+      feed.addEventListener("touchmove", e => {
+        if (!barIsMobile()) return;
+        if (feed.scrollTop <= 0 && e.touches[0].clientY - barTouchY > 26) barShow();
+      }, { passive: true });
+
+      // Reaching for the bar keeps it; letting go starts the clock again.
+      const bar = document.querySelector(".topbar");
+      if (bar) {
+        bar.addEventListener("touchstart", () => barShow(true), { passive: true });
+        bar.addEventListener("touchend", () => barShow(), { passive: true });
+      }
+
+      // The handle is a pull as much as a tap.
+      const peek = document.getElementById("barPeek");
+      if (peek) {
+        peek.addEventListener("touchstart", e => {
+          barTouchY = e.touches[0].clientY;
+        }, { passive: true });
+        peek.addEventListener("touchmove", e => {
+          if (e.touches[0].clientY - barTouchY > 16) barShow(true);
+        }, { passive: true });
+        peek.addEventListener("touchend", () => barShow(), { passive: true });
+      }
+
+      window.addEventListener("resize", barSync);
+      barSync();
+    }
+
+    window.addEventListener("load", barWire);
+
     function toggleSidebar(open) {
       const sidebar = document.getElementById("sidebar");
       const overlay = document.getElementById("sbOverlay");
@@ -8725,6 +8899,9 @@
       sidebar.classList.toggle("open", isOpen);
       overlay.classList.toggle("show", isOpen);
       document.body.style.overflow = isOpen ? "hidden" : "";
+      // The menu is opened from the top bar and closes back onto it, so the
+      // bar is held while it is open and starts its clock again afterwards.
+      barShow(isOpen);
     }
 
     // Sections for the image type picker. Presets carry no grouping of their
