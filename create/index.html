@@ -9536,10 +9536,34 @@
         const work = await res.json();
 
         const run = STUDIO_TOOLS[work.tool];
-        // Almost always a page left open from before the plugin was updated.
-        // Saying which tool is missing helps nobody; saying what to do does.
-        if (!run) throw new Error("This page is older than your plugin. Reload ro-peak.com " +
-          "(Ctrl+Shift+R) and try again.");
+        if (!run) {
+          // This page is older than the plugin asking it for work - a copy
+          // held somewhere between here and the last deploy. Telling someone
+          // to press Ctrl+Shift+R is not a fix, it is a chore handed over, so
+          // the page puts the job back and fetches itself again past whatever
+          // is holding the old copy. Studio is still waiting; the fresh page
+          // picks the same job up seconds later and nobody has to know.
+          //
+          // Once per tool per session: a tool this page genuinely will never
+          // know must not become a reload loop.
+          let triedAlready = false;
+          try { triedAlready = sessionStorage.getItem("ropeakToolReload") === work.tool; } catch (e) {}
+
+          if (!triedAlready) {
+            try { sessionStorage.setItem("ropeakToolReload", work.tool); } catch (e) {}
+            await authedFetch("/studio/toolresult", {
+              method: "POST", headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ jobId, release: true })
+            }).catch(() => {});
+            const here = new URL(location.href);
+            here.searchParams.set("v", String(Date.now()));
+            location.replace(here.toString());
+            return;
+          }
+
+          throw new Error("This page does not have that tool even after reloading. " +
+            "Your browser may be holding an old copy of ro-peak.com - clear its cache for the site.");
+        }
 
         // Let the panel draw the line saying what is happening before the
         // arithmetic takes the thread away from it.
