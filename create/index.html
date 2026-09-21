@@ -9251,6 +9251,71 @@
       return true;
     }
 
+    // Faces come out of each frame in that frame's own coordinates. Turning
+    // them into the world here is what lets a wall built at one angle and a
+    // wall built at another end up in the same mesh - which is the point of
+    // grouping by how a thing looks rather than by how it happens to be
+    // turned. The frame was only ever a device for clipping exactly.
+    function meshesFromFaces(collected, frames, unit) {
+      const groups = new Map();
+
+      for (const face of collected) {
+        const m = frames[face.f - 1] || null;
+        const [u, v] = FACE_UV[face.axis];
+
+        let g = groups.get(face.key);
+        if (!g) groups.set(face.key, g = { key: face.key, verts: [], tris: [], index: new Map(),
+          min: [Infinity, Infinity, Infinity], max: [-Infinity, -Infinity, -Infinity] });
+
+        // Corners are shared only between faces that point the same way, so
+        // the direction is part of what makes a corner that corner.
+        const nLocal = [0, 0, 0];
+        nLocal[face.axis] = face.side === 1 ? 1 : -1;
+        const nWorld = m ? frameOut(m, nLocal) : nLocal;
+        const nKey = nWorld.map(n => Math.round(n * 1000)).join(",");
+
+        const add = (uu, vv) => {
+          const local = [];
+          local[face.axis] = face.c; local[u] = uu; local[v] = vv;
+          const w = m ? frameOut(m, local) : local;
+          const id = nKey + "|" + w.map(n => Math.round(n)).join(",");
+          let at = g.index.get(id);
+          if (at === undefined) {
+            at = g.verts.length / 3;
+            g.index.set(id, at);
+            g.verts.push(w[0], w[1], w[2]);
+            for (let d = 0; d < 3; d++) {
+              if (w[d] < g.min[d]) g.min[d] = w[d];
+              if (w[d] > g.max[d]) g.max[d] = w[d];
+            }
+          }
+          return at;
+        };
+
+        for (const r of face.rects) {
+          const a = add(r[0], r[2]), b2 = add(r[1], r[2]), c2 = add(r[1], r[3]), d = add(r[0], r[3]);
+          // A rotation never turns a surface inside out, so the winding that
+          // faced outwards in the frame still faces outwards here.
+          if (face.side === 1) g.tris.push(a, b2, c2, a, c2, d);
+          else g.tris.push(a, c2, b2, a, d, c2);
+        }
+      }
+
+      const out = [];
+      for (const g of groups.values()) {
+        const centre = [0, 1, 2].map(d => (g.min[d] + g.max[d]) / 2);
+        out.push({
+          key: g.key,
+          verts: g.verts.map((n, i) => (n - centre[i % 3]) / unit),
+          tris: g.tris,
+          centre: centre.map(n => n / unit),
+          size: [0, 1, 2].map(d => (g.max[d] - g.min[d]) / unit),
+          triangles: g.tris.length / 3
+        });
+      }
+      return out;
+    }
+
     function toolOptimiseMesh(input) {
       const raw = (input && input.parts) || [];
       const frames = (input && input.frames) || [];
@@ -9294,6 +9359,8 @@
       }
 
       const meshes = [];
+      const faces = [];
+      const lookSource = new Map();
       let hidden = buried.size, solids = 0;
 
       for (const [f, group] of byFrame) {
@@ -9323,20 +9390,24 @@
         const byKey = new Map();
         for (const p of reduced) if (emit.has(p.i) && !byKey.has(p.key)) byKey.set(p.key, source.get(p.i));
 
-        for (const g of buildMesh(surfaceOf(reduced, emit), OPT_UNIT)) {
-          meshes.push({
-            mk: g.key,
-            f,
-            from: [byKey.get(g.key)],
-            verts: g.verts.map(n => Math.round(n * 10000) / 10000),
-            tris: g.tris,
-            // Still in the frame's own coordinates; the part it goes into
-            // carries the rotation, so this is exactly what Studio wants.
-            centre: g.centre,
-            size: g.size,
-            triangles: g.triangles
-          });
+        for (const face of surfaceOf(reduced, emit)) {
+          face.f = f;
+          faces.push(face);
+          if (!lookSource.has(face.key)) lookSource.set(face.key, byKey.get(face.key));
         }
+      }
+
+      // Now, and only now, the split by look - across every frame at once.
+      for (const g of meshesFromFaces(faces, frames, OPT_UNIT)) {
+        meshes.push({
+          mk: g.key,
+          from: [lookSource.get(g.key)],
+          verts: g.verts.map(n => Math.round(n * 10000) / 10000),
+          tris: g.tris,
+          centre: g.centre,
+          size: g.size,
+          triangles: g.triangles
+        });
       }
 
       if (!meshes.length) throw new Error("None of that selection can be seen, so there is no surface to build.");
