@@ -9215,9 +9215,86 @@
       return out;
     }
 
-    // The second tool: the same model, as a surface instead of a heap of
-    // solids. The saving is everything nobody can see - the faces buried
-    // against neighbours, and whole parts swallowed by other parts.
+    // THE WHOLE THING, IN ONE GO
+    //
+    // Thin the solids out first, then build only the surface that is left.
+    // The two halves are not alternatives, they are one pipeline: dropping
+    // what nothing can see and fusing what is the same shape does not change
+    // the surface at all - it is the same solid - but it leaves far less of
+    // it to clip, and clipping is the expensive half.
+    function toolOptimiseMesh(input) {
+      const raw = (input && input.parts) || [];
+      if (!raw.length) throw new Error("Nothing in that selection could be turned into a mesh.");
+
+      // Grouped by how it looks, because a mesh keeps nothing else. Two walls
+      // in different folders are one mesh; two walls in different colours are
+      // not.
+      const parts = raw.map(p => ({
+        i: p.i, key: p.mk || p.k, box: p.b, solid: p.solid !== false, fixed: !!p.fixed
+      }));
+
+      // 1. Fewer solids to reason about.
+      const thinned = optimiseBoxes(parts);
+      const gone = new Set(thinned.remove);
+
+      const reduced = [];
+      const source = new Map();      // a box in the reduced set -> a real part
+      let nid = 0;
+      for (const p of parts) {
+        if (gone.has(p.i)) continue;
+        const id = nid++;
+        reduced.push({ i: id, key: p.key, box: p.box, solid: p.solid, fixed: p.fixed });
+        source.set(id, p.i);
+      }
+      for (const a of thinned.add) {
+        const id = nid++;
+        // Everything fused into this shared a key, and the key carries how
+        // see-through it is, so the first one speaks for all of them.
+        reduced.push({ i: id, key: a.key, box: a.box, solid: a.src ? a.src.solid : true, fixed: false });
+        source.set(id, a.from[0]);
+      }
+
+      // 2. Only the surface of what is left, and only from what is becoming
+      //    mesh. A part that has to stay still hides things, but building its
+      //    faces too would draw it twice.
+      const emit = new Set(reduced.filter(p => !p.fixed).map(p => p.i));
+      if (!emit.size) throw new Error("Every part in that selection has to stay as it is.");
+
+      const byKey = new Map();
+      for (const p of reduced) if (emit.has(p.i) && !byKey.has(p.key)) byKey.set(p.key, source.get(p.i));
+
+      const built = buildMesh(surfaceOf(reduced, emit), OPT_UNIT);
+      if (!built.length) throw new Error("None of that selection can be seen, so there is no surface to build.");
+
+      let tris = 0;
+      for (const g of built) tris += g.triangles;
+
+      return {
+        meshes: built.map(g => ({
+          mk: g.key,
+          from: [byKey.get(g.key)],
+          verts: g.verts.map(n => Math.round(n * 10000) / 10000),
+          tris: g.tris,
+          centre: g.centre,
+          size: g.size,
+          triangles: g.triangles
+        })),
+        remove: parts.filter(p => !p.fixed).map(p => p.i),
+        stats: {
+          before: raw.length,
+          hidden: thinned.hidden,
+          solids: reduced.length,
+          meshes: built.length,
+          triangles: tris,
+          wasTriangles: raw.length * 12,
+          kept: parts.filter(p => p.fixed).length,
+          skipped: (input && input.skipped) || 0
+        }
+      };
+    }
+
+    // Kept for the plugin's parts-only action, which is the one that survives
+    // saving the place.
     function toolMeshModel(input) {
       const raw = (input && input.parts) || [];
       if (!raw.length) throw new Error("Nothing in that selection could be turned into a mesh.");
@@ -9263,6 +9340,7 @@
     }
 
     const STUDIO_TOOLS = {
+      "optimize-mesh": toolOptimiseMesh,
       "optimize-model": toolOptimiseModel,
       "mesh-model": toolMeshModel
     };
@@ -9285,7 +9363,10 @@
         const work = await res.json();
 
         const run = STUDIO_TOOLS[work.tool];
-        if (!run) throw new Error("This page does not know the tool \"" + work.tool + "\".");
+        // Almost always a page left open from before the plugin was updated.
+        // Saying which tool is missing helps nobody; saying what to do does.
+        if (!run) throw new Error("This page is older than your plugin. Reload ro-peak.com " +
+          "(Ctrl+Shift+R) and try again.");
 
         // Let the panel draw the line saying what is happening before the
         // arithmetic takes the thread away from it.
