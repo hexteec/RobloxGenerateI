@@ -9360,7 +9360,18 @@
 
       const meshes = [];
       const faces = [];
+
+      // Every real part behind each look. Taken from the parts themselves
+      // rather than from what the thinning left, because the thinning fuses
+      // ten of them into one and would hand back only the one - and one part
+      // says what a mesh looks like, while all of them say how it must behave.
       const lookSource = new Map();
+      for (const p of parts) {
+        if (p.fixed) continue;
+        let list = lookSource.get(p.key);
+        if (!list) lookSource.set(p.key, list = []);
+        list.push(p.i);
+      }
       let hidden = buried.size, solids = 0;
 
       for (const [f, group] of byFrame) {
@@ -9387,13 +9398,9 @@
         const emit = new Set(reduced.filter(p => !p.fixed).map(p => p.i));
         if (!emit.size) continue;
 
-        const byKey = new Map();
-        for (const p of reduced) if (emit.has(p.i) && !byKey.has(p.key)) byKey.set(p.key, source.get(p.i));
-
         for (const face of surfaceOf(reduced, emit)) {
           face.f = f;
           faces.push(face);
-          if (!lookSource.has(face.key)) lookSource.set(face.key, byKey.get(face.key));
         }
       }
 
@@ -9401,7 +9408,7 @@
       for (const g of meshesFromFaces(faces, frames, OPT_UNIT)) {
         meshes.push({
           mk: g.key,
-          from: [lookSource.get(g.key)],
+          from: lookSource.get(g.key) || [],
           verts: g.verts.map(n => Math.round(n * 10000) / 10000),
           tris: g.tris,
           centre: g.centre,
