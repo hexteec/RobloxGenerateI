@@ -8860,6 +8860,238 @@
     let codeBlockSeq = 0;
     const codeBlockStore = {};
 
+    // ===================== TOOLS RUN HERE =====================
+    //
+    // Studio can read a place but has no business doing heavy arithmetic in
+    // its own scheduler, and a server that did it would have to be paid for
+    // and waited on. This page is already open, already idle, and already the
+    // user's own machine. So the plugin leaves the work on the worker, this
+    // picks it up, answers, and the plugin applies what comes back.
+    //
+    // Which is also why the plugin says the page has to be open: if it is
+    // not, nobody is listening and the job simply times out.
+
+    // ---- RoPeak model optimiser -------------------------------------------
+    //
+    // Everything here is in thousandths of a stud, as integers. In floating
+    // point "do these two faces touch" has no reliable answer, and every
+    // decision below rests on that question having an exact one.
+    //
+    // Two passes, both exact and both conservative - a box is only ever removed
+    // when it provably cannot be seen, and only ever merged when the union of
+    // what it replaces is exactly the same solid.
+
+    const OPT_UNIT = 1000;      // thousandths of a stud
+    const OPT_MAX_PIECES = 96;  // a box that shatters further than this is left alone
+
+    // What remains of a once b is taken out of it: at most six slabs, cut so
+    // they never overlap each other.
+    function optSubtract(a, b) {
+      if (b[0] >= a[1] || b[1] <= a[0] ||
+          b[2] >= a[3] || b[3] <= a[2] ||
+          b[4] >= a[5] || b[5] <= a[4]) return [a];
+
+      const out = [];
+      if (b[0] > a[0]) out.push([a[0], b[0], a[2], a[3], a[4], a[5]]);
+      if (b[1] < a[1]) out.push([b[1], a[1], a[2], a[3], a[4], a[5]]);
+      const x0 = Math.max(a[0], b[0]), x1 = Math.min(a[1], b[1]);
+      if (b[2] > a[2]) out.push([x0, x1, a[2], b[2], a[4], a[5]]);
+      if (b[3] < a[3]) out.push([x0, x1, b[3], a[3], a[4], a[5]]);
+      const y0 = Math.max(a[2], b[2]), y1 = Math.min(a[3], b[3]);
+      if (b[4] > a[4]) out.push([x0, x1, y0, y1, a[4], b[4]]);
+      if (b[5] < a[5]) out.push([x0, x1, y0, y1, b[5], a[5]]);
+      return out;
+    }
+
+    function optVolume(b) {
+      return (b[1] - b[0]) * (b[3] - b[2]) * (b[5] - b[4]);
+    }
+
+    function optOverlaps(a, b) {
+      return a[0] < b[1] && b[0] < a[1] &&
+             a[2] < b[3] && b[2] < a[3] &&
+             a[4] < b[5] && b[4] < a[5];
+    }
+
+    // Is every point of this box inside some other box? Then nothing of it is
+    // ever seen and it can go. Boxes that can be seen through are not occluders:
+    // a solid hidden behind glass is still on screen.
+    function optHidden(box, occluders) {
+      let rest = [box];
+      for (const o of occluders) {
+        if (!optOverlaps(o, box)) continue;
+        const next = [];
+        for (const r of rest) {
+          if (!optOverlaps(o, r)) { next.push(r); continue; }
+          for (const piece of optSubtract(r, o)) next.push(piece);
+          if (next.length > OPT_MAX_PIECES) return false;
+        }
+        rest = next;
+        if (!rest.length) return true;
+      }
+      return false;
+    }
+
+    // Two boxes become one when the result is exactly a box: identical on two
+    // axes, touching or overlapping on the third. Anything looser would change
+    // the shape, which is the one thing this is not allowed to do.
+    function optMergeOnce(items, axis) {
+      const lo = axis * 2, hi = lo + 1;
+      const others = [0, 1, 2].filter(d => d !== axis);
+      const lanes = new Map();
+      for (const it of items) {
+        const key = it.k + "|" +
+          others.map(d => it.b[d * 2] + ":" + it.b[d * 2 + 1]).join("|");
+        let lane = lanes.get(key);
+        if (!lane) lanes.set(key, lane = []);
+        lane.push(it);
+      }
+
+      const out = [];
+      let merged = 0;
+      for (const lane of lanes.values()) {
+        lane.sort((p, q) => p.b[lo] - q.b[lo]);
+        let cur = null;
+        for (const it of lane) {
+          if (cur && it.b[lo] <= cur.b[hi]) {
+            if (it.b[hi] > cur.b[hi]) cur.b[hi] = it.b[hi];
+            cur.ids = cur.ids.concat(it.ids);
+            merged++;
+            continue;
+          }
+          if (cur) out.push(cur);
+          cur = { k: it.k, b: it.b.slice(), ids: it.ids.slice(), src: it.src };
+        }
+        if (cur) out.push(cur);
+      }
+      return { items: out, merged };
+    }
+
+    // parts: [{ i, key, box:[6], solid:bool }] - box already in integer units.
+    // Returns which of them to drop and which boxes to put in their place.
+    function optimiseBoxes(parts, budget) {
+      const cap = budget || 6;
+      // Pass one: anything that cannot be seen at all.
+      //
+      // One at a time, against what is still standing. Two parts left in the same
+      // place cover each other, so asking each of them separately says both are
+      // invisible and taking both away leaves a hole where a part used to be.
+      // Whichever is asked first goes; the other is then the only one there and
+      // stays. Largest first, so what remains is the part that covers most.
+      // A part that is fixed may hide others - it is still solid - but is never
+      // itself removed or merged. Anything with a decal, a weld, an attachment or
+      // a script inside it is fixed: taking it away or fusing it into a
+      // neighbour would take those with it.
+      const hidden = new Set();
+      const live = parts.filter(p => p.solid).map(p => p.box);
+      const order = parts.filter(p => !p.fixed).sort((a, b) => optVolume(a.box) - optVolume(b.box));
+      for (const p of order) {
+        const others = live.filter(b => b !== p.box);
+        if (!optHidden(p.box, others)) continue;
+        hidden.add(p.i);
+        const at = live.indexOf(p.box);
+        if (at >= 0) live.splice(at, 1);
+      }
+
+      // Pass two: what is left, merged as far as it will go. Merging can bring
+      // two faces flush that were not before, so the two passes are run again
+      // until neither of them finds anything.
+      let items = parts.filter(p => !p.fixed && !hidden.has(p.i))
+        .map(p => ({ k: p.key, b: p.box.slice(), ids: [p.i], src: p }));
+
+      let rounds = 0;
+      for (;;) {
+        let moved = 0;
+        for (const axis of [0, 1, 2]) {
+          const r = optMergeOnce(items, axis);
+          items = r.items;
+          moved += r.merged;
+        }
+        if (!moved || ++rounds >= cap) break;
+      }
+
+      const kept = [];
+      const remove = [];
+      const add = [];
+      for (const it of items) {
+        if (it.ids.length === 1) { kept.push(it.ids[0]); continue; }
+        for (const id of it.ids) remove.push(id);
+        add.push({ key: it.k, box: it.b, from: it.ids, src: it.src });
+      }
+      for (const i of hidden) remove.push(i);
+
+      return { remove, add, kept, hidden: hidden.size };
+    }
+
+    // The plugin sends boxes already in whole thousandths of a stud, because
+    // the CFrame arithmetic belongs where CFrames live. Everything here is
+    // integers and set membership.
+    function toolOptimiseModel(input) {
+      const parts = (input && input.parts) || [];
+      if (!parts.length) throw new Error("Nothing in that selection could be optimised.");
+
+      const res = optimiseBoxes(parts.map(p => ({
+        i: p.i, key: p.k, box: p.b, solid: p.solid !== false, fixed: !!p.fixed
+      })));
+
+      return {
+        remove: res.remove,
+        add: res.add.map(a => ({ k: a.key, b: a.box, from: a.from })),
+        stats: {
+          before: parts.length,
+          after: parts.length - res.remove.length + res.add.length,
+          hidden: res.hidden,
+          merged: res.remove.length - res.hidden,
+          skipped: (input && input.skipped) || 0
+        }
+      };
+    }
+
+    const STUDIO_TOOLS = {
+      "optimize-model": toolOptimiseModel
+    };
+
+    let studioToolBusy = "";
+
+    // One at a time, and never the same one twice: the flag that says there is
+    // work stays up until the answer is in, so without this the page would
+    // start the same job again on its very next poll.
+    async function studioToolTake(jobId) {
+      if (!jobId || studioToolBusy === jobId) return;
+      studioToolBusy = jobId;
+      studioRender();
+
+      let result = null, failure = "";
+      try {
+        const res = await authedFetch("/studio/toolwork?job=" + encodeURIComponent(jobId));
+        if (res.status === 409) { studioToolBusy = ""; return; }   // another tab got there first
+        if (!res.ok) throw new Error(await wsApiError(res, "/studio/toolwork"));
+        const work = await res.json();
+
+        const run = STUDIO_TOOLS[work.tool];
+        if (!run) throw new Error("This page does not know the tool \"" + work.tool + "\".");
+
+        // Let the panel draw the line saying what is happening before the
+        // arithmetic takes the thread away from it.
+        await new Promise(r => setTimeout(r, 30));
+        result = run(work.input);
+      } catch (e) {
+        failure = e.message || String(e);
+      }
+
+      try {
+        await authedFetch("/studio/toolresult", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(failure ? { jobId, error: failure } : { jobId, result })
+        });
+      } catch (e) {
+        // Studio times the job out on its own, which says the same thing.
+      }
+      studioToolBusy = "";
+      studioRender();
+      studioKick();
+    }
+
     // WHEN THE CHAT REACHES THE DOCK
     //
     // The dock and the composer float over the foot of the feed, so a message
@@ -15441,9 +15673,15 @@
 
     function studioPollMs() {
       if (studioFailures) return Math.min(60000, 8000 * Math.pow(2, studioFailures - 1));
+      // Studio is waiting on this page right now.
+      if (studioToolBusy) return 1500;
       const live = studioState.jobs.some(j => j.status === "queued" || j.status === "running");
       if (live) return 2000;
-      if (!studioPanelOpen()) return 12000;
+      // Studio can hand this page work to do, and the flag saying so arrives
+      // on this poll. Waiting twelve seconds to notice is a long time to sit
+      // looking at Studio, so an open place is worth looking a little more
+      // often for - and only while one is actually open.
+      if (!studioPanelOpen()) return studioState.presence.online ? 6000 : 12000;
       return 6000;
     }
 
@@ -15464,6 +15702,9 @@
         studioFailures = 0;
         studioState.presence = data.presence || { online: false };
         studioState.presenceAt = Date.now();
+        // Work the plugin has left for this page. It arrives on the poll that
+        // was happening anyway, so noticing costs nothing.
+        if (studioState.presence.toolPending) studioToolTake(studioState.presence.toolPending);
         // Nothing was asked for, so nothing came back: keep what is known
         // rather than drawing an empty activity list over it.
         if (wantList || studioState.watching) studioState.jobs = data.jobs || [];
@@ -15827,6 +16068,9 @@
         return `<span class="st-dot off"></span><span class="st-text">Studio not connected</span>`;
       }
       const place = p.placeName || (p.placeId ? "place " + p.placeId : "a place");
+      if (studioToolBusy) {
+        return `<span class="st-dot on"></span><span class="st-text">Working for Studio…</span>`;
+      }
       return `<span class="st-dot on"></span><span class="st-text">Studio open — ${escapeHtml(place)}</span>`;
     }
 
@@ -15840,7 +16084,9 @@
           : "Open Roblox Studio with the RoPeak plugin running to deploy from here.";
       }
       const sub = document.getElementById("studioSub");
-      if (sub) {
+      if (sub && studioToolBusy) {
+        sub.textContent = "Working on " + (studioState.presence.toolName || "a tool") + " for Studio…";
+      } else if (sub) {
         const p = studioState.presence || {};
         sub.textContent = p.online
           ? (p.placeName || (p.placeId ? "place " + p.placeId : "connected")) +
