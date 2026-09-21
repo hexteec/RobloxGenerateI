@@ -6769,7 +6769,9 @@
        the moment the page loads and stays focused, so it would hold the dock
        up permanently and none of this would ever happen. Something typed into
        it is use. Pointing at it is use. An empty field waiting is not. */
-    body.dock-clear.composer-live #macDockContainer,
+    /* A half-written message is a reason to keep the field it is in readable.
+       It is not a reason to keep the buttons over the chat, and treating it
+       as one left them there for as long as the draft sat unsent. */
     body.dock-clear.composer-live #composerIsland { opacity: 1; }
 
     /* Hover only where there is a pointer to hover with. A tap leaves :hover
@@ -8877,23 +8879,24 @@
       const top = Math.min(dr.height ? dr.top : Infinity, br.height ? br.top : Infinity);
       if (!isFinite(top)) return;
 
-      // From the bottom up, because that is where the dock is. The first
-      // message that ends above the dock ends the search: everything before
-      // it is further up still.
+      // How far down the chat reaches, not whether anything carries a
+      // particular class. The feed is given all sorts - bubbles, result
+      // cards, settings panels, previews, the odd thing with no class at all
+      // - and the dock covers every one of them just the same. Looking for
+      // messages meant everything else went uncovered, which is most of why
+      // this only worked sometimes.
       //
-      // A message that is not displayed has no box, and a box of nothing ends
-      // above everything - so one of those would end the search before it had
-      // looked at anything. The page hides messages of its own accord, which
-      // is why the dock only stepped back some of the time. They are not
-      // there to be covered, so they are not there to be counted either.
-      const msgs = feed.querySelectorAll(".msg");
-      let behind = false;
-      for (let i = msgs.length - 1; i >= 0; i--) {
-        const r = msgs[i].getBoundingClientRect();
-        if (!r.height) continue;
-        if (r.bottom <= top) break;
-        if (r.top < window.innerHeight) { behind = true; break; }
+      // The feed's own children are enough: they are laid out in a column, so
+      // the lowest edge among them is where the chat ends. One with no box is
+      // not on the screen and so is not behind anything.
+      let lowest = -Infinity;
+      for (const el of feed.children) {
+        const r = el.getBoundingClientRect();
+        if (r.height && r.bottom > lowest) lowest = r.bottom;
       }
+      // Two pixels of slack so that resting exactly on the line does not
+      // flicker between the two answers.
+      const behind = lowest > top + 2;
       // The workspace runs its own version of this against the work itself and
       // the rules here stand aside for it, so the answer is still kept up to
       // date rather than left to go stale while it is open.
