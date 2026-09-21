@@ -9047,8 +9047,224 @@
       };
     }
 
+    // ---- boxes to a surface ------------------------------------------------
+    //
+    // The whole saving is in what you cannot see. A wall of twenty blocks has
+    // forty faces buried against its neighbours and two ends nobody looks at;
+    // only the outside is worth any triangles at all.
+    //
+    // So every face of every box is clipped against the boxes standing in front
+    // of it. What is left is what is visible, and what is visible is all that is
+    // built. Same integers as everywhere else - a face is either flush with its
+    // neighbour or it is not, and that has to be a fact rather than an opinion.
+
+    // What is left of rectangle a once b is taken out of it, as disjoint pieces.
+    function rectSub(a, b) {
+      if (b[0] >= a[1] || b[1] <= a[0] || b[2] >= a[3] || b[3] <= a[2]) return [a];
+      const out = [];
+      if (b[0] > a[0]) out.push([a[0], b[0], a[2], a[3]]);
+      if (b[1] < a[1]) out.push([b[1], a[1], a[2], a[3]]);
+      const x0 = Math.max(a[0], b[0]), x1 = Math.min(a[1], b[1]);
+      if (b[2] > a[2]) out.push([x0, x1, a[2], b[2]]);
+      if (b[3] < a[3]) out.push([x0, x1, b[3], a[3]]);
+      return out;
+    }
+
+    // Rectangles on one plane, fused as far as they will go. They arrive
+    // disjoint, so two of them become one exactly when they line up on one axis
+    // and meet on the other.
+    function rectMerge(rects) {
+      let cur = rects;
+      for (let pass = 0; pass < 8; pass++) {
+        let moved = 0;
+        for (const axis of [0, 1]) {
+          const lo = axis * 2, hi = lo + 1;
+          const oa = axis === 0 ? 2 : 0, ob = oa + 1;
+          const lanes = new Map();
+          for (const r of cur) {
+            const k = r[oa] + ":" + r[ob];
+            let lane = lanes.get(k);
+            if (!lane) lanes.set(k, lane = []);
+            lane.push(r);
+          }
+          const next = [];
+          for (const lane of lanes.values()) {
+            lane.sort((p, q) => p[lo] - q[lo]);
+            let run = null;
+            for (const r of lane) {
+              if (run && r[lo] <= run[hi]) {
+                if (r[hi] > run[hi]) run[hi] = r[hi];
+                moved++;
+                continue;
+              }
+              if (run) next.push(run);
+              run = r.slice();
+            }
+            if (run) next.push(run);
+          }
+          cur = next;
+        }
+        if (!moved) break;
+      }
+      return cur;
+    }
+
+    // The two axes that span a face, in the order that makes the winding come
+    // out facing the way the face does.
+    const FACE_UV = [[1, 2], [2, 0], [0, 1]];
+
+    // parts: [{ i, key, box, solid }]. Occluders are every solid box there is,
+    // whatever it looks like: a red brick buried in a grey wall is just as gone.
+    //
+    // `emit` names the parts that are actually becoming mesh. Everything else
+    // still hides what is behind it - a part that is staying put covers just as
+    // much as one that is not - but contributes no surface of its own, or it
+    // would be drawn twice: once as itself and once inside the mesh.
+    function surfaceOf(parts, emit) {
+      const solid = parts.filter(p => p.solid).map(p => p.box);
+      const planes = new Map();   // key|axis|side|c -> rects
+
+      for (const p of parts) {
+        if (emit && !emit.has(p.i)) continue;
+        for (let a = 0; a < 3; a++) {
+          const [u, v] = FACE_UV[a];
+          for (const side of [0, 1]) {
+            const c = p.box[a * 2 + side];
+            const face = [p.box[u * 2], p.box[u * 2 + 1], p.box[v * 2], p.box[v * 2 + 1]];
+
+            // Who stands in the way: a box that holds the space immediately
+            // outside this face, on the side the face looks at.
+            let rects = [face];
+            for (const o of solid) {
+              if (side === 1 ? !(o[a * 2] <= c && o[a * 2 + 1] > c)
+                             : !(o[a * 2] < c && o[a * 2 + 1] >= c)) continue;
+              const q = [o[u * 2], o[u * 2 + 1], o[v * 2], o[v * 2 + 1]];
+              const next = [];
+              for (const r of rects) for (const piece of rectSub(r, q)) next.push(piece);
+              rects = next;
+              if (!rects.length) break;
+            }
+            if (!rects.length) continue;
+
+            const key = p.key + "\u0000" + a + "\u0000" + side + "\u0000" + c;
+            const bucket = planes.get(key);
+            if (bucket) for (const r of rects) bucket.push(r);
+            else planes.set(key, rects);
+          }
+        }
+      }
+
+      const faces = [];
+      for (const [key, rects] of planes) {
+        const [k, as, ss, cs] = key.split("\u0000");
+        faces.push({ key: k, axis: +as, side: +ss, c: +cs, rects: rectMerge(rects) });
+      }
+      return faces;
+    }
+
+    // Quads into triangles, with the winding that makes each one face outwards
+    // and one vertex per corner rather than per quad.
+    function buildMesh(faces, unit) {
+      const groups = new Map();
+
+      for (const f of faces) {
+        let g = groups.get(f.key);
+        if (!g) groups.set(f.key, g = { key: f.key, verts: [], tris: [], index: new Map(),
+          min: [Infinity, Infinity, Infinity], max: [-Infinity, -Infinity, -Infinity] });
+
+        const [u, v] = FACE_UV[f.axis];
+        const add = (uu, vv) => {
+          const p = [];
+          p[f.axis] = f.c; p[u] = uu; p[v] = vv;
+          const id = p[0] + "," + p[1] + "," + p[2];
+          let at = g.index.get(id);
+          if (at === undefined) {
+            at = g.verts.length / 3;
+            g.index.set(id, at);
+            g.verts.push(p[0], p[1], p[2]);
+            for (let d = 0; d < 3; d++) {
+              if (p[d] < g.min[d]) g.min[d] = p[d];
+              if (p[d] > g.max[d]) g.max[d] = p[d];
+            }
+          }
+          return at;
+        };
+
+        for (const r of f.rects) {
+          const a = add(r[0], r[2]), b = add(r[1], r[2]), c = add(r[1], r[3]), d = add(r[0], r[3]);
+          // Walking u then v gives the +axis normal, so the near face walks back.
+          if (f.side === 1) g.tris.push(a, b, c, a, c, d);
+          else g.tris.push(a, c, b, a, d, c);
+        }
+      }
+
+      const out = [];
+      for (const g of groups.values()) {
+        const centre = [0, 1, 2].map(d => (g.min[d] + g.max[d]) / 2);
+        out.push({
+          key: g.key,
+          // Around its own middle, in studs: that is where Roblox puts a mesh
+          // inside its part, so the part only has to be told where the middle is.
+          verts: g.verts.map((n, i) => (n - centre[i % 3]) / unit),
+          tris: g.tris,
+          centre: centre.map(n => n / unit),
+          size: [0, 1, 2].map(d => (g.max[d] - g.min[d]) / unit),
+          triangles: g.tris.length / 3,
+        });
+      }
+      return out;
+    }
+
+    // The second tool: the same model, as a surface instead of a heap of
+    // solids. The saving is everything nobody can see - the faces buried
+    // against neighbours, and whole parts swallowed by other parts.
+    function toolMeshModel(input) {
+      const raw = (input && input.parts) || [];
+      if (!raw.length) throw new Error("Nothing in that selection could be turned into a mesh.");
+
+      const parts = raw.map(p => ({
+        i: p.i, key: p.mk || p.k, box: p.b, solid: p.solid !== false, fixed: !!p.fixed
+      }));
+      // Anything untouchable stays a part, and so contributes no surface -
+      // but goes on hiding what is behind it.
+      const emit = new Set(parts.filter(p => !p.fixed).map(p => p.i));
+      if (!emit.size) throw new Error("Every part in that selection has to stay as it is.");
+
+      const byKey = new Map();
+      for (const p of parts) if (emit.has(p.i) && !byKey.has(p.key)) byKey.set(p.key, p.i);
+
+      const built = buildMesh(surfaceOf(parts, emit), OPT_UNIT);
+      if (!built.length) throw new Error("None of that selection can be seen, so there is no surface to build.");
+
+      let tris = 0;
+      for (const g of built) tris += g.triangles;
+
+      return {
+        meshes: built.map(g => ({
+          mk: g.key,
+          from: [byKey.get(g.key)],
+          verts: g.verts.map(n => Math.round(n * 10000) / 10000),
+          tris: g.tris,
+          centre: g.centre,
+          size: g.size,
+          triangles: g.triangles
+        })),
+        remove: [...emit],
+        stats: {
+          before: raw.length,
+          meshes: built.length,
+          triangles: tris,
+          // What the same parts would have cost as boxes, for comparison.
+          wasTriangles: emit.size * 12,
+          kept: raw.length - emit.size,
+          skipped: (input && input.skipped) || 0
+        }
+      };
+    }
+
     const STUDIO_TOOLS = {
-      "optimize-model": toolOptimiseModel
+      "optimize-model": toolOptimiseModel,
+      "mesh-model": toolMeshModel
     };
 
     let studioToolBusy = "";
