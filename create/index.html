@@ -9040,30 +9040,6 @@
       return { remove, add, kept, hidden: hidden.size };
     }
 
-    // The plugin sends boxes already in whole thousandths of a stud, because
-    // the CFrame arithmetic belongs where CFrames live. Everything here is
-    // integers and set membership.
-    function toolOptimiseModel(input) {
-      const parts = (input && input.parts) || [];
-      if (!parts.length) throw new Error("Nothing in that selection could be optimised.");
-
-      const res = optimiseBoxes(parts.map(p => ({
-        i: p.i, key: p.k, box: p.b, solid: p.solid !== false, fixed: !!p.fixed
-      })));
-
-      return {
-        remove: res.remove,
-        add: res.add.map(a => ({ k: a.key, b: a.box, from: a.from })),
-        stats: {
-          before: parts.length,
-          after: parts.length - res.remove.length + res.add.length,
-          hidden: res.hidden,
-          merged: res.remove.length - res.hidden,
-          skipped: (input && input.skipped) || 0
-        }
-      };
-    }
-
     // ---- boxes to a surface ------------------------------------------------
     //
     // The whole saving is in what you cannot see. A wall of twenty blocks has
@@ -9244,118 +9220,206 @@
     // what nothing can see and fusing what is the same shape does not change
     // the surface at all - it is the same solid - but it leaves far less of
     // it to clip, and clipping is the expensive half.
+    // A rotation is three rows of three numbers; these two move a point into
+    // that frame and back out of it.
+    function frameOut(m, p) {
+      return [m[0] * p[0] + m[1] * p[1] + m[2] * p[2],
+              m[3] * p[0] + m[4] * p[1] + m[5] * p[2],
+              m[6] * p[0] + m[7] * p[1] + m[8] * p[2]];
+    }
+    function frameIn(m, p) {
+      return [m[0] * p[0] + m[3] * p[1] + m[6] * p[2],
+              m[1] * p[0] + m[4] * p[1] + m[7] * p[2],
+              m[2] * p[0] + m[5] * p[1] + m[8] * p[2]];
+    }
+
+    // Is this box wholly inside that one, when the two do not share a frame?
+    // A box is the convex hull of its eight corners and the other is convex,
+    // so all eight being inside is the whole answer.
+    function boxInsideBox(a, fa, b, fb, frames) {
+      const ma = frames[fa - 1], mb = frames[fb - 1];
+      if (!ma || !mb) return false;
+      const slack = 1;                       // one thousandth of a stud
+      for (let c = 0; c < 8; c++) {
+        const local = [a[c & 1 ? 1 : 0], a[c & 2 ? 3 : 2], a[c & 4 ? 5 : 4]];
+        const world = frameOut(ma, local);
+        const there = frameIn(mb, world);
+        if (there[0] < b[0] - slack || there[0] > b[1] + slack) return false;
+        if (there[1] < b[2] - slack || there[1] > b[3] + slack) return false;
+        if (there[2] < b[4] - slack || there[2] > b[5] + slack) return false;
+      }
+      return true;
+    }
+
     function toolOptimiseMesh(input) {
       const raw = (input && input.parts) || [];
+      const frames = (input && input.frames) || [];
       if (!raw.length) throw new Error("Nothing in that selection could be turned into a mesh.");
 
-      // Grouped by how it looks, because a mesh keeps nothing else. Two walls
-      // in different folders are one mesh; two walls in different colours are
-      // not.
       const parts = raw.map(p => ({
-        i: p.i, key: p.mk || p.k, box: p.b, solid: p.solid !== false, fixed: !!p.fixed
+        i: p.i, f: p.f || 1, key: p.mk || p.k, box: p.b,
+        solid: p.solid !== false, fixed: !!p.fixed
       }));
 
-      // 1. Fewer solids to reason about.
-      const thinned = optimiseBoxes(parts);
-      const gone = new Set(thinned.remove);
+      // 1. Parts swallowed whole by a part facing some other way. Within one
+      //    frame the pass below does this better, using the union of
+      //    everything; across frames only whole containment can be answered
+      //    exactly, and answering only what can be answered exactly is the
+      //    whole discipline here.
+      //
+      //    One at a time, against what is still standing: two parts left in
+      //    the same place each hide the other, and taking both away leaves a
+      //    hole where a part used to be.
+      const buried = new Set();
+      const standing = parts.filter(p => p.solid);
+      const smallestFirst = parts.filter(p => !p.fixed)
+        .sort((x, y) => optVolume(x.box) - optVolume(y.box));
+      for (const p of smallestFirst) {
+        const inside = standing.some(o => o !== p && o.f !== p.f &&
+          boxInsideBox(p.box, p.f, o.box, o.f, frames));
+        if (!inside) continue;
+        buried.add(p.i);
+        const at = standing.indexOf(p);
+        if (at >= 0) standing.splice(at, 1);
+      }
 
-      const reduced = [];
-      const source = new Map();      // a box in the reduced set -> a real part
-      let nid = 0;
+      // 2. Each frame on its own, where every box in it is square again and
+      //    the exact pipeline applies unchanged.
+      const byFrame = new Map();
       for (const p of parts) {
-        if (gone.has(p.i)) continue;
-        const id = nid++;
-        reduced.push({ i: id, key: p.key, box: p.box, solid: p.solid, fixed: p.fixed });
-        source.set(id, p.i);
-      }
-      for (const a of thinned.add) {
-        const id = nid++;
-        // Everything fused into this shared a key, and the key carries how
-        // see-through it is, so the first one speaks for all of them.
-        reduced.push({ i: id, key: a.key, box: a.box, solid: a.src ? a.src.solid : true, fixed: false });
-        source.set(id, a.from[0]);
+        if (buried.has(p.i)) continue;
+        let g = byFrame.get(p.f);
+        if (!g) byFrame.set(p.f, g = []);
+        g.push(p);
       }
 
-      // 2. Only the surface of what is left, and only from what is becoming
-      //    mesh. A part that has to stay still hides things, but building its
-      //    faces too would draw it twice.
-      const emit = new Set(reduced.filter(p => !p.fixed).map(p => p.i));
-      if (!emit.size) throw new Error("Every part in that selection has to stay as it is.");
+      const meshes = [];
+      let hidden = buried.size, solids = 0;
 
-      const byKey = new Map();
-      for (const p of reduced) if (emit.has(p.i) && !byKey.has(p.key)) byKey.set(p.key, source.get(p.i));
+      for (const [f, group] of byFrame) {
+        const thinned = optimiseBoxes(group);
+        hidden += thinned.hidden;
 
-      const built = buildMesh(surfaceOf(reduced, emit), OPT_UNIT);
-      if (!built.length) throw new Error("None of that selection can be seen, so there is no surface to build.");
+        const gone = new Set(thinned.remove);
+        const reduced = [];
+        const source = new Map();
+        let nid = 0;
+        for (const p of group) {
+          if (gone.has(p.i)) continue;
+          const id = nid++;
+          reduced.push({ i: id, key: p.key, box: p.box, solid: p.solid, fixed: p.fixed });
+          source.set(id, p.i);
+        }
+        for (const a of thinned.add) {
+          const id = nid++;
+          reduced.push({ i: id, key: a.key, box: a.box, solid: a.src ? a.src.solid : true, fixed: false });
+          source.set(id, a.from[0]);
+        }
+        solids += reduced.length;
+
+        const emit = new Set(reduced.filter(p => !p.fixed).map(p => p.i));
+        if (!emit.size) continue;
+
+        const byKey = new Map();
+        for (const p of reduced) if (emit.has(p.i) && !byKey.has(p.key)) byKey.set(p.key, source.get(p.i));
+
+        for (const g of buildMesh(surfaceOf(reduced, emit), OPT_UNIT)) {
+          meshes.push({
+            mk: g.key,
+            f,
+            from: [byKey.get(g.key)],
+            verts: g.verts.map(n => Math.round(n * 10000) / 10000),
+            tris: g.tris,
+            // Still in the frame's own coordinates; the part it goes into
+            // carries the rotation, so this is exactly what Studio wants.
+            centre: g.centre,
+            size: g.size,
+            triangles: g.triangles
+          });
+        }
+      }
+
+      if (!meshes.length) throw new Error("None of that selection can be seen, so there is no surface to build.");
 
       let tris = 0;
-      for (const g of built) tris += g.triangles;
+      for (const g of meshes) tris += g.triangles;
+
+      const replaced = parts.filter(p => !p.fixed).map(p => p.i);
 
       return {
-        meshes: built.map(g => ({
-          mk: g.key,
-          from: [byKey.get(g.key)],
-          verts: g.verts.map(n => Math.round(n * 10000) / 10000),
-          tris: g.tris,
-          centre: g.centre,
-          size: g.size,
-          triangles: g.triangles
-        })),
-        remove: parts.filter(p => !p.fixed).map(p => p.i),
+        meshes,
+        remove: replaced,
         stats: {
           before: raw.length,
-          hidden: thinned.hidden,
-          solids: reduced.length,
-          meshes: built.length,
+          frames: byFrame.size,
+          hidden,
+          solids,
+          meshes: meshes.length,
           triangles: tris,
-          wasTriangles: raw.length * 12,
+          // What the parts this actually replaced would have cost as boxes.
+          // Counting the ones left untouched too would flatter the number.
+          wasTriangles: replaced.length * 12,
           kept: parts.filter(p => p.fixed).length,
           skipped: (input && input.skipped) || 0
         }
       };
     }
 
-    // Kept for the plugin's parts-only action, which is the one that survives
-    // saving the place.
-    function toolMeshModel(input) {
+    // The plugin's parts-only action, which is the one that survives saving.
+    //
+    // Frames matter here just as much as they do for the mesh: boxes are
+    // given in the coordinates of the way their part faces, so comparing two
+    // of them across frames compares numbers that mean different things.
+    // Everything is done one frame at a time, and only whole containment is
+    // answered across them.
+    function toolOptimiseModel(input) {
       const raw = (input && input.parts) || [];
-      if (!raw.length) throw new Error("Nothing in that selection could be turned into a mesh.");
+      const frames = (input && input.frames) || [];
+      if (!raw.length) throw new Error("Nothing in that selection could be optimised.");
 
       const parts = raw.map(p => ({
-        i: p.i, key: p.mk || p.k, box: p.b, solid: p.solid !== false, fixed: !!p.fixed
+        i: p.i, f: p.f || 1, key: p.k, box: p.b,
+        solid: p.solid !== false, fixed: !!p.fixed
       }));
-      // Anything untouchable stays a part, and so contributes no surface -
-      // but goes on hiding what is behind it.
-      const emit = new Set(parts.filter(p => !p.fixed).map(p => p.i));
-      if (!emit.size) throw new Error("Every part in that selection has to stay as it is.");
 
-      const byKey = new Map();
-      for (const p of parts) if (emit.has(p.i) && !byKey.has(p.key)) byKey.set(p.key, p.i);
+      // Swallowed whole by something facing another way.
+      const buried = new Set();
+      const standing = parts.filter(p => p.solid);
+      for (const p of parts.filter(x => !x.fixed).sort((x, y) => optVolume(x.box) - optVolume(y.box))) {
+        const inside = standing.some(o => o !== p && o.f !== p.f &&
+          boxInsideBox(p.box, p.f, o.box, o.f, frames));
+        if (!inside) continue;
+        buried.add(p.i);
+        const at = standing.indexOf(p);
+        if (at >= 0) standing.splice(at, 1);
+      }
 
-      const built = buildMesh(surfaceOf(parts, emit), OPT_UNIT);
-      if (!built.length) throw new Error("None of that selection can be seen, so there is no surface to build.");
+      const byFrame = new Map();
+      for (const p of parts) {
+        if (buried.has(p.i)) continue;
+        let g = byFrame.get(p.f);
+        if (!g) byFrame.set(p.f, g = []);
+        g.push(p);
+      }
 
-      let tris = 0;
-      for (const g of built) tris += g.triangles;
+      const remove = [...buried];
+      const add = [];
+      let hidden = buried.size;
+      for (const [f, group] of byFrame) {
+        const res = optimiseBoxes(group);
+        hidden += res.hidden;
+        for (const i of res.remove) remove.push(i);
+        for (const a of res.add) add.push({ k: a.key, f, b: a.box, from: a.from });
+      }
 
       return {
-        meshes: built.map(g => ({
-          mk: g.key,
-          from: [byKey.get(g.key)],
-          verts: g.verts.map(n => Math.round(n * 10000) / 10000),
-          tris: g.tris,
-          centre: g.centre,
-          size: g.size,
-          triangles: g.triangles
-        })),
-        remove: [...emit],
+        remove, add,
         stats: {
           before: raw.length,
-          meshes: built.length,
-          triangles: tris,
-          // What the same parts would have cost as boxes, for comparison.
-          wasTriangles: emit.size * 12,
-          kept: raw.length - emit.size,
+          after: raw.length - remove.length + add.length,
+          frames: byFrame.size,
+          hidden,
+          merged: remove.length - hidden,
           skipped: (input && input.skipped) || 0
         }
       };
@@ -9511,7 +9575,9 @@
     const STUDIO_TOOLS = {
       "optimize-mesh": toolOptimiseMesh,
       "optimize-model": toolOptimiseModel,
-      "mesh-model": toolMeshModel
+      // The name the mesh tool had before the two halves became one run. An
+      // older plugin still asks for it, and it is the same work.
+      "mesh-model": toolOptimiseMesh
     };
 
     let studioToolBusy = "";
