@@ -6769,10 +6769,16 @@
        the moment the page loads and stays focused, so it would hold the dock
        up permanently and none of this would ever happen. Something typed into
        it is use. Pointing at it is use. An empty field waiting is not. */
-    body.dock-clear .composer-wrap:hover #macDockContainer,
-    body.dock-clear .composer-wrap:hover #composerIsland,
     body.dock-clear.composer-live #macDockContainer,
     body.dock-clear.composer-live #composerIsland { opacity: 1; }
+
+    /* Hover only where there is a pointer to hover with. A tap leaves :hover
+       stuck on what was tapped until something else is touched, which would
+       hold the dock up long after the finger had gone. */
+    @media (hover: hover) {
+      body.dock-clear .composer-wrap:hover #macDockContainer,
+      body.dock-clear .composer-wrap:hover #composerIsland { opacity: 1; }
+    }
 
     #composerIsland { transition: opacity .32s ease; }
 
@@ -8864,8 +8870,7 @@
       const feed = document.getElementById("feed");
       const dock = document.getElementById("macDockContainer");
       const box = document.getElementById("composerIsland");
-      // The workspace runs its own version of this against the work itself.
-      if (!feed || !dock || !box || document.body.classList.contains("ws-on")) return;
+      if (!feed || !dock || !box) return;
 
       const dr = dock.getBoundingClientRect();
       const br = box.getBoundingClientRect();
@@ -8875,13 +8880,23 @@
       // From the bottom up, because that is where the dock is. The first
       // message that ends above the dock ends the search: everything before
       // it is further up still.
+      //
+      // A message that is not displayed has no box, and a box of nothing ends
+      // above everything - so one of those would end the search before it had
+      // looked at anything. The page hides messages of its own accord, which
+      // is why the dock only stepped back some of the time. They are not
+      // there to be covered, so they are not there to be counted either.
       const msgs = feed.querySelectorAll(".msg");
       let behind = false;
       for (let i = msgs.length - 1; i >= 0; i--) {
         const r = msgs[i].getBoundingClientRect();
+        if (!r.height) continue;
         if (r.bottom <= top) break;
-        if (r.height && r.top < window.innerHeight) { behind = true; break; }
+        if (r.top < window.innerHeight) { behind = true; break; }
       }
+      // The workspace runs its own version of this against the work itself and
+      // the rules here stand aside for it, so the answer is still kept up to
+      // date rather than left to go stale while it is open.
       document.body.classList.toggle("dock-clear", behind);
     }
 
@@ -9004,9 +9019,15 @@
 
       // A message arriving is as good a reason to look again as one scrolling
       // past, and the answer changes while it is still being typed out.
-      const inner = document.getElementById("feedInner");
-      if (inner) new MutationObserver(dockGuardSoon)
-        .observe(inner, { childList: true, subtree: true, characterData: true });
+      // The feed rather than its inner list: a run opened from the workspace
+      // appends its messages to the feed itself.
+      new MutationObserver(dockGuardSoon)
+        .observe(feed, { childList: true, subtree: true, characterData: true });
+
+      // An image arriving changes every height below it without changing the
+      // document at all, so the observer above never hears about it. Load
+      // does not bubble, but it can be caught on the way down.
+      feed.addEventListener("load", dockGuardSoon, true);
       dockGuardSoon();
     }
 
