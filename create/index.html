@@ -9710,6 +9710,17 @@
     };
 
     let studioToolBusy = "";
+
+    // Jobs this page has been refused, and must stop asking about.
+    //
+    // The flag saying there is work stays up until somebody finishes the job,
+    // and the page checks that flag on every poll. So a job that had already
+    // been taken - by another tab, or by this one before it was reloaded -
+    // was asked for again every two seconds for as long as the tab was open,
+    // and answered 409 every time. One question per job is enough: whoever
+    // is running it will finish it, and if nobody is, the job times out and
+    // the flag comes down on its own.
+    const studioToolRefused = new Set();
     // The last thing worked out here, kept so it can be handed over as a file
     // as well as sent to Studio. Studio's copy does not survive saving; a file
     // does.
@@ -9756,14 +9767,20 @@
     // work stays up until the answer is in, so without this the page would
     // start the same job again on its very next poll.
     async function studioToolTake(jobId) {
-      if (!jobId || studioToolBusy === jobId) return;
+      if (!jobId || studioToolBusy === jobId || studioToolRefused.has(jobId)) return;
       studioToolBusy = jobId;
       studioRender();
 
       let result = null, failure = "";
       try {
         const res = await authedFetch("/studio/toolwork?job=" + encodeURIComponent(jobId));
-        if (res.status === 409) { studioToolBusy = ""; return; }   // another tab got there first
+        // Someone else is running it, or it is already finished. Either way
+        // it is not this page's to do, now or later.
+        if (res.status === 409 || res.status === 404) {
+          studioToolRefused.add(jobId);
+          studioToolBusy = "";
+          return;
+        }
         if (!res.ok) throw new Error(await wsApiError(res, "/studio/toolwork"));
         const work = await res.json();
 
