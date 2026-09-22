@@ -9542,7 +9542,7 @@
     function glbFromMeshes(meshes) {
       const chunks = [];       // the numbers, in order
       let offset = 0;
-      const views = [], accessors = [], prims = [], materials = [];
+      const views = [], accessors = [], materials = [], meshes3 = [], nodes = [];
 
       const push = (arr, Type, target, meta) => {
         const data = new Type(arr);
@@ -9586,15 +9586,14 @@
           if (m.verts[i] > max[d]) max[d] = m.verts[i];
         }
 
-        // Studio puts each mesh where its own part says, so every one is
-        // exported around its own middle and moved out to where it stood.
-        const shifted = m.verts.map((n, i) => n + m.centre[i % 3]);
-        const shiftedMin = min.map((n, d) => n + m.centre[d]);
-        const shiftedMax = max.map((n, d) => n + m.centre[d]);
-
-        const pos = push(shifted, Float32Array, 34962,
-          { count: shifted.length / 3, componentType: 5126, type: "VEC3",
-            extra: { min: shiftedMin, max: shiftedMax } });
+        // Around its own middle, with where it stands carried by the node.
+        // That is what an importer expects, and it is what lets each mesh
+        // come back as a part of its own rather than one lump: the geometry
+        // is local, the placing is a transform, and neither has to be
+        // guessed at afterwards.
+        const pos = push(m.verts, Float32Array, 34962,
+          { count: m.verts.length / 3, componentType: 5126, type: "VEC3",
+            extra: { min, max } });
         const nrm = push(normals, Float32Array, 34962,
           { count: normals.length / 3, componentType: 5126, type: "VEC3" });
         const idx = push(m.tris, Uint32Array, 34963,
@@ -9609,8 +9608,13 @@
           alphaMode: look.transparency > 0 ? "BLEND" : "OPAQUE",
           doubleSided: false
         });
-        prims.push({ attributes: { POSITION: pos, NORMAL: nrm }, indices: idx,
-          material: materials.length - 1 });
+        // One mesh and one node each, named. The name is the whole of how
+        // Studio pairs what comes back with what it replaced - by look, in
+        // order - so it has to be unique and it has to survive the trip.
+        const name = "RoPeak_" + (meshes3.length + 1);
+        meshes3.push({ name, primitives: [{ attributes: { POSITION: pos, NORMAL: nrm },
+          indices: idx, material: materials.length - 1 }] });
+        nodes.push({ mesh: meshes3.length - 1, name, translation: [m.centre[0], m.centre[1], m.centre[2]] });
       }
 
       while (offset % 4) { chunks.push(new Uint8Array([0])); offset++; }
@@ -9621,9 +9625,9 @@
       const gltf = {
         asset: { version: "2.0", generator: "RoPeak" },
         scene: 0,
-        scenes: [{ nodes: [0] }],
-        nodes: [{ mesh: 0, name: "OptimisedModel" }],
-        meshes: [{ name: "OptimisedModel", primitives: prims }],
+        scenes: [{ nodes: nodes.map((n, i) => i) }],
+        nodes,
+        meshes: meshes3,
         materials, accessors, bufferViews: views,
         buffers: [{ byteLength: bin.length }]
       };
