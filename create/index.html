@@ -9661,9 +9661,42 @@
       setTimeout(() => URL.revokeObjectURL(url), 10000);
     }
 
+    // Studio asking for the mesh it has just previewed to be made permanent.
+    //
+    // Studio cannot do this itself: AssetService:CreateAssetAsync is a beta
+    // API behind a gate that is shut for most accounts. This page can - the
+    // same Open Cloud road the generated decals have always taken, signed
+    // with the linked Roblox account, which needs no key and has no gate.
+    //
+    // The mesh is not sent back from Studio to be uploaded. It is still here,
+    // exactly as it was worked out, and sending tens of megabytes back across
+    // the wire to hand them straight on would be paying twice for nothing.
+    async function toolPublishMesh(input) {
+      const last = studioToolLast && studioToolLast.result;
+      if (!last || !last.meshes || !last.meshes.length) {
+        throw new Error("This page no longer holds the mesh it built. Run the tool again, " +
+          "and publish from the panel without reloading the page in between.");
+      }
+
+      const bytes = glbFromMeshes(last.meshes);
+      const name = String((input && input.name) || "RoPeak mesh").slice(0, 50);
+      const res = await authedFetch("/roblox/uploadmodel?name=" + encodeURIComponent(name), {
+        method: "POST",
+        headers: { "Content-Type": "model/gltf-binary" },
+        body: bytes
+      });
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.assetId) {
+        throw new Error(data.error || "Roblox would not take the model.");
+      }
+      return { assetId: data.assetId, bytes: bytes.length, meshes: last.meshes.length };
+    }
+
     const STUDIO_TOOLS = {
       "optimize-mesh": toolOptimiseMesh,
       "optimize-model": toolOptimiseModel,
+      "publish-mesh": toolPublishMesh,
       // The name the mesh tool had before the two halves became one run. An
       // older plugin still asks for it, and it is the same work.
       "mesh-model": toolOptimiseMesh
@@ -9723,7 +9756,7 @@
         // Let the panel draw the line saying what is happening before the
         // arithmetic takes the thread away from it.
         await new Promise(r => setTimeout(r, 30));
-        result = run(work.input);
+        result = await run(work.input);
         if (result && result.meshes && result.meshes.length) {
           studioToolLast = { tool: work.tool, at: Date.now(), result };
         }
