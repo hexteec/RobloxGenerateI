@@ -9649,8 +9649,9 @@
     }
 
     function studioDownloadMesh() {
-      if (!studioToolLast || !studioToolLast.result || !studioToolLast.result.meshes) return;
-      const bytes = glbFromMeshes(studioToolLast.result.meshes);
+      const held = studioMeshHeld();
+      if (!held || !held.result.meshes) return;
+      const bytes = glbFromMeshes(held.result.meshes);
       const url = URL.createObjectURL(new Blob([bytes], { type: "model/gltf-binary" }));
       const a = document.createElement("a");
       a.href = url;
@@ -9672,10 +9673,12 @@
     // exactly as it was worked out, and sending tens of megabytes back across
     // the wire to hand them straight on would be paying twice for nothing.
     async function toolPublishMesh(input) {
-      const last = studioToolLast && studioToolLast.result;
+      const held = studioMeshHeld();
+      const last = held && held.result;
       if (!last || !last.meshes || !last.meshes.length) {
-        throw new Error("This page no longer holds the mesh it built. Run the tool again, " +
-          "and publish from the panel without reloading the page in between.");
+        throw new Error("This page does not hold a mesh to publish. Either the tab that built " +
+          "it has been closed, or another tab answered this. Run the tool again in the tab you " +
+          "want to publish from.");
       }
 
       const bytes = glbFromMeshes(last.meshes);
@@ -9707,6 +9710,43 @@
     // as well as sent to Studio. Studio's copy does not survive saving; a file
     // does.
     let studioToolLast = null;
+
+    // The mesh the page last worked out, kept where a reload cannot take it.
+    //
+    // It used to live only in memory, and the page reloads itself on purpose:
+    // a plugin asking for a tool this copy has never heard of means the tab is
+    // older than the plugin, so it fetches itself again rather than handing
+    // the user a chore. That reload is exactly when Studio asks to publish -
+    // and the mesh had gone with it, which read as "this page no longer holds
+    // the mesh it built" for something the page had built seconds earlier.
+    //
+    // Per tab, because it belongs to this tab's conversation, and dropped
+    // silently if it is too big for the quota: publishing then fails the way
+    // it used to, with the same sentence, rather than breaking the run.
+    const MESH_KEEP_KEY = "ropeakMeshLast";
+    const MESH_KEEP_MS = 6 * 60 * 60 * 1000;
+
+    // One way in, so there is no way to remember it in memory and forget to
+    // write it down.
+    function studioMeshRemember(tool, result) {
+      studioToolLast = { tool, at: Date.now(), result };
+      try { sessionStorage.setItem(MESH_KEEP_KEY, JSON.stringify(studioToolLast)); } catch (e) {}
+      return studioToolLast;
+    }
+
+    // What the page holds, whether it has been reloaded since or not.
+    function studioMeshHeld() {
+      if (studioToolLast && studioToolLast.result) return studioToolLast;
+      try {
+        const raw = sessionStorage.getItem(MESH_KEEP_KEY);
+        if (!raw) return null;
+        const back = JSON.parse(raw);
+        if (!back || !back.result || !back.result.meshes) return null;
+        if (Date.now() - (back.at || 0) > MESH_KEEP_MS) return null;
+        studioToolLast = back;
+        return back;
+      } catch (e) { return null; }
+    }
 
     // One at a time, and never the same one twice: the flag that says there is
     // work stays up until the answer is in, so without this the page would
@@ -9758,7 +9798,7 @@
         await new Promise(r => setTimeout(r, 30));
         result = await run(work.input);
         if (result && result.meshes && result.meshes.length) {
-          studioToolLast = { tool: work.tool, at: Date.now(), result };
+          studioMeshRemember(work.tool, result);
         }
       } catch (e) {
         failure = e.message || String(e);
