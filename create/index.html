@@ -328,6 +328,12 @@
     html {
       scroll-behavior: smooth;
       overflow: hidden;
+      /* A sideways drag from the edge of the screen is the browser's own
+         gesture for going back, and going back from here means leaving the
+         app - which is what happens the moment anything on the page declines
+         that drag. The page keeps sideways to itself. Up and down are left
+         alone, so pull-to-refresh still works. */
+      overscroll-behavior-x: none;
     }
 
     body {
@@ -7737,6 +7743,11 @@
         transition: opacity .2s ease, transform .2s ease;
       }
 
+      /* While a finger is carrying the drawer it follows the finger, so the
+         easing that makes a tap look smooth has to be out of the way. */
+      body.sb-dragging .sidebar { transition: none; }
+      body.sb-dragging .sb-overlay { display: block; }
+
       /* Only while the bar is actually out. */
       body.bar-on .feed { --feed-fade-top: calc(var(--topbar-h) + 12px); }
 
@@ -9907,7 +9918,105 @@
       dockGuardSoon();
     }
 
-    window.addEventListener("load", () => { barWire(); initComposerHeightSync(); });
+    window.addEventListener("load", () => { barWire(); initComposerHeightSync(); sbSwipeWire(); });
+
+    // OPENING THE MENU WITH A THUMB
+    //
+    // A drawer you can only reach by hitting a 34-pixel button is a drawer
+    // that gets missed. A sideways drag opens it - but this same screen
+    // scrolls a chat up and down, pulls a top bar down, carries a row of
+    // stats that scrolls sideways on its own, has a panel that lives on the
+    // right, and holds text you can drag a cursor through. So the gesture
+    // earns the touch rather than assuming it: it starts at the left edge,
+    // where nothing else begins, and gives the touch up the moment it looks
+    // more like a scroll than a pull.
+    const SB_EDGE = 32;     // how close to the edge an opening drag must start
+    const SB_LOCK = 10;     // how far before deciding what this drag is
+    const SB_TAKE = 0.35;   // how far across before letting go finishes it
+
+    let sbDrag = null;
+
+    // Something that scrolls sideways has first claim on a sideways drag.
+    function sbScrollsSideways(node) {
+      for (let el = node; el && el !== document.body; el = el.parentElement) {
+        if (el.scrollWidth > el.clientWidth + 2) {
+          const how = getComputedStyle(el).overflowX;
+          if (how === "auto" || how === "scroll") return true;
+        }
+      }
+      return false;
+    }
+
+    function sbSwipeStart(e) {
+      if (!barIsMobile() || e.touches.length !== 1) return;
+      // The Studio panel is the other thing that slides in from a side; while
+      // it is out, sideways is its.
+      if (document.body.classList.contains("studio-on")) return;
+
+      const sidebar = document.getElementById("sidebar");
+      if (!sidebar) return;
+      const open = sidebar.classList.contains("open");
+      const t = e.touches[0];
+      if (!open && t.clientX > SB_EDGE) return;
+
+      const el = e.target;
+      if (el && el.closest && el.closest("input, textarea, select, [contenteditable=true]")) return;
+      if (el && sbScrollsSideways(el)) return;
+
+      sbDrag = { x: t.clientX, y: t.clientY, open, locked: false, progress: open ? 1 : 0,
+                 width: sidebar.offsetWidth || 280 };
+    }
+
+    function sbSwipeMove(e) {
+      if (!sbDrag || e.touches.length !== 1) return;
+      const t = e.touches[0];
+      const dx = t.clientX - sbDrag.x;
+      const dy = t.clientY - sbDrag.y;
+
+      if (!sbDrag.locked) {
+        // Up or down wins outright: reading the chat must never cost a drawer.
+        if (Math.abs(dy) > SB_LOCK && Math.abs(dy) >= Math.abs(dx)) { sbDrag = null; return; }
+        if (Math.abs(dx) < SB_LOCK) return;
+        // And sideways only counts the way that would do something.
+        if (sbDrag.open ? dx > 0 : dx < 0) { sbDrag = null; return; }
+        sbDrag.locked = true;
+        document.body.classList.add("sb-dragging");
+      }
+
+      if (e.cancelable) e.preventDefault();
+      const shown = sbDrag.open ? sbDrag.width + dx : dx;
+      sbDrag.progress = Math.max(0, Math.min(1, shown / sbDrag.width));
+
+      const sidebar = document.getElementById("sidebar");
+      const overlay = document.getElementById("sbOverlay");
+      if (sidebar) sidebar.style.transform = `translateX(${(sbDrag.progress - 1) * 100}%)`;
+      if (overlay) overlay.style.opacity = String(sbDrag.progress);
+    }
+
+    function sbSwipeEnd() {
+      if (!sbDrag) return;
+      const drag = sbDrag;
+      sbDrag = null;
+      if (!drag.locked) return;
+
+      const sidebar = document.getElementById("sidebar");
+      const overlay = document.getElementById("sbOverlay");
+      document.body.classList.remove("sb-dragging");
+      // Handing the drawer back to the stylesheet, which knows how to finish
+      // the movement on its own.
+      if (sidebar) sidebar.style.transform = "";
+      if (overlay) overlay.style.opacity = "";
+      toggleSidebar(drag.progress >= SB_TAKE);
+    }
+
+    function sbSwipeWire() {
+      document.addEventListener("touchstart", sbSwipeStart, { passive: true });
+      // Not passive: once this is plainly a sideways pull it has to stop the
+      // page scrolling underneath it.
+      document.addEventListener("touchmove", sbSwipeMove, { passive: false });
+      document.addEventListener("touchend", sbSwipeEnd, { passive: true });
+      document.addEventListener("touchcancel", sbSwipeEnd, { passive: true });
+    }
 
     function toggleSidebar(open) {
       const sidebar = document.getElementById("sidebar");
