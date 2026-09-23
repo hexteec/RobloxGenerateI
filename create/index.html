@@ -1934,20 +1934,24 @@
       flex-direction: row-reverse;
     }
 
+    /* Avatars sit on the page like stickers: a little crooked, with the
+       same lip along the bottom that the dock keys have. */
     .msg-avatar {
-      width: 28px;
-      height: 28px;
-      border-radius: 5px;
+      width: 30px;
+      height: 30px;
+      border-radius: 9px;
       flex-shrink: 0;
       display: flex;
       align-items: center;
       justify-content: center;
       overflow: hidden;
+      box-shadow: inset 0 -2px 0 color-mix(in srgb, var(--ink) 10%, transparent);
     }
 
     .msg-user .msg-avatar {
       background: var(--soft);
       border: 1px solid var(--border);
+      transform: rotate(4deg);
     }
 
     .msg-user .msg-avatar img {
@@ -1957,8 +1961,10 @@
     }
 
     .msg-bot .msg-avatar {
-      background: var(--accent-wash);
+      background: var(--card);
+      border: 1px solid var(--border);
       color: var(--accent);
+      transform: rotate(-6deg);
     }
 
     .msg-bot .msg-avatar svg {
@@ -1967,21 +1973,42 @@
     }
 
     .msg-bubble {
+      position: relative;
       max-width: 78%;
     }
 
+    /* Each bubble points at whoever said it with a small turned square, the
+       mark used across the page, instead of a drawn speech tail. */
+    .msg-bubble::before {
+      content: "";
+      position: absolute;
+      width: 9px;
+      height: 9px;
+      border-radius: 2px;
+      transform: rotate(45deg);
+      pointer-events: none;
+    }
+
+    /* Yours is a soft sheet, not a black slab: the words are what matter. */
     .msg-user .msg-bubble {
-      background: var(--ink);
-      color: #fff;
-      border-radius: 14px 14px 3px 14px;
+      background: var(--soft-2);
+      color: var(--ink);
+      border-radius: 16px 16px 5px 16px;
       padding: 11px 15px;
       font-size: 13.8px;
       line-height: 1.55;
+      box-shadow: inset 0 -2px 0 color-mix(in srgb, var(--ink) 7%, transparent);
+    }
+
+    .msg-user .msg-bubble::before {
+      right: -3px;
+      bottom: 9px;
+      background: var(--soft-2);
     }
 
     .msg-user .msg-meta {
-      font-size: 10.5px;
-      color: rgba(255, 255, 255, 0.6);
+      font-size: 11px;
+      color: var(--ink-faint);
       margin-top: 6px;
       display: flex;
       gap: 8px;
@@ -1992,7 +2019,7 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      background: rgba(255, 255, 255, 0.14);
+      background: var(--card);
       border-radius: 9px;
       padding: 5px 6px;
       margin-bottom: 8px;
@@ -2014,9 +2041,40 @@
     .msg-bot .msg-bubble {
       background: var(--card);
       border: 1px solid var(--border);
-      border-radius: 5px 15px 15px 15px;
-      padding: 15px 16px;
-      box-shadow: var(--shadow-sm);
+      border-radius: 5px 16px 16px 16px;
+      padding: 15px 17px;
+      box-shadow: inset 0 -2px 0 var(--soft), var(--shadow-sm);
+    }
+
+    .msg-bot .msg-bubble::before {
+      left: -5px;
+      top: 11px;
+      background: var(--card);
+      border-left: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* Choosers and results carry their own frames; no bubble, no pointer. */
+    .msg-bot:has(.chooser-3d) .msg-bubble::before { display: none; }
+
+    /* The newest pair lands with a little give, squashed towards whoever
+       said it and settling back. Only the newest: reopening a long chat
+       should not make every message bounce at once. */
+    .msg:nth-last-child(-n+2) .msg-bubble {
+      animation: msgLand .55s cubic-bezier(.34, 1.56, .64, 1) both;
+    }
+
+    .msg-user .msg-bubble { transform-origin: 100% 100%; }
+    .msg-bot .msg-bubble { transform-origin: 0 0; }
+
+    @keyframes msgLand {
+      0% { transform: scale(.9, .82); opacity: 0; }
+      55% { transform: scale(1.015, 1.03); opacity: 1; }
+      100% { transform: none; opacity: 1; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .msg:nth-last-child(-n+2) .msg-bubble { animation: none; }
     }
 
     .bot-text {
@@ -4941,8 +4999,8 @@
       aspect-ratio: 1/1;
       border-radius: 8px;
       overflow: hidden;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid var(--border);
+      background: var(--card);
     }
 
     .msg-attach-grid .ag-item img {
@@ -6157,11 +6215,14 @@
       height: 22px !important;
     }
 
+    /* The chosen key is simply held down: the lip moves from under it to
+       inside its top edge, it sinks to the page's own grey, and its glyph
+       takes the accent. No black slab. */
     .dock-item.fm-pill.active .fm-icon.dock-icon {
-      background: var(--ink) !important;
-      border-color: var(--ink) !important;
-      color: var(--card) !important;
-      box-shadow: inset 0 2px 3px rgba(0, 0, 0, 0.35), 0 0 0 3px color-mix(in srgb, var(--ink) 10%, transparent) !important;
+      background: var(--soft) !important;
+      border-color: color-mix(in srgb, var(--accent) 30%, var(--border)) !important;
+      color: var(--accent-deep) !important;
+      box-shadow: inset 0 2px 0 var(--soft-2), inset 0 3px 6px color-mix(in srgb, var(--ink) 7%, transparent) !important;
     }
 
     /* A small turned square under the key that is down, the mark Studio
@@ -7038,7 +7099,9 @@
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-md);
+      /* A thicker bottom edge, so the window sits on the page like a slab
+         rather than hovering over it. */
+      box-shadow: 0 3px 0 var(--soft-2), var(--shadow-md);
       scroll-margin: 74px 0 24px;
       animation: wsArrive .85s cubic-bezier(.16, 1, .3, 1) both;
     }
@@ -7231,9 +7294,18 @@
       white-space: nowrap;
     }
 
+    /* The mode sits on a small key, the same one it has in the dock. */
     .ws-mode-ico {
       display: inline-flex;
-      color: var(--ink-muted);
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: var(--soft);
+      border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--border));
+      color: var(--accent-deep);
+      box-shadow: inset 0 2px 0 var(--soft-2);
     }
 
     .ws-mode-ico svg { width: 15px; height: 15px; }
@@ -7249,9 +7321,24 @@
     }
 
     .ws-step {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
       font-size: 12.5px;
       color: var(--ink-faint);
       white-space: nowrap;
+    }
+
+    /* The step you are on gets the turned square the dock puts under the
+       chosen key. */
+    .ws-step.now::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 1.5px;
+      background: var(--accent);
+      transform: rotate(45deg);
+      animation: dkMark .55s cubic-bezier(.34, 1.8, .5, 1) both;
     }
 
     .ws-step .ws-dot { display: none; }
@@ -7283,6 +7370,8 @@
     }
 
     .ws-x:hover { color: var(--ink); border-color: var(--border); background: var(--soft); }
+    .ws-x:hover svg { transform: rotate(90deg); }
+    .ws-x svg { transition: transform .45s cubic-bezier(.34, 1.8, .5, 1); }
     .ws-x svg { width: 14px; height: 14px; }
 
     /* ---------- the middle ---------- */
@@ -7390,28 +7479,33 @@
       gap: 6px;
     }
 
+    /* Options are keys: a lip underneath, and the chosen one held down. */
     .ws-chip {
       display: inline-flex;
       align-items: center;
       gap: 7px;
       border: 1px solid var(--border);
-      background: var(--soft);
+      background: var(--card);
       color: var(--ink);
       font-family: var(--font-body);
-      font-size: 12.3px;
+      font-size: 12.5px;
       font-weight: 600;
-      padding: 8px 13px;
-      border-radius: 8px;
+      padding: 8px 13px 9px;
+      border-radius: 9px;
       cursor: pointer;
-      transition: border-color .15s ease, background .15s ease, color .15s ease;
+      box-shadow: inset 0 -2px 0 var(--soft-2);
+      transition: border-color .15s ease, background .15s ease, color .15s ease, box-shadow .15s ease,
+        transform .45s cubic-bezier(.34, 1.9, .5, 1);
     }
 
     .ws-chip:hover { border-color: var(--ink-faint); }
+    .ws-chip:active { transform: scale(.95, .9); transition-duration: .08s; }
 
     .ws-chip.on {
-      border-color: var(--accent);
-      background: var(--accent-wash);
+      border-color: color-mix(in srgb, var(--accent) 35%, var(--border));
+      background: var(--soft);
       color: var(--accent-deep);
+      box-shadow: inset 0 2px 0 var(--soft-2), inset 0 3px 6px color-mix(in srgb, var(--ink) 6%, transparent);
     }
 
     .ws-chip-sub { font-size: 10.5px; font-weight: 500; color: var(--ink-faint); }
@@ -7490,17 +7584,21 @@
       font-family: var(--font-body);
       font-size: 12.5px;
       font-weight: 600;
-      padding: 8px 14px;
+      padding: 8px 14px 9px;
       border-radius: var(--radius-sm);
       cursor: pointer;
       white-space: nowrap;
-      transition: border-color .15s ease, background .15s ease, opacity .15s ease;
+      box-shadow: inset 0 -2px 0 var(--soft-2);
+      transition: border-color .15s ease, background .15s ease, opacity .15s ease,
+        transform .45s cubic-bezier(.34, 1.9, .5, 1);
     }
 
     .ws-btn:hover:not(:disabled) {
-      background: var(--soft-2);
+      background: var(--soft);
       border-color: var(--ink-faint);
     }
+
+    .ws-btn:active:not(:disabled) { transform: scale(.95, .9); transition-duration: .08s; }
 
     .ws-btn svg { width: 13px; height: 13px; }
 
@@ -7510,7 +7608,8 @@
       background: var(--accent);
       border-color: var(--accent);
       color: var(--on-accent);
-      padding: 8px 16px;
+      padding: 8px 16px 9px;
+      box-shadow: inset 0 -2px 0 rgba(0, 0, 0, .18);
     }
 
     .ws-btn.primary:hover:not(:disabled) {
@@ -8117,7 +8216,8 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
-      .ws, .ws.ws-leaving, .ws-rise { animation: none; }
+      .ws, .ws.ws-leaving, .ws-rise, .ws-step.now::before { animation: none; }
+      .ws-btn:active:not(:disabled), .ws-chip:active { transform: none; }
       .app-shell::before { transition: none; }
       body.ws-lens-on .ws-lens,
       body.ws-lens-on .sidebar,
@@ -11984,13 +12084,16 @@
 
     function historyBadge(m) {
       if (m.type === "text") return "Chat";
-      if (m.type === "model3d") return "Model 3D";
-      return categoryLabel(m.category) + " · " + methodShortLabel(m.mode);
+      if (m.type === "model3d") return "3D model";
+      if (m.type === "code") return "Script";
+      if (m.type === "chooser") return "";
+      const how = methodShortLabel(m.mode);
+      return categoryLabel(m.category) + (how ? ", " + how.toLowerCase() : "");
     }
 
     function categoryLabel(cat) { return cat === "thumbnail" ? "Thumbnail" : "Icon"; }
     function methodShortLabel(m) {
-      return { text2img: "From scratch", image2img: "Edit photo", reference2img: "Transfer style" }[m] || m;
+      return { text2img: "From scratch", image2img: "Edit photo", reference2img: "Transfer style" }[m] || "";
     }
     // The feed's foot and its fade are both measured from the composer, so
     // this has to run whatever else does or does not happen on the way in.
