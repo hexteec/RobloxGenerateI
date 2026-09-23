@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
-    href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap"
     rel="stylesheet">
 
   <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
@@ -58,27 +58,34 @@
 
   <style>
     :root {
-      --bg: #FAFAF9;
+      /* Stone greys and one brick colour. The neutrals are the greys of a
+         Studio baseplate rather than paper; the accent is Roblox's own
+         "Bright blue" brick, the colour builders already know by name. */
+      --bg: #EDEEEF;
       --card: #FFFFFF;
-      --soft: #F4F3F1;
-      --soft-2: #EAE8E4;
-      --border: #E5E3DF;
-      --ink: #201F1C;
-      --ink-2: #2b2a2a;
-      --ink-3: #d4d1d1;
-      --ink-muted: #6B6862;
-      --ink-faint: #A6A29A;
+      --soft: #F2F3F4;
+      --soft-2: #E3E4E7;
+      --border: #D6D7DA;
+      --ink: #1D1E21;
+      --ink-2: #2C2D31;
+      --ink-3: #CFD0D4;
+      --ink-muted: #5B5D63;
+      --ink-faint: #8E9097;
 
-      --gridColor: rgba(70, 68, 64, 0.055);
-      --Check-1: #f5f4f2;
-      --Check-2: #fafaf9;
+      --gridColor: transparent;
+      --Check-1: transparent;
+      --Check-2: transparent;
+      /* Only for showing where a picture is see-through. */
+      --checker-a: #E2E3E6;
+      --checker-b: #F5F5F6;
 
-      --accent: #B45A34;
-      --accent-deep: #954A2A;
+      --accent: #0D69AC;
+      --accent-deep: #0A568E;
       /* Label colour for accent-filled buttons. The dark theme lightens the
          accent, where white text drops to 2.8:1, so it flips to dark ink. */
       --on-accent: #ffffff;
-      --accent-wash: #FBEEE7;
+      --on-ink: #FFFFFF;
+      --accent-wash: #E4EEF6;
 
       --mint: #3E7A5F;
       --mint-wash: #EAF3EE;
@@ -96,41 +103,49 @@
       --c-world:  #3E7A5F;
       --c-value:  #A87A2A;
 
-      --radius-lg: 16px;
-      --radius-md: 12px;
-      --radius-sm: 9px;
+      /* Four radii, by what a thing is: a tag, a control, a message, a panel.
+         Tighter than a consumer app, because this is a workbench. */
+      --radius-xs: 4px;
+      --radius-sm: 6px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
 
-      --shadow-sm: 0 1px 2px rgba(32, 31, 28, 0.05);
-      --shadow-md: 0 6px 20px rgba(32, 31, 28, 0.06);
-      --shadow-lg: 0 16px 40px rgba(32, 31, 28, 0.10);
+      /* A contact line for things sitting on the page, and real depth only
+         for what floats above it: menus, the dock, dialogs. */
+      --shadow-sm: 0 1px 0 rgba(20, 22, 26, 0.05);
+      --shadow-md: 0 1px 2px rgba(20, 22, 26, 0.06), 0 10px 24px -14px rgba(20, 22, 26, 0.22);
+      --shadow-lg: 0 2px 4px rgba(20, 22, 26, 0.06), 0 22px 44px -22px rgba(20, 22, 26, 0.34);
 
-      --font-display: 'Sora', sans-serif;
-      --font-body: 'Inter', sans-serif;
-      --font-mono: 'JetBrains Mono', monospace;
+      --font-display: 'Schibsted Grotesk', system-ui, sans-serif;
+      --font-body: 'Schibsted Grotesk', system-ui, sans-serif;
+      --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
 
       --sidebar-w: 264px;
       --topbar-h: 60px;
     }
 
     [data-theme="dark"] {
-      --bg: #17161A;
-      --card: #1F1E23;
-      --soft: #26252B;
-      --soft-2: #333138;
-      --border: #35333A;
-      --ink: #C0ADC9;
-      --ink-2: #cfc2d3;
-      --ink-muted: #A19FA8;
-      --ink-faint: #6E6C75;
+      --bg: #18191B;
+      --card: #212225;
+      --soft: #28292D;
+      --soft-2: #313236;
+      --border: #36383C;
+      --ink: #E8E8EA;
+      --ink-2: #D2D3D6;
+      --ink-muted: #A2A4AA;
+      --ink-faint: #6D6F76;
 
-      --gridColor: rgba(78, 78, 80, 0.164);
-      --Check-1: #242224;
-      --Check-2: rgb(32, 31, 32);
+      --gridColor: transparent;
+      --Check-1: transparent;
+      --Check-2: transparent;
+      --checker-a: #26272A;
+      --checker-b: #303135;
 
-      --accent: #E08350;
-      --accent-deep: #F0996A;
-      --on-accent: #17161A;
-      --accent-wash: #3A2A20;
+      --accent: #5AA0DB;
+      --accent-deep: #82B8E7;
+      --on-accent: #0E1822;
+      --on-ink: #18191B;
+      --accent-wash: #1C2A36;
 
       --mint: #5FAE8A;
       --mint-wash: #1E2E27;
@@ -147,9 +162,9 @@
       --c-world:  #6FBE93;
       --c-value:  #D3A657;
 
-      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.25);
-      --shadow-md: 0 6px 20px rgba(0, 0, 0, 0.3);
-      --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.45);
+      --shadow-sm: 0 1px 0 rgba(0, 0, 0, 0.30);
+      --shadow-md: 0 1px 2px rgba(0, 0, 0, 0.35), 0 12px 26px -14px rgba(0, 0, 0, 0.60);
+      --shadow-lg: 0 2px 4px rgba(0, 0, 0, 0.35), 0 24px 48px -22px rgba(0, 0, 0, 0.75);
     }
 
     [data-theme="sea"] {
@@ -177,9 +192,9 @@
       --amber: #B08A2E;
       --amber-wash: #F3EDDD;
 
-      --shadow-sm: 0 1px 2px rgba(20, 50, 60, 0.06);
-      --shadow-md: 0 6px 20px rgba(20, 50, 60, 0.08);
-      --shadow-lg: 0 16px 40px rgba(20, 50, 60, 0.12);
+      --shadow-sm: 0 1px 0 rgba(20, 22, 26, 0.05);
+      --shadow-md: 0 1px 2px rgba(20, 22, 26, 0.06), 0 10px 24px -14px rgba(20, 22, 26, 0.22);
+      --shadow-lg: 0 2px 4px rgba(20, 22, 26, 0.06), 0 22px 44px -22px rgba(20, 22, 26, 0.34);
     }
 
     [data-theme="forest"] {
@@ -207,9 +222,9 @@
       --amber: #A8842C;
       --amber-wash: #F2ECDA;
 
-      --shadow-sm: 0 1px 2px rgba(30, 40, 20, 0.06);
-      --shadow-md: 0 6px 20px rgba(30, 40, 20, 0.08);
-      --shadow-lg: 0 16px 40px rgba(30, 40, 20, 0.12);
+      --shadow-sm: 0 1px 0 rgba(20, 22, 26, 0.05);
+      --shadow-md: 0 1px 2px rgba(20, 22, 26, 0.06), 0 10px 24px -14px rgba(20, 22, 26, 0.22);
+      --shadow-lg: 0 2px 4px rgba(20, 22, 26, 0.06), 0 22px 44px -22px rgba(20, 22, 26, 0.34);
     }
 
     [data-theme="sun"] {
@@ -237,9 +252,9 @@
       --amber: #C1911F;
       --amber-wash: #F7EBCE;
 
-      --shadow-sm: 0 1px 2px rgba(60, 45, 10, 0.06);
-      --shadow-md: 0 6px 20px rgba(60, 45, 10, 0.08);
-      --shadow-lg: 0 16px 40px rgba(60, 45, 10, 0.12);
+      --shadow-sm: 0 1px 0 rgba(20, 22, 26, 0.05);
+      --shadow-md: 0 1px 2px rgba(20, 22, 26, 0.06), 0 10px 24px -14px rgba(20, 22, 26, 0.22);
+      --shadow-lg: 0 2px 4px rgba(20, 22, 26, 0.06), 0 22px 44px -22px rgba(20, 22, 26, 0.34);
     }
 
     body {
@@ -292,11 +307,11 @@
     }
 
     .theme-dot[data-theme-id="light"] {
-      background: linear-gradient(135deg, #FAFAF9 50%, #B45A34 50%);
+      background: linear-gradient(135deg, #EDEEEF 50%, #0D69AC 50%);
     }
 
     .theme-dot[data-theme-id="dark"] {
-      background: linear-gradient(135deg, #17161A 50%, #E08350 50%);
+      background: linear-gradient(135deg, #18191B 50%, #5AA0DB 50%);
     }
 
     .theme-dot[data-theme-id="sea"] {
@@ -435,32 +450,7 @@
       height: 100dvh;
       width: 100vw;
       position: relative;
-      background-image:
-
-        /* Drobna siatka — pozioma */
-        linear-gradient(var(--gridColor) 1px,
-          transparent 1px),
-
-        /* Drobna siatka — pionowa */
-        linear-gradient(90deg,
-          var(--gridColor) 1px,
-          transparent 1px),
-
-        /* Subtelna szachownica */
-        conic-gradient(var(--Check-1) 90deg,
-          var(--Check-2) 90deg 180deg,
-          var(--Check-1) 180deg 270deg,
-          var(--Check-2) 270deg);
-
-      background-size:
-        30px 30px,
-        30px 30px,
-        240px 240px;
-
-      background-position:
-        0 0,
-        0 0,
-        0 0;
+      background: var(--bg);
 
       margin: 0;
       min-height: 100vh;
@@ -510,7 +500,7 @@
       align-items: center;
       gap: 8px;
       background: var(--ink);
-      color: #fff;
+      color: var(--on-ink);
       border: none;
       font-family: var(--font-display);
       font-weight: 700;
@@ -519,11 +509,11 @@
       cursor: pointer;
       transition: background .15s ease, transform .12s ease, box-shadow .15s ease;
       box-shadow: 0 1px 2px rgba(20, 20, 15, 0.1);
+      border-radius: var(--radius-md);
     }
 
     .btn-newchat:hover {
-      background: #34322D;
-      transform: translateY(-1px);
+      background: var(--ink-2);
     }
 
     .btn-newchat:active {
@@ -549,8 +539,8 @@
       gap: 6px;
       background: var(--ink);
       border: none;
-      border-radius: 0;
-      color: white;
+      border-radius: var(--radius-md);
+      color: var(--on-ink);
       font-family: var(--font-display);
       font-weight: 700;
       font-size: 10px;
@@ -566,7 +556,6 @@
     .btn-store:hover,
     .btn-tokens:hover {
       opacity: 0.92;
-      transform: translateY(-1px);
     }
 
     .btn-store:active,
@@ -586,7 +575,7 @@
 
     .sb-chats::-webkit-scrollbar-thumb {
       background: var(--soft-2);
-      border-radius: 3px;
+      border-radius: var(--radius-xs);
     }
 
     .chat-item {
@@ -617,7 +606,7 @@
       bottom: 9px;
       width: 2px;
       background: var(--accent);
-      border-radius: 2px;
+      border-radius: var(--radius-xs);
     }
 
     .chat-item .ci-text {
@@ -644,10 +633,10 @@
     }
 
     .chat-item .ci-badge {
-      font-size: 9.5px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: .04em;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: none;
+      letter-spacing: 0;
       color: var(--ink-muted);
     }
 
@@ -658,7 +647,7 @@
       color: var(--ink-faint);
       cursor: pointer;
       padding: 4px;
-      border-radius: 5px;
+      border-radius: var(--radius-xs);
       flex-shrink: 0;
       display: flex;
     }
@@ -789,7 +778,7 @@
        tie; matching both wins without !important. */
     .gp-wallet.gp-wallet-ghost {
       background: transparent;
-      border: 1px dashed var(--border);
+      border: 1px solid var(--border);
       box-shadow: none;
     }
 
@@ -857,7 +846,7 @@
       justify-content: center;
       padding: 0;
       border: 1px solid var(--border);
-      border-radius: 7px;
+      border-radius: var(--radius-sm);
       background: var(--soft);
       color: var(--ink-muted);
       cursor: pointer;
@@ -895,10 +884,10 @@
     }
 
     .rgp-head {
-      font-size: 9.5px;
-      font-weight: 700;
-      letter-spacing: .08em;
-      text-transform: uppercase;
+      font-size: 12.5px;
+      font-weight: 600;
+      letter-spacing: 0;
+      text-transform: none;
       color: var(--ink-faint);
     }
 
@@ -961,7 +950,7 @@
     }
 
     .rgp-apply {
-      font-family: var(--font-mono);
+      font-family: var(--font-body);
       font-size: 10.5px;
       font-weight: 600;
       padding: 7px;
@@ -1117,7 +1106,6 @@
       background: var(--soft);
       border-color: var(--ink-faint);
       color: var(--ink);
-      transform: translateY(-1px);
     }
 
     .gp-icon-btn.u-signout {
@@ -1319,7 +1307,6 @@
       background: var(--card) !important;
       border-color: var(--coral) !important;
       color: var(--coral) !important;
-      transform: translateY(-1px);
     }
 
     .rc-unlink-btn svg {
@@ -1362,7 +1349,7 @@
       color: var(--on-accent);
       border: none;
       border-radius: var(--radius-sm);
-      font-family: var(--font-mono);
+      font-family: var(--font-body);
       font-weight: 600;
       font-size: 10.5px;
       cursor: pointer;
@@ -1375,7 +1362,6 @@
 
     .gp-signin-action:hover {
       opacity: 0.92;
-      transform: translateY(-1px);
     }
 
     .gp-signin-action:active {
@@ -1407,7 +1393,7 @@
       height: 36px;
       border-radius: 50%;
       background: var(--ink);
-      color: #fff;
+      color: var(--on-ink);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -1521,7 +1507,6 @@
     }
 
     .rc-action:hover {
-      transform: translateY(-1px);
       opacity: 0.9;
     }
 
@@ -1537,7 +1522,7 @@
     .btn-google-card .rc-action {
       background: var(--accent);
       color: var(--on-accent);
-      font-family: var(--font-mono);
+      font-family: var(--font-body);
       font-size: 10.5px;
       font-weight: 600;
     }
@@ -1824,7 +1809,7 @@
 
     .feed::-webkit-scrollbar-thumb {
       background: var(--soft-2);
-      border-radius: 4px;
+      border-radius: var(--radius-xs);
     }
 
     .feed-inner {
@@ -1882,14 +1867,18 @@
     }
 
     .welcome .w-hint {
-      font-size: 11.8px;
-      font-weight: 500;
-      color: var(--ink-muted);
+      font: 500 13px/1.3 var(--font-body);
+      color: var(--ink-2);
       background: var(--card);
       border: 1px solid var(--border);
-      padding: 8px 13px;
-      border-radius: 999px;
+      padding: 8px 12px;
+      border-radius: var(--radius-md);
+      cursor: pointer;
     }
+
+    /* An example is a starting point: pressing it writes it into the box. */
+    .welcome .w-hint:hover { border-color: var(--ink-faint); color: var(--ink); }
+    .welcome .w-hint:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
     .msg {
       display: flex;
@@ -1904,7 +1893,7 @@
     .msg-avatar {
       width: 28px;
       height: 28px;
-      border-radius: 5px;
+      border-radius: var(--radius-xs);
       flex-shrink: 0;
       display: flex;
       align-items: center;
@@ -1939,16 +1928,17 @@
 
     .msg-user .msg-bubble {
       background: var(--ink);
-      color: #fff;
-      border-radius: 14px 14px 3px 14px;
+      color: var(--on-ink);
+      border-radius: var(--radius-lg) var(--radius-lg) var(--radius-xs) var(--radius-lg);
       padding: 11px 15px;
       font-size: 13.8px;
       line-height: 1.55;
     }
 
     .msg-user .msg-meta {
-      font-size: 10.5px;
-      color: rgba(255, 255, 255, 0.6);
+      font-size: 11px;
+      color: var(--on-ink);
+      opacity: .62;
       margin-top: 6px;
       display: flex;
       gap: 8px;
@@ -1960,7 +1950,7 @@
       align-items: center;
       gap: 8px;
       background: rgba(255, 255, 255, 0.14);
-      border-radius: 9px;
+      border-radius: var(--radius-md);
       padding: 5px 6px;
       margin-bottom: 8px;
     }
@@ -1968,7 +1958,7 @@
     .chat-image-chip img {
       width: 30px;
       height: 30px;
-      border-radius: 6px;
+      border-radius: var(--radius-sm);
       object-fit: cover;
       display: block;
     }
@@ -1981,7 +1971,7 @@
     .msg-bot .msg-bubble {
       background: var(--card);
       border: 1px solid var(--border);
-      border-radius: 5px 15px 15px 15px;
+      border-radius: var(--radius-xs) var(--radius-lg) var(--radius-lg) var(--radius-lg);
       padding: 15px 16px;
       box-shadow: var(--shadow-sm);
     }
@@ -2036,7 +2026,7 @@
       width: 100%;
       height: 4px;
       background: var(--soft-2);
-      border-radius: 4px;
+      border-radius: var(--radius-xs);
       overflow: hidden;
       margin-top: 9px;
     }
@@ -2045,7 +2035,7 @@
       height: 100%;
       background: var(--accent);
       transition: width .35s ease;
-      border-radius: 4px;
+      border-radius: var(--radius-xs);
     }
 
     .result-frame-wrap {
@@ -2074,7 +2064,7 @@
 
     .result-frame.t-square,
     .result-frame.t-pass {
-      border-radius: 14px;
+      border-radius: var(--radius-lg);
     }
 
     .result-frame.t-circle {
@@ -2086,7 +2076,7 @@
     }
 
     .result-frame.t-wide {
-      border-radius: 12px;
+      border-radius: var(--radius-lg);
     }
 
     .result-frame img {
@@ -2118,7 +2108,7 @@
       width: 280px;
       max-width: 100%;
       aspect-ratio: 1/1;
-      border-radius: 14px;
+      border-radius: var(--radius-lg);
       overflow: hidden;
       border: 1px solid var(--soft-2);
       box-shadow: var(--shadow-lg);
@@ -2147,7 +2137,7 @@
       margin-bottom: 10px;
       display: inline-block;
       padding: 4px 10px;
-      border-radius: 999px;
+      border-radius: var(--radius-xs);
       border: 1px solid var(--border);
     }
 
@@ -2183,11 +2173,11 @@
     .result-actions button.primary {
       background: var(--ink);
       border-color: var(--ink);
-      color: #fff;
+      color: var(--on-ink);
     }
 
     .result-actions button.primary:hover {
-      background: #34322D;
+      background: var(--ink-2);
       color: #fff;
     }
 
@@ -2224,21 +2214,29 @@
       margin-top: 0;
     }
 
+    /* On the dark themes the card and the code ground are almost the same
+       value, so the block gets a hairline to keep its edge. */
+    [data-theme="dark"] .code-block {
+      border-radius: var(--radius-md);
+      box-shadow: 0 0 0 1px var(--border);
+    }
+
     .code-block .cb-head {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background: #201F1C;
-      border-radius: 10px 10px 0 0;
+      background: #1E1F22;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: var(--radius-md) var(--radius-md) 0 0;
       padding: 8px 12px;
     }
 
     .code-block .cb-lang {
-      font-family: var(--font-mono);
-      font-size: 10.5px;
-      color: #A6A29A;
-      text-transform: uppercase;
-      letter-spacing: .05em;
+      font-family: var(--font-body);
+      font-size: 11px;
+      color: #9A9CA3;
+      text-transform: none;
+      letter-spacing: 0;
     }
 
     .code-block .cb-btns {
@@ -2249,11 +2247,11 @@
     .code-block .cb-btn {
       background: rgba(255, 255, 255, 0.07);
       border: 1px solid rgba(255, 255, 255, 0.12);
-      color: #EAE8E4;
+      color: #E6E7EA;
       font-size: 11.3px;
       font-weight: 600;
       padding: 5px 10px;
-      border-radius: 7px;
+      border-radius: var(--radius-sm);
       cursor: pointer;
     }
 
@@ -2263,8 +2261,8 @@
 
     .code-block pre {
       margin: 0;
-      background: #181712;
-      border-radius: 0 0 10px 10px;
+      background: #1E1F22;
+      border-radius: 0 0 var(--radius-md) var(--radius-md);
       padding: 14px;
       /* No max-height: the block shows the whole script and the feed does the
          scrolling, so there is never a scrollbar inside the message. */
@@ -2275,8 +2273,11 @@
       font-family: var(--font-mono);
       font-size: 12.3px;
       line-height: 1.6;
-      color: #EAE8E4;
+      color: #E6E7EA;
       white-space: pre;
+      /* Studio's own indent. The browser's default of eight made every
+         nested line look like it had been pasted in from somewhere else. */
+      tab-size: 4;
     }
 
     /* A message carrying code gets the full column: fitCodeBlock() then scales
@@ -2301,7 +2302,7 @@
       font-family: var(--font-mono);
       background: var(--soft);
       padding: 2px 5px;
-      border-radius: 5px;
+      border-radius: var(--radius-xs);
       font-size: 12.6px;
     }
 
@@ -2399,7 +2400,7 @@
     .msg-bot:has(.chooser-3d) .bot-body> :not(.chooser-3d):not(.c3-more) {
       background: var(--card);
       border: 1px solid var(--border);
-      border-radius: 5px 15px 15px 15px;
+      border-radius: var(--radius-xs) var(--radius-lg) var(--radius-lg) var(--radius-lg);
       padding: 13px 16px;
       box-shadow: var(--shadow-sm);
       max-width: 100%;
@@ -2443,7 +2444,7 @@
     .chooser-3d button .c3-icon {
       width: 30px;
       height: 30px;
-      border-radius: 8px;
+      border-radius: var(--radius-md);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -2467,8 +2468,6 @@
     .chooser-3d button:hover:not(:disabled) {
       border-color: var(--accent);
       background: var(--accent-wash);
-      box-shadow: var(--shadow-md);
-      transform: translateY(-1px);
     }
 
     .chooser-3d button:hover:not(:disabled) .c3-icon {
@@ -2501,7 +2500,7 @@
       border-radius: var(--radius-sm);
       background: var(--card);
       color: var(--ink-muted);
-      font-family: var(--font-mono);
+      font-family: var(--font-body);
       font-size: 10.5px;
       font-weight: 600;
       cursor: pointer;
@@ -2553,7 +2552,7 @@
       gap: 7px;
       border: 1px solid var(--border);
       background: var(--card);
-      border-radius: 999px;
+      border-radius: var(--radius-md);
       padding: 7px 12px;
       font-size: 12px;
       font-weight: 600;
@@ -2582,11 +2581,11 @@
     }
 
     .m3d-label {
-      font-size: 11.5px;
-      font-weight: 700;
+      font-size: 12.5px;
+      font-weight: 600;
       color: var(--ink-muted);
-      text-transform: uppercase;
-      letter-spacing: .04em;
+      text-transform: none;
+      letter-spacing: 0;
       display: flex;
       justify-content: space-between;
     }
@@ -2611,7 +2610,7 @@
       font-size: 12.3px;
       font-weight: 600;
       padding: 8px 13px;
-      border-radius: 8px;
+      border-radius: var(--radius-md);
       cursor: pointer;
       transition: border-color .15s ease, background .15s ease, transform .12s ease;
     }
@@ -2632,7 +2631,7 @@
       -webkit-appearance: none;
       width: 100%;
       height: 4px;
-      border-radius: 4px;
+      border-radius: var(--radius-xs);
       background: var(--soft-2);
       outline: none;
       cursor: pointer;
@@ -2641,7 +2640,7 @@
 
     .m3d-slider::-webkit-slider-runnable-track {
       height: 4px;
-      border-radius: 4px;
+      border-radius: var(--radius-xs);
       background: var(--soft-2);
     }
 
@@ -2664,7 +2663,7 @@
 
     .m3d-slider::-moz-range-track {
       height: 4px;
-      border-radius: 4px;
+      border-radius: var(--radius-xs);
       background: var(--soft-2);
       border: none;
     }
@@ -2684,7 +2683,7 @@
       justify-content: space-between;
       font-size: 10.3px;
       color: var(--ink-faint);
-      font-family: var(--font-mono);
+      font-family: var(--font-body);
     }
 
     .m3d-cost {
@@ -2692,7 +2691,7 @@
       font-weight: 700;
       color: var(--ink);
       background: var(--soft);
-      border-radius: 10px;
+      border-radius: var(--radius-md);
       padding: 9px 13px;
       text-align: center;
       border: 1px solid var(--border);
@@ -2704,7 +2703,7 @@
       color: var(--mint);
       background: var(--mint-wash);
       padding: 2px 7px;
-      border-radius: 6px;
+      border-radius: var(--radius-sm);
       margin-left: 6px;
       letter-spacing: 0;
       text-transform: none;
@@ -2724,7 +2723,7 @@
       font-size: 12.5px;
       background: var(--soft);
       border: 1px solid var(--border);
-      border-radius: 10px;
+      border-radius: var(--radius-md);
       padding: 10px 14px;
     }
 
@@ -2794,11 +2793,11 @@
 
     .publish-field label {
       display: block;
-      font-size: 11.5px;
-      font-weight: 700;
+      font-size: 12.5px;
+      font-weight: 600;
       color: var(--ink-muted);
-      text-transform: uppercase;
-      letter-spacing: .04em;
+      text-transform: none;
+      letter-spacing: 0;
       margin-bottom: 5px;
     }
 
@@ -2918,7 +2917,7 @@
       -webkit-backdrop-filter: blur(24px) saturate(140%);
 
       border: 1px solid color-mix(in srgb, white 12%, var(--border));
-      border-radius: 18px;
+      border-radius: var(--radius-lg);
 
       box-shadow:
         0 8px 32px rgba(0, 0, 0, 0.12),
@@ -2965,7 +2964,7 @@
       flex-shrink: 0;
       background: var(--card);
       border: none;
-      border-radius: 16px;
+      border-radius: var(--radius-lg);
       padding: 12px 16px;
       cursor: pointer;
       color: var(--ink-muted);
@@ -2991,7 +2990,7 @@
     .widget-add-btn-mobile {
       display: none;
       padding: 8px 12px;
-      border-radius: 12px;
+      border-radius: var(--radius-lg);
       font-size: 11.8px;
       height: auto;
     }
@@ -3007,7 +3006,7 @@
 
       background: var(--card);
       border: 1px solid var(--border);
-      border-radius: 14px;
+      border-radius: var(--radius-lg);
 
       box-shadow: var(--shadow-sm);
 
@@ -3024,7 +3023,7 @@
     .gw-card .gw-icon {
       width: 36px;
       height: 36px;
-      border-radius: 8px;
+      border-radius: var(--radius-md);
       object-fit: cover;
       background: var(--soft);
       flex-shrink: 0;
@@ -3090,7 +3089,7 @@
     .gw-modal-input {
       width: 100%;
       border: 1px solid var(--border);
-      border-radius: 10px;
+      border-radius: var(--radius-md);
       padding: 11px 13px;
       font-size: 13px;
       font-family: var(--font-body);
@@ -3116,7 +3115,7 @@
       background: var(--bg);
       border: 1px solid var(--border);
       color: var(--ink);
-      border-radius: 999px;
+      border-radius: var(--radius-md);
       padding: 0 10px;
       font-size: 12px;
       outline: none;
@@ -3129,7 +3128,7 @@
       align-items: center;
       gap: 7px;
       padding: 8px 14px;
-      border-radius: 10px;
+      border-radius: var(--radius-md);
       border: 1px solid var(--border);
       background: var(--soft);
       cursor: pointer;
@@ -3191,7 +3190,7 @@
       backdrop-filter: blur(24px) saturate(160%);
       -webkit-backdrop-filter: blur(24px) saturate(160%);
       border: 1px solid color-mix(in srgb, white 14%, var(--border));
-      border-radius: 20px;
+      border-radius: var(--radius-lg);
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.08);
       padding: 8px 12px;
       cursor: pointer;
@@ -3206,7 +3205,6 @@
       border-color: color-mix(in srgb, var(--primary) 45%, var(--border));
       background: color-mix(in srgb, var(--card) 95%, transparent);
       box-shadow: 0 10px 28px rgba(0, 0, 0, 0.12), 0 0 14px color-mix(in srgb, var(--primary) 18%, transparent);
-      transform: translateY(-1px);
     }
 
     .dropzone.drag {
@@ -3235,7 +3233,7 @@
     .dz-icon-wrap {
       width: 34px;
       height: 34px;
-      border-radius: 10px;
+      border-radius: var(--radius-md);
       background: color-mix(in srgb, var(--primary) 14%, transparent);
       color: var(--primary);
       display: flex;
@@ -3274,12 +3272,12 @@
     }
 
     .dz-badge {
-      font-size: 9.5px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: none;
+      letter-spacing: 0;
       padding: 1px 5px;
-      border-radius: 5px;
+      border-radius: var(--radius-xs);
       background: color-mix(in srgb, var(--primary) 15%, transparent);
       color: var(--primary);
       flex-shrink: 0;
@@ -3303,7 +3301,7 @@
       align-items: center;
       gap: 5px;
       padding: 5px 10px;
-      border-radius: 9999px;
+      border-radius: var(--radius-md);
       background: color-mix(in srgb, var(--primary) 12%, transparent);
       border: 1px solid color-mix(in srgb, var(--primary) 24%, transparent);
       color: var(--primary);
@@ -3317,7 +3315,6 @@
       background: var(--primary);
       color: #000;
       border-color: var(--primary);
-      transform: translateY(-1px);
     }
 
     .dz-filled {
@@ -3335,7 +3332,7 @@
       width: 36px;
       height: 36px;
       object-fit: cover;
-      border-radius: 10px;
+      border-radius: var(--radius-md);
       border: 1px solid color-mix(in srgb, white 20%, var(--border));
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
       flex-shrink: 0;
@@ -3380,7 +3377,7 @@
       color: var(--ink);
       font-size: 11px;
       font-weight: 500;
-      border-radius: 9999px;
+      border-radius: var(--radius-md);
       padding: 4px 8px;
       cursor: pointer;
       transition: all 0.15s ease;
@@ -3485,7 +3482,7 @@
       align-items: center;
       gap: 6px;
       padding: 8px 12px;
-      border-radius: 8px;
+      border-radius: var(--radius-md);
       border: 1px solid var(--border);
       background: var(--soft);
       font-size: 12.2px;
@@ -3540,7 +3537,7 @@
       gap: 8px;
       padding: 9px 14px;
       border-radius: var(--radius-sm);
-      border: 1px dashed var(--border);
+      border: 1px solid var(--border);
       background: var(--card);
       cursor: pointer;
       transition: border-color .15s ease, background .15s ease;
@@ -3590,7 +3587,7 @@
       height: 100%;
       padding: 9px 14px;
       border-radius: var(--radius-sm);
-      border: 1px dashed var(--border);
+      border: 1px solid var(--border);
       background: var(--card);
       font-size: 12.3px;
       font-weight: 600;
@@ -3641,7 +3638,7 @@
 
     .it-more-opt {
       padding: 8px 10px;
-      border-radius: 7px;
+      border-radius: var(--radius-sm);
       font-size: 12.4px;
       color: var(--ink);
       cursor: pointer;
@@ -3666,7 +3663,7 @@
     .attach-btn {
       width: 32px;
       height: 32px;
-      border-radius: 9px;
+      border-radius: var(--radius-md);
       background: var(--card);
       border: 1px solid var(--border);
       color: var(--ink-muted);
@@ -3728,10 +3725,10 @@
     .send-btn {
       width: 38px;
       height: 38px;
-      border-radius: 10px;
+      border-radius: var(--radius-md);
       background: var(--ink);
       border: none;
-      color: #fff;
+      color: var(--on-ink);
       cursor: pointer;
       display: flex;
       align-items: center;
@@ -3746,8 +3743,7 @@
     }
 
     .send-btn:hover:not(:disabled) {
-      background: #34322D;
-      transform: translateY(-1px);
+      background: var(--ink-2);
     }
 
     .send-btn:disabled {
@@ -3775,7 +3771,7 @@
       position: relative;
       width: 50px;
       height: 50px;
-      border-radius: 9px;
+      border-radius: var(--radius-md);
       overflow: hidden;
       border: 1px solid var(--border);
       background: var(--soft);
@@ -3916,7 +3912,7 @@
     }
 
     .st-sub {
-      font-family: var(--font-mono);
+      font-family: var(--font-body);
       font-size: 11px;
       color: var(--ink-faint);
       margin-top: 3px;
@@ -3930,7 +3926,7 @@
       font-size: 14px;
       cursor: pointer;
       padding: 2px 4px;
-      border-radius: 6px;
+      border-radius: var(--radius-sm);
     }
 
     .st-x:hover { color: var(--ink); background: var(--soft); }
@@ -3959,7 +3955,7 @@
     .st-job-ico {
       width: 20px;
       height: 20px;
-      border-radius: 6px;
+      border-radius: var(--radius-sm);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -3986,14 +3982,14 @@
     .st-job-state {
       margin-left: auto;
       flex-shrink: 0;
-      font-family: var(--font-mono);
+      font-family: var(--font-body);
       font-size: 10.5px;
       color: var(--ink-faint);
     }
 
     .st-bar {
       height: 4px;
-      border-radius: 4px;
+      border-radius: var(--radius-xs);
       background: var(--soft-2);
       overflow: hidden;
       margin-bottom: 12px;
@@ -4003,7 +3999,7 @@
       display: block;
       height: 100%;
       background: var(--accent);
-      border-radius: 4px;
+      border-radius: var(--radius-xs);
       transition: width .3s ease;
     }
 
@@ -4088,7 +4084,7 @@
       gap: 9px;
       background: none;
       border: 0;
-      border-radius: 7px;
+      border-radius: var(--radius-sm);
       padding: 7px 8px;
       cursor: pointer;
       text-align: left;
@@ -4107,7 +4103,7 @@
     .st-other-state {
       margin-left: auto;
       flex-shrink: 0;
-      font-family: var(--font-mono);
+      font-family: var(--font-body);
       font-size: 10.5px;
       color: var(--ink-faint);
     }
@@ -4205,7 +4201,7 @@
     .st-agent-tag {
       margin-left: auto;
       flex-shrink: 0;
-      font-family: var(--font-mono);
+      font-family: var(--font-body);
       font-size: 10px;
       color: var(--ink-faint);
     }
@@ -4233,7 +4229,7 @@
       flex-shrink: 0;
       background: none;
       border: 1px solid var(--border);
-      border-radius: 7px;
+      border-radius: var(--radius-sm);
       color: var(--ink-faint);
       padding: 5px 7px;
       cursor: pointer;
@@ -4252,7 +4248,7 @@
       gap: 8px;
       background: none;
       border: 0;
-      border-radius: 6px;
+      border-radius: var(--radius-sm);
       padding: 4px 6px;
       text-align: left;
       color: var(--ink);
@@ -4287,7 +4283,7 @@
     .pj-lines {
       margin-left: auto;
       flex-shrink: 0;
-      font-family: var(--font-mono);
+      font-family: var(--font-body);
       font-size: 10px;
       color: var(--ink-faint);
     }
@@ -4302,7 +4298,7 @@
     .pj-back {
       background: none;
       border: 1px solid var(--border);
-      border-radius: 7px;
+      border-radius: var(--radius-sm);
       color: var(--ink-muted);
       padding: 5px 7px;
       cursor: pointer;
@@ -4366,7 +4362,7 @@
     .st-keep {
       margin: 0 0 12px;
       padding: 12px 14px;
-      border-radius: 12px;
+      border-radius: var(--radius-lg);
       border: 1px solid var(--border);
       background: var(--soft);
     }
@@ -4385,7 +4381,7 @@
       font-size: 11.5px; color: var(--ink-faint); margin-left: 4px;
     }
     .pj-wait-stop {
-      margin-top: 8px; padding: 4px 9px; border-radius: 7px; cursor: pointer;
+      margin-top: 8px; padding: 4px 9px; border-radius: var(--radius-sm); cursor: pointer;
       font: inherit; font-size: 11px; color: var(--ink-faint);
       background: transparent; border: 1px solid var(--line);
     }
@@ -4393,7 +4389,7 @@
 
     .pj-note {
       align-self: center;
-      font-family: var(--font-mono);
+      font-family: var(--font-body);
       font-size: 10.5px;
       color: var(--ink-faint);
     }
@@ -4456,7 +4452,7 @@
     }
 
     .sys-count {
-      font-family: var(--font-mono);
+      font-family: var(--font-body);
       font-size: 11px;
       color: var(--ink-faint);
       margin-top: 3px;
@@ -4527,7 +4523,7 @@
       padding: 6px 8px;
       background: none;
       border: 0;
-      border-radius: 7px;
+      border-radius: var(--radius-sm);
       text-align: left;
       color: var(--ink);
       cursor: pointer;
@@ -4558,7 +4554,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      border-radius: 6px;
+      border-radius: var(--radius-sm);
       color: var(--tone, var(--ink-faint));
       background: color-mix(in srgb, var(--tone, var(--ink-faint)) 13%, transparent);
     }
@@ -4579,7 +4575,7 @@
     .sys-ico.t-plain  { --tone: var(--ink-faint); background: transparent; }
 
     .sys-name {
-      font-family: var(--font-mono);
+      font-family: var(--font-body);
       font-size: 12.5px;
       font-weight: 600;
       flex-shrink: 0;
@@ -4588,7 +4584,7 @@
     .sys-node:not(.has-code):not(.sys-service) .sys-name { font-weight: 500; color: var(--ink-muted); }
 
     .sys-class {
-      font-family: var(--font-mono);
+      font-family: var(--font-body);
       font-size: 10.5px;
       color: var(--ink-faint);
       flex-shrink: 0;
@@ -4624,7 +4620,7 @@
     .sys-open {
       margin-left: auto;
       flex-shrink: 0;
-      font-family: var(--font-mono);
+      font-family: var(--font-body);
       font-size: 10.5px;
       color: var(--ink-faint);
       white-space: nowrap;
@@ -4689,7 +4685,7 @@
     .msg-attach-grid .ag-item {
       width: 100%;
       aspect-ratio: 1/1;
-      border-radius: 8px;
+      border-radius: var(--radius-md);
       overflow: hidden;
       border: 1px solid rgba(255, 255, 255, 0.2);
       background: rgba(255, 255, 255, 0.1);
@@ -4912,13 +4908,13 @@
     }
 
     .package-opt .p-badge {
-      font-size: 9.5px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: .06em;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: none;
+      letter-spacing: 0;
       color: var(--bg);
       background: var(--accent-deep);
-      border-radius: 999px;
+      border-radius: var(--radius-xs);
       padding: 3px 8px;
       white-space: nowrap;
     }
@@ -4983,7 +4979,7 @@
         background-size: 14px 14px;
         background-position: -4px -4px;
         backdrop-filter: blur(8px) saturate(105%);
-        border-radius: 20px;
+        border-radius: var(--radius-lg);
         box-shadow: var(--shadow-lg);
         display: flex;
         flex-direction: column;
@@ -5026,7 +5022,7 @@
       .widgets-side .gw-card {
         background: var(--card) !important;
         border: 1px solid var(--border) !important;
-        border-radius: 14px !important;
+        border-radius: var(--radius-lg) !important;
         box-shadow: var(--shadow-sm) !important;
         width: 100% !important;
         min-width: 0 !important;
@@ -5037,7 +5033,7 @@
         width: 180px;
         margin: 0 auto;
         justify-content: center;
-        border-radius: 20px;
+        border-radius: var(--radius-lg);
         box-shadow: var(--shadow-md);
       }
 
@@ -5182,7 +5178,7 @@
       .topbar-widgets-mobile .gw-card {
         min-width: 180px;
         padding: 7px 12px 7px 7px;
-        border-radius: 12px;
+        border-radius: var(--radius-lg);
       }
 
       .topbar-widgets-mobile .gw-card .gw-icon {
@@ -5309,7 +5305,7 @@
         background: var(--soft);
         border: 1px solid var(--border);
         padding: 5px 11px;
-        border-radius: 10px;
+        border-radius: var(--radius-md);
         color: var(--ink-muted);
         font-size: 11.5px;
         font-weight: 600;
@@ -5443,7 +5439,6 @@
 
     .lang-select:hover {
       opacity: 1;
-      transform: translateY(-1px);
     }
 
     .lang-select:active {
@@ -5483,9 +5478,6 @@
       transform: rotate(180deg);
     }
 
-    .lang-select.open:hover .ls-arrow-svg {
-      transform: translateY(-1px);
-    }
 
     .lang-menu {
       display: none;
@@ -5560,7 +5552,7 @@
     .code-block .hljs-keyword,
     .code-block .hljs-selector-tag,
     .code-block .hljs-built_in_constant {
-      color: #E08350;
+      color: var(--accent);
       font-weight: 500;
     }
 
@@ -5612,7 +5604,7 @@
 
     .code-block .hljs-meta,
     .code-block .hljs-meta .hljs-keyword {
-      color: #E08350;
+      color: var(--accent);
     }
 
     .code-block .hljs-tag {
@@ -5671,7 +5663,7 @@
       gap: 1px;
       padding: 5px 12px;
       flex: 1;
-      border-radius: 20px;
+      border-radius: var(--radius-lg);
     }
 
     .fm-pill-code .fm-pill-title {
@@ -5738,7 +5730,7 @@
       margin-left: 2px;
       vertical-align: text-bottom;
       background: var(--accent);
-      border-radius: 1px;
+      border-radius: var(--radius-xs);
       animation: caretBlink 1s steps(1) infinite;
     }
 
@@ -5758,14 +5750,14 @@
       /* Matches .code-block pre — the dark ground lives on the pre, which this
          placeholder replaces, so it has to carry the same surface itself. */
       background: #181712;
-      border-radius: 0 0 10px 10px;
+      border-radius: 0 0 var(--radius-md) var(--radius-md);
       padding: 17px 14px;
     }
 
     .code-skeleton span {
       display: block;
       height: 10px;
-      border-radius: 5px;
+      border-radius: var(--radius-xs);
       background: linear-gradient(90deg,
           rgba(234, 232, 228, 0.07) 0%,
           rgba(234, 232, 228, 0.17) 50%,
@@ -5865,7 +5857,7 @@
       align-items: center;
       justify-content: center;
       padding: 0 0.5em;
-      border-radius: 20px;
+      border-radius: var(--radius-lg);
     }
 
     .dock-icon {
@@ -5923,7 +5915,7 @@
       align-items: center !important;
       background: color-mix(in srgb, var(--card) 85%, transparent) !important;
       border: 1px solid var(--border) !important;
-      border-radius: 14px !important;
+      border-radius: var(--radius-lg) !important;
       color: var(--ink) !important;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07) !important;
       transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease !important;
@@ -6020,7 +6012,7 @@
       -webkit-backdrop-filter: blur(24px) saturate(160%) !important;
       border: 1px solid color-mix(in srgb, white 14%, var(--border)) !important;
       box-shadow: 0 4px 24px rgba(0, 0, 0, 0.07), 0 1px 0 color-mix(in srgb, white 35%, transparent) inset !important;
-      border-radius: 24px !important;
+      border-radius: var(--radius-lg) !important;
       width: 100% !important;
       max-width: 340px;
       height: 48px;
@@ -6162,7 +6154,7 @@
       width: 13px;
       height: 13px;
       border: 1.5px solid var(--ink-faint);
-      border-radius: 3px;
+      border-radius: var(--radius-xs);
       flex-shrink: 0;
     }
 
@@ -6172,7 +6164,7 @@
     }
 
     .it-trigger .itt-res {
-      font-family: var(--font-mono);
+      font-family: var(--font-body);
       font-size: 10.5px;
       font-weight: 600;
       color: var(--ink-muted);
@@ -6221,7 +6213,7 @@
     .itp-search input {
       width: 100%;
       border: 1px solid var(--border);
-      border-radius: 9px;
+      border-radius: var(--radius-md);
       background: var(--soft);
       padding: 7px 10px;
       font-size: 12.5px;
@@ -6248,10 +6240,10 @@
     }
 
     .itp-sec-title {
-      font-size: 9.5px;
-      font-weight: 700;
-      letter-spacing: .09em;
-      text-transform: uppercase;
+      font-size: 12.5px;
+      font-weight: 600;
+      letter-spacing: 0;
+      text-transform: none;
       color: var(--ink-faint);
       padding: 10px 4px 6px;
     }
@@ -6268,7 +6260,7 @@
       align-items: flex-start;
       gap: 5px;
       padding: 8px 9px;
-      border-radius: 10px;
+      border-radius: var(--radius-md);
       border: 1px solid transparent;
       background: var(--soft);
       color: var(--ink-muted);
@@ -6306,7 +6298,7 @@
       width: 22px;
       height: 22px;
       border: 1.5px solid currentColor;
-      border-radius: 4px;
+      border-radius: var(--radius-xs);
       opacity: .45;
       flex-shrink: 0;
       transition: opacity .15s ease;
@@ -6389,7 +6381,7 @@
       display: flex !important;
       align-items: center !important;
       gap: 4px !important;
-      border-radius: 9999px !important;
+      border-radius: var(--radius-md) !important;
       padding: 4px 8px !important;
       color: var(--ink) !important;
       opacity: 0.6 !important;
@@ -6412,7 +6404,7 @@
       left: 0 !important;
       z-index: 50 !important;
       min-width: 160px !important;
-      border-radius: 16px !important;
+      border-radius: var(--radius-lg) !important;
       border: 1px solid var(--border) !important;
       background: color-mix(in srgb, var(--card) 96%, transparent) !important;
       backdrop-filter: blur(16px) !important;
@@ -6438,7 +6430,7 @@
       display: flex !important;
       width: 100% !important;
       padding: 7px 12px !important;
-      border-radius: 12px !important;
+      border-radius: var(--radius-lg) !important;
       background: transparent !important;
       border: none !important;
       text-align: left !important;
@@ -6500,7 +6492,7 @@
       color: var(--ink-muted);
       background: var(--soft);
       border: 1px solid var(--border);
-      border-radius: 7px;
+      border-radius: var(--radius-sm);
       padding: 3.5px 9px;
       flex-shrink: 0;
       white-space: nowrap;
@@ -6543,7 +6535,7 @@
         font-size: 10.5px;
         padding: 2.5px 7px;
         gap: 4px;
-        border-radius: 6px;
+        border-radius: var(--radius-sm);
         flex-shrink: 0;
       }
 
@@ -6589,7 +6581,7 @@
       align-items: center;
       gap: 5px;
       padding: 6px 12px;
-      border-radius: 8px;
+      border-radius: var(--radius-md);
       border: 1px solid var(--border);
       background: var(--soft);
       font-size: 12px;
@@ -6834,10 +6826,10 @@
       align-items: center;
       gap: 8px;
       font-family: var(--font-display);
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: .04em;
-      text-transform: uppercase;
+      font-size: 12.5px;
+      font-weight: 600;
+      letter-spacing: 0;
+      text-transform: none;
       color: var(--ink-muted);
       white-space: nowrap;
     }
@@ -6848,7 +6840,7 @@
       justify-content: center;
       width: 24px;
       height: 24px;
-      border-radius: 8px;
+      border-radius: var(--radius-md);
       background: var(--accent-wash);
       color: var(--accent);
     }
@@ -6904,7 +6896,7 @@
       border-radius: var(--radius-sm);
       background: var(--card);
       color: var(--ink-muted);
-      font-family: var(--font-mono);
+      font-family: var(--font-body);
       font-size: 10.5px;
       font-weight: 600;
       cursor: pointer;
@@ -6947,10 +6939,10 @@
     }
 
     .ws-next-title {
-      font-size: 11.5px;
-      font-weight: 700;
-      letter-spacing: .04em;
-      text-transform: uppercase;
+      font-size: 12.5px;
+      font-weight: 600;
+      letter-spacing: 0;
+      text-transform: none;
       color: var(--ink-muted);
       margin-bottom: 8px;
     }
@@ -6964,10 +6956,10 @@
 
     .ws-label {
       display: block;
-      font-size: 11.5px;
-      font-weight: 700;
-      letter-spacing: .04em;
-      text-transform: uppercase;
+      font-size: 12.5px;
+      font-weight: 600;
+      letter-spacing: 0;
+      text-transform: none;
       color: var(--ink-muted);
       margin-bottom: 8px;
     }
@@ -6987,7 +6979,7 @@
       width: 100%;
       background: var(--card);
       border: 1px solid var(--border);
-      border-radius: 12px;
+      border-radius: var(--radius-lg);
       color: var(--ink);
       font-family: var(--font-body);
       font-size: 13.5px;
@@ -7030,7 +7022,7 @@
       font-size: 12.3px;
       font-weight: 600;
       padding: 8px 13px;
-      border-radius: 8px;
+      border-radius: var(--radius-md);
       cursor: pointer;
       transition: border-color .15s ease, background .15s ease, color .15s ease;
     }
@@ -7052,8 +7044,9 @@
       align-items: center;
       gap: 13px;
       padding: 13px;
+      /* Dashed because it is a drop target, and that is what one looks like. */
       border: 1px dashed var(--border);
-      border-radius: 12px;
+      border-radius: var(--radius-lg);
       background: transparent;
       cursor: pointer;
       transition: border-color .15s ease, background .15s ease;
@@ -7071,7 +7064,7 @@
       width: 40px;
       height: 40px;
       flex: 0 0 auto;
-      border-radius: 10px;
+      border-radius: var(--radius-md);
       background: var(--card);
       border: 1px solid var(--border);
       color: var(--ink-muted);
@@ -7100,7 +7093,7 @@
     }
 
     .ws-foot-note {
-      font-family: var(--font-mono);
+      font-family: var(--font-body);
       font-size: 10.5px;
       color: var(--ink-faint);
       line-height: 1.4;
@@ -7108,7 +7101,7 @@
     }
 
     /* The house button is mono, small and tight — the same one behind
-       [ Sign in with Google ] and [ Connect ] in the sidebar. */
+       Sign in with Google and Connect in the sidebar. */
     .ws-btn {
       display: inline-flex;
       align-items: center;
@@ -7117,7 +7110,7 @@
       box-shadow: var(--shadow-sm);
       border: 1px solid var(--border);
       color: var(--ink);
-      font-family: var(--font-mono);
+      font-family: var(--font-body);
       font-size: 10.8px;
       font-weight: 600;
       letter-spacing: .01em;
@@ -7131,7 +7124,6 @@
     .ws-btn:hover:not(:disabled) {
       background: var(--soft);
       border-color: var(--ink-faint);
-      transform: translateY(-1px);
     }
 
     .ws-btn svg { width: 13px; height: 13px; }
@@ -7185,7 +7177,7 @@
     .ws-bar {
       width: min(280px, 70%);
       height: 4px;
-      border-radius: 3px;
+      border-radius: var(--radius-xs);
       background: var(--soft-2);
       overflow: hidden;
     }
@@ -7194,7 +7186,7 @@
       display: block;
       height: 100%;
       width: 0%;
-      border-radius: 3px;
+      border-radius: var(--radius-xs);
       background: var(--accent);
       transition: width .4s ease;
     }
@@ -7218,7 +7210,7 @@
       color: var(--coral);
       border: 1px solid var(--border);
       background: var(--card);
-      border-radius: 12px;
+      border-radius: var(--radius-lg);
       padding: 12px 14px;
       max-width: 62ch;
     }
@@ -7292,7 +7284,7 @@
     .ws-side-end .ws-btn { justify-content: center; }
 
     .ws-side-note {
-      font-family: var(--font-mono);
+      font-family: var(--font-body);
       font-size: 10px;
       color: var(--ink-faint);
       line-height: 1.5;
@@ -7306,14 +7298,14 @@
       display: block;
       max-width: 100%;
       max-height: clamp(200px, calc(100vh - 568px), 400px);
-      border-radius: 14px;
+      border-radius: var(--radius-lg);
       box-shadow: var(--shadow-lg);
     }
 
     .ws-preview model-viewer {
       width: 100%;
       height: clamp(220px, calc(100vh - 568px), 380px);
-      border-radius: 14px;
+      border-radius: var(--radius-lg);
       background: transparent;
     }
 
@@ -7330,7 +7322,7 @@
       border: 1px solid var(--border);
       border-radius: var(--radius-md);
       background:
-        repeating-conic-gradient(var(--Check-1) 0% 25%, var(--Check-2) 0% 50%) 50% / 18px 18px;
+        repeating-conic-gradient(var(--checker-a) 0% 25%, var(--checker-b) 0% 50%) 50% / 18px 18px;
       overflow: hidden;
       line-height: 0;
       touch-action: none;
@@ -7364,7 +7356,7 @@
       width: 100%;
       appearance: none;
       height: 4px;
-      border-radius: 2px;
+      border-radius: var(--radius-xs);
       background: var(--soft-2);
       outline: none;
     }
@@ -7398,7 +7390,7 @@
 
     .ws-gallery img {
       width: 100%;
-      border-radius: 12px;
+      border-radius: var(--radius-lg);
       box-shadow: var(--shadow-md);
       display: block;
     }
@@ -7431,7 +7423,7 @@
       border-radius: var(--radius-sm);
       background: var(--card);
       color: var(--ink-muted);
-      font-family: var(--font-mono);
+      font-family: var(--font-body);
       font-size: 10.5px;
       font-weight: 600;
       cursor: pointer;
@@ -7510,7 +7502,7 @@
       inset: 0;
       display: grid;
       place-items: center;
-      font: 600 12.5px var(--font-mono);
+      font: 600 12.5px var(--font-body);
       color: var(--text-dim);
       letter-spacing: .02em;
       pointer-events: none;
@@ -7520,7 +7512,7 @@
     .ws-block {
       position: absolute;
       border: 1px solid color-mix(in srgb, var(--text) 30%, transparent);
-      border-radius: 6px;
+      border-radius: var(--radius-sm);
       background: var(--fill, var(--card));
       display: flex;
       align-items: center;
@@ -7538,9 +7530,9 @@
 
     .ws-block-kind {
       flex: 0 0 auto;
-      font: 600 9px var(--font-mono);
-      letter-spacing: .08em;
-      text-transform: uppercase;
+      font: 600 11px var(--font-body);
+      letter-spacing: 0;
+      text-transform: none;
       opacity: .65;
       color: var(--ink, var(--text));
       pointer-events: none;
@@ -7592,14 +7584,14 @@
     .ws-swatch {
       width: 22px;
       height: 22px;
-      border-radius: 6px;
+      border-radius: var(--radius-sm);
       border: 1px solid var(--border);
       background: var(--sw);
       cursor: pointer;
       padding: 0;
       transition: transform .12s ease, box-shadow .12s ease;
     }
-    .ws-swatch:hover { transform: translateY(-1px); }
+    .ws-swatch:hover { border-color: var(--ink-faint); }
     .ws-swatch.on { box-shadow: 0 0 0 2px var(--bg), 0 0 0 3px var(--accent); }
 
     .ws-sel .ws-input { margin-top: 8px; }
@@ -7629,10 +7621,10 @@
       gap: 6px;
       padding: 6px 11px;
       border: 0;
-      border-radius: 7px;
+      border-radius: var(--radius-sm);
       background: transparent;
       color: var(--text-dim);
-      font: 600 10.5px var(--font-mono);
+      font: 600 10.5px var(--font-body);
       letter-spacing: .02em;
       cursor: pointer;
       transition: background .15s ease, color .15s ease;
@@ -7649,7 +7641,7 @@
     .ui-screen {
       position: relative;
       aspect-ratio: 16 / 9;
-      border-radius: 8px;
+      border-radius: var(--radius-md);
       overflow: hidden;
       background: #0b0d11;
       border: 1px solid var(--border);
@@ -7849,7 +7841,7 @@
                       </div>
                     </div>
                     <button class="gp-signin-action" onclick="signInWithGoogle()" type="button">
-                      [ Sign in with Google ]
+                      Sign in with Google
                     </button>
                   </div>
                 </div>
@@ -8007,19 +7999,19 @@
                   <div class="rc-groups-pop" id="robloxGroupsPop" hidden>
                     <div class="rgp-head">Count experiences from</div>
                     <div class="rgp-list" id="robloxGroupsList"></div>
-                    <button type="button" class="rgp-apply" onclick="saveRobloxGroups(event)">[ Apply ]</button>
+                    <button type="button" class="rgp-apply" onclick="saveRobloxGroups(event)">Apply</button>
                   </div>
                 </div>
 
-                <button class="rc-action" id="robloxAction" onclick="handleRobloxAction()">[ Connect ]</button>
+                <button class="rc-action" id="robloxAction" onclick="handleRobloxAction()">Connect</button>
               </div>
             </div>
           </div>
 
           <div class="sb-bottom">
             <div class="center-botom">
-              <a class="btn-store" href="/store">[ Assets Store ]</a>
-              <a id="navTokensBtn" class="btn-tokens" href="/tokens">[ X Tokens ]</a>
+              <a class="btn-store" href="/store">Asset store</a>
+              <a id="navTokensBtn" class="btn-tokens" href="/tokens">Tokens</a>
             </div>
 
             <div class="theme-switch" id="themeSwitch"></div>
@@ -8113,13 +8105,12 @@
           <div class="welcome" id="welcome">
             <div class="w-mark"></div>
             <h2>What are we working on?</h2>
-            <p>Tell me what you need — I'll figure out what you're asking for. You can also force a specific mode below.
-            </p>
+            <p>Describe what you want to make. The right tool is picked for you, or choose one below.</p>
             <div class="w-hints">
-              <span class="w-hint">"make me a dragon icon"</span>
-              <span class="w-hint">"I need a thumbnail for a zombie game"</span>
-              <span class="w-hint">"I want a 3D model of a sword"</span>
-              <span class="w-hint">"turn this UI into a Lua script"</span>
+              <button type="button" class="w-hint" onclick="useExample(this)">A dragon icon</button>
+              <button type="button" class="w-hint" onclick="useExample(this)">A thumbnail for a zombie game</button>
+              <button type="button" class="w-hint" onclick="useExample(this)">A 3D model of a sword</button>
+              <button type="button" class="w-hint" onclick="useExample(this)">Turn this UI into a Lua script</button>
             </div>
           </div>
         </div>
@@ -8306,7 +8297,7 @@
                 <button class="composer-placeholder-btn" onclick="expandComposer()">Tell me what you need...</button>
 
                 <div id="promptBox" style="display:contents;">
-                  <textarea id="prompt" rows="1" placeholder="Tell me what you need..."></textarea>
+                  <textarea id="prompt" rows="1" placeholder="Describe what you want to make"></textarea>
                 </div>
 
                 <div class="pending-attachments" id="pendingAttachments"></div>
@@ -8418,7 +8409,7 @@
       <p class="modal-title">Top up tokens</p>
       <div class="price-facts">
         <span><b>2</b> per image</span>
-        <span><b>2</b> per UI → Lua</span>
+        <span><b>2</b> per UI script</span>
         <span><b>from 15</b> per 3D model</span>
       </div>
       <div class="package-grid" id="packageGrid"></div>
@@ -8431,14 +8422,14 @@
     <div class="modal-card">
       <button class="modal-close" onclick="closeGameWidgetModal()"></button>
       <p class="modal-title">Add Live Stats</p>
-      <p class="modal-sub">Track a Roblox game or a Roblox user — pick one, then paste a link, ID or username.</p>
+      <p class="modal-sub">Track a Roblox game or user. Pick one, then paste a link, ID or username.</p>
       <div class="force-mode-bar" id="gwTypeBar" style="margin-bottom:12px;">
         <div class="fm-pill active" data-gwtype="game">Game</div>
         <div class="fm-pill" data-gwtype="user">User</div>
       </div>
       <input type="text" id="gwModalInput" placeholder="np. roblox.com/games/1234567/Nazwa lub 1234567"
         class="gw-modal-input">
-      <button class="btn-newchat" style="margin-top:12px;" onclick="submitGameWidget()">Add Widget</button>
+      <button class="btn-newchat" style="margin-top:12px;" onclick="submitGameWidget()">Add widget</button>
       <div class="modal-status" id="gwModalStatus"></div>
     </div>
   </div>
@@ -8501,12 +8492,12 @@
       chat: { label: "Chat", icon: ICONS.chat, hint: "Tell me what you need - I'll figure out the intent and suggest a generation." },
       image: { label: "Image", icon: ICONS.icon, hint: "Choose a creation method in the message below." },
       model3d: { label: "3D Model", icon: ICONS.cube, hint: "Choose how you want to create the 3D model." },
-      ui2lua: { label: "UI → Lua", icon: ICONS.layout, hint: "A picture of an interface, a description, or blocks you arrange — each becomes a responsive LUA script." },
+      ui2lua: { label: "UI to Lua", icon: ICONS.layout, hint: "Start from a picture of an interface, a description, or blocks you arrange. Each one becomes a responsive Lua script." },
       code: { label: "Code", icon: ICONS.code, hint: "Describe what the script should do. I can also add functions to existing code." }
     };
 
     const METHOD_INFO = {
-      text: { api: "text2img", label: "From scratch", icon: ICONS.wand, sub: "Describe the idea — the rest is chosen automatically.", hint: "Describe the idea — the rest is chosen automatically." },
+      text: { api: "text2img", label: "From scratch", icon: ICONS.wand, sub: "Describe the idea and the rest is picked for you.", hint: "Describe the idea and the rest is picked for you." },
       image: { api: "image2img", label: "Edit photo", icon: ICONS.edit, sub: "Upload a photo and describe what to change.", hint: "Upload a photo and describe what to change." },
       style: { api: "image2img", label: "Transfer style", icon: ICONS.spark, sub: "Upload image and reference style.", hint: "Upload image and reference style." }
     };
@@ -8534,7 +8525,7 @@
 
     const CODE_WAIT_STAGES = [
       { after: 0, label: "Generating code…" },
-      { after: 8000, label: "Still working — longer scripts take a moment…" },
+      { after: 8000, label: "Still working. Longer scripts take a moment…" },
       { after: 22000, label: "Almost there, finishing the script…" }
     ];
 
@@ -8547,7 +8538,7 @@
           <span class="code-wait-label">${escapeHtml(CODE_WAIT_STAGES[0].label)}</span>
         </div>
         <div class="code-block">
-          <div class="cb-head"><span class="cb-lang">lua</span></div>
+          <div class="cb-head"><span class="cb-lang">Lua</span></div>
           <div class="code-skeleton" aria-hidden="true">${bars}</div>
         </div>`);
 
@@ -10501,7 +10492,7 @@
           const size = imageOutputSize(key);
           return `<button type="button" class="itp-chip${selectedImageType === key ? " active" : ""}"
                     data-key="${key}" data-search="${escapeHtml(label.toLowerCase())}"
-                    title="${escapeHtml(label)} — ${size.w}\u00d7${size.h}"
+                    title="${escapeHtml(label)}, ${size.w}\u00d7${size.h}"
                     onclick="selectImageTypeMenu('${key}','${escapeHtml(label)}',event)">
                     <span class="itp-frame" data-ar="${size.ar}"><span class="itp-ico">${p.icon || sec.fallbackIcon}</span></span>
                     <span class="itp-name">${escapeHtml(label)}</span>
@@ -11047,7 +11038,7 @@
       el.textContent = "\u2014";
       if (stat) {
         stat.title = statusCode
-          ? label + " unavailable — Roblox replied " + statusCode
+          ? label + " unavailable: Roblox replied " + statusCode
           : label + " unavailable";
       }
     }
@@ -11216,7 +11207,7 @@
         el.textContent = "\u2014";
         if (stat) {
           stat.title = statusCode
-            ? label + " unavailable — Roblox replied " + statusCode
+            ? label + " unavailable: Roblox replied " + statusCode
             : label + " unavailable";
         }
       };
@@ -11304,7 +11295,7 @@
       } else {
         title.textContent = "Connect Roblox";
         sub.textContent = "Studio plugin integration";
-        action.textContent = "[ Connect ]";
+        action.textContent = "Connect";
         action.className = "rc-action";
         action.title = "Connect Roblox account";
         action.removeAttribute("aria-label");
@@ -11359,7 +11350,7 @@
 
       const navTokensBtn = document.getElementById("navTokensBtn");
       if (navTokensBtn) {
-        navTokensBtn.textContent = "[ " + (tokenBalance ?? "–") + " Tokens ]";
+        navTokensBtn.textContent = tokenBalance == null ? "Tokens" : tokenBalance + (tokenBalance === 1 ? " token" : " tokens");
       }
     }
 
@@ -11407,7 +11398,7 @@
 
       if (chatsCache.length === 0) {
         list.innerHTML = "";
-        empty.textContent = "No chats yet — click “+ New chat” to start.";
+        empty.textContent = "No chats yet. Start one with New chat.";
         list.appendChild(empty);
         return;
       }
@@ -11543,11 +11534,25 @@
       scrollFeedToBottom();
     }
 
+    function useExample(btn) {
+      const box = document.getElementById("prompt");
+      if (!box) return;
+      box.value = btn.textContent.trim();
+      box.dispatchEvent(new Event("input", { bubbles: true }));
+      box.focus();
+      box.setSelectionRange(box.value.length, box.value.length);
+    }
+
     function buildWelcomeNode() {
       const div = document.createElement("div");
       div.id = "welcome";
       div.className = "welcome";
-      div.innerHTML = `<div class="w-mark">${ICONS.ropeak}</div><h2>What are we working on?</h2><p>Write what you need.</p>`;
+      // The same welcome as the page opens with, so a new chat does not
+      // greet you differently from the first one.
+      const examples = ["A dragon icon", "A thumbnail for a zombie game", "A 3D model of a sword", "Turn this UI into a Lua script"];
+      div.innerHTML = `<div class="w-mark">${ICONS.ropeak}</div><h2>What are we working on?</h2>` +
+        `<p>Describe what you want to make. The right tool is picked for you, or choose one below.</p>` +
+        `<div class="w-hints">${examples.map(t => `<button type="button" class="w-hint" onclick="useExample(this)">${t}</button>`).join("")}</div>`;
       return div;
     }
 
@@ -11612,8 +11617,8 @@
         if (isModel) {
           html = `
           <div class="chooser-3d" style="opacity: 0.9; pointer-events: none;">
-            <button ${sel === 'describe' ? 'class="chosen"' : (sel ? 'disabled' : '')}><span class="c3-icon">${ICONS.edit}</span><span>Describe in text<span class="c3-sub">Short object description → 3D model</span></span></button>
-            <button ${sel === 'image' ? 'class="chosen"' : (sel ? 'disabled' : '')}><span class="c3-icon">${ICONS.upload}</span><span>Upload a reference image<span class="c3-sub">Object photo → 3D model</span></span></button>
+            <button ${sel === 'describe' ? 'class="chosen"' : (sel ? 'disabled' : '')}><span class="c3-icon">${ICONS.edit}</span><span>Describe in text<span class="c3-sub">A short description of the object</span></span></button>
+            <button ${sel === 'image' ? 'class="chosen"' : (sel ? 'disabled' : '')}><span class="c3-icon">${ICONS.upload}</span><span>Upload a reference image<span class="c3-sub">A photo of the object</span></span></button>
             <button ${sel === 'generate' ? 'class="chosen"' : (sel ? 'disabled' : '')}><span class="c3-icon">${ICONS.wand}</span><span>Generate an image first<span class="c3-sub">Describe it, AI generates an image, then the 3D model</span></span></button>
           </div>`;
         } else {
@@ -11643,13 +11648,17 @@
 
     function historyBadge(m) {
       if (m.type === "text") return "Chat";
-      if (m.type === "model3d") return "Model 3D";
-      return categoryLabel(m.category) + " · " + methodShortLabel(m.mode);
+      if (m.type === "model3d" || m.modelUrl) return "3D model";
+      if (m.type === "code") return "Script";
+      if (m.type === "chooser") return "";
+      // Only an image says how it was made, and only when it knows.
+      const how = methodShortLabel(m.mode);
+      return categoryLabel(m.category) + (how ? ", " + how.toLowerCase() : "");
     }
 
     function categoryLabel(cat) { return cat === "thumbnail" ? "Thumbnail" : "Icon"; }
     function methodShortLabel(m) {
-      return { text2img: "From scratch", image2img: "Edit photo", reference2img: "Transfer style" }[m] || m;
+      return { text2img: "From scratch", image2img: "Edit photo", reference2img: "Transfer style" }[m] || "";
     }
     // The feed's foot and its fade are both measured from the composer, so
     // this has to run whatever else does or does not happen on the way in.
@@ -11833,11 +11842,12 @@
           const id = "cb" + (++codeBlockSeq);
           codeBlockStore[id] = code.trim();
           const langLabel = (lang || "text").toLowerCase();
+          const CODE_LANG_NAMES = { lua: "Lua", luau: "Luau", js: "JavaScript", json: "JSON", html: "HTML", css: "CSS", text: "Text" };
           const isLua = langLabel === "lua";
           html += `
           <div class="code-block">
             <div class="cb-head">
-              <span class="cb-lang">${escapeHtml(langLabel)}</span>
+              <span class="cb-lang">${escapeHtml(CODE_LANG_NAMES[langLabel] || (langLabel.charAt(0).toUpperCase() + langLabel.slice(1)))}</span>
               <div class="cb-btns">
                 ${isLua ? `<button class="cb-btn" onclick="downloadCodeBlock('${id}')">${ICONS.download} .lua</button>` : ""}
                 <button class="cb-btn" onclick="copyCodeBlock('${id}', this)">${ICONS.copy} Copy</button>
@@ -12101,7 +12111,7 @@
 
       if (mode === "chat") {
         if (hintEl) hintEl.textContent = info.hint;
-        if (promptEl) promptEl.placeholder = "Write a message…";
+        if (promptEl) promptEl.placeholder = "Describe what you want to make";
         if (enhanceBtn) enhanceBtn.style.display = "none";
         if (dropzoneRow) dropzoneRow.style.display = "none";
         if (dzRef) dzRef.style.display = "none";
@@ -12142,7 +12152,7 @@
       }
       if (mode === "code") {
         const hasCode = typeof currentCodeState !== 'undefined' && currentCodeState && currentCodeState.code;
-        if (hintEl) hintEl.textContent = hasCode ? "I remember your code — you can ask to add a function, modify, or refactor." : info.hint;
+        if (hintEl) hintEl.textContent = hasCode ? "Your code is kept, so you can ask to add a function, change it or refactor it." : info.hint;
         if (promptEl) promptEl.placeholder = hasCode ? "e.g. add a save function, add validation…" : "Describe what script/code you want to generate…";
         if (enhanceBtn) enhanceBtn.style.display = "none";
         if (dropzoneRow) dropzoneRow.style.display = "none";
@@ -12293,15 +12303,15 @@
         // frame work from the first click, so they open it directly.
         html = `
         <div class="chooser-3d">
-          <button onclick="chooseUiMethod('shot', this)"><span class="c3-icon">${ICONS.upload}</span><span>Image → UI<span class="c3-sub">A picture of an interface → a responsive Lua build script</span></span></button>
-          <button onclick="wsChooseTask('ui2lua','u-idea', this)"><span class="c3-icon">${WS_ICONS.idea}</span><span>Describe the interface<span class="c3-sub">Say what it should be — it gets designed as well as built</span></span></button>
+          <button onclick="chooseUiMethod('shot', this)"><span class="c3-icon">${ICONS.upload}</span><span>From an image<span class="c3-sub">A picture of an interface becomes a responsive Lua build script</span></span></button>
+          <button onclick="wsChooseTask('ui2lua','u-idea', this)"><span class="c3-icon">${WS_ICONS.idea}</span><span>Describe the interface<span class="c3-sub">Say what it should be and it is designed and built</span></span></button>
           <button onclick="wsChooseTask('ui2lua','u-blocks', this)"><span class="c3-icon">${WS_ICONS.layout}</span><span>Lay it out with blocks<span class="c3-sub">Arrange the screen yourself, draw over it, then have it built</span></span></button>
         </div>`;
       } else if (mode === "model3d") {
         html = `
         <div class="chooser-3d">
-          <button onclick="chooseModel3DMethod('describe', this)"><span class="c3-icon">${ICONS.edit}</span><span>Describe in text<span class="c3-sub">Short object description → 3D model</span></span></button>
-          <button onclick="chooseModel3DMethod('image', this)"><span class="c3-icon">${ICONS.upload}</span><span>Upload a reference image<span class="c3-sub">Object photo → 3D model</span></span></button>
+          <button onclick="chooseModel3DMethod('describe', this)"><span class="c3-icon">${ICONS.edit}</span><span>Describe in text<span class="c3-sub">A short description of the object</span></span></button>
+          <button onclick="chooseModel3DMethod('image', this)"><span class="c3-icon">${ICONS.upload}</span><span>Upload a reference image<span class="c3-sub">A photo of the object</span></span></button>
           <button onclick="chooseModel3DMethod('generate', this)"><span class="c3-icon">${ICONS.wand}</span><span>Generate an image first<span class="c3-sub">Describe it, AI generates an image, then the 3D model</span></span></button>
         </div>`;
       } else {
@@ -12870,7 +12880,7 @@
       const pendingEl = appendBotPlaceholder("Analyzing the UI and writing a responsive LUA script…");
 
       try {
-        const chatId = await ensureActiveChat(raw || "UI → Lua");
+        const chatId = await ensureActiveChat(raw || "UI to Lua");
 
         const res = await authedFetch("/generate-ui-lua", {
           method: "POST",
@@ -12972,7 +12982,7 @@
           code: isSystem ? systemAsOneListing(data) : data.code,
           language: data.language || "lua", chatId, model: data.model || selectedCodeModel
         };
-        document.getElementById("composerHint").textContent = "Mam zapamiętany Twój kod — możesz poprosić o dodanie funkcji, zmianę, refaktor.";
+        document.getElementById("composerHint").textContent = "Mam zapamiętany Twój kod, więc możesz poprosić o dodanie funkcji, zmianę albo refaktor.";
         document.getElementById("prompt").placeholder = "np. dodaj funkcję do zapisu stanu, dodaj walidację…";
 
         refreshBalance();
@@ -13017,9 +13027,9 @@
         return;
       }
       const formHTML = `
-        <div class="inline-fix-form" style="margin-top: 10px; display: flex; gap: 8px; padding: 10px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px;">
-          <input type="text" class="fix-input" placeholder="Co nie działa? (np. błąd w linii 42)" style="flex: 1; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--soft); color: var(--ink); font-size: 13px;" />
-          <button class="fix-submit" style="padding: 6px 12px; border-radius: 6px; background: var(--warn); color: #fff; border: none; cursor: pointer; font-weight: 600; font-size: 13px;">Napraw</button>
+        <div class="inline-fix-form" style="margin-top: 10px; display: flex; gap: 8px; padding: 10px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-md);">
+          <input type="text" class="fix-input" placeholder="Co nie działa? (np. błąd w linii 42)" style="flex: 1; padding: 6px 10px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--soft); color: var(--ink); font-size: 13px;" />
+          <button class="fix-submit" style="padding: 6px 12px; border-radius: var(--radius-sm); background: var(--warn); color: #fff; border: none; cursor: pointer; font-weight: 600; font-size: 13px;">Napraw</button>
         </div>
       `;
       cbElement.insertAdjacentHTML("beforeend", formHTML);
@@ -13460,7 +13470,7 @@
             if (attempts >= MAX_ATTEMPTS) {
               // The worker only refunds when a status check sees FAILED, and we
               // have stopped checking — so do not promise a refund here.
-              giveUp("3D model generation is still running after a long wait. It may yet finish — reopen this chat later to check, or contact support with this task id: " + currentTaskId);
+              giveUp("3D model generation is still running after a long wait. It may still finish. Reopen this chat later to check, or contact support with this task id: " + currentTaskId);
               return;
             }
             setBotBody(el, progressHtml(`Generating… ${data.progress || 0}%`, data.progress || 0));
@@ -13914,207 +13924,12 @@
     });
   </script>
 
-  <!-- Magnetic Cursor Implementation -->
   <style>
-    .magnetic-cursor {
-      position: fixed;
-      top: 0;
-      left: 0;
-      z-index: 9999;
-      pointer-events: none;
-      will-change: transform, width, height, border-radius;
-    }
-
     #promptBox.disabled * {
       pointer-events: none;
       opacity: 0.55;
     }
   </style>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      // Auto-attach data-magnetic to interactive elements
-      document.querySelectorAll('a, button, .btn-primary, .btn-google, .btn-ghost, .navlink, .chat-item, .fm-pill-code, .widget-add-btn, .gw-card').forEach(el => {
-        if (!el.hasAttribute('data-magnetic')) {
-          el.setAttribute('data-magnetic', '');
-        }
-      });
-
-      const config = {
-        magneticFactor: 0.1,
-        speedMultiplier: 0.1,
-        maxScaleX: 1,
-        maxScaleY: 0.3,
-        cursorSize: 30,
-        lerpAmount: 0.1,
-        hoverPadding: 2,
-        hoverAttribute: 'data-magnetic',
-        cursorColor: 'white',
-        shape: 'circle',
-        disableOnTouch: true,
-        contrastBoost: 1.5,
-        blendMode: 'exclusion'
-      };
-
-      const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-      if (config.disableOnTouch && isTouchDevice) return;
-
-      const cursorEl = document.createElement('div');
-      cursorEl.className = 'magnetic-cursor';
-      const shapeBorderRadius = config.shape === 'circle' ? '50%' : config.shape === 'square' ? '0' : '8px';
-
-      Object.assign(cursorEl.style, {
-        backgroundColor: config.cursorColor,
-        mixBlendMode: config.blendMode,
-        width: config.cursorSize + 'px',
-        height: config.cursorSize + 'px',
-        borderRadius: shapeBorderRadius,
-        backdropFilter: config.contrastBoost !== 1 ? `contrast(${config.contrastBoost})` : 'none',
-        WebkitBackdropFilter: config.contrastBoost !== 1 ? `contrast(${config.contrastBoost})` : 'none',
-      });
-      document.body.appendChild(cursorEl);
-
-      gsap.set(cursorEl, { xPercent: -50, yPercent: -50 });
-
-      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      const detachDuration = prefersReducedMotion ? 0.1 : 0.35;
-
-      class Vec2 {
-        constructor(x, y) { this.x = x; this.y = y; }
-        lerp(target, t) { this.x += (target.x - this.x) * t; this.y += (target.y - this.y) * t; return this; }
-        clone() { return new Vec2(this.x, this.y); }
-        sub(v) { this.x -= v.x; this.y -= v.y; return this; }
-        copy(v) { this.x = v.x; this.y = v.y; return this; }
-      }
-
-      const state = {
-        pos: { current: new Vec2(-100, -100), target: new Vec2(-100, -100), previous: new Vec2(-100, -100) },
-        hover: { isHovered: false },
-        isDetaching: false
-      };
-
-      const update = () => {
-        if (state.hover.isHovered) return;
-        const effectiveLerp = prefersReducedMotion ? 1 : config.lerpAmount;
-        state.pos.current.lerp(state.pos.target, effectiveLerp);
-        const delta = state.pos.current.clone().sub(state.pos.previous);
-        state.pos.previous.copy(state.pos.current);
-
-        if (state.isDetaching) {
-          gsap.set(cursorEl, { x: state.pos.current.x, y: state.pos.current.y, scaleX: 1, scaleY: 1, rotate: 0, overwrite: 'auto' });
-        } else {
-          const speed = Math.sqrt(delta.x * delta.x + delta.y * delta.y) * config.speedMultiplier;
-          gsap.set(cursorEl, {
-            x: state.pos.current.x, y: state.pos.current.y,
-            rotate: Math.atan2(delta.y, delta.x) * (180 / Math.PI),
-            scaleX: 1 + Math.min(speed, config.maxScaleX),
-            scaleY: 1 - Math.min(speed, config.maxScaleY),
-            overwrite: 'auto'
-          });
-        }
-      };
-
-      const initializePosition = (event) => {
-        const x = event.clientX; const y = event.clientY;
-        state.pos.current.x = x; state.pos.current.y = y;
-        state.pos.target.x = x; state.pos.target.y = y;
-        state.pos.previous.x = x; state.pos.previous.y = y;
-        gsap.set(cursorEl, { x, y, opacity: 1 });
-      };
-
-      const onMouseMove = (event) => {
-        state.pos.target.x = event.clientX;
-        state.pos.target.y = event.clientY;
-
-        const isInViewport = event.clientX >= 0 && event.clientX <= window.innerWidth && event.clientY >= 0 && event.clientY <= window.innerHeight;
-        gsap.to(cursorEl, { opacity: isInViewport ? 1 : 0, duration: 0.2, overwrite: 'auto' });
-
-        const target = event.target;
-        const isTextContent = ['P', 'SPAN', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6'].includes(target.tagName) || window.getComputedStyle(target).cursor === 'text';
-        if (isTextContent && !state.hover.isHovered && !state.isDetaching) {
-          gsap.to(cursorEl, { scaleX: 0.5, scaleY: 1.5, duration: 0.3, overwrite: 'auto' });
-        }
-      };
-
-      const handleMouseLeave = () => gsap.to(cursorEl, { opacity: 0, duration: 0.3 });
-      const handleMouseEnter = () => gsap.to(cursorEl, { opacity: 1, duration: 0.3 });
-
-      gsap.ticker.add(update);
-      window.addEventListener('pointermove', onMouseMove);
-      window.addEventListener('pointermove', initializePosition, { once: true });
-      document.addEventListener('mouseleave', handleMouseLeave);
-      document.addEventListener('mouseenter', handleMouseEnter);
-
-      const magneticElements = document.querySelectorAll(`[${config.hoverAttribute}]`);
-      magneticElements.forEach((el) => {
-        const xTo = gsap.quickTo(el, 'x', { duration: 1, ease: 'elastic.out(1, 0.3)' });
-        const yTo = gsap.quickTo(el, 'y', { duration: 1, ease: 'elastic.out(1, 0.3)' });
-
-        const handlePointerEnter = () => {
-          state.hover.isHovered = true;
-          state.isDetaching = false;
-
-          const bounds = el.getBoundingClientRect();
-          const computedStyle = window.getComputedStyle(el);
-          const magneticColor = el.getAttribute('data-magnetic-color') || config.cursorColor;
-          const dynamicPadding = config.hoverPadding * (1 + config.magneticFactor);
-          const centerX = bounds.left + bounds.width / 2;
-          const centerY = bounds.top + bounds.height / 2;
-
-          gsap.killTweensOf(cursorEl);
-          gsap.to(cursorEl, {
-            x: centerX, y: centerY,
-            width: bounds.width + dynamicPadding * 2,
-            height: bounds.height + dynamicPadding * 2,
-            borderRadius: computedStyle.borderRadius,
-            backgroundColor: magneticColor,
-            scaleX: 1, scaleY: 1, rotate: 0,
-            duration: 0.3, ease: 'power3.out', overwrite: 'all'
-          });
-        };
-
-        const handlePointerLeave = () => {
-          const currentX = gsap.getProperty(cursorEl, "x");
-          const currentY = gsap.getProperty(cursorEl, "y");
-
-          state.pos.current.x = currentX; state.pos.current.y = currentY;
-          state.pos.previous.x = currentX; state.pos.previous.y = currentY;
-
-          state.hover.isHovered = false;
-          state.isDetaching = true;
-
-          gsap.killTweensOf(cursorEl);
-          gsap.to(cursorEl, {
-            width: config.cursorSize, height: config.cursorSize,
-            borderRadius: shapeBorderRadius,
-            backgroundColor: config.cursorColor,
-            scaleX: 1, scaleY: 1,
-            duration: detachDuration, ease: 'power3.out', overwrite: 'all',
-            onComplete: () => { state.isDetaching = false; }
-          });
-        };
-
-        let rafId = null;
-        const handlePointerMove = (event) => {
-          if (rafId) return;
-          rafId = requestAnimationFrame(() => {
-            const { clientX, clientY } = event;
-            const { height, width, left, top } = el.getBoundingClientRect();
-            xTo((clientX - (left + width / 2)) * config.magneticFactor);
-            yTo((clientY - (top + height / 2)) * config.magneticFactor);
-            rafId = null;
-          });
-        };
-
-        const handlePointerOut = () => { xTo(0); yTo(0); };
-
-        el.addEventListener('pointerenter', handlePointerEnter);
-        el.addEventListener('pointerleave', handlePointerLeave);
-        el.addEventListener('pointermove', handlePointerMove);
-        el.addEventListener('pointerout', handlePointerOut);
-      });
-    });
-  </script>
 
   <script>
     // openComposerStage is defined in composerIslandJS below
@@ -14443,7 +14258,7 @@
             tasks: [
               { id: "mark", name: "Paint the part to change", sub: "Brush over a region and say what belongs there instead.", icon: WS_ICONS.brush, ready: true },
               { id: "extend", name: "Extend past the edges", sub: "Grow the canvas and let it fill in what continues.", icon: WS_ICONS.expand, ready: true },
-              { id: "cutout", name: "Cut out on transparency", sub: "Same asset, no background — ready to drop into Studio.", icon: WS_ICONS.cutout, ready: true },
+              { id: "cutout", name: "Cut out on transparency", sub: "The same asset with the background removed, ready for Studio.", icon: WS_ICONS.cutout, ready: true },
               { id: "takes", name: "More takes on one image", sub: "Several variations of something you already like.", icon: WS_ICONS.copies, ready: true }
             ]
           }
@@ -14499,12 +14314,12 @@
       },
       ui2lua: {
         title: "Build a UI",
-        lead: "A picture, a description, or a layout you arrange yourself — each one comes back as the script that builds it and a preview of how it looks.",
+        lead: "A picture, a description, or a layout you arrange yourself. Each one comes back as the script that builds it and a preview of how it looks.",
         groups: [
           {
             title: "From a picture",
             tasks: [
-              { id: "u-shot", name: "Image → UI", sub: "A picture of an interface becomes a responsive Lua build script.", icon: WS_ICONS.photo, ready: true }
+              { id: "u-shot", name: "From an image", sub: "A picture of an interface becomes a responsive Lua build script.", icon: WS_ICONS.photo, ready: true }
             ]
           },
           {
@@ -14956,7 +14771,7 @@
         case "create":
           return [
             { key: "type", type: "imagetype", label: "Asset type", note: "Sets the framing, the styling hints and the output size." },
-            { key: "prompt", type: "area", label: "What should be in it", required: true, ph: "A glowing sword icon on a dark background, sharp silhouette, rich colour…", note: "Describe the whole picture — subject, mood, lighting. Not what you do not want." }
+            { key: "prompt", type: "area", label: "What should be in it", required: true, ph: "A glowing sword icon on a dark background, sharp silhouette, rich colour…", note: "Describe the whole picture: subject, mood, lighting. Leave out what you do not want." }
           ];
         case "edit-photo":
           return [
@@ -14968,14 +14783,14 @@
           return [
             { key: "image", type: "image", label: "Your image", required: true },
             { key: "reference", type: "image", label: "The style to borrow", required: true },
-            { key: "prompt", type: "area", label: "Extra direction", ph: "Optional — anything the reference does not say." }
+            { key: "prompt", type: "area", label: "Extra direction", ph: "Optional. Anything the reference does not say." }
           ];
         case "m-text":
           return [{ key: "prompt", type: "area", label: "The object", required: true, ph: "A weathered wooden treasure chest with iron bands…", note: "One object, described plainly. Scenes do not turn into good meshes." }];
         case "m-image":
           return [
             { key: "image", type: "image", label: "Reference photo", required: true },
-            { key: "prompt", type: "area", label: "Extra direction", ph: "Optional — texture or material hints." }
+            { key: "prompt", type: "area", label: "Extra direction", ph: "Optional. Texture or material hints." }
           ];
         case "m-gen":
           return [{ key: "prompt", type: "area", label: "The object to draw first", required: true, ph: "A stylised low-poly campfire…" }];
@@ -14996,15 +14811,15 @@
         case "c-fix":
           return [{ key: "prompt", type: "area", label: "What goes wrong", required: true, ph: "Line 42 errors with 'attempt to index nil'…" }];
         case "c-refactor":
-          return [{ key: "prompt", type: "area", label: "Anything specific", ph: "Optional — otherwise I clean it up as I see fit." }];
+          return [{ key: "prompt", type: "area", label: "Anything specific", ph: "Optional. Otherwise it is cleaned up as needed." }];
         case "c-explain":
-          return [{ key: "prompt", type: "area", label: "Anything specific", ph: "Optional — or leave it and I walk through the whole thing." }];
+          return [{ key: "prompt", type: "area", label: "Anything specific", ph: "Optional. Leave it empty to go through the whole thing." }];
         case "u-shot":
           return [
-            { key: "image", type: "image", label: "The interface to rebuild", required: true, note: "A screenshot, a mockup, a render — anything that shows the layout." },
+            { key: "image", type: "image", label: "The interface to rebuild", required: true, note: "A screenshot, a mockup or a render. Anything that shows the layout." },
             { key: "uimodel", type: "uimodel", label: "Model" },
             { key: "preview", type: "toggle", label: "Show it as well as script it", note: "Renders the same interface in HTML so you can look at it before you paste anything into Studio." },
-            { key: "prompt", type: "area", label: "Extra hints", ph: "Optional — behaviour the picture cannot show." }
+            { key: "prompt", type: "area", label: "Extra hints", ph: "Optional. Behaviour the picture cannot show." }
           ];
         case "u-idea":
           return [
@@ -15036,11 +14851,11 @@
         case "cutout":
           return [
             { key: "image", type: "image", label: "The image to cut out", required: true },
-            { key: "prompt", type: "area", label: "What to keep", ph: "Optional — name the subject if the picture is busy." }
+            { key: "prompt", type: "area", label: "What to keep", ph: "Optional. Name the subject if the picture is busy." }
           ];
         case "takes":
           return [
-            { key: "image", type: "image", label: "The image to vary", required: true, note: "Variations run on dall-e-2, which takes a square PNG — anything else is squared off first." },
+            { key: "image", type: "image", label: "The image to vary", required: true, note: "Variations run on dall-e-2, which takes a square PNG. Anything else is squared off first." },
             { key: "count", type: "options", label: "How many", options: [
               { v: "2", t: "Two" }, { v: "3", t: "Three" }, { v: "4", t: "Four" }] }
           ];
@@ -15061,7 +14876,7 @@
             { key: "quad", type: "toggle", label: "Quads", note: "Clean edge loops and fresh UVs, rather than triangles." }
           ];
         case "m-segment":
-          return [{ key: "model", type: "model", label: "The model", required: true, note: "Comes back as separate sub-meshes — head, limbs, clothing — each downloadable on its own." }];
+          return [{ key: "model", type: "model", label: "The model", required: true, note: "Comes back as separate sub-meshes (head, limbs, clothing), each downloadable on its own." }];
         case "m-complete":
           return [{ key: "model", type: "model", label: "The model", required: true, note: "Fills holes, clears self-intersections and non-manifold edges, and makes it watertight." }];
         case "m-texture":
@@ -15070,7 +14885,7 @@
             { key: "textureQuality", type: "options", label: "Texture quality", options: [
               { v: "standard", t: "Standard" }, { v: "detailed", t: "Detailed" }, { v: "HD", t: "HD" }] },
             { key: "pbr", type: "toggle", label: "PBR maps", note: "Albedo, roughness, metallic and normal, rather than colour alone." },
-            { key: "textureSeed", type: "text", label: "Seed", ph: "Optional — a number, for another colourway of the same model." }
+            { key: "textureSeed", type: "text", label: "Seed", ph: "Optional. A number, for another colourway of the same model." }
           ];
         case "m-rig":
           return [
@@ -15155,7 +14970,7 @@
           <div class="ws-drop" onclick="wsPickModelFile('${f.key}')">
             <span class="ws-drop-ico">${WS_ICONS.box}</span>
             <span class="ws-drop-text">${cur && cur !== mine ? escapeHtml(label || "Model ready") : (cur === mine && mine ? "Or load one from a file" : "Click to choose a model file")}
-              <small>${cur && cur !== mine ? "Click to use a different one." : "GLB, GLTF, FBX, OBJ or STL — up to 150 MB."}</small></span>
+              <small>${cur && cur !== mine ? "Click to use a different one." : "GLB, GLTF, FBX, OBJ or STL, up to 150 MB."}</small></span>
           </div>`;
       } else if (f.type === "uimodel") {
         const cur = v || WS_UI_DEFAULT_MODEL;
@@ -15221,7 +15036,7 @@
       const empty = !wsLayout.blocks.length;
       return {
         html: `<h2 class="ws-title ws-rise">Lay the screen out</h2>
-               <p class="ws-lead ws-rise" style="--i:1">Drop the pieces where you want them and drag them into place. Rough is fine — this is the structure, not the styling. Anything you draw over the top is read as a note about intent.</p>
+               <p class="ws-lead ws-rise" style="--i:1">Drop the pieces where you want them and drag them into place. Rough is fine: this is the structure, not the styling. Anything you draw over the top is read as a note about intent.</p>
                <div class="ws-layout ws-rise" style="--i:2">
                  <div class="ws-stage-wrap">
                    <div class="ws-stage" id="wsStage">
@@ -15551,7 +15366,7 @@
                  <span class="ws-label">What belongs in the painted area</span>
                  <textarea class="ws-area" placeholder="A brass lantern hanging from the beam, warm light spilling onto the wall…"
                    oninput="wsMaskPrompt(this.value)">${escapeHtml(s.cfg.prompt || "")}</textarea>
-                 <div class="ws-note">Describe the whole scene as it should end up, not just the new object — and never what to take away.</div>
+                 <div class="ws-note">Describe the whole scene as it should end up, not just the new object, and never what to take away.</div>
                </div>`,
         foot: `<span class="ws-foot-note">costs 2 tokens</span>
                <button class="ws-btn ws-quiet" type="button" onclick="wsBack()">${WS_ICONS.back}Back</button>
@@ -15725,7 +15540,7 @@
     function wsCostNote(s) {
       if (s.task === "m-rig") {
         const anims = Array.isArray(s.cfg.animations) ? s.cfg.animations.length : 0;
-        return anims ? "costs 8 tokens to rig, 6 more to animate" : "costs 8 tokens — the check beforehand is free";
+        return anims ? "costs 8 tokens to rig, 6 more to animate" : "costs 8 tokens, and the check beforehand is free";
       }
       if (WS_TASK_COST[s.task]) return `costs ${WS_TASK_COST[s.task]} tokens`;
       if (s.task === "takes") return `costs ${2 * (parseInt(s.cfg.count, 10) || 3)} tokens`;
@@ -15740,7 +15555,7 @@
         html: `<div class="ws-run">
                  <div class="ws-run-label" id="wsRunLabel">${escapeHtml(s.runLabel || "Working…")}</div>
                  <div class="ws-bar ${s.progress == null ? "indet" : ""}" id="wsRunBar"><span style="width:${s.progress == null ? "" : s.progress + "%"}"></span></div>
-                 <div class="ws-run-sub">This is running in the chat too — closing the workspace will not cancel it.</div>
+                 <div class="ws-run-sub">This is running in the chat too. Closing the workspace will not cancel it.</div>
                </div>`,
         foot: `<span class="ws-foot-note">Working…</span>
                <button class="ws-btn ws-quiet" type="button" onclick="closeWorkspace({force:true})">Leave it running</button>`
@@ -16059,7 +15874,7 @@
       const c = s.cfg;
 
       if (typeof currentUser === "undefined" || !currentUser) {
-        wsDone({ error: "Sign in first — generating needs your account to bill it and keep the result." });
+        wsDone({ error: "Sign in first. Generating needs your account to bill it and keep the result." });
         const b = document.getElementById("signInBtn");
         if (b) b.click();
         return;
@@ -16198,7 +16013,7 @@
             <iframe sandbox="allow-scripts" loading="lazy" title="UI preview"
               srcdoc="${escapeHtml(previewHtml)}"></iframe>
           </div>
-          <p class="ui-pane-note">A rendering of what the script builds — not the script's own output.</p>
+          <p class="ui-pane-note">A rendering of what the script builds, not the script's own output.</p>
         </div>
         <div class="ui-pane ui-pane-code" hidden>${codeHtml}</div>
       </div>`;
@@ -16341,7 +16156,7 @@
       try { body = await res.text(); } catch (e) { body = ""; }
       const msg = wsUnwrapError(body);
       if (res.status === 404 && (!msg || /^not found\.?$/i.test(msg))) {
-        return `This needs the ${route} route, which your worker does not have yet — paste the updated worker.js and try again.`;
+        return `This needs the ${route} route, which your worker does not have yet. Paste the updated worker.js and try again.`;
       }
       return msg || `The request failed (${res.status}).`;
     }
@@ -16391,7 +16206,7 @@
     function wsBenchResultHtml(data, title) {
       if (data.parts && data.parts.length) {
         return `<div class="result-frame-wrap"><div class="result-meta">
-            <span class="r-tag">${escapeHtml(title)} — ${data.parts.length} parts</span></div>
+            <span class="r-tag">${escapeHtml(title)}, ${data.parts.length} parts</span></div>
           <div class="result-actions" style="flex-wrap:wrap">` +
           data.parts.map(part => `<a href="${escapeHtml(part.modelUrl)}" download class="dl-glb-btn" style="text-decoration:none">
             ${WS_ICONS.download}${escapeHtml(part.name)}</a>`).join("") + `</div></div>`;
@@ -16532,7 +16347,7 @@
         work: async () => {
           const check = await wsStartBench("rig-check", c.model, {});
           if (check.done && !check.riggable) {
-            throw new Error("This mesh cannot be rigged — it has no recognisable body plan. Try closing it up first.");
+            throw new Error("This mesh cannot be rigged because it has no recognisable body plan. Try closing it up first.");
           }
           const rigType = (c.rigType && c.rigType !== "auto") ? c.rigType : (check.rigType || "biped");
 
@@ -16573,7 +16388,7 @@
         case "c-system": return p;
         case "c-add": return "Add to the script you already have: " + p;
         case "c-fix": return "Fix this in the script: " + p;
-        case "c-refactor": return "Refactor the script — same behaviour, clearer structure and naming." + (p ? " Also: " + p : "");
+        case "c-refactor": return "Refactor the script: same behaviour, clearer structure and naming." + (p ? " Also: " + p : "");
         case "c-explain": return "Explain the script and what each part does." + (p ? " Focus on: " + p : "");
         default: return p;
       }
@@ -16588,7 +16403,7 @@
       if (!s || !el) return;
       s.step = "config";
       el.querySelector("#wsBody").innerHTML = `<h2 class="ws-title ws-rise">Set up the mesh</h2>
-        <p class="ws-lead ws-rise" style="--i:1">Pick a preset or tune it yourself — the cost updates as you go.</p>
+        <p class="ws-lead ws-rise" style="--i:1">Pick a preset or tune it yourself. The cost updates as you go.</p>
         <div id="wsMeshSlot" class="ws-mesh ws-rise" style="--i:2"></div>`;
       const panel = document.getElementById("model3dPanel");
       const slot = el.querySelector("#wsMeshSlot");
@@ -16604,7 +16419,7 @@
 
       const foot = el.querySelector(".ws-foot");
       if (foot) {
-        foot.innerHTML = `<span class="ws-foot-note">Every setting moves the price — the button keeps the running total.</span>
+        foot.innerHTML = `<span class="ws-foot-note">Every setting moves the price. The button shows the running total.</span>
           <button class="ws-btn ws-quiet" type="button" onclick="wsBack()">${WS_ICONS.back}Start over</button>
           <button class="ws-btn primary" type="button" id="wsMeshGo" onclick="wsMeshGenerate()">Generate</button>`;
       }
@@ -17222,7 +17037,7 @@
       if (studioToolBusy) {
         return `<span class="st-dot on"></span><span class="st-text">Working for Studio…</span>`;
       }
-      return `<span class="st-dot on"></span><span class="st-text">Studio open — ${escapeHtml(place)}</span>`;
+      return `<span class="st-dot on"></span><span class="st-text">Studio open: ${escapeHtml(place)}</span>`;
     }
 
     function studioRender() {
@@ -17411,7 +17226,7 @@
     async function studioRedeploy(jobId) {
       const job = studioState.jobs.find(j => j.id === jobId);
       const sys = job && studioLastTree[jobId];
-      if (!sys) { alert("That deploy is no longer in this page's memory — press Deploy on the system again."); return; }
+      if (!sys) { alert("This page no longer holds that deploy. Press Deploy on the system again."); return; }
       try {
         const res = await authedFetch("/studio/deploy", {
           method: "POST", headers: { "Content-Type": "application/json" },
