@@ -2057,6 +2057,18 @@
     /* Choosers and results carry their own frames; no bubble, no pointer. */
     .msg-bot:has(.chooser-3d) .msg-bubble::before { display: none; }
 
+    /* A print or a cube being built stands on the page by itself. */
+    .msg-bot:has(.gen-photo) .msg-bubble,
+    .msg-bot:has(.gen-cube) .msg-bubble {
+      background: none;
+      border: 0;
+      padding: 4px 0 6px;
+      box-shadow: none;
+    }
+
+    .msg-bot:has(.gen-photo) .msg-bubble::before,
+    .msg-bot:has(.gen-cube) .msg-bubble::before { display: none; }
+
     /* The newest pair lands with a little give, squashed towards whoever
        said it and settling back. Only the newest: reopening a long chat
        should not make every message bounce at once. */
@@ -2100,27 +2112,172 @@
       color: var(--mint);
     }
 
+    /* Three bricks laid one on another, cleared, and laid again: something
+       is being built, which is the only thing this page ever waits for. */
     .mini-loader {
-      display: flex;
-      gap: 3px;
+      display: inline-flex;
+      flex-direction: column-reverse;
       align-items: center;
+      gap: 2px;
+      width: 16px;
+      height: 16px;
       flex-shrink: 0;
     }
 
     .mini-loader span {
-      width: 5px;
-      height: 5px;
-      background: var(--ink-faint);
-      border-radius: 50%;
-      animation: softPulse 1.1s ease-in-out infinite;
+      width: 12px;
+      height: 4px;
+      border-radius: 1.5px;
+      background: var(--ink-muted);
+      opacity: 0;
+      animation: brickLay 1.8s cubic-bezier(.34, 1.56, .64, 1) infinite;
     }
 
     .mini-loader span:nth-child(2) {
-      animation-delay: 0.15s;
+      background: var(--accent);
+      margin-left: 4px;
+      animation-delay: .22s;
     }
 
     .mini-loader span:nth-child(3) {
-      animation-delay: 0.3s;
+      background: var(--ink-faint);
+      margin-right: 3px;
+      animation-delay: .44s;
+    }
+
+    @keyframes brickLay {
+      0% { opacity: 0; transform: translateY(-9px) scale(.7, 1); }
+      14% { opacity: 1; transform: none; }
+      72% { opacity: 1; transform: none; }
+      86%, 100% { opacity: 0; transform: translateY(1px) scale(1.1, .6); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .mini-loader span { animation: none; opacity: 1; }
+    }
+
+    /* ---------- waiting for a picture: a print developing ---------- */
+    .gen-photo {
+      width: 230px;
+      padding: 9px 9px 0;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      box-shadow: 0 3px 0 var(--soft-2), var(--shadow-md);
+      transform: rotate(-1.6deg);
+      animation: photoDrop .6s cubic-bezier(.34, 1.56, .64, 1) both;
+    }
+
+    .gen-photo.wide { width: 320px; }
+
+    .gp-film {
+      position: relative;
+      aspect-ratio: 1 / 1;
+      border-radius: 2px;
+      overflow: hidden;
+      background: #1E1D1B;
+      animation: filmDevelop 9s ease-in-out infinite alternate;
+    }
+
+    .gen-photo.wide .gp-film { aspect-ratio: 3 / 2; }
+
+    .gp-film i {
+      position: absolute;
+      width: 70%;
+      height: 70%;
+      border-radius: 50%;
+      filter: blur(22px);
+      opacity: .75;
+      animation: blobDrift 7s ease-in-out infinite alternate;
+    }
+
+    .gp-film i:nth-child(1) { background: var(--accent); left: -10%; top: 5%; }
+    .gp-film i:nth-child(2) { background: #84D6F7; right: -15%; top: 30%; animation-duration: 9s; animation-delay: -3s; }
+    .gp-film i:nth-child(3) { background: #FFC600; left: 20%; bottom: -25%; width: 55%; height: 55%; animation-duration: 8s; animation-delay: -5s; }
+
+    .gp-cap {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 11px 3px 13px;
+      font-size: 12.5px;
+      font-weight: 500;
+      color: var(--ink-muted);
+    }
+
+    @keyframes photoDrop {
+      from { opacity: 0; transform: translateY(-14px) rotate(-6deg) scale(.96); }
+      to { opacity: 1; transform: rotate(-1.6deg); }
+    }
+
+    @keyframes filmDevelop {
+      from { filter: brightness(.45) saturate(.5); }
+      to { filter: brightness(1.05) saturate(1.1); }
+    }
+
+    @keyframes blobDrift {
+      from { transform: translate(0, 0) scale(1); }
+      to { transform: translate(18%, -12%) scale(1.15); }
+    }
+
+    /* ---------- waiting for a model: a cube filling as it is built ---------- */
+    .gen-cube {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      padding: 16px 22px 16px 16px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: 0 3px 0 var(--soft-2), var(--shadow-sm);
+    }
+
+    .ws-run-vis .gen-cube { background: none; border: 0; box-shadow: none; padding: 0; }
+
+    .gen-cube svg { width: 78px; height: 78px; flex-shrink: 0; overflow: visible; }
+
+    .gc-fill {
+      fill: color-mix(in srgb, var(--accent) 55%, transparent);
+      transition: transform .9s cubic-bezier(.34, 1.3, .64, 1);
+    }
+
+    .gc-surface {
+      stroke: var(--accent);
+      stroke-width: 1.5;
+      fill: none;
+      transition: transform .9s cubic-bezier(.34, 1.3, .64, 1);
+    }
+
+    .gc-edge {
+      fill: none;
+      stroke: var(--ink-muted);
+      stroke-width: 1.6;
+      stroke-linejoin: round;
+      stroke-dasharray: 5 4;
+      animation: edgeMarch 1.4s linear infinite;
+    }
+
+    .gc-text b {
+      display: block;
+      font-family: var(--font-display);
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      color: var(--ink);
+      line-height: 1;
+    }
+
+    .gc-text span {
+      display: block;
+      margin-top: 5px;
+      font-size: 12.5px;
+      color: var(--ink-muted);
+    }
+
+    @keyframes edgeMarch { to { stroke-dashoffset: -18; } }
+
+    @media (prefers-reduced-motion: reduce) {
+      .gen-photo, .gp-film, .gp-film i, .gc-edge { animation: none; }
     }
 
     .progress-track {
@@ -2331,13 +2488,45 @@
       padding: 7px 8px 7px 14px;
     }
 
+    /* The head reads like a script's tab in Studio: its page icon, the
+       language, and how long it is. */
+    .code-block .cb-tab {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      min-width: 0;
+    }
+
+    .code-block .cb-ico { width: 14px; height: 14px; color: #84D6F7; flex-shrink: 0; }
+
     .code-block .cb-lang {
       font-family: var(--font-body);
       font-size: 12px;
       font-weight: 600;
-      color: #A8A8A8;
+      color: #DADADA;
       text-transform: capitalize;
     }
+
+    .code-block .cb-lines {
+      font-size: 11.5px;
+      color: #8A8A8A;
+      white-space: nowrap;
+    }
+
+    .code-block .cb-gutter {
+      flex-shrink: 0;
+      font-family: var(--font-mono);
+      font-size: 12.3px;
+      line-height: 1.6;
+      color: #5E5E5E;
+      text-align: right;
+      white-space: pre;
+      user-select: none;
+      min-width: 2ch;
+    }
+
+    /* Wrapped lines no longer match one number each; the numbers step out. */
+    .code-block.cb-wrap .cb-gutter { display: none; }
 
     .code-block .cb-btns {
       display: flex;
@@ -2367,6 +2556,8 @@
     }
 
     .code-block pre {
+      display: flex;
+      column-gap: 14px;
       margin: 0;
       background: #252525;
       border-radius: 0 0 10px 10px;
@@ -4703,6 +4894,7 @@
       background: var(--accent);
       border-color: var(--accent);
       color: var(--on-accent);
+      box-shadow: inset 0 -2px 0 rgba(0, 0, 0, .18);
     }
 
     .sys-act.primary:hover:not(:disabled) { background: var(--accent-deep); border-color: var(--accent-deep); }
@@ -4736,7 +4928,27 @@
       background: var(--card);
       overflow: hidden;
       margin-top: 10px;
+      margin-bottom: 3px;
+      box-shadow: 0 3px 0 var(--soft-2);
     }
+
+    /* The system's name sits beside Explorer's own mark, held on a key. */
+    .sys-mark {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 34px;
+      height: 34px;
+      flex-shrink: 0;
+      border-radius: 9px;
+      background: var(--soft);
+      border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--border));
+      color: var(--accent-deep);
+      box-shadow: inset 0 2px 0 var(--soft-2);
+      transform: rotate(-4deg);
+    }
+
+    .sys-mark svg { width: 18px; height: 18px; }
 
     .sys-head {
       display: flex;
@@ -4748,7 +4960,7 @@
 
     .sys-title {
       font-family: var(--font-display);
-      font-size: 14.5px;
+      font-size: 15.5px;
       font-weight: 700;
       color: var(--ink);
       letter-spacing: -0.01em;
@@ -4778,11 +4990,14 @@
       color: var(--ink);
       font-size: 11.8px;
       font-weight: 600;
-      padding: 7px 11px;
+      padding: 7px 11px 8px;
       border-radius: var(--radius-sm);
       cursor: pointer;
-      transition: border-color .15s ease, background .15s ease;
+      box-shadow: inset 0 -2px 0 var(--soft-2);
+      transition: border-color .15s ease, background .15s ease, transform .45s cubic-bezier(.34, 1.9, .5, 1);
     }
+
+    .sys-act:active:not(:disabled), .sys-all:active { transform: scale(.95, .9); transition-duration: .08s; }
 
     .sys-act svg { width: 13px; height: 13px; }
     .sys-act:hover { border-color: var(--ink-faint); background: var(--soft); }
@@ -4794,10 +5009,11 @@
       color: var(--ink);
       font-size: 11.8px;
       font-weight: 600;
-      padding: 7px 11px;
+      padding: 7px 11px 8px;
       border-radius: var(--radius-sm);
       cursor: pointer;
-      transition: border-color .15s ease, background .15s ease;
+      box-shadow: inset 0 -2px 0 var(--soft-2);
+      transition: border-color .15s ease, background .15s ease, transform .45s cubic-bezier(.34, 1.9, .5, 1);
     }
 
     .sys-all:hover { border-color: var(--ink-faint); background: var(--soft-2); }
@@ -6031,39 +6247,64 @@
     .code-skeleton {
       display: flex;
       flex-direction: column;
-      gap: 10px;
-      /* Matches .code-block pre — the dark ground lives on the pre, which this
+      gap: 9px;
+      /* Matches .code-block pre: the dark ground lives on the pre, which this
          placeholder replaces, so it has to carry the same surface itself. */
-      background: #181712;
+      background: #252525;
       border-radius: 0 0 10px 10px;
-      padding: 17px 14px;
+      padding: 17px 16px 18px;
+      min-height: 150px;
     }
 
-    .code-skeleton span {
+    .csk-line {
+      display: flex;
+      gap: 6px;
+      height: 8px;
+      clip-path: inset(0 100% 0 0);
+      animation: cskType 6.4s steps(14, end) infinite;
+      animation-delay: calc(var(--i) * .45s);
+    }
+
+    .csk-line b {
       display: block;
-      height: 10px;
-      border-radius: 5px;
-      background: linear-gradient(90deg,
-          rgba(234, 232, 228, 0.07) 0%,
-          rgba(234, 232, 228, 0.17) 50%,
-          rgba(234, 232, 228, 0.07) 100%);
-      background-size: 200% 100%;
-      animation: skeletonSweep 1.5s ease-in-out infinite;
+      height: 8px;
+      border-radius: 3px;
+      opacity: .5;
     }
 
-    .code-skeleton span:nth-child(2) { animation-delay: .12s; }
-    .code-skeleton span:nth-child(3) { animation-delay: .24s; }
-    .code-skeleton span:nth-child(4) { animation-delay: .36s; }
-    .code-skeleton span:nth-child(5) { animation-delay: .48s; }
-    .code-skeleton span:nth-child(6) { animation-delay: .60s; }
+    .csk-line .t-k { background: #F86D7C; }
+    .csk-line .t-f { background: #84D6F7; }
+    .csk-line .t-s { background: #ADF195; }
+    .csk-line .t-n { background: #FFC600; }
+    .csk-line .t-t { background: #CCCCCC; }
 
-    @keyframes skeletonSweep {
+    /* Typed across in steps, like keys being hit, then held, then cleared
+       for the next pass. */
+    @keyframes cskType {
+      0% { clip-path: inset(0 100% 0 0); }
+      12% { clip-path: inset(0 0 0 0); }
+      82% { clip-path: inset(0 0 0 0); opacity: 1; }
+      92%, 100% { clip-path: inset(0 0 0 0); opacity: 0; }
+    }
+
+    .cb-wait {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: #A8A8A8;
+    }
+
+    .cb-wait .mini-loader span { background: #6A6A6A; }
+    .cb-wait .mini-loader span:nth-child(2) { background: var(--accent); }
+
+        @keyframes skeletonSweep {
       0% { background-position: 200% 0; }
       100% { background-position: -200% 0; }
     }
 
     @media (prefers-reduced-motion: reduce) {
-      .code-skeleton span { animation: none; }
+      .csk-line { animation: none; clip-path: none; }
     }
   </style>
 
@@ -6856,6 +7097,53 @@
       background: color-mix(in srgb, var(--ink) 8%, transparent) !important;
     }
 
+    /* One script or a whole system, as two keys side by side: the chosen
+       one held down with its glyph in the accent, like the dock. */
+    .shape-keys {
+      display: inline-flex;
+      gap: 4px;
+      padding: 3px;
+      border-radius: 10px;
+      background: var(--soft);
+      border: 1px solid var(--border);
+    }
+
+    .shape-key {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 9px 5px 7px;
+      border-radius: 7px;
+      border: 1px solid transparent;
+      background: none;
+      color: var(--ink-muted);
+      font-family: var(--font-body);
+      font-size: 12px;
+      font-weight: 600;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: background .15s ease, color .15s ease, border-color .15s ease, box-shadow .15s ease,
+        transform .45s cubic-bezier(.34, 1.9, .5, 1);
+    }
+
+    .shape-key svg { width: 14px; height: 14px; flex-shrink: 0; transition: transform .5s cubic-bezier(.34, 1.8, .5, 1); }
+    .shape-key:hover { color: var(--ink); }
+    .shape-key:active { transform: scale(.94, .88); transition-duration: .08s; }
+
+    .shape-key.on {
+      background: var(--card);
+      border-color: var(--border);
+      color: var(--ink);
+      box-shadow: inset 0 -2px 0 var(--soft-2), 0 1px 2px rgba(0, 0, 0, .06);
+    }
+
+    .shape-key.on svg { color: var(--accent); transform: rotate(-8deg); }
+
+    @media (max-width: 560px) {
+      .shape-key span { display: none; }
+      .shape-key { padding: 5px 7px; }
+    }
+
     .ui-dropdown {
       position: absolute !important;
       bottom: calc(100% + 8px) !important;
@@ -7631,12 +7919,19 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 14px;
-      padding: 34px 0 30px;
+      gap: 12px;
+      padding: 18px 0 16px;
       text-align: center;
     }
 
-    .ws-run-label { font-size: 15px; font-weight: 600; }
+    .ws-run-vis { margin-bottom: 8px; }
+    .ws-run-code { width: min(440px, 100%); text-align: left; }
+    .ws-run-vis .gen-cube { flex-direction: column; gap: 10px; }
+    .ws-run-vis .gc-label { display: none; }
+    .ws-run-vis .gen-cube svg { width: 110px; height: 110px; }
+    .ws-run-vis .gp-cap { justify-content: center; }
+
+    .ws-run-label { font-family: var(--font-display); font-size: 17px; font-weight: 700; letter-spacing: -0.01em; }
 
     .ws-run-sub {
       font-size: 11.5px;
@@ -8751,12 +9046,17 @@
                   </div>
 
                   <div style="position: relative; display:none;" id="codeShapeSelectorWrap">
-                    <button class="ui-pill-btn" onclick="toggleDropdown('codeShapeDropdown', event)">
-                      <span id="activeCodeShapeLabel">One script</span>
-                    </button>
-                    <div class="ui-dropdown" id="codeShapeDropdown">
-                      <button class="ui-dropdown-item" onclick="selectCodeShape('script', event)">One script</button>
-                      <button class="ui-dropdown-item" onclick="selectCodeShape('system', event)">A whole system</button>
+                    <div class="shape-keys" role="radiogroup" aria-label="What to write">
+                      <button type="button" class="shape-key on" data-shape="script" role="radio" aria-checked="true"
+                        onclick="selectCodeShape('script', event)" title="A single script">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg>
+                        <span>One script</span>
+                      </button>
+                      <button type="button" class="shape-key" data-shape="system" role="radio" aria-checked="false"
+                        onclick="selectCodeShape('system', event)" title="Every script, remote and instance a feature needs">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="6" rx="1.5"/><rect x="14" y="9" width="7" height="6" rx="1.5"/><rect x="14" y="17" width="7" height="5" rx="1.5"/><path d="M6.5 9v9.5H14M6.5 12H14"/></svg>
+                        <span>Whole system</span>
+                      </button>
                     </div>
                   </div>
 
@@ -8963,29 +9263,45 @@
       return `<div class="code-model-tag">${ICONS.wand}<span>Wygenerowano przez: ${escapeHtml(label)}${note}</span></div>`;
     }
 
-    // Blank shimmer lines rather than typed-out code. The previous version
-    // animated a randomly picked Lua snippet unrelated to the request, which
-    // read as real output for as long as the call took.
-    const CODE_WAIT_LINES = [62, 88, 45, 74, 33, 56];
+    // Lines being typed rather than a shimmer: the shape of a script in
+    // Studio's own colours, with no real text in it, so nothing on screen
+    // pretends to be output before the output exists.
+    // Each line: [indent, [[token class, width in px], ...]].
+    const CODE_WAIT_LINES = [
+      [0, [["k", 34], ["t", 64], ["t", 42]]],
+      [0, [["k", 34], ["t", 50], ["f", 96]]],
+      [0, []],
+      [0, [["t", 58], ["f", 74], ["k", 52]]],
+      [1, [["k", 16], ["t", 44], ["k", 30]]],
+      [1, [["t", 40], ["s", 92]]],
+      [1, [["f", 66], ["n", 22]]],
+      [0, [["k", 26]]]
+    ];
 
     const CODE_WAIT_STAGES = [
       { after: 0, label: "Generating code…" },
-      { after: 8000, label: "Still working — longer scripts take a moment…" },
+      { after: 8000, label: "Still writing. Longer scripts take a moment…" },
       { after: 22000, label: "Almost there, finishing the script…" }
     ];
 
+    function codeWaitHtml(label) {
+      const lines = CODE_WAIT_LINES.map(([indent, toks], i) =>
+        `<span class="csk-line" style="--i:${i};padding-left:${indent * 22}px">${
+          toks.map(([c, w]) => `<b class="t-${c}" style="width:${w}px"></b>`).join("")}</span>`).join("");
+      return `
+        <div class="code-block cb-waiting">
+          <div class="cb-head">
+            <span class="cb-tab">${CB_SCRIPT_ICON}<span class="cb-lang">lua</span></span>
+            <span class="cb-wait"><span class="mini-loader"><span></span><span></span><span></span></span>
+              <span class="code-wait-label">${escapeHtml(label)}</span></span>
+          </div>
+          <div class="code-skeleton" aria-hidden="true">${lines}</div>
+        </div>`;
+    }
+
     function startCodeWaitState(el) {
       const started = Date.now();
-      const bars = CODE_WAIT_LINES.map(w => `<span style="width:${w}%"></span>`).join("");
-      setBotBody(el, `
-        <div class="bot-status" style="margin-bottom:8px;">
-          <span class="mini-loader"><span></span><span></span><span></span></span>
-          <span class="code-wait-label">${escapeHtml(CODE_WAIT_STAGES[0].label)}</span>
-        </div>
-        <div class="code-block">
-          <div class="cb-head"><span class="cb-lang">lua</span></div>
-          <div class="code-skeleton" aria-hidden="true">${bars}</div>
-        </div>`);
+      setBotBody(el, codeWaitHtml(CODE_WAIT_STAGES[0].label));
 
       const label = el.querySelector(".code-wait-label");
       const interval = setInterval(() => {
@@ -12175,6 +12491,43 @@
     function loaderHtml(text) {
       return `<div class="bot-status"><span class="mini-loader"><span></span><span></span><span></span></span><span>${escapeHtml(text || "Thinking…")}</span></div>`;
     }
+    function imageWaitHtml(text, wide) {
+      return `<div class="gen-photo ${wide ? "wide" : ""}">
+        <div class="gp-film"><i></i><i></i><i></i></div>
+        <div class="gp-cap"><span class="mini-loader"><span></span><span></span><span></span></span><span>${escapeHtml(text)}</span></div>
+      </div>`;
+    }
+
+    // A cube outline whose inside fills from the bottom as the model is
+    // built. The fill moves by transform so a later update can animate it.
+    const GC_HEX = "M60 10 L103 35 L103 85 L60 110 L17 85 L17 35 Z";
+    let gcSeq = 0;
+    function modelWaitHtml(text, progress) {
+      const id = "gcClip" + (++gcSeq);
+      const p = Math.max(0, Math.min(100, Number(progress) || 0));
+      return `<div class="gen-cube">
+        <svg viewBox="0 0 120 120" aria-hidden="true">
+          <defs><clipPath id="${id}"><path d="${GC_HEX}"/></clipPath></defs>
+          <g clip-path="url(#${id})">
+            <rect class="gc-fill" x="0" y="10" width="120" height="110" style="transform:translateY(${100 - p}px)"/>
+            <path class="gc-surface" d="M17 10 L60 35 L103 10" style="transform:translateY(${100 - p}px)"/>
+          </g>
+          <path class="gc-edge" d="${GC_HEX} M17 35 L60 60 L103 35 M60 60 V110"/>
+        </svg>
+        <div class="gc-text"><b class="gc-pct">${Math.round(p)}%</b><span class="gc-label">${escapeHtml(text)}</span></div>
+      </div>`;
+    }
+
+    // Moves the fill of a cube already on screen instead of redrawing it.
+    function updateModelWait(el, text, progress) {
+      const cube = el && el.querySelector(".gen-cube");
+      if (!cube) { setBotBody(el, modelWaitHtml(text, progress)); return; }
+      const p = Math.max(0, Math.min(100, Number(progress) || 0));
+      cube.querySelectorAll(".gc-fill, .gc-surface").forEach(n => { n.style.transform = `translateY(${100 - p}px)`; });
+      cube.querySelector(".gc-pct").textContent = Math.round(p) + "%";
+      cube.querySelector(".gc-label").textContent = text;
+    }
+
     function errorHtml(text) {
       return `<div class="bot-status error"><span>${escapeHtml(text)}</span></div>`;
     }
@@ -12182,6 +12535,8 @@
       return `<div class="bot-status"><span class="mini-loader"><span></span><span></span><span></span></span><span>${escapeHtml(text)}</span></div>
             <div class="progress-track"><div class="progress-fill" style="width:${Math.max(4, progress || 0)}%"></div></div>`;
     }
+
+    const CB_SCRIPT_ICON = `<svg class="cb-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg>`;
 
     function highlightCode(code, lang) {
       if (typeof hljs !== 'undefined') {
@@ -12212,9 +12567,14 @@
       // Always measure from the same starting point, so refits do not compound.
       block.classList.remove("cb-wrap");
       code.style.fontSize = CB_BASE_FS + "px";
+      // The line numbers share the code's size, so they stay on its lines.
+      const gutter = pre.querySelector(".cb-gutter");
+      const setSize = px => { code.style.fontSize = px + "px"; if (gutter) gutter.style.fontSize = px + "px"; };
+      setSize(CB_BASE_FS);
 
       const cs = getComputedStyle(pre);
-      const avail = pre.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+      const gutterW = gutter ? gutter.getBoundingClientRect().width + parseFloat(cs.columnGap || 0) : 0;
+      const avail = pre.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight) - gutterW;
       if (!(avail > 0)) return; // not laid out yet — a later refit handles it
 
       // A range over the contents reports the widest line box, which is what
@@ -12226,10 +12586,10 @@
 
       const scaled = Math.floor((CB_BASE_FS * avail / needed) * 10) / 10;
       if (scaled >= CB_MIN_FS) {
-        code.style.fontSize = scaled + "px";
+        setSize(scaled);
         return;
       }
-      code.style.fontSize = CB_MIN_FS + "px";
+      setSize(CB_MIN_FS);
       block.classList.add("cb-wrap");
     }
 
@@ -12278,16 +12638,18 @@
           codeBlockStore[id] = code.trim();
           const langLabel = (lang || "text").toLowerCase();
           const isLua = langLabel === "lua";
+          const lineCount = code.trim().split("\n").length;
+          const gutter = Array.from({ length: lineCount }, (_, n) => n + 1).join("\n");
           html += `
           <div class="code-block">
             <div class="cb-head">
-              <span class="cb-lang">${escapeHtml(langLabel)}</span>
+              <span class="cb-tab">${CB_SCRIPT_ICON}<span class="cb-lang">${escapeHtml(langLabel)}</span><span class="cb-lines">${lineCount} line${lineCount === 1 ? "" : "s"}</span></span>
               <div class="cb-btns">
                 ${isLua ? `<button class="cb-btn" onclick="downloadCodeBlock('${id}')">${ICONS.download} .lua</button>` : ""}
                 <button class="cb-btn" onclick="copyCodeBlock('${id}', this)">${ICONS.copy} Copy</button>
               </div>
             </div>
-            <pre><code class="hljs">${highlightCode(code.trim(), langLabel)}</code></pre>
+            <pre><span class="cb-gutter" aria-hidden="true">${gutter}</span><code class="hljs">${highlightCode(code.trim(), langLabel)}</code></pre>
           </div>`;
         }
       }
@@ -13183,6 +13545,7 @@
       if (refImage) attachPreview.push({ kind: "image", dataUrl: refImage });
       appendUserBubble(raw, attachPreview);
       const pendingEl = appendBotPlaceholder(`Generating ${preset.label}…`);
+      setBotBody(pendingEl, imageWaitHtml(`Generating ${preset.label}…`, preset.backendCategory === "thumbnail"));
 
       try {
         const chatId = await ensureActiveChat(raw || (currentMethod === "style" ? "Reference style edit" : preset.label));
@@ -13779,7 +14142,7 @@
       if ((tokenBalance ?? 0) < calcModel3DFinalCost(model3DSettings)) { openBuyModal(); return; }
 
       const panelEl = pendingModel3DPanelEl;
-      setBotBody(panelEl, loaderHtml("Starting 3D model generation…"));
+      setBotBody(panelEl, modelWaitHtml("Starting the model…", 0));
       flowState = "busy";
       applyFlowComposerState();
 
@@ -13886,7 +14249,7 @@
               giveUp("3D model generation is still running after a long wait. It may yet finish — reopen this chat later to check, or contact support with this task id: " + currentTaskId);
               return;
             }
-            setBotBody(el, progressHtml(`Generating… ${data.progress || 0}%`, data.progress || 0));
+            updateModelWait(el, "Building the model…", data.progress || 0);
             if (typeof wsNotify === 'function') wsNotify({ progress: data.progress || 0, label: "Building the mesh…" });
             setTimeout(tick, attempts < 5 ? 2500 : 4500);
             return;
@@ -13987,10 +14350,11 @@
       let pendingEl;
       if (reuseEl) {
         pendingEl = reuseEl;
-        setBotBody(pendingEl, loaderHtml("Generating a new reference image…"));
+        setBotBody(pendingEl, imageWaitHtml("Drawing a new reference image…"));
       } else {
         appendUserBubble(raw);
-        pendingEl = appendBotPlaceholder("Generating reference image…");
+        pendingEl = appendBotPlaceholder("Drawing the reference image…");
+        setBotBody(pendingEl, imageWaitHtml("Drawing the reference image…"));
       }
 
       try {
@@ -14692,8 +15056,11 @@
     function selectCodeShape(shape, event) {
       if (event) event.stopPropagation();
       selectedCodeShape = shape === "system" ? "system" : "script";
-      const lbl = document.getElementById("activeCodeShapeLabel");
-      if (lbl) lbl.textContent = selectedCodeShape === "system" ? "A whole system" : "One script";
+      document.querySelectorAll(".shape-key").forEach(k => {
+        const on = k.dataset.shape === selectedCodeShape;
+        k.classList.toggle("on", on);
+        k.setAttribute("aria-checked", on ? "true" : "false");
+      });
       const hint = document.getElementById("composerHint");
       if (hint && activeForceMode === "code") {
         hint.textContent = selectedCodeShape === "system"
@@ -14703,7 +15070,7 @@
       const promptEl = document.getElementById("prompt");
       if (promptEl && activeForceMode === "code") {
         promptEl.placeholder = selectedCodeShape === "system"
-          ? "np. sklep otwierany na E, serwer pilnuje monet, stan zapisywany między sesjami…"
+          ? "A shop that opens with E, the server guards the coins, and it saves between sessions…"
           : "Describe what script/code you want to generate…";
       }
       closeAllDropdowns();
@@ -16159,11 +16526,17 @@
     }
 
     function wsViewRun(s) {
+      // What is being made is drawn while it is made: a print developing, a
+      // cube filling, a script being typed.
+      const vis = s.mode === "model3d" ? modelWaitHtml("", s.progress || 0)
+        : (s.mode === "code" || s.mode === "ui2lua") ? codeWaitHtml("")
+        : imageWaitHtml("", s.task === "thumbnail");
       return {
         html: `<div class="ws-run">
+                 <div class="ws-run-vis ws-run-${escapeHtml(s.mode || "image")}" id="wsRunVis">${vis}</div>
                  <div class="ws-run-label" id="wsRunLabel">${escapeHtml(s.runLabel || "Working…")}</div>
-                 <div class="ws-bar ${s.progress == null ? "indet" : ""}" id="wsRunBar"><span style="width:${s.progress == null ? "" : s.progress + "%"}"></span></div>
-                 <div class="ws-run-sub">This is running in the chat too — closing the workspace will not cancel it.</div>
+                 <div class="ws-bar ${s.progress == null ? "indet" : ""}" id="wsRunBar" hidden><span style="width:${s.progress == null ? "" : s.progress + "%"}"></span></div>
+                 <div class="ws-run-sub">This is running in the chat too. Closing the workspace will not cancel it.</div>
                </div>`,
         foot: `<span class="ws-foot-note">Working…</span>
                <button class="ws-btn ws-quiet" type="button" onclick="closeWorkspace({force:true})">Leave it running</button>`
@@ -17183,6 +17556,7 @@
       setTimeout(() => document.querySelectorAll(".sys-deploy").forEach(b => studioSyncDeployBtn(b)), 0);
       return `<div class="sys" id="${id}">
         <div class="sys-head">
+          <span class="sys-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="6" rx="1.5"/><rect x="14" y="9" width="7" height="6" rx="1.5"/><rect x="14" y="17" width="7" height="5" rx="1.5"/><path d="M6.5 9v9.5H14M6.5 12H14"/></svg></span>
           <div>
             <div class="sys-title">${escapeHtml(data.name || "System")}</div>
             <div class="sys-count">${scripts.length} script${scripts.length === 1 ? "" : "s"}${
@@ -18159,6 +18533,8 @@
         if (wrap) wrap.classList.remove("indet");
         if (bar) bar.style.width = payload.progress + "%";
         if (lbl && payload.label) lbl.textContent = payload.label;
+        const vis = document.getElementById("wsRunVis");
+        if (vis && vis.querySelector(".gen-cube")) updateModelWait(vis, "", payload.progress);
         return;
       }
       if (payload.stage === "done") {
