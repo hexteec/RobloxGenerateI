@@ -762,69 +762,10 @@
       min-width: 0;
     }
 
-    /* Empty-state variants. Same geometry as the filled card, drawn as an
-       outline so it reads as "not yet" rather than "loading" or "broken".
-       Nothing inside is interactive. */
-    /* .gp-wallet, .rc-stats and .rc-dev all set --on-card and are declared
-       later in the sheet, so a single ghost class loses every tie and the
-       preview kept the filled card's ink: white on a light background, near
-       1:1. Matching two classes wins outright, and the dark-theme rule needs
-       three to outrank [data-theme="dark"] .gp-wallet. */
-    .gp-wallet.gp-wallet-ghost,
-    .rc-stats.rc-ghost,
-    .rc-dev.rc-ghost,
-    [data-theme="dark"] .gp-wallet.gp-wallet-ghost,
-    [data-theme="dark"] .rc-stats.rc-ghost,
-    [data-theme="dark"] .rc-dev.rc-ghost {
-      --on-card: var(--ink-muted);
-    }
-
-    .gp-wallet-ghost,
-    .rc-ghost {
-      pointer-events: none;
-      user-select: none;
-    }
-
-    /* .gp-wallet is declared later in the sheet, so a single class loses the
-       tie; matching both wins without !important. */
-    .gp-wallet.gp-wallet-ghost {
-      background: transparent;
-      border: 1px solid var(--border);
-      box-shadow: none;
-    }
-
-    .gp-wallet-ghost .gp-token-num {
-      font-size: 19px;
-    }
-
-    /* The unit label is a 50% mix of the card ink; on the muted preview ink
-       that lands under 3:1, so the preview gets a stronger mix of its own. */
-    .gp-wallet-ghost .gp-token-unit {
-      color: color-mix(in srgb, var(--on-card) 75%, transparent);
-    }
-
-    .gp-wallet-ghost .milli-meter {
-      background: color-mix(in srgb, var(--ink-faint) 30%, transparent);
-    }
-
-    .gp-wallet-ghost .milli-fill {
-      width: 0 !important;
-    }
-
-    .gp-wallet-ghost .gp-stats-row {
-      border-top-color: var(--border);
-    }
-
-    /* The Roblox rows are the live ones, greyed until an account is attached.
-       They follow --on-card like the wallet preview, rather than pinning a
-       fainter grey that read at 2.4:1 against the card. */
-    .rc-ghost .gp-stat b {
-      color: var(--on-card);
-    }
-
-    .rc-ghost .rc-groups-btn {
-      visibility: hidden;
-    }
+    /* The rows are hidden until an account is attached, and hidden has to
+       win over the display the rows set for themselves. */
+    .rc-stats[hidden],
+    .rc-dev[hidden] { display: none; }
 
     /* Developer totals. Same counter shape as the rows above it, with the
        group picker anchored to this row. */
@@ -1254,7 +1195,11 @@
 
     .roblox-card.unlinked {
       background: var(--soft);
+      gap: 11px;
     }
+
+    .roblox-card.unlinked .rc-sub { color: var(--ink-muted); }
+    .roblox-card.unlinked .rc-status-dot { display: none; }
 
     .roblox-card .rc-avatar-wrap {
       width: 34px;
@@ -1339,48 +1284,97 @@
       vertical-align: middle;
     }
 
-    /* Unlinked State Layout */
-    .gp-unlinked-body {
+    /* Signed out. The same dark tile the balance lives in once you are in,
+       so signing in fills the tile rather than swapping the card; a corner
+       of Roblox studs in place of the numbers it does not have yet. */
+    .account-card.google-card.unlinked {
+      border: 0;
+      background: none;
+    }
+
+    .account-card.google-card.unlinked:hover { box-shadow: none; }
+
+    .gp-panel.gp-panel-unlinked { padding: 0; cursor: pointer; }
+
+    .gp-welcome {
+      --on-card: #ffffff;
+      position: relative;
+      background-color: var(--ink);
+      background-image: radial-gradient(circle at center,
+        color-mix(in srgb, var(--on-card) 22%, transparent) 1.6px, transparent 2.2px);
+      background-size: 11px 11px;
+      background-position: right -3px top -3px;
+      border-radius: var(--radius-md);
+      padding: 15px 14px 14px;
+      color: var(--on-card);
+      overflow: hidden;
+    }
+
+    /* The studs fade out towards the text, so they sit in one corner. */
+    .gp-welcome::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(200deg, transparent 18%, var(--ink) 52%);
+      pointer-events: none;
+    }
+
+    .gp-welcome > * { position: relative; }
+
+    [data-theme="dark"] .gp-welcome { --on-card: #17161A; }
+
+    .gp-welcome .gp-home {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      z-index: 1;
+      color: color-mix(in srgb, var(--on-card) 70%, transparent);
+      background: color-mix(in srgb, var(--on-card) 8%, transparent);
+      border-color: transparent;
+    }
+
+    .gp-welcome .gp-home:hover {
+      color: var(--on-card);
+      background: color-mix(in srgb, var(--on-card) 16%, transparent);
+    }
+
+    .gpw-title {
+      margin: 18px 30px 0 0;
+      font-family: var(--font-display);
+      font-size: 17px;
+      font-weight: 700;
+      line-height: 1.2;
+      letter-spacing: -0.015em;
+      color: var(--on-card);
+    }
+
+    .gpw-sub {
+      margin: 6px 0 14px;
+      font-size: 11.8px;
+      line-height: 1.45;
+      color: color-mix(in srgb, var(--on-card) 62%, transparent);
+    }
+
+    .gp-google-btn {
       display: flex;
-      flex-direction: column;
-      gap: 7px;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
       width: 100%;
-    }
-
-    .gp-desc {
-      font-size: 10.5px;
-      color: var(--ink-muted);
-      line-height: 1.4;
-    }
-
-    /* Same treatment as Top up, so the two primary actions in this column
-       read as one system rather than two unrelated buttons. */
-    .gp-signin-action {
-      width: 100%;
-      padding: 9px 8px;
-      background: var(--accent);
-      color: var(--on-accent);
-      border: none;
+      padding: 9px 12px;
+      background: #ffffff;
+      color: #1F1F1F;
+      border: 1px solid #dadce0;
       border-radius: var(--radius-sm);
-      font-family: var(--font-mono);
+      font-family: var(--font-body);
+      font-size: 13px;
       font-weight: 600;
-      font-size: 10.5px;
       cursor: pointer;
-      text-align: center;
-      transition: opacity .15s ease, transform .12s ease;
-      box-shadow: 0 1px 2px rgba(20, 20, 15, 0.1);
-      box-sizing: border-box;
-      white-space: nowrap;
+      transition: background .15s ease;
     }
 
-    .gp-signin-action:hover {
-      opacity: 0.92;
-      transform: translateY(-1px);
-    }
-
-    .gp-signin-action:active {
-      transform: translateY(0);
-    }
+    .gp-google-btn svg { width: 16px; height: 16px; flex-shrink: 0; }
+    .gp-panel-unlinked:hover .gp-google-btn { background: #F4F4F4; }
 
     /* Avatar & Badge */
     .rc-avatar-wrap {
@@ -1535,20 +1529,24 @@
        matches the sign-in button one card up. */
     .account-card.unlinked .rc-action,
     .btn-google-card .rc-action {
-      background: var(--accent);
-      color: var(--on-accent);
-      font-family: var(--font-mono);
-      font-size: 10.5px;
+      gap: 8px;
+      padding: 9px 12px;
+      background: var(--card);
+      color: var(--ink);
+      border: 1px solid var(--border);
+      font-family: var(--font-body);
+      font-size: 12.8px;
       font-weight: 600;
     }
 
-    .account-card.unlinked .rc-action:hover {
-      background: var(--accent-deep);
-    }
+    .account-card.unlinked .rc-action svg { transform: rotate(-4deg); }
 
     .account-card.unlinked .rc-action:hover,
     .btn-google-card:hover .rc-action {
-      opacity: 0.9;
+      opacity: 1;
+      transform: none;
+      border-color: var(--ink-faint);
+      background: var(--soft-2);
     }
 
     /* Linked Action Style (Disconnect / Sign out) */
@@ -5358,10 +5356,13 @@
          leave an empty card behind. */
       .gp-wallet,
       .gp-token-box,
-      .gp-stats-row,
-      .gp-unlinked-body {
+      .gp-stats-row {
         display: none !important;
       }
+
+      .gpw-title { margin-top: 4px; font-size: 15px; }
+      .gpw-sub { display: none; }
+      .gp-welcome { padding: 12px; }
 
       .gp-panel {
         padding: 8px 10px;
@@ -6096,18 +6097,22 @@
 
   <style id="composerRedesignCSS">
     /* ======== DOCK ICON STYLE ======== */
+    /* Keys rather than tiles: a lip along the bottom edge that the chosen
+       one is pressed down past, so which mode is on reads like a key held
+       down on a keyboard. */
     .mac-dock-list .fm-pill .fm-icon.dock-icon {
+      position: relative !important;
       width: 46px !important;
       height: 46px !important;
       display: flex !important;
       justify-content: center !important;
       align-items: center !important;
-      background: color-mix(in srgb, var(--card) 85%, transparent) !important;
+      background: var(--card) !important;
       border: 1px solid var(--border) !important;
-      border-radius: 14px !important;
+      border-radius: 13px !important;
       color: var(--ink) !important;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07) !important;
-      transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease !important;
+      box-shadow: inset 0 -3px 0 var(--soft-2), 0 1px 2px rgba(0, 0, 0, 0.06) !important;
+      transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease !important;
     }
 
     .mac-dock-list .fm-pill .fm-icon.dock-icon svg {
@@ -6116,15 +6121,34 @@
     }
 
     .dock-item.fm-pill.active .fm-icon.dock-icon {
-      background: color-mix(in srgb, var(--accent) 14%, var(--card)) !important;
-      border-color: color-mix(in srgb, var(--accent) 50%, var(--border)) !important;
-      color: var(--accent-deep) !important;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.09) !important;
+      background: var(--ink) !important;
+      border-color: var(--ink) !important;
+      color: var(--card) !important;
+      box-shadow: inset 0 2px 3px rgba(0, 0, 0, 0.35), 0 0 0 3px color-mix(in srgb, var(--ink) 10%, transparent) !important;
+    }
+
+    /* A small turned square under the key that is down, the mark Studio
+       and the Studio button use too. */
+    .dock-item.fm-pill.active .fm-icon.dock-icon::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: -9px;
+      width: 5px;
+      height: 5px;
+      margin-left: -2.5px;
+      border-radius: 1px;
+      background: var(--accent);
+      transform: rotate(45deg);
     }
 
     .mac-dock-list .dock-item.fm-pill:hover .fm-icon.dock-icon {
-      color: var(--ink) !important;
       border-color: var(--ink-faint) !important;
+    }
+
+    .mac-dock-list .dock-item.fm-pill:not(.active):hover .fm-icon.dock-icon {
+      color: var(--ink) !important;
+      box-shadow: inset 0 -3px 0 var(--border), 0 1px 2px rgba(0, 0, 0, 0.08) !important;
     }
 
     .dock-label {
@@ -7976,69 +8000,29 @@
               <!-- Google Account Card (Expanded Panel) -->
               <div class="account-card google-card unlinked" id="googleCard">
                 <!-- Unlinked state: signInBtn panel -->
-                <div class="ac-state gp-panel gp-panel-unlinked" id="signInBtn">
-                  <div class="gp-top-row">
-                    <div class="gp-user-identity">
-                      <div class="rc-avatar-wrap">
-                        <div class="rc-avatar-fallback ac-google-icon">
-                          <svg viewBox="0 0 48 48">
-                            <path fill="#FFC107"
-                              d="M43.6 20.5H42V20H24v8h11.3C33.7 32.9 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 8 3l5.7-5.7C34.6 6.1 29.6 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.7-.4-3.5z" />
-                            <path fill="#FF3D00"
-                              d="m6.3 14.7 6.6 4.8C14.6 15.9 18.9 13 24 13c3.1 0 5.8 1.1 8 3l5.7-5.7C34.6 6.1 29.6 4 24 4 16.3 4 9.7 8.3 6.3 14.7z" />
-                            <path fill="#4CAF50"
-                              d="M24 44c5.5 0 10.4-1.9 14.2-5.1l-6.6-5.4C29.6 35.4 26.9 36 24 36c-5.3 0-9.7-3.1-11.3-7.6l-6.6 5.1C9.6 39.6 16.2 44 24 44z" />
-                            <path fill="#1976D2"
-                              d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.3-4.2 5.6l6.6 5.4C41.5 36 44 30.5 44 24c0-1.3-.1-2.7-.4-3.5z" />
-                          </svg>
-                        </div>
-                        <div class="rc-status-dot unlinked"></div>
-                      </div>
-                      <div class="rc-info">
-                        <div class="rc-title">Google account</div>
-                        <div class="rc-sub">Not connected</div>
-                      </div>
-                    </div>
-                    <div class="gp-actions">
-                      <a class="gp-icon-btn gp-home" href="/" title="Strona główna" aria-label="Home">
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                          stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                          <path
-                            d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1h-5a1 1 0 0 1-1-1v-5h-4v5a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5z" />
-                        </svg>
-                      </a>
-                    </div>
-                  </div>
-                  <div class="gp-unlinked-body">
-                    <!-- The same wallet the signed-in card carries, drawn empty.
-                         Signing in fills this in rather than replacing it, and
-                         the dashes say what an account gets you without a
-                         sentence explaining it. -->
-                    <div class="gp-wallet gp-wallet-ghost" aria-hidden="true">
-                      <div class="gp-token-box">
-                        <div class="gp-token-num"><span>&ndash;</span><span class="gp-token-unit">tokens</span></div>
-                        <div class="milli-meter show"><span class="milli-fill"></span></div>
-                      </div>
-                      <div class="gp-stats-row">
-                        <span class="gp-stat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M21 16V8a2 2 0 0 0-1-1.73l-6-3.46a2 2 0 0 0-2 0l-6 3.46A2 2 0 0 0 5 8v8a2 2 0 0 0 1 1.73l6 3.46a2 2 0 0 0 2 0l6-3.46A2 2 0 0 0 21 16Z" />
-                            <path d="M3.27 6.96 12 12l8.73-5.04M12 22.08V12" />
-                          </svg><b>&ndash;</b></span>
-                        <span class="gp-stat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <rect x="3" y="3" width="18" height="18" rx="2" />
-                            <circle cx="8.5" cy="8.5" r="1.5" />
-                            <path d="m21 15-5-5L5 21" />
-                          </svg><b>&ndash;</b></span>
-                        <span class="gp-stat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
-                          </svg><b>&ndash;</b></span>
-                      </div>
-                    </div>
-                    <button class="gp-signin-action" onclick="signInWithGoogle()" type="button">
-                      [ Sign in with Google ]
+                <!-- Signed out: the dark tile the wallet will become, holding the
+                     one thing to do. Anything on the page that needs an account
+                     clicks this panel, so the panel itself starts the sign-in. -->
+                <div class="ac-state gp-panel gp-panel-unlinked" id="signInBtn"
+                  onclick="if (!event.target.closest('a')) signInWithGoogle()">
+                  <div class="gp-welcome">
+                    <a class="gp-icon-btn gp-home" href="/" title="Strona główna" aria-label="Home">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path
+                          d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1h-5a1 1 0 0 1-1-1v-5h-4v5a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5z" />
+                      </svg>
+                    </a>
+                    <p class="gpw-title">Sign in to keep what you make</p>
+                    <p class="gpw-sub">Your chats, tokens and assets stay with your Google account.</p>
+                    <button class="gp-google-btn" type="button">
+                      <svg viewBox="0 0 48 48" aria-hidden="true">
+                        <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.9 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 8 3l5.7-5.7C34.6 6.1 29.6 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.7-.4-3.5z" />
+                        <path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.6 15.9 18.9 13 24 13c3.1 0 5.8 1.1 8 3l5.7-5.7C34.6 6.1 29.6 4 24 4 16.3 4 9.7 8.3 6.3 14.7z" />
+                        <path fill="#4CAF50" d="M24 44c5.5 0 10.4-1.9 14.2-5.1l-6.6-5.4C29.6 35.4 26.9 36 24 36c-5.3 0-9.7-3.1-11.3-7.6l-6.6 5.1C9.6 39.6 16.2 44 24 44z" />
+                        <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.3-4.2 5.6l6.6 5.4C41.5 36 44 30.5 44 24c0-1.3-.1-2.7-.4-3.5z" />
+                      </svg>
+                      <span>Continue with Google</span>
                     </button>
                   </div>
                 </div>
@@ -8143,13 +8127,13 @@
                   <div class="rc-status-dot" id="robloxStatusDot"></div>
                 </div>
                 <div class="rc-info">
-                  <div class="rc-title" id="robloxTitle">Connect Roblox account</div>
-                  <div class="rc-sub" id="robloxSub">Required for the Studio plugin</div>
+                  <div class="rc-title" id="robloxTitle">Roblox</div>
+                  <div class="rc-sub" id="robloxSub">Connect it so the Studio plugin can build in your places.</div>
                 </div>
                 </div>
 
                 <!-- Only meaningful once an account is attached; hidden until then. -->
-                <div class="rc-stats rc-ghost" id="robloxStats">
+                <div class="rc-stats" id="robloxStats" hidden>
                   <span class="gp-stat" title="Followers" aria-label="Followers">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                       stroke-linecap="round" stroke-linejoin="round">
@@ -8169,7 +8153,7 @@
                   </span>
                 </div>
                 <!-- Developer totals across owned and opted-in group experiences. -->
-                <div class="rc-dev rc-ghost" id="robloxDev">
+                <div class="rc-dev" id="robloxDev" hidden>
                   <span class="gp-stat" title="Total visits"><svg viewBox="0 0 24 24" fill="none"
                       stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                       <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z" />
@@ -8200,7 +8184,7 @@
                   </div>
                 </div>
 
-                <button class="rc-action" id="robloxAction" onclick="handleRobloxAction()">[ Connect ]</button>
+                <button class="rc-action" id="robloxAction" onclick="handleRobloxAction()"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M5.33 0L0 18.67l18.67 5.33L24 5.33 5.33 0zm9.74 13.07l-4.14-1.18 1.18-4.14 4.14 1.18-1.18 4.14z"/></svg><span>Connect Roblox</span></button>
               </div>
             </div>
           </div>
@@ -11453,17 +11437,12 @@
       const statsRow = document.getElementById("robloxStats");
       const devRow = document.getElementById("robloxDev");
 
-      // Unlinked shows the same two rows greyed out with dashes rather than
-      // dropping them: connecting then fills the card in instead of changing
-      // its shape, and the empty rows say what connecting is worth.
+      // The counters only exist once there is an account to count for. Rows
+      // of dashes before that read as broken, not as a promise.
       for (const row of [statsRow, devRow]) {
         if (!row) continue;
-        row.hidden = false;
-        row.classList.toggle("rc-ghost", !robloxLinked);
-        if (!robloxLinked) {
-          row.querySelectorAll("b").forEach(b => { b.textContent = "\u2014"; });
-          row.querySelectorAll(".gp-stat").forEach(stat => { stat.title = "Connect an account to see this"; });
-        }
+        row.hidden = !robloxLinked;
+        if (!robloxLinked) row.querySelectorAll("b").forEach(b => { b.textContent = ""; });
       }
 
       if (!robloxLinked) {
@@ -11510,9 +11489,11 @@
           }
         }
       } else {
-        title.textContent = "Connect Roblox";
-        sub.textContent = "Studio plugin integration";
-        action.textContent = "[ Connect ]";
+        title.textContent = "Roblox";
+        sub.textContent = currentUser
+          ? "Connect it so the Studio plugin can build in your places."
+          : "Sign in first, then connect it for the Studio plugin.";
+        action.innerHTML = `<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M5.33 0L0 18.67l18.67 5.33L24 5.33 5.33 0zm9.74 13.07l-4.14-1.18 1.18-4.14 4.14 1.18-1.18 4.14z"/></svg><span>Connect Roblox</span>`;
         action.className = "rc-action";
         action.title = "Connect Roblox account";
         action.removeAttribute("aria-label");
