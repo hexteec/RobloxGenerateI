@@ -2424,133 +2424,137 @@
       color: var(--ink);
     }
 
+    /* The ways to start, side by side as tiles: each one carries a small
+       drawing of what goes in and, in the accent, what comes out. */
     .chooser-3d {
-      display: flex;
-      flex-direction: column;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(168px, 1fr));
       gap: 8px;
       margin-top: 10px;
       width: 100%;
-      max-width: 440px;
+      max-width: 600px;
     }
 
     .chooser-3d button {
       display: flex;
-      align-items: center;
+      flex-direction: column;
+      align-items: flex-start;
       gap: 12px;
       width: 100%;
       text-align: left;
       background: var(--card);
       border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      padding: 12px 14px;
-      font-size: 13px;
+      border-radius: var(--radius-md);
+      padding: 14px 14px 13px;
+      font-family: var(--font-body);
+      font-size: 13.5px;
       font-weight: 600;
+      line-height: 1.3;
       color: var(--ink);
       cursor: pointer;
       box-shadow: var(--shadow-sm);
-
-      transition: border-color .15s ease, background .15s ease, box-shadow .15s ease, transform .15s ease;
+      transition: border-color .15s ease, background .15s ease;
     }
 
     .chooser-3d button .c3-icon {
-      width: 30px;
-      height: 30px;
-      border-radius: 8px;
       display: flex;
-      align-items: center;
-      justify-content: center;
       flex-shrink: 0;
       color: var(--ink-muted);
     }
 
     .chooser-3d button .c3-icon svg {
-      width: 15px;
-      height: 15px;
+      width: 30px;
+      height: 30px;
     }
+
+    .chooser-3d button .c3-icon .acc { stroke: var(--accent); }
 
     .chooser-3d button .c3-sub {
       display: block;
-      font-size: 11.5px;
+      font-size: 12px;
       font-weight: 500;
+      line-height: 1.45;
       color: var(--ink-muted);
-      margin-top: 1px;
+      margin-top: 3px;
     }
 
     .chooser-3d button:hover:not(:disabled) {
-      border-color: var(--accent);
-      background: var(--accent-wash);
-      box-shadow: var(--shadow-md);
-      transform: translateY(-1px);
+      border-color: var(--ink-faint);
+      background: var(--soft);
     }
 
-    .chooser-3d button:hover:not(:disabled) .c3-icon {
-      color: var(--accent);
-    }
+    .chooser-3d button:hover:not(:disabled) .c3-icon { color: var(--ink); }
 
     .chooser-3d button:disabled {
-      opacity: .4;
+      opacity: .45;
       cursor: default;
     }
 
     .chooser-3d button.chosen {
-      border-color: var(--mint);
-      background: var(--mint-wash);
+      border-color: var(--ink);
+      background: var(--soft);
       opacity: 1;
     }
 
-    .chooser-3d button.chosen .c3-icon {
-      color: var(--mint);
-    }
+    .chooser-3d button.chosen .c3-icon { color: var(--ink); }
 
-    /* The rest of what the mode can do, folded behind one line. */
+    /* The rest of what the mode can do, folded behind a line of text. */
     .c3-more {
       display: inline-flex;
       align-items: center;
-      gap: 7px;
-      margin-top: 8px;
-      padding: 7px 12px;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      background: var(--card);
+      gap: 6px;
+      margin-top: 10px;
+      padding: 5px 4px;
+      border: 0;
+      background: none;
       color: var(--ink-muted);
-      font-family: var(--font-mono);
-      font-size: 10.5px;
+      font-family: var(--font-body);
+      font-size: 12.8px;
       font-weight: 600;
       cursor: pointer;
-      box-shadow: var(--shadow-sm);
-      transition: color .15s ease, border-color .15s ease;
+      transition: color .15s ease;
     }
 
-    .c3-more:hover:not(:disabled) { color: var(--ink); border-color: var(--ink-faint); }
+    .c3-more:hover:not(:disabled) { color: var(--ink); }
     .c3-more:disabled { opacity: .4; cursor: default; }
 
     .c3-more svg {
-      width: 12px;
-      height: 12px;
+      width: 13px;
+      height: 13px;
       transition: transform .2s ease;
     }
 
     .c3-more.on svg { transform: rotate(180deg); }
 
-    /* Denser than the three above, and name-only: these are picked by
-       someone who already knows what they came for. */
+    /* Denser than the tiles, and name-only: these are picked by someone
+       who already knows what they came for. */
     .chooser-3d.c3-extra {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(186px, 1fr));
-      gap: 6px;
-      margin-top: 8px;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 2px 8px;
+      margin-top: 4px;
     }
 
     .chooser-3d.c3-extra button {
-      padding: 9px 11px;
-      gap: 9px;
-      font-size: 12.2px;
+      flex-direction: row;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 10px;
+      font-size: 12.8px;
+      font-weight: 500;
+      border-color: transparent;
+      background: none;
       box-shadow: none;
-      background: var(--soft);
+      border-radius: var(--radius-sm);
     }
 
-    .chooser-3d.c3-extra .c3-icon { width: 22px; height: 22px; }
-    .chooser-3d.c3-extra .c3-icon svg { width: 13px; height: 13px; }
+    .chooser-3d.c3-extra button:hover:not(:disabled) { background: var(--soft); border-color: var(--border); }
+    .chooser-3d.c3-extra .c3-icon svg { width: 15px; height: 15px; }
+
+    @media (max-width: 560px) {
+      .chooser-3d:not(.c3-extra) { grid-template-columns: minmax(0, 1fr); }
+      .chooser-3d:not(.c3-extra) button { flex-direction: row; align-items: center; gap: 13px; }
+      .chooser-3d:not(.c3-extra) button .c3-icon svg { width: 26px; height: 26px; }
+    }
 
     .chooser-templates {
       display: flex;
@@ -2976,12 +2980,12 @@
       gap: 7px;
       flex-shrink: 0;
       background: var(--card);
-      border: none;
-      border-radius: 16px;
-      padding: 12px 16px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 10px 14px;
       cursor: pointer;
-      color: var(--ink-muted);
-      font-size: 12.3px;
+      color: var(--ink);
+      font-size: 12.8px;
       font-weight: 600;
       box-shadow: var(--shadow-sm);
       white-space: nowrap;
@@ -2990,15 +2994,16 @@
     }
 
     .widget-add-btn:hover {
-      border-color: var(--accent);
-      color: var(--accent-deep);
-      background: var(--accent-wash);
+      border-color: var(--ink-faint);
+      background: var(--soft);
     }
 
     .widget-add-btn .wab-icon {
-      font-size: 15px;
-      line-height: 1;
+      display: flex;
+      color: var(--ink-muted);
     }
+
+    .widget-add-btn .wab-icon svg { width: 15px; height: 15px; }
 
     .widget-add-btn-mobile {
       display: none;
@@ -3012,109 +3017,216 @@
       align-self: flex-start;
     }
 
+    /* A game reads the way Roblox lists one: the icon, the name, and the
+       three numbers people actually check, with the like ratio drawn as the
+       bar Roblox itself uses. */
     .gw-card {
-      display: flex;
+      display: grid;
+      grid-template-columns: 40px minmax(0, 1fr);
+      column-gap: 11px;
+      row-gap: 10px;
       align-items: center;
-      gap: 10px;
-
       background: var(--card);
       border: 1px solid var(--border);
-      border-radius: 14px;
-
+      border-radius: var(--radius-md);
       box-shadow: var(--shadow-sm);
-
-      padding: 8px 14px 8px 8px;
-
+      padding: 11px 12px 12px;
       position: relative;
       animation: popIn .2s ease both;
-
       min-width: 220px;
       max-width: 100%;
       flex: 0 0 auto;
     }
 
     .gw-card .gw-icon {
-      width: 36px;
-      height: 36px;
-      border-radius: 8px;
+      width: 40px;
+      height: 40px;
+      border-radius: 9px;
       object-fit: cover;
       background: var(--soft);
       flex-shrink: 0;
     }
 
+    .gw-card .gw-icon.gw-round { border-radius: 50%; }
+
     .gw-card .gw-info {
       display: flex;
       flex-direction: column;
       min-width: 0;
+      padding-right: 18px;
     }
 
     .gw-card .gw-title {
-      font-size: 12.3px;
+      font-size: 13px;
       font-weight: 700;
+      color: var(--ink);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      max-width: 150px;
+    }
+
+    .gw-card .gw-handle {
+      font-size: 11.5px;
+      color: var(--ink-faint);
+      margin-top: 1px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .gw-card .gw-stats {
-      display: flex;
-      gap: 9px;
-      margin-top: 2px;
-      font-size: 11px;
-      color: var(--ink-muted);
-      flex-wrap: wrap;
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
     }
 
-    .gw-card .gw-stats b {
-      color: var(--ink);
+    .gw-stat { min-width: 0; }
+
+    .gw-stat b {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 13px;
       font-weight: 700;
+      color: var(--ink);
+    }
+
+    .gw-stat span {
+      display: block;
+      font-size: 11px;
+      color: var(--ink-faint);
+      margin-top: 1px;
+    }
+
+    /* Someone is in the game right now. */
+    .gw-live {
+      width: 6px;
+      height: 6px;
+      border-radius: 1px;
+      transform: rotate(45deg);
+      background: var(--mint);
+      flex-shrink: 0;
+    }
+
+    .gw-stat .gw-rate {
+      display: block;
+      height: 3px;
+      margin-top: 5px;
+      border-radius: 2px;
+      background: color-mix(in srgb, var(--coral) 55%, var(--soft-2));
+      overflow: hidden;
+    }
+
+    .gw-stat .gw-rate i {
+      display: block;
+      height: 100%;
+      background: var(--mint);
     }
 
     .gw-card .gw-remove {
       position: absolute;
-      top: 0;
-      right: -6px;
-      width: 17px;
-      height: 17px;
-      border-radius: 25%;
-      background: var(--coral);
-      color: #fff;
-      border: 2px solid var(--bg);
-      font-size: 10px;
+      top: 8px;
+      right: 8px;
+      width: 24px;
+      height: 24px;
+      border-radius: 7px;
+      background: none;
+      color: var(--ink-faint);
+      border: 0;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 0;
       opacity: 0;
-      transition: opacity .15s ease;
+      transition: opacity .15s ease, background .15s ease, color .15s ease;
     }
 
-    .gw-card:hover .gw-remove {
-      opacity: 1;
+    .gw-card .gw-remove svg { width: 12px; height: 12px; }
+    .gw-card:hover .gw-remove,
+    .gw-card .gw-remove:focus-visible { opacity: 1; }
+    .gw-card .gw-remove:hover { background: var(--soft); color: var(--ink); }
+
+    .gw-card.gw-error .gw-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--coral);
     }
 
-    .gw-card.gw-error {
-      border-color: var(--coral);
-    }
+    .gw-card.gw-error .gw-handle { color: var(--coral); white-space: normal; }
 
     .gw-modal-input {
       width: 100%;
       border: 1px solid var(--border);
-      border-radius: 10px;
+      border-radius: var(--radius-sm);
       padding: 11px 13px;
       font-size: 13px;
       font-family: var(--font-body);
-      background: var(--soft);
+      background: var(--card);
       color: var(--ink);
     }
 
-    .gw-modal-input:focus {
+    .gw-modal-input:focus,
+    .gw-modal-input:focus-visible {
       outline: none;
-      border-color: var(--accent);
-      background: var(--card);
+      border-color: var(--ink-faint);
+      box-shadow: 0 0 0 3px var(--soft-2);
     }
+
+    /* Game or user: one control with two halves, not two loose pills. */
+    #gwTypeBar {
+      display: flex;
+      gap: 2px;
+      padding: 3px;
+      background: var(--soft);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      margin-bottom: 12px;
+    }
+
+    #gwTypeBar .fm-pill {
+      flex: 1 1 0;
+      justify-content: center;
+      text-align: center;
+      padding: 7px 10px;
+      border: 0;
+      border-radius: 7px;
+      background: none;
+      color: var(--ink-muted);
+      font-size: 12.8px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: none;
+    }
+
+    #gwTypeBar .fm-pill:hover { color: var(--ink); }
+
+    #gwTypeBar .fm-pill.active {
+      background: var(--card);
+      color: var(--ink);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .gw-add {
+      width: 100%;
+      margin-top: 12px;
+      background: var(--accent);
+      border: 1px solid var(--accent);
+      color: var(--on-accent);
+      font-family: var(--font-body);
+      font-size: 13px;
+      font-weight: 600;
+      padding: 10px 14px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: background .15s ease, border-color .15s ease;
+    }
+
+    .gw-add:hover { background: var(--accent-deep); border-color: var(--accent-deep); }
 
     .force-mode-bar {
       display: flex;
@@ -3895,17 +4007,21 @@
       50%      { box-shadow: 0 0 0 4px color-mix(in srgb, var(--mint) 0%, transparent); }
     }
 
+    /* On a desktop it floats beside the chat, a window of its own the way
+       the chats rail is, rather than a drawer bolted to the edge. */
     .studio-panel {
       position: absolute;
-      top: var(--topbar-h);
-      right: 0;
-      bottom: 0;
-      width: min(420px, 100%);
+      top: calc(var(--topbar-h) + 2px);
+      right: 10px;
+      bottom: 16px;
+      width: min(400px, calc(100% - 20px));
       background: var(--card);
-      border-left: 1px solid var(--border);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
       display: flex;
       flex-direction: column;
-      transform: translateX(100%);
+      transform: translateX(calc(100% + 30px));
       /* Sliding it out only moves it past the right edge of its own column,
          which is not the edge of the window — parked, it still painted over
          the chats rail. It has to stop being drawn once it is away, and the
@@ -3926,17 +4042,39 @@
 
     .st-head {
       display: flex;
-      align-items: flex-start;
+      align-items: center;
       gap: 12px;
-      padding: 14px 16px;
-      border-bottom: 1px solid var(--border);
+      padding: 14px 12px 12px 16px;
     }
+
+    /* Studio's own mark: a square turned a little, with a square cut out. */
+    .st-mark {
+      position: relative;
+      width: 22px;
+      height: 22px;
+      flex-shrink: 0;
+      border-radius: 5px;
+      background: var(--ink);
+      transform: rotate(-15deg);
+      transition: background .2s ease;
+    }
+
+    .st-mark::after {
+      content: "";
+      position: absolute;
+      inset: 8px;
+      border-radius: 1px;
+      background: var(--card);
+    }
+
+    .studio-panel.on .st-mark { background: var(--mint); }
 
     .st-title {
       font-family: var(--font-display);
-      font-size: 14.5px;
+      font-size: 15px;
       font-weight: 700;
       color: var(--ink);
+      letter-spacing: -0.01em;
     }
 
     .st-sub {
@@ -3947,16 +4085,21 @@
 
     .st-x {
       margin-left: auto;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       background: none;
-      border: 0;
-      color: var(--ink-faint);
-      font-size: 14px;
+      border: 1px solid transparent;
+      color: var(--ink-muted);
       cursor: pointer;
-      padding: 2px 4px;
-      border-radius: 6px;
+      padding: 0;
+      border-radius: var(--radius-sm);
     }
 
-    .st-x:hover { color: var(--ink); background: var(--soft); }
+    .st-x svg { width: 14px; height: 14px; }
+    .st-x:hover { color: var(--ink); background: var(--soft); border-color: var(--border); }
 
     .st-body {
       flex: 1 1 auto;
@@ -4008,7 +4151,6 @@
       margin-left: auto;
       flex-shrink: 0;
       font-size: 11.5px;
-      font-variant-numeric: tabular-nums;
       color: var(--ink-faint);
     }
 
@@ -4019,6 +4161,24 @@
       overflow: hidden;
       margin-bottom: 12px;
     }
+
+    /* One tick per thing Studio has to do, so a deploy of seven reads as
+       seven steps rather than as a percentage. */
+    .st-ticks {
+      display: flex;
+      gap: 3px;
+      margin-bottom: 12px;
+    }
+
+    .st-ticks i {
+      flex: 1 1 0;
+      height: 8px;
+      border-radius: 2px;
+      background: var(--soft-2);
+    }
+
+    .st-ticks i.on { background: var(--accent); }
+    .st-ticks i.next { background: color-mix(in srgb, var(--accent) 35%, var(--soft-2)); }
 
     .st-bar span {
       display: block;
@@ -4129,30 +4289,41 @@
       margin-left: auto;
       flex-shrink: 0;
       font-size: 11.5px;
-      font-variant-numeric: tabular-nums;
       color: var(--ink-faint);
     }
 
     .st-ask {
-      border-top: 1px solid var(--border);
-      padding: 12px 16px 14px;
+      position: relative;
+      padding: 0 12px 12px;
       flex-shrink: 0;
     }
 
     .st-ask textarea {
+      display: block;
       width: 100%;
       resize: none;
       background: var(--soft);
       border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
+      border-radius: var(--radius-md);
       color: var(--ink);
       font-family: var(--font-body);
-      font-size: 12.8px;
+      font-size: 13px;
       line-height: 1.5;
-      padding: 9px 11px;
+      padding: 11px 12px 48px;
+      transition: border-color .15s ease, background .15s ease;
     }
 
-    .st-ask textarea:focus { outline: none; border-color: var(--accent); }
+    .st-ask textarea:focus,
+    .st-ask textarea:focus-visible { outline: none; border-color: var(--ink-faint); background: var(--card); }
+
+    .st-ask .st-send {
+      position: absolute;
+      right: 20px;
+      bottom: 20px;
+      width: auto;
+      margin: 0;
+      padding: 7px 13px;
+    }
 
     .st-send {
       margin-top: 8px;
@@ -4172,24 +4343,29 @@
     .st-tabs {
       display: flex;
       gap: 2px;
-      padding: 8px 12px 0;
-      border-bottom: 1px solid var(--border);
+      margin: 0 16px 4px;
+      padding: 3px;
+      background: var(--soft);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
     }
 
     .st-tab {
+      flex: 1 1 0;
       background: none;
       border: 0;
-      border-bottom: 2px solid transparent;
-      color: var(--ink-faint);
-      font-size: 12.3px;
+      border-radius: 7px;
+      color: var(--ink-muted);
+      font-family: var(--font-body);
+      font-size: 12.8px;
       font-weight: 600;
-      padding: 7px 10px 8px;
+      padding: 7px 10px;
       cursor: pointer;
-      transition: color .15s ease, border-color .15s ease;
+      transition: color .15s ease, background .15s ease;
     }
 
     .st-tab:hover { color: var(--ink); }
-    .st-tab.on { color: var(--ink); border-bottom-color: var(--accent); }
+    .st-tab.on { color: var(--ink); background: var(--card); box-shadow: var(--shadow-sm); }
 
     /* The agent's own state, above whatever tab you are on: it is true
        whichever one you are looking at. */
@@ -4312,7 +4488,6 @@
       margin-left: auto;
       flex-shrink: 0;
       font-size: 11px;
-      font-variant-numeric: tabular-nums;
       color: var(--ink-faint);
     }
 
@@ -4404,8 +4579,7 @@
       margin: 4px 0 10px;
     }
 
-    .pj-wait-secs {
-      font-variant-numeric: tabular-nums; font-weight: 500;
+    .pj-wait-secs { font-weight: 500;
       font-size: 11.5px; color: var(--ink-faint); margin-left: 4px;
     }
     .pj-wait-stop {
@@ -4442,7 +4616,15 @@
     .sys-act.primary:disabled { background: var(--soft); border-color: var(--border); color: var(--ink-faint); cursor: default; }
 
     @media (max-width: 720px) {
-      .studio-panel { width: 100%; border-left: 0; }
+      .studio-panel {
+        top: var(--topbar-h);
+        right: 0;
+        bottom: 0;
+        width: 100%;
+        border: 0;
+        border-top: 1px solid var(--border);
+        border-radius: 0;
+      }
       .studio-chip .st-text,
       .studio-chip .st-place { display: none; }
       .studio-chip { padding: 8px 9px; }
@@ -4483,7 +4665,6 @@
       font-size: 12px;
       color: var(--ink-muted);
       margin-top: 2px;
-      font-variant-numeric: tabular-nums;
     }
 
     .sys-acts {
@@ -4660,7 +4841,6 @@
       margin-left: auto;
       flex-shrink: 0;
       font-size: 11.5px;
-      font-variant-numeric: tabular-nums;
       color: var(--ink-faint);
       white-space: nowrap;
     }
@@ -4807,23 +4987,26 @@
 
     .modal-close {
       position: absolute;
-      top: 14px;
-      right: 14px;
-      background: var(--soft);
-      border: 1px solid var(--border);
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
+      top: 16px;
+      right: 16px;
+      background: none;
+      border: 1px solid transparent;
+      width: 30px;
+      height: 30px;
+      border-radius: var(--radius-sm);
       color: var(--ink-muted);
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
+      transition: background .15s ease, border-color .15s ease, color .15s ease;
     }
 
+    .modal-close:hover { background: var(--soft); border-color: var(--border); color: var(--ink); }
+
     .modal-close svg {
-      width: 13px;
-      height: 13px;
+      width: 14px;
+      height: 14px;
     }
 
     .modal-title {
@@ -4841,121 +5024,118 @@
       line-height: 1.5;
     }
 
-    /* One quiet line, not three cards. Boxing every small fact is what made the
-       dialog read as generated — the only framed things here are the rows you
-       actually click. */
+    /* What things cost, said once as a sentence above the list. */
     .price-facts {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 4px 14px;
-      margin: 3px 0 18px;
-      font-size: 12px;
-      color: var(--ink-faint);
-    }
-
-    .price-facts span {
-      white-space: nowrap;
+      margin: 2px 0 18px;
+      font-size: 12.8px;
+      line-height: 1.55;
+      color: var(--ink-muted);
+      max-width: 34ch;
     }
 
     .price-facts b {
       font-weight: 600;
-      color: var(--ink-muted);
+      color: var(--ink);
     }
 
     .modal-foot {
       margin: 14px 0 0;
-      font-size: 11px;
+      font-size: 11.5px;
       color: var(--ink-faint);
-      text-align: center;
     }
 
+    /* One list, ruled like a price board, rather than five floating cards. */
     .package-grid {
       display: flex;
       flex-direction: column;
-      gap: 9px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      overflow: hidden;
     }
 
     .package-opt {
-      display: flex;
+      display: grid;
+      grid-template-columns: 30px minmax(0, 1fr) auto;
       align-items: center;
-      justify-content: space-between;
-      background: var(--soft);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      padding: 13px 15px;
-      cursor: pointer;
-      transition: border-color .15s ease;
-    }
-
-    .package-opt:hover {
-      border-color: var(--ink-faint);
-    }
-
-    /* Highlight with the site accent; mint was the one green thing on the page. */
-    .package-opt.best {
-      border-color: var(--accent);
-      background: var(--accent-wash);
-    }
-
-    .package-opt .p-left {
-      display: flex;
-      flex-direction: column;
-      gap: 3px;
-      min-width: 0;
-    }
-
-    .package-opt .p-right {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      gap: 4px;
-      flex-shrink: 0;
-    }
-
-    .package-opt .p-tokens {
-      font-family: var(--font-display);
-      font-weight: 700;
-      font-size: 16px;
-      letter-spacing: -0.02em;
+      gap: 14px;
+      width: 100%;
+      background: var(--card);
+      border: 0;
+      border-top: 1px solid var(--border);
+      padding: 13px 16px 13px 14px;
+      font: inherit;
       color: var(--ink);
+      text-align: left;
+      cursor: pointer;
+      transition: background .15s ease;
     }
 
-    .package-opt .p-tokens span {
-      font-family: var(--font-body);
-      font-size: 11px;
+    .package-opt:first-child { border-top: 0; }
+    .package-opt:hover { background: var(--soft); }
+    .package-opt:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+
+    .package-opt.best { background: var(--accent-wash); }
+    .package-opt.best:hover { background: color-mix(in srgb, var(--accent) 16%, var(--card)); }
+
+    /* A stack of coins, one more per step up: how much you get, shown as
+       an amount before it is read as a number. */
+    .p-stack {
+      display: flex;
+      flex-direction: column-reverse;
+      align-items: center;
+      gap: 2px;
+      height: 30px;
+      justify-content: flex-start;
+    }
+
+    .p-stack i {
+      display: block;
+      width: 20px;
+      height: 4px;
+      border-radius: 2px;
+      background: var(--ink-faint);
+    }
+
+    .p-stack i:nth-child(even) { transform: translateX(2px); }
+    .package-opt.best .p-stack i { background: var(--accent); }
+
+    .p-main { min-width: 0; }
+
+    .p-amount {
+      font-family: var(--font-display);
+      font-size: 15px;
       font-weight: 500;
-      color: var(--ink-faint);
-      letter-spacing: 0;
-    }
-
-    .package-opt .p-tag {
-      font-size: 11px;
-      font-weight: 600;
       color: var(--ink-muted);
     }
 
-    .package-opt.best .p-tag {
+    .p-amount b {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--ink);
+      letter-spacing: -0.02em;
+      margin-right: 3px;
+    }
+
+    .p-amount,
+    .p-meta { display: block; }
+
+    .p-meta {
+      margin-top: 2px;
+      font-size: 11.8px;
+      color: var(--ink-muted);
+    }
+
+    .p-meta em {
+      font-style: normal;
+      font-weight: 600;
       color: var(--accent-deep);
     }
 
-    .package-opt .p-price {
+    .p-price {
       font-family: var(--font-display);
       font-weight: 700;
       font-size: 15px;
-      letter-spacing: -0.01em;
       color: var(--ink);
-    }
-
-    .package-opt .p-badge {
-      font-size: 9.5px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: .06em;
-      color: var(--bg);
-      background: var(--accent-deep);
-      border-radius: 999px;
-      padding: 3px 8px;
-      white-space: nowrap;
     }
 
     .modal-status {
@@ -5061,7 +5241,7 @@
       .widgets-side .gw-card {
         background: var(--card) !important;
         border: 1px solid var(--border) !important;
-        border-radius: 14px !important;
+        border-radius: var(--radius-md) !important;
         box-shadow: var(--shadow-sm) !important;
         width: 100% !important;
         min-width: 0 !important;
@@ -5069,11 +5249,9 @@
       }
 
       .widget-add-btn-desktop {
-        width: 180px;
-        margin: 0 auto;
+        width: 100%;
+        margin: 0;
         justify-content: center;
-        border-radius: 20px;
-        box-shadow: var(--shadow-md);
       }
 
       .main {
@@ -5214,26 +5392,42 @@
         overflow-x: hidden;
       }
 
+      /* In the top bar there is one line to spare, so the numbers sit
+         beside the name instead of in a row of their own. */
       .topbar-widgets-mobile .gw-card {
         min-width: 180px;
-        padding: 7px 12px 7px 7px;
-        border-radius: 12px;
+        grid-template-columns: 30px minmax(0, 1fr);
+        row-gap: 1px;
+        padding: 7px 30px 7px 7px;
       }
 
       .topbar-widgets-mobile .gw-card .gw-icon {
         width: 30px;
         height: 30px;
+        grid-row: span 2;
       }
 
+      .topbar-widgets-mobile .gw-card .gw-info { padding-right: 0; }
+      .topbar-widgets-mobile .gw-card .gw-handle { display: none; }
+
       .topbar-widgets-mobile .gw-card .gw-title {
-        max-width: 110px;
+        max-width: 130px;
         font-size: 11.8px;
       }
 
       .topbar-widgets-mobile .gw-card .gw-stats {
-        font-size: 10px;
-        gap: 7px;
+        grid-column: 2;
+        display: flex;
+        gap: 9px;
+        padding-top: 0;
+        border-top: 0;
       }
+
+      .topbar-widgets-mobile .gw-stat { display: flex; align-items: baseline; gap: 3px; }
+      .topbar-widgets-mobile .gw-stat b { font-size: 11px; }
+      .topbar-widgets-mobile .gw-stat span { font-size: 10px; margin: 0; }
+      .topbar-widgets-mobile .gw-stat .gw-rate { display: none; }
+      .topbar-widgets-mobile .gw-card .gw-remove { top: 50%; margin-top: -12px; right: 4px; }
 
       .feed-inner {
         padding: 0 16px;
@@ -6118,14 +6312,16 @@
        fixed per category in the worker, so it belongs on the button. */
     .ui-pill-btn.it-trigger {
       opacity: 1 !important;
-      gap: 7px !important;
-      padding: 4px 10px !important;
+      gap: 8px !important;
+      padding: 5px 9px 5px 8px !important;
       border: 1px solid var(--border) !important;
-      background: var(--soft) !important;
+      border-radius: var(--radius-sm) !important;
+      background: var(--card) !important;
+      font-size: 12.5px !important;
     }
 
     .ui-pill-btn.it-trigger:hover {
-      background: var(--soft-2) !important;
+      background: var(--soft) !important;
       border-color: var(--ink-faint) !important;
     }
 
@@ -6146,24 +6342,24 @@
     /* Outline in the shape of the output: square for 1:1, letterbox for 3:2.
        Reads at a glance, before anyone parses the numbers. */
     .it-trigger .itt-ar {
-      width: 13px;
-      height: 13px;
-      border: 1.5px solid var(--ink-faint);
-      border-radius: 3px;
+      width: 12px;
+      height: 12px;
+      border: 1.5px solid var(--ink-muted);
+      border-radius: 2px;
       flex-shrink: 0;
+      margin-left: 2px;
     }
 
     .it-trigger .itt-ar[data-ar="wide"] {
-      width: 15px;
-      height: 10px;
+      width: 16px;
+      height: 11px;
     }
 
     .it-trigger .itt-res {
-      font-family: var(--font-mono);
-      font-size: 10.5px;
-      font-weight: 600;
+      font-size: 12px;
+      font-weight: 500;
       color: var(--ink-muted);
-      letter-spacing: -0.02em;
+      margin-left: -3px;
     }
 
     .it-trigger .itt-chev {
@@ -6191,34 +6387,66 @@
        items as a grouped grid with a filter field fit in a panel a third of
        that height, and typing beats scanning once there are this many. */
     .ui-dropdown.it-picker {
-      width: min(432px, calc(100vw - 32px)) !important;
+      width: min(448px, calc(100vw - 32px)) !important;
       min-width: 0 !important;
-      max-height: min(400px, 62vh) !important;
+      max-height: min(420px, 62vh) !important;
       padding: 0 !important;
       gap: 0 !important;
       overflow: hidden !important;
     }
 
     .itp-search {
-      padding: 10px 11px 8px;
+      position: relative;
+      padding: 10px 10px 9px;
       border-bottom: 1px solid var(--border);
       flex-shrink: 0;
+    }
+
+    /* A magnifier drawn in CSS, so the field says what it is for without a
+       word of placeholder doing the job. */
+    .itp-search::before {
+      content: "";
+      position: absolute;
+      left: 22px;
+      top: 50%;
+      width: 9px;
+      height: 9px;
+      margin-top: -6px;
+      border: 1.6px solid var(--ink-faint);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .itp-search::after {
+      content: "";
+      position: absolute;
+      left: 31px;
+      top: 50%;
+      width: 5px;
+      height: 1.6px;
+      margin-top: 3px;
+      background: var(--ink-faint);
+      transform: rotate(45deg);
+      pointer-events: none;
     }
 
     .itp-search input {
       width: 100%;
       border: 1px solid var(--border);
-      border-radius: 9px;
+      border-radius: var(--radius-sm);
       background: var(--soft);
-      padding: 7px 10px;
-      font-size: 12.5px;
+      padding: 8px 10px 8px 32px;
+      font-size: 13px;
       font-family: inherit;
       color: var(--ink);
       outline: none;
+      transition: border-color .15s ease, background .15s ease;
     }
 
-    .itp-search input:focus {
-      border-color: var(--accent);
+    .itp-search input:focus,
+    .itp-search input:focus-visible {
+      outline: none;
+      border-color: var(--ink-faint);
       background: var(--card);
     }
 
@@ -6229,86 +6457,88 @@
     /* Only this part scrolls, so the field stays put while filtering. */
     .itp-body {
       overflow-y: auto;
-      padding: 4px 8px 10px;
+      padding: 2px 8px 10px;
       flex: 1;
       min-height: 0;
     }
 
     .itp-sec-title {
-      font-size: 9.5px;
-      font-weight: 700;
-      letter-spacing: .09em;
-      text-transform: uppercase;
-      color: var(--ink-faint);
-      padding: 10px 4px 6px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--ink-muted);
+      padding: 12px 4px 7px;
     }
 
     .itp-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(94px, 1fr));
-      gap: 5px;
+      grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+      gap: 4px;
     }
 
+    /* Each type is shown as the canvas it will be drawn on: a square or a
+       3:2 sheet, with its glyph in the middle and the name underneath. */
     .itp-chip {
       display: flex;
       flex-direction: column;
-      align-items: flex-start;
-      gap: 5px;
-      padding: 8px 9px;
-      border-radius: 10px;
+      align-items: center;
+      gap: 7px;
+      padding: 11px 6px 9px;
+      border-radius: var(--radius-sm);
       border: 1px solid transparent;
-      background: var(--soft);
+      background: none;
       color: var(--ink-muted);
       font-family: inherit;
-      font-size: 11.6px;
-      font-weight: 600;
+      font-size: 12px;
+      font-weight: 500;
       line-height: 1.25;
-      text-align: left;
-      /* Grid rows take the tallest chip, so a two-line label like "Normal
-         Image" would leave its whole row taller than the others. */
-      min-height: 74px;
+      text-align: center;
+      min-height: 84px;
       justify-content: flex-start;
       cursor: pointer;
       transition: background .15s ease, color .15s ease, border-color .15s ease;
     }
 
     .itp-chip:hover {
-      background: var(--soft-2);
+      background: var(--soft);
       color: var(--ink);
     }
 
     .itp-chip.active {
-      background: var(--accent-wash);
-      border-color: var(--accent);
-      color: var(--accent-deep);
+      background: var(--soft);
+      border-color: var(--ink);
+      color: var(--ink);
+      font-weight: 600;
     }
 
-    /* The glyph sits in a frame shaped like the output: a square for the
-       1024x1024 types, a 3:2 box for the 1536x1024 ones. Same information the
-       trigger carries, so the format is visible before you pick, not after. */
     .itp-chip .itp-frame {
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 22px;
-      height: 22px;
-      border: 1.5px solid currentColor;
+      width: 34px;
+      height: 34px;
+      border: 1.5px solid var(--border);
       border-radius: 4px;
-      opacity: .45;
+      background: var(--card);
+      color: var(--ink-faint);
       flex-shrink: 0;
-      transition: opacity .15s ease;
+      transition: border-color .15s ease, color .15s ease;
     }
 
     .itp-chip .itp-frame[data-ar="wide"] {
-      width: 33px;
+      width: 48px;
+      height: 32px;
+      margin-top: 1px;
+      margin-bottom: 1px;
     }
 
     .itp-chip:hover .itp-frame {
-      opacity: .7;
+      border-color: var(--ink-faint);
+      color: var(--ink-muted);
     }
 
     .itp-chip.active .itp-frame {
-      opacity: 1;
+      border-color: var(--accent);
+      color: var(--accent);
     }
 
     .itp-chip .itp-ico {
@@ -6316,14 +6546,14 @@
     }
 
     .itp-chip svg {
-      width: 12px;
-      height: 12px;
+      width: 14px;
+      height: 14px;
     }
 
     .itp-empty {
       padding: 26px 12px;
       text-align: center;
-      font-size: 12px;
+      font-size: 12.5px;
       color: var(--ink-faint);
     }
 
@@ -6398,46 +6628,46 @@
       bottom: calc(100% + 8px) !important;
       left: 0 !important;
       z-index: 50 !important;
-      min-width: 160px !important;
-      border-radius: 16px !important;
+      min-width: 170px !important;
+      border-radius: var(--radius-md) !important;
       border: 1px solid var(--border) !important;
-      background: color-mix(in srgb, var(--card) 96%, transparent) !important;
-      backdrop-filter: blur(16px) !important;
-      padding: 4px !important;
-      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12) !important;
+      background: var(--card) !important;
+      padding: 5px !important;
+      box-shadow: var(--shadow-lg) !important;
       display: flex !important;
       flex-direction: column !important;
-      gap: 2px !important;
-      transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+      gap: 1px !important;
+      transition: opacity .16s ease, transform .16s ease !important;
       transform-origin: bottom left !important;
       opacity: 0 !important;
-      transform: scale(0.93) translateY(10px) !important;
+      transform: translateY(4px) !important;
       pointer-events: none !important;
     }
 
     .ui-dropdown.open {
       opacity: 1 !important;
-      transform: scale(1) translateY(0) !important;
+      transform: none !important;
       pointer-events: auto !important;
     }
 
     .ui-dropdown-item {
       display: flex !important;
       width: 100% !important;
-      padding: 7px 12px !important;
-      border-radius: 12px !important;
+      padding: 8px 11px !important;
+      border-radius: 7px !important;
       background: transparent !important;
       border: none !important;
       text-align: left !important;
-      font-size: 12px !important;
+      font-family: var(--font-body) !important;
+      font-size: 13px !important;
       font-weight: 500 !important;
-      color: var(--ink-muted) !important;
+      color: var(--ink) !important;
       cursor: pointer !important;
-      transition: all 0.15s !important;
+      transition: background .12s ease !important;
     }
 
     .ui-dropdown-item:hover {
-      background: color-mix(in srgb, var(--ink) 6%, transparent) !important;
+      background: var(--soft) !important;
       color: var(--ink) !important;
     }
 
@@ -7076,7 +7306,6 @@
       color: var(--ink-muted);
       line-height: 1.4;
       margin-right: auto;
-      font-variant-numeric: tabular-nums;
     }
 
     .ws-btn {
@@ -8004,7 +8233,7 @@
           <div class="widgets-row widgets-row-desktop" id="widgetsRowDesktop"></div>
           <button class="widget-add-btn widget-add-btn-desktop" id="widgetAddBtnDesktop"
             onclick="openGameWidgetModal()">
-            <span class="wab-icon"></span><span>Live Stats</span>
+            <span class="wab-icon"></span><span>Live stats</span>
           </button>
         </div>
       </div>
@@ -8040,7 +8269,7 @@
           </button>
 
           <button class="widget-add-btn widget-add-btn-mobile" id="widgetAddBtnMobile" onclick="openGameWidgetModal()">
-            <span class="wab-icon"></span><span>Live Stats</span>
+            <span class="wab-icon"></span><span>Live stats</span>
           </button>
         </div>
 
@@ -8049,11 +8278,12 @@
 
       <aside class="studio-panel" id="studioPanel" aria-label="Studio activity">
         <div class="st-head">
+          <span class="st-mark" aria-hidden="true"></span>
           <div>
             <div class="st-title">Studio</div>
             <div class="st-sub" id="studioSub">Not connected</div>
           </div>
-          <button type="button" class="st-x" onclick="studioClosePanel()" aria-label="Close">✕</button>
+          <button type="button" class="st-x" onclick="studioClosePanel()" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
         </div>
         <div class="st-tabs">
           <button type="button" class="st-tab" id="studioTabActivity" onclick="studioSetTab('activity')">Activity</button>
@@ -8376,29 +8606,25 @@
     <div class="modal-card">
       <button class="modal-close" onclick="closeBuyModal()"></button>
       <p class="modal-title">Top up tokens</p>
-      <div class="price-facts">
-        <span><b>2</b> per image</span>
-        <span><b>2</b> per UI → Lua</span>
-        <span><b>from 15</b> per 3D model</span>
-      </div>
+      <p class="price-facts">An image or a UI script costs <b>2 tokens</b>, a 3D model <b>15 or more</b>.</p>
       <div class="package-grid" id="packageGrid"></div>
       <div class="modal-status" id="modalStatus"></div>
-      <p class="modal-foot">Secure payment handled by Stripe.</p>
+      <p class="modal-foot">Payment goes through Stripe.</p>
     </div>
   </div>
 
   <div class="modal-overlay" id="gameWidgetModal">
     <div class="modal-card">
       <button class="modal-close" onclick="closeGameWidgetModal()"></button>
-      <p class="modal-title">Add Live Stats</p>
-      <p class="modal-sub">Track a Roblox game or a Roblox user — pick one, then paste a link, ID or username.</p>
-      <div class="force-mode-bar" id="gwTypeBar" style="margin-bottom:12px;">
-        <div class="fm-pill active" data-gwtype="game">Game</div>
-        <div class="fm-pill" data-gwtype="user">User</div>
+      <p class="modal-title">Live stats</p>
+      <p class="modal-sub">Keep an eye on a game or a player from the sidebar. Paste a link, an ID or a username.</p>
+      <div id="gwTypeBar" role="tablist">
+        <button type="button" class="fm-pill active" data-gwtype="game">Game</button>
+        <button type="button" class="fm-pill" data-gwtype="user">Player</button>
       </div>
-      <input type="text" id="gwModalInput" placeholder="np. roblox.com/games/1234567/Nazwa lub 1234567"
+      <input type="text" id="gwModalInput" placeholder="roblox.com/games/1234567 or 1234567"
         class="gw-modal-input">
-      <button class="btn-newchat" style="margin-top:12px;" onclick="submitGameWidget()">Add Widget</button>
+      <button type="button" class="gw-add" onclick="submitGameWidget()">Add to the sidebar</button>
       <div class="modal-status" id="gwModalStatus"></div>
     </div>
   </div>
@@ -8465,10 +8691,24 @@
       code: { label: "Code", icon: ICONS.code, hint: "Describe what the script should do. I can also add functions to existing code." }
     };
 
+    // Drawn for the choice they stand for: what goes in, and in the accent
+    // colour, what comes out.
+    const CHOICE_ICONS = {
+      scratch: `<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="6" width="22" height="20" rx="3"/><path class="acc" d="M9.5 20.5c2.5-6 4.5 1.5 7-3.5s4 1 6.5-2.5"/></svg>`,
+      editPhoto: `<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="6" width="22" height="20" rx="3"/><path d="m5 22 6.5-6.5 4.5 4.5 3-3 8 8"/><circle class="acc" cx="20.5" cy="12" r="3.4" stroke-dasharray="2.2 2"/></svg>`,
+      style: `<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect class="acc" x="4" y="4" width="15" height="15" rx="3" stroke-dasharray="2.4 2.2"/><rect x="12" y="12" width="16" height="16" rx="3"/><path d="m12 24 4-4 3 3 2-2 7 7"/></svg>`,
+      describe3d: `<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10h10M4 14.5h7M4 19h9"/><path class="acc" d="M17 12.5 22 10l5 2.5v6L22 21l-5-2.5z M17 12.5l5 2.5 5-2.5 M22 15v6"/></svg>`,
+      photo3d: `<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="12" height="13" rx="2"/><path d="m3 18 3.5-3.5 3 3 2-2 3.5 3.5"/><path class="acc" d="M18 12.5 23 10l5 2.5v6L23 21l-5-2.5z M18 12.5l5 2.5 5-2.5 M23 15v6"/></svg>`,
+      gen3d: `<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="16" height="15" rx="2.5"/><path d="M7 9h8M7 13h5"/><path class="acc" d="M17 19.5 22 17l5 2.5v6L22 28l-5-2.5z M17 19.5l5 2.5 5-2.5 M22 22v6"/></svg>`,
+      uiShot: `<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="6" width="24" height="20" rx="3"/><path class="acc" d="M4 11h24"/><rect x="8" y="15" width="7" height="7" rx="1.2"/><path d="M18.5 16h6M18.5 20h4"/></svg>`,
+      uiIdea: `<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 6h18a3 3 0 0 1 3 3v10a3 3 0 0 1-3 3H15l-6 4.5V22H7a3 3 0 0 1-3-3V9a3 3 0 0 1 3-3z"/><path class="acc" d="M9.5 12h13M9.5 16h8"/></svg>`,
+      uiBlocks: `<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="11" height="8" rx="1.5"/><rect class="acc" x="17.5" y="5" width="10.5" height="13" rx="1.5"/><rect x="4" y="15.5" width="11" height="11.5" rx="1.5"/><rect x="17.5" y="20.5" width="10.5" height="6.5" rx="1.5"/></svg>`
+    };
+
     const METHOD_INFO = {
-      text: { api: "text2img", label: "From scratch", icon: ICONS.wand, sub: "Describe the idea — the rest is chosen automatically.", hint: "Describe the idea — the rest is chosen automatically." },
-      image: { api: "image2img", label: "Edit photo", icon: ICONS.edit, sub: "Upload a photo and describe what to change.", hint: "Upload a photo and describe what to change." },
-      style: { api: "image2img", label: "Transfer style", icon: ICONS.spark, sub: "Upload image and reference style.", hint: "Upload image and reference style." }
+      text: { api: "text2img", label: "From scratch", icon: CHOICE_ICONS.scratch, sub: "Describe the idea and the rest is picked for you.", hint: "Describe the idea — the rest is chosen automatically." },
+      image: { api: "image2img", label: "Edit photo", icon: CHOICE_ICONS.editPhoto, sub: "Upload a photo and say what to change.", hint: "Upload a photo and describe what to change." },
+      style: { api: "image2img", label: "Transfer style", icon: CHOICE_ICONS.style, sub: "Give it a picture and a style to borrow.", hint: "Upload image and reference style." }
     };
 
     const CODE_MODEL_LABELS = { gemini: "Gemini 3.8 Flash", deepseek: "DeepSeek V4 Flash", luna: "GPT-5.6 Luna" };
@@ -10461,7 +10701,7 @@
           const size = imageOutputSize(key);
           return `<button type="button" class="itp-chip${selectedImageType === key ? " active" : ""}"
                     data-key="${key}" data-search="${escapeHtml(label.toLowerCase())}"
-                    title="${escapeHtml(label)} — ${size.w}\u00d7${size.h}"
+                    title="${escapeHtml(label)}, ${size.w}\u00d7${size.h}"
                     onclick="selectImageTypeMenu('${key}','${escapeHtml(label)}',event)">
                     <span class="itp-frame" data-ar="${size.ar}"><span class="itp-ico">${p.icon || sec.fallbackIcon}</span></span>
                     <span class="itp-name">${escapeHtml(label)}</span>
@@ -10476,7 +10716,7 @@
                  oninput="filterImageTypes(this.value)" onkeydown="imageTypeSearchKey(event)">
         </div>
         <div class="itp-body" id="itpBody">${body}</div>
-        <div class="itp-empty" id="itpEmpty" hidden>Nothing matches that</div>`;
+        <div class="itp-empty" id="itpEmpty" hidden>No type by that name</div>`;
     }
 
     function filterImageTypes(query) {
@@ -10709,41 +10949,49 @@
     }
 
     function gameWidgetCardHtml(w) {
+      const remove = `<button class="gw-remove" onclick="removeGameWidget('${w.id}')" aria-label="Remove" title="Remove">${ICONS.close}</button>`;
+      const stat = (value, label, extra) => `<div class="gw-stat"><b>${extra || ""}${value}</b><span>${label}</span></div>`;
+
       if (w.error) {
         return `<div class="gw-card gw-error" data-id="${w.id}">
-        <div class="gw-icon"></div>
-        <div class="gw-info"><div class="gw-title">Data error</div><div class="gw-stats">${escapeHtml(w.error)}</div></div>
-        <button class="gw-remove" onclick="removeGameWidget('${w.id}')">${ICONS.close}</button>
+        <div class="gw-icon">${ICONS.stats}</div>
+        <div class="gw-info"><div class="gw-title">Could not load</div><div class="gw-handle">${escapeHtml(w.error)}</div></div>
+        ${remove}
       </div>`;
       }
 
       if (w.type === "user") {
         return `<div class="gw-card" data-id="${w.id}">
-        <img class="gw-icon" style="border-radius:50%;" src="${w.avatarUrl || ''}" alt="">
+        <img class="gw-icon gw-round" src="${w.avatarUrl || ''}" alt="">
         <div class="gw-info">
-          <div class="gw-title" title="${escapeHtml(w.displayName)} (@${escapeHtml(w.username)})">${escapeHtml(w.displayName)}</div>
-          <div class="gw-stats">
-            <span style="color: var(--mint)">${ICONS.up} <b>${formatCount(w.followers)}</b></span>
-            <span>${ICONS.eye} <b>${formatCount(w.following)}</b></span>
-            <span>${ICONS.play} <b>${formatCount(w.friends)}</b></span>
-          </div>
+          <div class="gw-title" title="${escapeHtml(w.displayName)}">${escapeHtml(w.displayName)}</div>
+          <div class="gw-handle">@${escapeHtml(w.username)}</div>
         </div>
-        <button class="gw-remove" onclick="removeGameWidget('${w.id}')">${ICONS.close}</button>
+        <div class="gw-stats">
+          ${stat(formatCount(w.followers), "followers")}
+          ${stat(formatCount(w.following), "following")}
+          ${stat(formatCount(w.friends), "friends")}
+        </div>
+        ${remove}
       </div>`;
       }
 
+      const up = Number(w.upVotes) || 0, down = Number(w.downVotes) || 0;
+      const liked = up + down ? Math.round(up / (up + down) * 100) : null;
       return `<div class="gw-card" data-id="${w.id}">
       <img class="gw-icon" src="${w.iconUrl || ''}" alt="">
       <div class="gw-info">
         <div class="gw-title" title="${escapeHtml(w.name)}">${escapeHtml(w.name)}</div>
-        <div class="gw-stats">
-          <span style="color: var(--mint)">${ICONS.play} <b>${formatCount(w.playing)}</b></span>
-          <span>${ICONS.eye} <b>${formatCount(w.visits)}</b></span>
-          <span style="color: var(--mint)">${ICONS.up} <b>${formatCount(w.upVotes)}</b></span>
-          <span style="color: var(--coral)">${ICONS.down} <b>${formatCount(w.downVotes)}</b></span>
+      </div>
+      <div class="gw-stats">
+        ${stat(formatCount(w.playing), "playing", Number(w.playing) > 0 ? '<i class="gw-live"></i>' : "")}
+        ${stat(formatCount(w.visits), "visits")}
+        <div class="gw-stat" title="${formatCount(up)} likes, ${formatCount(down)} dislikes">
+          <b>${liked == null ? "–" : liked + "%"}</b><span>liked</span>
+          ${liked == null ? "" : `<span class="gw-rate"><i style="width:${liked}%"></i></span>`}
         </div>
       </div>
-      <button class="gw-remove" onclick="removeGameWidget('${w.id}')">${ICONS.close}</button>
+      ${remove}
     </div>`;
     }
 
@@ -10768,8 +11016,8 @@
           gwSelectedType = p.dataset.gwtype;
           document.querySelectorAll("#gwTypeBar .fm-pill").forEach(x => x.classList.toggle("active", x === p));
           document.getElementById("gwModalInput").placeholder = gwSelectedType === "user"
-            ? "np. nazwa użytkownika, roblox.com/users/12345/profile lub samo ID"
-            : "np. roblox.com/games/1234567/Nazwa lub 1234567";
+            ? "A username, roblox.com/users/12345/profile or 12345"
+            : "roblox.com/games/1234567 or 1234567";
         });
       });
     }
@@ -10782,7 +11030,7 @@
       document.getElementById("gwModalStatus").textContent = "";
       document.getElementById("gwModalStatus").className = "modal-status";
       document.getElementById("gwModalInput").value = "";
-      document.getElementById("gwModalInput").placeholder = "np. roblox.com/games/1234567/Nazwa lub 1234567";
+      document.getElementById("gwModalInput").placeholder = "roblox.com/games/1234567 or 1234567";
       document.getElementById("gwModalInput").focus();
     }
 
@@ -11572,9 +11820,9 @@
         if (isModel) {
           html = `
           <div class="chooser-3d" style="opacity: 0.9; pointer-events: none;">
-            <button ${sel === 'describe' ? 'class="chosen"' : (sel ? 'disabled' : '')}><span class="c3-icon">${ICONS.edit}</span><span>Describe in text<span class="c3-sub">Short object description → 3D model</span></span></button>
-            <button ${sel === 'image' ? 'class="chosen"' : (sel ? 'disabled' : '')}><span class="c3-icon">${ICONS.upload}</span><span>Upload a reference image<span class="c3-sub">Object photo → 3D model</span></span></button>
-            <button ${sel === 'generate' ? 'class="chosen"' : (sel ? 'disabled' : '')}><span class="c3-icon">${ICONS.wand}</span><span>Generate an image first<span class="c3-sub">Describe it, AI generates an image, then the 3D model</span></span></button>
+            <button ${sel === 'describe' ? 'class="chosen"' : (sel ? 'disabled' : '')}><span class="c3-icon">${CHOICE_ICONS.describe3d}</span><span>Describe in text<span class="c3-sub">A few words about the object</span></span></button>
+            <button ${sel === 'image' ? 'class="chosen"' : (sel ? 'disabled' : '')}><span class="c3-icon">${CHOICE_ICONS.photo3d}</span><span>From a photo<span class="c3-sub">A picture of the object you want</span></span></button>
+            <button ${sel === 'generate' ? 'class="chosen"' : (sel ? 'disabled' : '')}><span class="c3-icon">${CHOICE_ICONS.gen3d}</span><span>Picture it first<span class="c3-sub">Check a drawing of it, then build the model</span></span></button>
           </div>`;
         } else {
           html = `
@@ -12232,16 +12480,16 @@
         // frame work from the first click, so they open it directly.
         html = `
         <div class="chooser-3d">
-          <button onclick="chooseUiMethod('shot', this)"><span class="c3-icon">${ICONS.upload}</span><span>Image → UI<span class="c3-sub">A picture of an interface → a responsive Lua build script</span></span></button>
-          <button onclick="wsChooseTask('ui2lua','u-idea', this)"><span class="c3-icon">${WS_ICONS.idea}</span><span>Describe the interface<span class="c3-sub">Say what it should be — it gets designed as well as built</span></span></button>
-          <button onclick="wsChooseTask('ui2lua','u-blocks', this)"><span class="c3-icon">${WS_ICONS.layout}</span><span>Lay it out with blocks<span class="c3-sub">Arrange the screen yourself, draw over it, then have it built</span></span></button>
+          <button onclick="chooseUiMethod('shot', this)"><span class="c3-icon">${CHOICE_ICONS.uiShot}</span><span>From a picture<span class="c3-sub">A screenshot or mockup becomes a Lua build script</span></span></button>
+          <button onclick="wsChooseTask('ui2lua','u-idea', this)"><span class="c3-icon">${CHOICE_ICONS.uiIdea}</span><span>Describe the interface<span class="c3-sub">Say what it is for and it gets designed and built</span></span></button>
+          <button onclick="wsChooseTask('ui2lua','u-blocks', this)"><span class="c3-icon">${CHOICE_ICONS.uiBlocks}</span><span>Lay it out with blocks<span class="c3-sub">Arrange the screen yourself, then have it built</span></span></button>
         </div>`;
       } else if (mode === "model3d") {
         html = `
         <div class="chooser-3d">
-          <button onclick="chooseModel3DMethod('describe', this)"><span class="c3-icon">${ICONS.edit}</span><span>Describe in text<span class="c3-sub">Short object description → 3D model</span></span></button>
-          <button onclick="chooseModel3DMethod('image', this)"><span class="c3-icon">${ICONS.upload}</span><span>Upload a reference image<span class="c3-sub">Object photo → 3D model</span></span></button>
-          <button onclick="chooseModel3DMethod('generate', this)"><span class="c3-icon">${ICONS.wand}</span><span>Generate an image first<span class="c3-sub">Describe it, AI generates an image, then the 3D model</span></span></button>
+          <button onclick="chooseModel3DMethod('describe', this)"><span class="c3-icon">${CHOICE_ICONS.describe3d}</span><span>Describe in text<span class="c3-sub">A few words about the object</span></span></button>
+          <button onclick="chooseModel3DMethod('image', this)"><span class="c3-icon">${CHOICE_ICONS.photo3d}</span><span>From a photo<span class="c3-sub">A picture of the object you want</span></span></button>
+          <button onclick="chooseModel3DMethod('generate', this)"><span class="c3-icon">${CHOICE_ICONS.gen3d}</span><span>Picture it first<span class="c3-sub">Check a drawing of it, then build the model</span></span></button>
         </div>`;
       } else {
         html = `
@@ -13688,19 +13936,19 @@
       const perToken = pkg => parseFloat(String(pkg.price).replace(/[^0-9.]/g, "")) / pkg.tokens;
       const baseline = Math.max(...PACKAGES.map(perToken));
 
-      PACKAGES.forEach(pkg => {
+      PACKAGES.forEach((pkg, i) => {
         const saving = Math.round((1 - perToken(pkg) / baseline) * 100);
-        const el = document.createElement("div");
+        const cents = (perToken(pkg) * 100).toFixed(1).replace(/\.0$/, "");
+        const el = document.createElement("button");
+        el.type = "button";
         el.className = "package-opt" + (pkg.best ? " best" : "");
         el.innerHTML = `
-        <div class="p-left">
-          <div class="p-tokens">${pkg.tokens.toLocaleString("en-US")} <span>tokens</span></div>
-          <div class="p-tag">${saving > 0 ? "Save " + saving + "%" : "Starter pack"}</div>
-        </div>
-        <div class="p-right">
-          <div class="p-price">${pkg.price}</div>
-          ${pkg.best ? '<div class="p-badge">Most popular</div>' : ''}
-        </div>
+        <span class="p-stack" aria-hidden="true">${"<i></i>".repeat(i + 1)}</span>
+        <span class="p-main">
+          <span class="p-amount"><b>${pkg.tokens.toLocaleString("en-US")}</b>tokens</span>
+          <span class="p-meta">${cents}¢ a token${saving > 0 ? `, <em>save ${saving}%</em>` : ""}${pkg.best ? ", most picked" : ""}</span>
+        </span>
+        <span class="p-price">${pkg.price}</span>
       `;
         el.onclick = () => buyPackage(pkg.id);
         grid.appendChild(el);
@@ -17169,6 +17417,8 @@
       if (chip) {
         chip.innerHTML = studioChipHtml();
         chip.classList.toggle("on", !!studioState.presence.online);
+        const panel = document.getElementById("studioPanel");
+        if (panel) panel.classList.toggle("on", !!studioState.presence.online);
         chip.title = studioState.presence.online
           ? (studioState.presence.studioUser ? "Signed in to Studio as " + studioState.presence.studioUser : "")
           : "Open Roblox Studio with the RoPeak plugin running to deploy from here.";
@@ -17317,7 +17567,7 @@
             <span class="st-job-title">${escapeHtml(watched.title || "Deploy")}</span>
             <span class="st-job-state">${escapeHtml(studioStatusWord(watched))}</span>
           </div>
-          ${watched.total ? `<div class="st-bar ${live ? "live" : ""}"><span style="width:${pct}%"></span></div>` : ""}
+          ${watched.total ? studioTicksHtml(watched, live, pct) : ""}
           ${watched.error ? `<div class="st-error">${escapeHtml(watched.error)}
             ${studioLooksLikeClash(watched) ? `<button type="button" class="st-replace"
               onclick="studioRedeploy('${watched.id}')">Replace what is there and deploy again</button>` : ""}
@@ -17337,6 +17587,15 @@
               <span class="st-other-state">${escapeHtml(studioStatusWord(j))}</span>
             </button>`).join("")}
         </div>` : ""}`;
+    }
+
+    function studioTicksHtml(job, live, pct) {
+      const total = job.total, done = Math.min(job.done || 0, total);
+      // Past a few dozen the ticks turn into a smear; a plain bar says it better.
+      if (total > 36) return `<div class="st-bar ${live ? "live" : ""}"><span style="width:${pct}%"></span></div>`;
+      let ticks = "";
+      for (let i = 0; i < total; i++) ticks += `<i class="${i < done ? "on" : (live && i === done ? "next" : "")}"></i>`;
+      return `<div class="st-ticks" title="${done} of ${total}">${ticks}</div>`;
     }
 
     // The editor refuses a name that is already taken rather than replacing
