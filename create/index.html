@@ -1681,22 +1681,20 @@
     }
 
     .tt-badge {
-      font-size: 11.5px;
+      font-size: 12.5px;
       font-weight: 600;
       color: var(--ink-muted);
-      background: var(--soft);
-      border: 1px solid var(--border);
-      padding: 5px 11px;
-      border-radius: 999px;
+      padding: 6px 4px;
       flex-shrink: 0;
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 7px;
     }
 
     .tt-badge svg {
-      width: 13px;
-      height: 13px;
+      width: 15px;
+      height: 15px;
+      color: var(--ink-faint);
     }
 
     .topbar-widgets-mobile {
@@ -2218,27 +2216,34 @@
     .code-block {
       position: relative;
       margin-top: 10px;
+      border-radius: 10px;
+      /* Only shows on a dark page, where the editor would otherwise melt
+         into the card around it. */
+      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.07);
     }
 
     .code-block:first-child {
       margin-top: 0;
     }
 
+    /* Set in the colours of Studio's own script editor, which is where
+       every one of these scripts ends up. */
     .code-block .cb-head {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background: #201F1C;
+      background: #2E2E2E;
+      border-bottom: 1px solid #3A3A3A;
       border-radius: 10px 10px 0 0;
-      padding: 8px 12px;
+      padding: 7px 8px 7px 14px;
     }
 
     .code-block .cb-lang {
-      font-family: var(--font-mono);
-      font-size: 10.5px;
-      color: #A6A29A;
-      text-transform: uppercase;
-      letter-spacing: .05em;
+      font-family: var(--font-body);
+      font-size: 12px;
+      font-weight: 600;
+      color: #A8A8A8;
+      text-transform: capitalize;
     }
 
     .code-block .cb-btns {
@@ -2247,23 +2252,30 @@
     }
 
     .code-block .cb-btn {
-      background: rgba(255, 255, 255, 0.07);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      color: #EAE8E4;
-      font-size: 11.3px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: transparent;
+      border: 1px solid transparent;
+      color: #CCCCCC;
+      font-family: var(--font-body);
+      font-size: 12px;
       font-weight: 600;
-      padding: 5px 10px;
+      padding: 5px 9px;
       border-radius: 7px;
       cursor: pointer;
     }
 
+    .code-block .cb-btn svg { width: 13px; height: 13px; }
+
     .code-block .cb-btn:hover {
-      background: rgba(255, 255, 255, 0.14);
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.1);
     }
 
     .code-block pre {
       margin: 0;
-      background: #181712;
+      background: #252525;
       border-radius: 0 0 10px 10px;
       padding: 14px;
       /* No max-height: the block shows the whole script and the feed does the
@@ -2275,7 +2287,7 @@
       font-family: var(--font-mono);
       font-size: 12.3px;
       line-height: 1.6;
-      color: #EAE8E4;
+      color: #CCCCCC;
       white-space: pre;
     }
 
@@ -3832,39 +3844,51 @@
     /* ---------- the Studio bridge ---------- */
     /* Whether Studio is open is a fact about your session, not about the
        chat, so it sits in the topbar next to the mode. */
+    /* A button with the place it is connected to, the way Studio's own
+       title bar names the open place: "Studio" and then which one. */
     .studio-chip {
       display: inline-flex;
       align-items: center;
-      gap: 7px;
+      gap: 8px;
       background: var(--card);
       border: 1px solid var(--border);
-      color: var(--ink-muted);
-      font-size: 11.8px;
+      box-shadow: var(--shadow-sm);
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 12.5px;
       font-weight: 600;
-      padding: 6px 11px;
-      border-radius: 999px;
+      padding: 6px 11px 6px 9px;
+      border-radius: var(--radius-sm);
       cursor: pointer;
       white-space: nowrap;
-      transition: border-color .15s ease, color .15s ease;
+      transition: border-color .15s ease, background .15s ease;
     }
 
-    .studio-chip:hover { border-color: var(--ink-faint); color: var(--ink); }
-    .studio-chip.on { color: var(--ink); border-color: color-mix(in srgb, var(--mint) 45%, var(--border)); }
+    .studio-chip:hover { border-color: var(--ink-faint); background: var(--soft); }
 
+    .studio-chip .st-place {
+      font-weight: 500;
+      color: var(--ink-muted);
+      padding-left: 8px;
+      border-left: 1px solid var(--border);
+      max-width: 180px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .studio-chip:not(.on) .st-place { color: var(--ink-faint); }
+
+    /* Studio's mark is a tilted square, so the status light is one too. */
     .st-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
+      width: 9px;
+      height: 9px;
+      border-radius: 2px;
+      transform: rotate(-15deg);
       flex-shrink: 0;
       background: var(--ink-faint);
     }
 
-    .st-dot.on {
-      background: var(--mint);
-      /* A live connection is the one thing on this page allowed to move on
-         its own — it is reporting a state that really does change. */
-      animation: stBreathe 2.4s ease-in-out infinite;
-    }
+    .st-dot.on { background: var(--mint); }
 
     @keyframes stBreathe {
       0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--mint) 55%, transparent); }
@@ -3916,10 +3940,9 @@
     }
 
     .st-sub {
-      font-family: var(--font-mono);
-      font-size: 11px;
-      color: var(--ink-faint);
-      margin-top: 3px;
+      font-size: 12px;
+      color: var(--ink-muted);
+      margin-top: 2px;
     }
 
     .st-x {
@@ -3957,22 +3980,20 @@
     }
 
     .st-job-ico {
-      width: 20px;
-      height: 20px;
-      border-radius: 6px;
+      width: 16px;
+      height: 16px;
       display: flex;
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
       color: var(--ink-muted);
-      background: var(--soft);
     }
 
-    .st-job-ico svg { width: 12px; height: 12px; }
-    .st-job-ico.s-done { color: var(--mint); background: var(--mint-wash); }
+    .st-job-ico svg { width: 14px; height: 14px; }
+    .st-job-ico.s-done { color: var(--mint); }
     .st-job-ico.s-failed,
-    .st-job-ico.s-expired { color: var(--coral); background: color-mix(in srgb, var(--coral) 14%, transparent); }
-    .st-job-ico.s-running { color: var(--accent); background: var(--accent-wash); }
+    .st-job-ico.s-expired { color: var(--coral); }
+    .st-job-ico.s-running { color: var(--accent); }
 
     .st-job-title {
       font-size: 13px;
@@ -3986,8 +4007,8 @@
     .st-job-state {
       margin-left: auto;
       flex-shrink: 0;
-      font-family: var(--font-mono);
-      font-size: 10.5px;
+      font-size: 11.5px;
+      font-variant-numeric: tabular-nums;
       color: var(--ink-faint);
     }
 
@@ -4107,8 +4128,8 @@
     .st-other-state {
       margin-left: auto;
       flex-shrink: 0;
-      font-family: var(--font-mono);
-      font-size: 10.5px;
+      font-size: 11.5px;
+      font-variant-numeric: tabular-nums;
       color: var(--ink-faint);
     }
 
@@ -4205,8 +4226,7 @@
     .st-agent-tag {
       margin-left: auto;
       flex-shrink: 0;
-      font-family: var(--font-mono);
-      font-size: 10px;
+      font-size: 11px;
       color: var(--ink-faint);
     }
 
@@ -4241,9 +4261,14 @@
     }
 
     .pj-reload svg { width: 12px; height: 12px; }
-    .pj-reload:hover { color: var(--accent); border-color: var(--accent); }
+    .pj-reload:hover { color: var(--ink); border-color: var(--ink-faint); }
 
     .pj-node { padding-left: calc(var(--d, 0) * 13px); }
+
+    /* The children hang off a line dropped from their parent's arrow. */
+    .pj-node > div {
+      background: linear-gradient(var(--border), var(--border)) 11px 0 / 1px 100% no-repeat;
+    }
 
     .pj-row {
       width: 100%;
@@ -4261,8 +4286,8 @@
 
     .pj-row:disabled { cursor: default; }
     .pj-row:not(:disabled):hover { background: var(--soft); }
-    .pj-row.on { background: var(--accent-wash); }
-    .pj-row.on .pj-name { color: var(--accent-deep); font-weight: 700; }
+    .pj-row.on { background: var(--soft-2); }
+    .pj-row.on .pj-name { color: var(--ink); font-weight: 600; }
     .pj-row.muted .pj-name { color: var(--ink-faint); font-style: italic; }
 
     .pj-twist {
@@ -4277,8 +4302,7 @@
     .pj-twist svg { width: 100%; height: 100%; }
 
     .pj-name {
-      font-family: var(--font-mono);
-      font-size: 11.8px;
+      font-size: 12.8px;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -4287,8 +4311,8 @@
     .pj-lines {
       margin-left: auto;
       flex-shrink: 0;
-      font-family: var(--font-mono);
-      font-size: 10px;
+      font-size: 11px;
+      font-variant-numeric: tabular-nums;
       color: var(--ink-faint);
     }
 
@@ -4327,8 +4351,8 @@
       width: 100%;
       min-height: 320px;
       resize: vertical;
-      background: #181712;
-      color: #EAE8E4;
+      background: #252525;
+      color: #CCCCCC;
       border: 1px solid var(--border);
       border-radius: var(--radius-sm);
       font-family: var(--font-mono);
@@ -4393,8 +4417,7 @@
 
     .pj-note {
       align-self: center;
-      font-family: var(--font-mono);
-      font-size: 10.5px;
+      font-size: 11.5px;
       color: var(--ink-faint);
     }
 
@@ -4420,8 +4443,9 @@
 
     @media (max-width: 720px) {
       .studio-panel { width: 100%; border-left: 0; }
-      .studio-chip .st-text { display: none; }
-      .studio-chip { padding: 7px 9px; }
+      .studio-chip .st-text,
+      .studio-chip .st-place { display: none; }
+      .studio-chip { padding: 8px 9px; }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -4456,10 +4480,10 @@
     }
 
     .sys-count {
-      font-family: var(--font-mono);
-      font-size: 11px;
-      color: var(--ink-faint);
-      margin-top: 3px;
+      font-size: 12px;
+      color: var(--ink-muted);
+      margin-top: 2px;
+      font-variant-numeric: tabular-nums;
     }
 
     .sys-acts {
@@ -4487,7 +4511,7 @@
     }
 
     .sys-act svg { width: 13px; height: 13px; }
-    .sys-act:hover { border-color: var(--accent); background: var(--accent-wash); }
+    .sys-act:hover { border-color: var(--ink-faint); background: var(--soft); }
 
     .sys-all {
       flex-shrink: 0;
@@ -4517,7 +4541,22 @@
 
     /* The indent is the tree: how deep a node sits says who its parent is,
        which is exactly how it will look in Studio. */
-    .sys-node { padding-left: calc(var(--d, 0) * 15px); }
+    .sys-node { padding-left: calc(var(--d, 0) * 15px); position: relative; }
+
+    /* Studio's Explorer draws a faint line down from each parent, so the
+       nesting reads at a glance rather than by counting indents. */
+    .sys-node:not([style^="--d:0"])::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: calc(var(--d, 0) * 15px);
+      /* One line per level, under the arrow of the parent at that level. */
+      background: repeating-linear-gradient(to right,
+        transparent 0 14px, var(--border) 14px 15px);
+      pointer-events: none;
+    }
 
     .sys-row {
       width: 100%;
@@ -4542,7 +4581,7 @@
     .sys-node.has-code .sys-row:hover { background: var(--soft); }
     .sys-node.has-code .sys-row:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
     .sys-node.open > .sys-row { background: var(--soft); }
-    .sys-node.open > .sys-row .sys-name { color: var(--accent-deep); }
+    .sys-node.open > .sys-row .sys-name { color: var(--ink); }
 
     /* The service already exists in every place, so it reads as the heading
        it is rather than as another thing to go and make. */
@@ -4552,18 +4591,16 @@
     .sys-service .sys-ico { opacity: .45; }
 
     .sys-ico {
-      width: 22px;
-      height: 22px;
+      width: 18px;
+      height: 18px;
       flex-shrink: 0;
       display: flex;
       align-items: center;
       justify-content: center;
-      border-radius: 6px;
       color: var(--tone, var(--ink-faint));
-      background: color-mix(in srgb, var(--tone, var(--ink-faint)) 13%, transparent);
     }
 
-    .sys-ico svg { width: 15px; height: 15px; }
+    .sys-ico svg { width: 16px; height: 16px; }
 
     /* One colour per family, so the tree reads as groups before it reads as
        names: server grey, client blue, module purple, events orange,
@@ -4579,8 +4616,7 @@
     .sys-ico.t-plain  { --tone: var(--ink-faint); background: transparent; }
 
     .sys-name {
-      font-family: var(--font-mono);
-      font-size: 12.5px;
+      font-size: 13px;
       font-weight: 600;
       flex-shrink: 0;
     }
@@ -4588,8 +4624,7 @@
     .sys-node:not(.has-code):not(.sys-service) .sys-name { font-weight: 500; color: var(--ink-muted); }
 
     .sys-class {
-      font-family: var(--font-mono);
-      font-size: 10.5px;
+      font-size: 11.5px;
       color: var(--ink-faint);
       flex-shrink: 0;
     }
@@ -4617,15 +4652,15 @@
     }
 
     .sys-twist svg { width: 100%; height: 100%; }
-    .sys-node.has-code .sys-row:hover .sys-twist { color: var(--accent); }
-    .sys-node.open > .sys-row .sys-twist { transform: rotate(180deg); color: var(--accent); }
+    .sys-node.has-code .sys-row:hover .sys-twist { color: var(--ink); }
+    .sys-node.open > .sys-row .sys-twist { transform: rotate(180deg); color: var(--ink); }
 
     /* How much is folded away in there. */
     .sys-open {
       margin-left: auto;
       flex-shrink: 0;
-      font-family: var(--font-mono);
-      font-size: 10.5px;
+      font-size: 11.5px;
+      font-variant-numeric: tabular-nums;
       color: var(--ink-faint);
       white-space: nowrap;
     }
@@ -5553,101 +5588,56 @@
       overflow: visible;
     }
 
-    .code-block .hljs {
-      color: #EAE8E4;
-    }
+    /* Studio's default dark script editor colours, so a script reads here
+       exactly as it will once it is pasted in. */
+    .code-block .hljs { color: #CCCCCC; tab-size: 4; }
 
     .code-block .hljs-keyword,
     .code-block .hljs-selector-tag,
-    .code-block .hljs-built_in_constant {
-      color: #E08350;
-      font-weight: 500;
-    }
+    .code-block .hljs-built_in_constant,
+    .code-block .hljs-meta,
+    .code-block .hljs-meta .hljs-keyword,
+    .code-block .hljs-tag,
+    .code-block .hljs-name { color: #F86D7C; }
 
-    .code-block .hljs-built_in {
-      color: #E17A63;
-    }
+    .code-block .hljs-built_in { color: #84D6F7; }
 
     .code-block .hljs-type,
     .code-block .hljs-class,
-    .code-block .hljs-title {
-      color: #C0ADC9;
-    }
-
+    .code-block .hljs-title,
     .code-block .hljs-function .hljs-title,
     .code-block .hljs-title.function_,
-    .code-block .hljs-title.class_ {
-      color: #C0ADC9;
-    }
+    .code-block .hljs-title.class_,
+    .code-block .hljs-selector-class,
+    .code-block .hljs-selector-id { color: #FDFBAC; }
 
     .code-block .hljs-string,
     .code-block .hljs-template-string,
-    .code-block .hljs-regexp {
-      color: #5FAE8A;
-    }
+    .code-block .hljs-regexp { color: #ADF195; }
 
     .code-block .hljs-number,
-    .code-block .hljs-literal {
-      color: #D3A657;
-    }
+    .code-block .hljs-literal,
+    .code-block .hljs-attribute,
+    .code-block .hljs-symbol { color: #FFC600; }
 
-    .code-block .hljs-comment {
-      color: #6E6C75;
-      font-style: italic;
-    }
+    .code-block .hljs-comment { color: #666666; }
 
     .code-block .hljs-variable,
-    .code-block .hljs-attr {
-      color: #EAE8E4;
-    }
-
-    .code-block .hljs-params {
-      color: #C0ADC9;
-    }
-
+    .code-block .hljs-attr,
+    .code-block .hljs-params,
     .code-block .hljs-operator,
-    .code-block .hljs-punctuation {
-      color: #A19FA8;
-    }
+    .code-block .hljs-punctuation { color: #CCCCCC; }
 
-    .code-block .hljs-meta,
-    .code-block .hljs-meta .hljs-keyword {
-      color: #E08350;
-    }
-
-    .code-block .hljs-tag {
-      color: #E17A63;
-    }
-
-    .code-block .hljs-name {
-      color: #E17A63;
-    }
-
-    .code-block .hljs-attribute {
-      color: #D3A657;
-    }
-
-    .code-block .hljs-selector-class,
-    .code-block .hljs-selector-id {
-      color: #C0ADC9;
-    }
-
-    .code-block .hljs-property {
-      color: #E17A63;
-    }
-
-    .code-block .hljs-symbol {
-      color: #D3A657;
-    }
+    .code-block .hljs-property { color: #61A1F1; }
 
     .code-block .hljs-addition {
-      color: #5FAE8A;
-      background: rgba(95, 174, 138, 0.1);
+      color: #ADF195;
+      background: rgba(173, 241, 149, 0.1);
     }
 
     .code-block .hljs-deletion {
-      color: #E17A63;
-      background: rgba(225, 122, 99, 0.1);
+      color: #F86D7C;
+      background: rgba(248, 109, 124, 0.1);
     }
 
     .code-model-tag {
@@ -5660,10 +5650,7 @@
       margin-bottom: 8px;
     }
 
-    .code-model-tag svg {
-      width: 12px;
-      height: 12px;
-    }
+    .code-model-tag svg { display: none; }
 
     .fm-pill-code {
       flex-direction: column;
@@ -6639,16 +6626,17 @@
        no backdrop, nothing to close — the dock and the rest of the page
        stay exactly where they were. */
 
+    /* A tool window, the way Studio docks its own: a title strip with the
+       close button, the work, and a bar of actions along the bottom. */
     .ws {
       position: relative;
       display: flex;
       flex-direction: column;
-      gap: 16px;
-      padding: 26px 6px 30px;
-      /* A breath of the accent under the work — the only colour on an
-         otherwise empty field. */
-      background: radial-gradient(62% 46% at 50% 38%,
-        color-mix(in srgb, var(--accent) 5%, transparent), transparent 76%);
+      margin: 8px 0 12px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
       scroll-margin: 74px 0 24px;
       animation: wsArrive .85s cubic-bezier(.16, 1, .3, 1) both;
     }
@@ -6825,72 +6813,54 @@
     .ws-head {
       display: flex;
       align-items: center;
-      gap: 11px;
-      padding: 0 2px;
+      gap: 18px;
+      padding: 9px 10px 9px 16px;
+      border-bottom: 1px solid var(--border);
     }
 
     .ws-mode {
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      font-family: var(--font-display);
-      font-size: 11px;
+      font-family: var(--font-body);
+      font-size: 13px;
       font-weight: 700;
-      letter-spacing: .04em;
-      text-transform: uppercase;
-      color: var(--ink-muted);
+      color: var(--ink);
       white-space: nowrap;
     }
 
     .ws-mode-ico {
       display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 24px;
-      height: 24px;
-      border-radius: 8px;
-      background: var(--accent-wash);
-      color: var(--accent);
+      color: var(--ink-muted);
     }
 
-    .ws-mode-ico svg { width: 13px; height: 13px; }
+    .ws-mode-ico svg { width: 15px; height: 15px; }
 
+    /* Where you are, said in words: the step you are on is set like the
+       title, the ones behind you stay readable, the ones ahead are faint. */
     .ws-steps {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 9px;
       min-width: 0;
       overflow: hidden;
     }
 
     .ws-step {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      font-size: 11px;
+      font-size: 12.5px;
       color: var(--ink-faint);
       white-space: nowrap;
     }
 
-    .ws-step .ws-dot {
-      width: 5px;
-      height: 5px;
-      border-radius: 50%;
-      background: var(--soft-2);
-    }
-
-    .ws-step.done .ws-dot { background: var(--ink-faint); }
-    .ws-step.now { color: var(--ink-muted); font-weight: 600; }
-
-    .ws-step.now .ws-dot {
-      background: var(--accent);
-      box-shadow: 0 0 0 3px var(--accent-wash);
-    }
+    .ws-step .ws-dot { display: none; }
+    .ws-step.done { color: var(--ink-muted); }
+    .ws-step.now { color: var(--ink); font-weight: 600; }
 
     .ws-sep {
-      width: 11px;
-      height: 1px;
-      background: var(--soft-2);
+      width: 1px;
+      height: 12px;
+      background: var(--border);
+      transform: rotate(18deg);
       flex: 0 0 auto;
     }
 
@@ -6898,24 +6868,23 @@
       margin-left: auto;
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      padding: 5px 9px;
-      border: 1px solid var(--border);
+      justify-content: center;
+      width: 30px;
+      height: 30px;
+      padding: 0;
+      border: 1px solid transparent;
       border-radius: var(--radius-sm);
-      background: var(--card);
+      background: none;
       color: var(--ink-muted);
-      font-family: var(--font-mono);
-      font-size: 10.5px;
-      font-weight: 600;
       cursor: pointer;
-      transition: color .15s ease;
+      transition: color .15s ease, background .15s ease, border-color .15s ease;
     }
 
-    .ws-x:hover { color: var(--ink); border-color: var(--ink-faint); background: var(--soft); }
-    .ws-x svg { width: 12px; height: 12px; }
+    .ws-x:hover { color: var(--ink); border-color: var(--border); background: var(--soft); }
+    .ws-x svg { width: 14px; height: 14px; }
 
     /* ---------- the middle ---------- */
-    .ws-body { display: block; }
+    .ws-body { display: block; padding: 22px 20px 22px; }
 
     .ws-title {
       font-family: var(--font-display);
@@ -6947,11 +6916,9 @@
     }
 
     .ws-next-title {
-      font-size: 11.5px;
-      font-weight: 700;
-      letter-spacing: .04em;
-      text-transform: uppercase;
-      color: var(--ink-muted);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--ink);
       margin-bottom: 8px;
     }
 
@@ -6964,15 +6931,13 @@
 
     .ws-label {
       display: block;
-      font-size: 11.5px;
-      font-weight: 700;
-      letter-spacing: .04em;
-      text-transform: uppercase;
-      color: var(--ink-muted);
-      margin-bottom: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 7px;
     }
 
-    .ws-label small { font-weight: 600; text-transform: none; letter-spacing: 0; color: var(--ink-faint); }
+    .ws-label small { font-weight: 500; color: var(--ink-faint); margin-left: 4px; }
 
     .ws-note {
       font-size: 11px;
@@ -7005,9 +6970,13 @@
 
     .ws-input:focus,
     .ws-area:focus,
-    .ws-select:focus {
-      border-color: var(--accent);
-      box-shadow: var(--shadow-md);
+    .ws-select:focus,
+    .ws-input:focus-visible,
+    .ws-area:focus-visible,
+    .ws-select:focus-visible {
+      outline: none;
+      border-color: var(--ink-faint);
+      box-shadow: 0 0 0 3px var(--soft-2);
     }
 
     .ws-input::placeholder,
@@ -7095,43 +7064,41 @@
     .ws-foot {
       display: flex;
       align-items: center;
-      gap: 9px;
-      padding: 2px;
+      gap: 8px;
+      padding: 11px 12px 11px 16px;
+      border-top: 1px solid var(--border);
+      background: var(--soft);
+      border-radius: 0 0 var(--radius-lg) var(--radius-lg);
     }
 
     .ws-foot-note {
-      font-family: var(--font-mono);
-      font-size: 10.5px;
-      color: var(--ink-faint);
+      font-size: 12px;
+      color: var(--ink-muted);
       line-height: 1.4;
       margin-right: auto;
+      font-variant-numeric: tabular-nums;
     }
 
-    /* The house button is mono, small and tight — the same one behind
-       [ Sign in with Google ] and [ Connect ] in the sidebar. */
     .ws-btn {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
+      gap: 7px;
       background: var(--card);
-      box-shadow: var(--shadow-sm);
       border: 1px solid var(--border);
       color: var(--ink);
-      font-family: var(--font-mono);
-      font-size: 10.8px;
+      font-family: var(--font-body);
+      font-size: 12.5px;
       font-weight: 600;
-      letter-spacing: .01em;
-      padding: 9px 13px;
+      padding: 8px 14px;
       border-radius: var(--radius-sm);
       cursor: pointer;
       white-space: nowrap;
-      transition: border-color .15s ease, background .15s ease, opacity .15s ease, transform .12s ease;
+      transition: border-color .15s ease, background .15s ease, opacity .15s ease;
     }
 
     .ws-btn:hover:not(:disabled) {
-      background: var(--soft);
+      background: var(--soft-2);
       border-color: var(--ink-faint);
-      transform: translateY(-1px);
     }
 
     .ws-btn svg { width: 13px; height: 13px; }
@@ -7142,12 +7109,8 @@
       background: var(--accent);
       border-color: var(--accent);
       color: var(--on-accent);
-      box-shadow: 0 1px 2px rgba(20, 20, 15, .1);
-      padding: 9px 15px;
+      padding: 8px 16px;
     }
-
-    .ws-btn.primary::before { content: "[\00a0"; }
-    .ws-btn.primary::after { content: "\00a0]"; }
 
     .ws-btn.primary:hover:not(:disabled) {
       background: var(--accent-deep);
@@ -7292,8 +7255,7 @@
     .ws-side-end .ws-btn { justify-content: center; }
 
     .ws-side-note {
-      font-family: var(--font-mono);
-      font-size: 10px;
+      font-size: 11.5px;
       color: var(--ink-faint);
       line-height: 1.5;
       margin: 9px 0 0;
@@ -7431,11 +7393,10 @@
       border-radius: var(--radius-sm);
       background: var(--card);
       color: var(--ink-muted);
-      font-family: var(--font-mono);
-      font-size: 10.5px;
+      font-family: var(--font-body);
+      font-size: 12px;
       font-weight: 600;
       cursor: pointer;
-      box-shadow: var(--shadow-sm);
       transition: color .15s ease, border-color .15s ease, background .15s ease;
     }
 
@@ -7458,7 +7419,7 @@
 
     /* A short window cannot afford the full-size type or the roomy tiles. */
     @media (max-height: 760px) {
-      .ws { padding: 18px 6px 22px; }
+      .ws-body { padding: 18px 16px; }
       .ws-title { font-size: 19px; }
       .ws-lead { margin-bottom: 13px; }
       .ws-form { gap: 12px; }
@@ -7538,9 +7499,7 @@
 
     .ws-block-kind {
       flex: 0 0 auto;
-      font: 600 9px var(--font-mono);
-      letter-spacing: .08em;
-      text-transform: uppercase;
+      font: 600 10.5px var(--font-body);
       opacity: .65;
       color: var(--ink, var(--text));
       pointer-events: none;
@@ -7670,8 +7629,9 @@
     }
 
     @media (max-width: 720px) {
-      .ws { padding: 22px 2px 26px; }
-      .ws::before { inset: -14px -22px -18px; }
+      .ws-body { padding: 18px 14px; }
+      .ws-head { padding-left: 14px; }
+      .ws-foot { padding: 11px 12px; }
       .ws-title { font-size: 19px; }
       .ws-steps { display: none; }
       .ws-result,
@@ -8076,7 +8036,7 @@
 
           <button class="studio-chip" id="studioChip" onclick="studioTogglePanel()"
             title="Open Roblox Studio with the RoPeak plugin running to deploy from here.">
-            <span class="st-dot off"></span><span class="st-text">Studio not connected</span>
+            <span class="st-dot off"></span><span class="st-text">Studio</span><span class="st-place">not connected</span>
           </button>
 
           <button class="widget-add-btn widget-add-btn-mobile" id="widgetAddBtnMobile" onclick="openGameWidgetModal()">
@@ -12180,35 +12140,14 @@
     }
 
     // ===== MODE CONTEXT BAR =====
-    // Renders a contextual strip above the composer showing mode name, hint, and (for image/model3d) method chooser pills
+    // Kept as the one place that clears the strip above the composer.
     function renderModeContextBar(mode) {
       const bar = document.getElementById('modeContextBar');
       if (!bar) return;
-
-      // Only show for modes that require this creation method context bar (image, model3d).
-      // For chat and any other modes that don't have this content, immediately remove and hide it.
-      if (mode !== 'image' && mode !== 'model3d') {
-        bar.style.display = 'none';
-        bar.innerHTML = '';
-        return;
-      }
-
-      const info = (typeof FORCE_MODE_INFO !== 'undefined' && FORCE_MODE_INFO[mode])
-        ? FORCE_MODE_INFO[mode]
-        : { hint: '', label: mode, icon: '' };
-
-      const hintText = {
-        image: 'Choose a creation method in the message below.',
-        model3d: 'Choose how you want to create the 3D model.',
-      }[mode] || info.hint;
-
-      bar.innerHTML = `
-        <div class="mcb-row">
-          <span class="mcb-label">${info.icon || ''}<span>${info.label}</span></span>
-          <span class="mcb-hint">${hintText}</span>
-        </div>
-      `;
-      bar.style.display = 'flex';
+      // The dock already shows which mode is on, and the chat underneath
+      // says what to do next; a caption repeating both only added noise.
+      bar.style.display = 'none';
+      bar.innerHTML = '';
     }
 
     // Called when user picks an image method from the modeContextBar
@@ -14931,7 +14870,7 @@
         <div class="ws-head">
           <span class="ws-mode"><span class="ws-mode-ico">${info.icon || ""}</span>${escapeHtml(info.label)}</span>
           <div class="ws-steps">${stepsHtml}</div>
-          <button class="ws-x" type="button" onclick="closeWorkspace()">${WS_ICONS.close}Close</button>
+          <button class="ws-x" type="button" onclick="closeWorkspace()" aria-label="Close" title="Close">${WS_ICONS.close}</button>
         </div>
         <div class="ws-body" id="wsBody">${view.html}</div>
         ${view.foot ? `<div class="ws-foot">${view.foot}</div>` : ""}`;
@@ -17216,13 +17155,13 @@
     function studioChipHtml() {
       const p = studioState.presence || {};
       if (!p.online) {
-        return `<span class="st-dot off"></span><span class="st-text">Studio not connected</span>`;
+        return `<span class="st-dot off"></span><span class="st-text">Studio</span><span class="st-place">not connected</span>`;
       }
       const place = p.placeName || (p.placeId ? "place " + p.placeId : "a place");
       if (studioToolBusy) {
-        return `<span class="st-dot on"></span><span class="st-text">Working for Studio…</span>`;
+        return `<span class="st-dot on"></span><span class="st-text">Studio</span><span class="st-place">working…</span>`;
       }
-      return `<span class="st-dot on"></span><span class="st-text">Studio open — ${escapeHtml(place)}</span>`;
+      return `<span class="st-dot on"></span><span class="st-text">Studio</span><span class="st-place">${escapeHtml(place)}</span>`;
     }
 
     function studioRender() {
@@ -17241,7 +17180,7 @@
         const p = studioState.presence || {};
         sub.textContent = p.online
           ? (p.placeName || (p.placeId ? "place " + p.placeId : "connected")) +
-            (p.studioUser ? " · " + p.studioUser : "")
+            (p.studioUser ? ", signed in as " + p.studioUser : "")
           : "Not connected";
       }
       document.querySelectorAll(".sys-deploy").forEach(b => studioSyncDeployBtn(b));
