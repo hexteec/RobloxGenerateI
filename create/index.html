@@ -2057,9 +2057,11 @@
     /* Choosers and results carry their own frames; no bubble, no pointer. */
     .msg-bot:has(.chooser-3d) .msg-bubble::before { display: none; }
 
-    /* A print or a cube being built stands on the page by itself. */
+    /* A print, a model, or either being built stands on the page by
+       itself rather than inside a second frame. */
     .msg-bot:has(.gen-photo) .msg-bubble,
-    .msg-bot:has(.gen-cube) .msg-bubble {
+    .msg-bot:has(.gen-cube) .msg-bubble,
+    .msg-bot:has(> .msg-bubble > .bot-body > .result-frame-wrap:only-child) .msg-bubble {
       background: none;
       border: 0;
       padding: 4px 0 6px;
@@ -2067,7 +2069,8 @@
     }
 
     .msg-bot:has(.gen-photo) .msg-bubble::before,
-    .msg-bot:has(.gen-cube) .msg-bubble::before { display: none; }
+    .msg-bot:has(.gen-cube) .msg-bubble::before,
+    .msg-bot:has(> .msg-bubble > .bot-body > .result-frame-wrap:only-child) .msg-bubble::before { display: none; }
 
     /* The newest pair lands with a little give, squashed towards whoever
        said it and settling back. Only the newest: reopening a long chat
@@ -2277,7 +2280,7 @@
     @keyframes edgeMarch { to { stroke-dashoffset: -18; } }
 
     @media (prefers-reduced-motion: reduce) {
-      .gen-photo, .gp-film, .gp-film i, .gc-edge { animation: none; }
+      .gen-photo, .gp-film, .gp-film i, .gc-edge, .result-frame, .ws-preview > img { animation: none !important; }
     }
 
     .progress-track {
@@ -2362,15 +2365,20 @@
       gap: 12px;
     }
 
+    /* Roblox's Baseplate: a grey floor of studs, with a soft shadow where
+       the model stands. */
     .model-frame {
-      width: 280px;
+      width: 300px;
       max-width: 100%;
       aspect-ratio: 1/1;
-      border-radius: 14px;
+      border-radius: 10px;
       overflow: hidden;
-      border: 1px solid var(--soft-2);
-      box-shadow: var(--shadow-lg);
-      background: var(--soft-2);
+      border: 1px solid var(--border);
+      background-color: var(--soft);
+      background-image:
+        radial-gradient(ellipse 34% 9% at 50% 80%, color-mix(in srgb, var(--ink) 20%, transparent), transparent 75%),
+        radial-gradient(circle at center, color-mix(in srgb, var(--ink) 9%, transparent) 2px, transparent 2.6px);
+      background-size: 100% 100%, 14px 14px;
     }
 
     .model-frame model-viewer {
@@ -2388,16 +2396,88 @@
     }
 
     .result-meta .r-tag {
-      font-size: 11px;
+      display: block;
+      font-size: 12.5px;
       font-weight: 600;
-      color: var(--ink-muted);
-      background: var(--soft);
-      margin-bottom: 10px;
-      display: inline-block;
-      padding: 4px 10px;
-      border-radius: 999px;
-      border: 1px solid var(--border);
+      color: var(--ink);
+      margin-bottom: 9px;
     }
+
+    .result-meta .r-sub { font-weight: 500; color: var(--ink-faint); margin-left: 3px; }
+
+    /* ---------- a finished picture is the print that was developing ----------
+       Same white border, same heavier bottom margin; the caption and the
+       download live in that margin, and the print straightens when you
+       reach for it. */
+    .result-frame-wrap:has(.result-frame) {
+      display: inline-flex;
+      width: auto;
+      max-width: 100%;
+      padding: 9px 9px 0;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      box-shadow: 0 3px 0 var(--soft-2), var(--shadow-md);
+      transform: rotate(-1.2deg);
+      transition: transform .6s cubic-bezier(.34, 1.56, .64, 1);
+    }
+
+    .result-frame-wrap:has(.result-frame):hover { transform: rotate(0deg); }
+
+    .result-frame-wrap:has(.result-frame) .result-frame {
+      border: 0;
+      box-shadow: none;
+      animation: printSettle .7s cubic-bezier(.34, 1.56, .64, 1) both;
+    }
+
+    .result-frame-wrap:has(.result-frame) .result-frame.t-square,
+    .result-frame-wrap:has(.result-frame) .result-frame.t-pass,
+    .result-frame-wrap:has(.result-frame) .result-frame.t-wide { border-radius: 2px; }
+
+    .result-frame-wrap:has(.result-frame) .result-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 3px 11px;
+    }
+
+    .result-frame-wrap:has(.result-frame) .r-tag { margin: 0; }
+    .result-frame-wrap:has(.result-frame) .result-actions { margin: 0; }
+
+    /* Older pictures in the chat are small prints, caption only. */
+    .result-frame-wrap:has(.result-frame:not(.latest)) { padding: 6px 6px 0; }
+    .result-frame-wrap:has(.result-frame:not(.latest)) .result-actions { display: none; }
+    .result-frame-wrap:has(.result-frame:not(.latest)) .result-meta { padding: 7px 2px 8px; }
+    .result-frame-wrap:has(.result-frame:not(.latest)) .r-tag { font-size: 11.5px; }
+
+    @keyframes printSettle {
+      from { filter: brightness(.55) saturate(.6); }
+      to { filter: none; }
+    }
+
+    /* ---------- a model stands on a baseplate ---------- */
+    .result-frame-wrap:has(.model-frame) {
+      display: inline-flex;
+      width: auto;
+      max-width: 100%;
+      padding: 9px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: 0 3px 0 var(--soft-2), var(--shadow-md);
+    }
+
+    .result-frame-wrap:has(.model-frame) .result-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 2px 3px 1px;
+    }
+
+    .result-frame-wrap:has(.model-frame) .r-tag,
+    .result-frame-wrap:has(.model-frame) .result-actions { margin: 0; }
 
     .result-actions {
       display: flex;
@@ -2411,16 +2491,23 @@
       background: var(--card);
       border: 1px solid var(--border);
       color: var(--ink);
-      font-size: 12.3px;
+      font-size: 12.5px;
       font-weight: 600;
-      padding: 8px 14px;
+      padding: 7px 13px 8px;
       border-radius: var(--radius-sm);
       cursor: pointer;
-      transition: border-color .15s ease, background .15s ease;
+      text-decoration: none;
+      box-shadow: inset 0 -2px 0 var(--soft-2);
+      transition: border-color .15s ease, background .15s ease, transform .45s cubic-bezier(.34, 1.9, .5, 1);
       display: inline-flex;
       align-items: center;
       gap: 6px;
     }
+
+    .result-actions button:active:not(:disabled),
+    .result-actions a:active { transform: scale(.95, .9); transition-duration: .08s; }
+
+    .result-actions svg { width: 13px; height: 13px; }
 
     .result-actions button:hover,
     .result-actions a:hover {
@@ -2429,9 +2516,10 @@
     }
 
     .result-actions button.primary {
-      background: var(--ink);
-      border-color: var(--ink);
-      color: #fff;
+      background: var(--accent);
+      border-color: var(--accent);
+      color: var(--on-accent);
+      box-shadow: inset 0 -2px 0 rgba(0, 0, 0, .18);
     }
 
     .result-actions button.primary:hover {
@@ -6158,6 +6246,19 @@
 
     .code-model-tag svg { display: none; }
 
+    .code-model-tag b { color: var(--ink-muted); font-weight: 600; }
+
+    .cmt-mark {
+      width: 6px;
+      height: 6px;
+      border-radius: 1.5px;
+      background: var(--accent);
+      transform: rotate(-15deg);
+      flex-shrink: 0;
+    }
+
+    .code-model-note { margin-left: 6px; }
+
     .fm-pill-code {
       flex-direction: column;
       align-items: flex-start;
@@ -8059,19 +8160,29 @@
     /* The band between the topbar and the dock is what the result has to
        live in, so the preview is sized from the window rather than pinned
        at a height that pushes its own actions behind the dock. */
-    .ws-preview img {
+    .ws-preview > img {
       display: block;
       max-width: 100%;
       max-height: clamp(200px, calc(100vh - 568px), 400px);
-      border-radius: 14px;
-      box-shadow: var(--shadow-lg);
+      padding: 10px 10px 30px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      box-shadow: 0 3px 0 var(--soft-2), var(--shadow-md);
+      transform: rotate(-1deg);
+      animation: printSettle .7s cubic-bezier(.34, 1.56, .64, 1) both;
     }
 
     .ws-preview model-viewer {
       width: 100%;
       height: clamp(220px, calc(100vh - 568px), 380px);
-      border-radius: 14px;
-      background: transparent;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background-color: var(--soft);
+      background-image:
+        radial-gradient(ellipse 30% 8% at 50% 80%, color-mix(in srgb, var(--ink) 20%, transparent), transparent 75%),
+        radial-gradient(circle at center, color-mix(in srgb, var(--ink) 9%, transparent) 2px, transparent 2.6px);
+      background-size: 100% 100%, 14px 14px;
     }
 
     /* ---------- painting a region ---------- */
@@ -8153,12 +8264,21 @@
       width: 100%;
     }
 
+    /* Several takes, laid out as a small pile of prints. */
     .ws-gallery img {
       width: 100%;
-      border-radius: 12px;
-      box-shadow: var(--shadow-md);
       display: block;
+      padding: 6px 6px 18px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      box-shadow: 0 2px 0 var(--soft-2), var(--shadow-sm);
+      transform: rotate(-1.4deg);
+      transition: transform .5s cubic-bezier(.34, 1.56, .64, 1);
     }
+
+    .ws-gallery img:nth-child(even) { transform: rotate(1.2deg); }
+    .ws-gallery img:hover { transform: rotate(0) scale(1.03); }
 
     /* ---------- D. code arrives folded ----------
        A script can run to hundreds of lines; showing all of it buries the
@@ -9258,9 +9378,9 @@
       if (!model) return "";
       const label = CODE_MODEL_LABELS[model] || model;
       const note = pricingNote
-        ? ` <span class="code-model-note ${pricingNote}">(${pricingNote === "off-peak" ? "tańsza taryfa" : "taryfa szczytowa"})</span>`
+        ? ` <span class="code-model-note ${pricingNote}">${pricingNote === "off-peak" ? "off-peak price" : "peak price"}</span>`
         : "";
-      return `<div class="code-model-tag">${ICONS.wand}<span>Wygenerowano przez: ${escapeHtml(label)}${note}</span></div>`;
+      return `<div class="code-model-tag"><span class="cmt-mark"></span><span>Written by <b>${escapeHtml(label)}</b>${note}</span></div>`;
     }
 
     // Lines being typed rather than a shimmer: the shape of a script in
@@ -12355,7 +12475,7 @@
         if (isCode) {
           const match = replyText.match(/```(?:\w+)?\n([\s\S]*?)```/);
           if (match) {
-            currentCodeState = { code: match[1].trim(), language: m.language || "lua", chatId: activeChatId };
+            currentCodeState = { code: cleanCode(match[1]), language: m.language || "lua", chatId: activeChatId };
           }
           if (isLatest) {
             setTimeout(() => attachFixButtonToLastCodeBlock(botMsg, activeChatId), 10);
@@ -12538,6 +12658,21 @@
 
     const CB_SCRIPT_ICON = `<svg class="cb-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg>`;
 
+    // Some model replies arrive escaped twice: indentation comes through as
+    // the two characters "\t", and a whole script can arrive on one line
+    // with "\n" standing in for its line breaks. Lua never starts a line
+    // with a backslash, so leading "\t" is always this and never code.
+    function cleanCode(code) {
+      let c = String(code == null ? "" : code).replace(/\r\n?/g, "\n");
+      const real = (c.match(/\n/g) || []).length;
+      const fake = (c.match(/\\n/g) || []).length;
+      if (fake > real) {
+        c = c.replace(/\\r\\n|\\n/g, "\n").replace(/\\t/g, "\t").replace(/\\"/g, '"');
+      }
+      c = c.replace(/^[ \t]*(?:\\t)+/gm, m => m.replace(/\\t/g, "\t"));
+      return c.replace(/^\n+/, "").replace(/\s+$/, "");
+    }
+
     function highlightCode(code, lang) {
       if (typeof hljs !== 'undefined') {
         try {
@@ -12632,7 +12767,7 @@
         const textChunk = parts[i];
         if (textChunk && textChunk.trim()) html += renderInlineMarkdown(textChunk);
         const lang = parts[i + 1];
-        const code = parts[i + 2];
+        const code = parts[i + 2] === undefined ? undefined : cleanCode(parts[i + 2]);
         if (code !== undefined) {
           const id = "cb" + (++codeBlockSeq);
           codeBlockStore[id] = code.trim();
@@ -12825,7 +12960,7 @@
           <model-viewer id="${uid}" src="${escapeHtml(modelUrl || "")}" poster="${escapeHtml(thumbnailUrl || "")}" camera-controls auto-rotate shadow-intensity="1" exposure="1" style="background:transparent;" loading="eager"></model-viewer>
         </div>
         <div class="result-meta">
-          <span class="r-tag">Model 3D (.glb)</span>
+          <span class="r-tag">3D model <span class="r-sub">.glb</span></span>
           <div class="result-actions">
             <a href="${escapeHtml(dlHref)}" download="RoPeak-Model.glb" class="dl-glb-btn" style="text-decoration:none;">${ICONS.download} Download GLB</a>
           </div>
@@ -13744,7 +13879,7 @@
         const isSystem = data.mode === "system" && Array.isArray(data.tree);
         const replyText = isSystem
           ? systemReplyText(data)
-          : (data.description ? data.description + "\n\n" : "") + "```" + (data.language || "lua") + "\n" + data.code + "\n```";
+          : (data.description ? data.description + "\n\n" : "") + "```" + (data.language || "lua") + "\n" + cleanCode(data.code) + "\n```";
 
         const badge = codeModelBadgeHtml(data.model || selectedCodeModel, data.pricingNote);
         setBotBody(pendingEl, badge + (isSystem ? systemHtml(data) : renderMarkdown(replyText)));
@@ -13755,7 +13890,7 @@
         // system that is every script at once, laid out the way it was
         // handed over, so the next turn can see the whole thing.
         currentCodeState = {
-          code: isSystem ? systemAsOneListing(data) : data.code,
+          code: isSystem ? systemAsOneListing(data) : cleanCode(data.code),
           language: data.language || "lua", chatId, model: data.model || selectedCodeModel
         };
         document.getElementById("composerHint").textContent = "Mam zapamiętany Twój kod — możesz poprosić o dodanie funkcji, zmianę, refaktor.";
@@ -17508,7 +17643,8 @@
 
     function systemHtml(data) {
       const id = "sys" + (++sysSeq);
-      const tree = Array.isArray(data.tree) ? data.tree : [];
+      const tree = (Array.isArray(data.tree) ? data.tree : [])
+        .map(n => (n && n.code ? Object.assign({}, n, { code: cleanCode(n.code) }) : n));
       sysStore[id] = { name: data.name || "System", description: data.description || "", tree };
 
       const scripts = tree.filter(n => n.code);
