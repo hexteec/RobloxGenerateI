@@ -1040,7 +1040,7 @@
       width: 27px;
       height: 27px;
       padding: 0;
-      border-radius: 0;
+      border-radius: var(--radius-sm);
       background: var(--card);
       border: 1px solid var(--border);
       color: var(--ink-muted);
@@ -1058,17 +1058,13 @@
       background: var(--soft);
       border-color: var(--ink-faint);
       color: var(--ink);
-      transform: translateY(-1px);
     }
 
-    .gp-icon-btn.u-signout {
-      color: var(--coral);
-      border-color: rgba(193, 80, 47, 0.35);
-    }
-
+    /* Leaving is routine: the button is as quiet as the one next to it and
+       only turns red once you are on it. */
     .gp-icon-btn.u-signout:hover {
-      background: var(--card);
-      border-color: var(--coral);
+      background: color-mix(in srgb, var(--coral) 9%, var(--card));
+      border-color: color-mix(in srgb, var(--coral) 55%, var(--border));
       color: var(--coral);
     }
 
@@ -1093,19 +1089,59 @@
     }
 
     .gp-token-box {
+      position: relative;
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 10px;
-      padding: 11px 12px 10px;
+      padding: 12px 12px 11px;
       cursor: pointer;
       color: var(--on-card);
       transition: background .15s ease;
     }
 
-    .gp-token-box:hover {
-      background: color-mix(in srgb, var(--on-card) 6%, transparent);
+    .gp-token-box > * { position: relative; }
+
+    /* The same corner of studs the signed-out tile carries, so the tile you
+       signed in on is visibly the one holding your balance now. */
+    .gp-token-box::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(circle at center,
+        color-mix(in srgb, var(--on-card) 20%, transparent) 1.6px, transparent 2.2px);
+      background-size: 11px 11px;
+      background-position: right -3px top -3px;
+      -webkit-mask-image: linear-gradient(100deg, transparent 45%, #000 100%);
+      mask-image: linear-gradient(100deg, transparent 45%, #000 100%);
+      transition: background-position .6s cubic-bezier(.34, 1.56, .64, 1);
+      pointer-events: none;
     }
+
+    .gp-token-box:hover::before { background-position: right -3px top 2px; }
+
+    .gp-token-box:hover {
+      background: color-mix(in srgb, var(--on-card) 5%, transparent);
+    }
+
+    .gp-topup {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      margin-left: auto;
+      flex-shrink: 0;
+      border-radius: 7px;
+      background: var(--on-card);
+      color: var(--ink);
+      box-shadow: inset 0 -2px 0 color-mix(in srgb, var(--ink) 22%, transparent);
+      transition: transform .45s cubic-bezier(.34, 1.8, .5, 1);
+    }
+
+    .gp-topup svg { width: 12px; height: 12px; }
+    .gp-token-box:hover .gp-topup { transform: rotate(90deg) scale(1.08); }
+    .gp-token-box:active .gp-topup { transform: rotate(90deg) scale(.86); transition-duration: .08s; }
 
     /* The number is the point; "tokens" is the caption. No "BALANCE" label
        above it — the unit already says what it is. */
@@ -1210,7 +1246,12 @@
     .roblox-card .rc-avatar-fallback {
       width: 34px;
       height: 34px;
+      border-radius: 10px;
     }
+
+    .roblox-card.linked .rc-avatar { background: var(--soft); }
+
+    .roblox-card.linked .rc-title { font-size: 12.5px; }
 
     .roblox-card .rc-avatar-fallback {
       background: #0f1013;
@@ -1248,8 +1289,8 @@
       padding: 0;
       border-radius: var(--radius-sm);
       background: var(--card);
-      border: 1px solid var(--coral);
-      color: var(--coral) !important;
+      border: 1px solid var(--border);
+      color: var(--ink-muted) !important;
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -1261,10 +1302,9 @@
     }
 
     .rc-unlink-btn:hover {
-      background: var(--card) !important;
-      border-color: var(--coral) !important;
+      background: color-mix(in srgb, var(--coral) 9%, var(--card)) !important;
+      border-color: color-mix(in srgb, var(--coral) 55%, var(--border)) !important;
       color: var(--coral) !important;
-      transform: translateY(-1px);
     }
 
     .rc-unlink-btn svg {
@@ -1275,12 +1315,12 @@
 
     .rc-badge-dot {
       display: inline-block;
-      width: 5px;
-      height: 5px;
-      border-radius: 50%;
+      width: 6px;
+      height: 6px;
+      border-radius: 1.5px;
       background: var(--mint);
-      margin-right: 4.5px;
-      box-shadow: 0 0 5px rgba(26, 175, 122, 0.5);
+      margin-right: 6px;
+      transform: rotate(-15deg);
       vertical-align: middle;
     }
 
@@ -1426,9 +1466,10 @@
       position: absolute;
       bottom: -1px;
       right: -1px;
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
+      width: 9px;
+      height: 9px;
+      border-radius: 2.5px;
+      transform: rotate(-15deg);
       border: 2px solid var(--card);
       background: var(--ink-faint);
       transition: background .2s ease, box-shadow .2s ease;
@@ -1572,16 +1613,12 @@
       padding: 0;
       border-radius: var(--radius-sm);
       background: var(--card);
-      color: var(--coral);
-      border: 1px solid var(--coral);
+      color: var(--ink-muted);
+      border: 1px solid var(--border);
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-    }
-
-    .user-row .u-signout:hover {
-      opacity: 0.85;
     }
 
     .user-row .u-signout svg {
@@ -6183,6 +6220,117 @@
       position: relative;
     }
 
+    /* ---------- the keys, in motion ----------
+       Everything here answers a hand: pointing, pressing, choosing. The key
+       squashes under the press and springs back past where it started; the
+       glyph on each key does the thing it stands for. None of it touches
+       the dock's own magnification or its bounce. */
+    .mac-dock-list .dock-link {
+      transition: transform .5s cubic-bezier(.34, 1.9, .5, 1);
+    }
+
+    .mac-dock-list .dock-link:active {
+      transform: scale(.9, .82) translateY(3px);
+      transition: transform .09s ease-out;
+    }
+
+    .mac-dock-list .fm-pill .fm-icon.dock-icon svg {
+      transform-origin: 50% 55%;
+    }
+
+    /* A chat bubble wobbles like it is talking. */
+    .mac-dock-list .dock-item[data-force="chat"]:not(.active):hover .dock-icon svg {
+      animation: dkTalk .7s cubic-bezier(.3, 1.4, .5, 1);
+    }
+
+    /* A picture swings on its nail. */
+    .mac-dock-list .dock-item[data-force="image"]:not(.active):hover .dock-icon svg {
+      transform-origin: 50% 8%;
+      animation: dkSwing .9s cubic-bezier(.3, 1.2, .5, 1);
+    }
+
+    /* A cube turns a third of the way round, which lands on itself. */
+    .mac-dock-list .dock-item[data-force="model3d"]:not(.active):hover .dock-icon svg {
+      transform-origin: 50% 50%;
+      animation: dkTurn .75s cubic-bezier(.34, 1.56, .64, 1);
+    }
+
+    /* Brackets breathe open and shut. */
+    .mac-dock-list .dock-item[data-force="code"]:not(.active):hover .dock-icon svg {
+      animation: dkBrackets .6s cubic-bezier(.3, 1.5, .5, 1);
+    }
+
+    /* A layout snaps together like a panel being dropped into place. */
+    .mac-dock-list .dock-item[data-force="ui2lua"]:not(.active):hover .dock-icon svg {
+      animation: dkSnap .6s cubic-bezier(.3, 1.6, .5, 1);
+    }
+
+    /* Chosen: the glyph is squashed flat by the press, then stands up. */
+    .mac-dock-list .dock-item.active .dock-icon svg {
+      animation: dkPop .6s cubic-bezier(.3, 1.6, .5, 1);
+    }
+
+    /* The marker drops in under the key that went down. */
+    .dock-item.fm-pill.active .fm-icon.dock-icon::after {
+      animation: dkMark .55s cubic-bezier(.34, 1.8, .5, 1) both;
+    }
+
+    @keyframes dkTalk {
+      0% { transform: none; }
+      25% { transform: rotate(-12deg) scale(1.08); }
+      50% { transform: rotate(9deg) scale(1.04); }
+      75% { transform: rotate(-4deg); }
+      100% { transform: none; }
+    }
+
+    @keyframes dkSwing {
+      0% { transform: none; }
+      20% { transform: rotate(14deg); }
+      45% { transform: rotate(-9deg); }
+      70% { transform: rotate(4deg); }
+      100% { transform: none; }
+    }
+
+    @keyframes dkTurn {
+      0% { transform: rotate(0) scale(1); }
+      40% { transform: rotate(80deg) scale(.86); }
+      100% { transform: rotate(120deg) scale(1); }
+    }
+
+    @keyframes dkBrackets {
+      0% { transform: none; }
+      35% { transform: scale(1.22, .86); }
+      65% { transform: scale(.92, 1.08); }
+      100% { transform: none; }
+    }
+
+    @keyframes dkSnap {
+      0% { transform: none; }
+      30% { transform: scale(.78) rotate(-6deg); }
+      65% { transform: scale(1.12) rotate(2deg); }
+      100% { transform: none; }
+    }
+
+    @keyframes dkPop {
+      0% { transform: scale(1.25, .6); }
+      45% { transform: scale(.88, 1.16); }
+      75% { transform: scale(1.05, .96); }
+      100% { transform: none; }
+    }
+
+    @keyframes dkMark {
+      0% { opacity: 0; transform: translateY(-10px) rotate(0) scale(.4); }
+      60% { opacity: 1; transform: translateY(2px) rotate(60deg) scale(1.25); }
+      100% { opacity: 1; transform: translateY(0) rotate(45deg) scale(1); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .mac-dock-list .dock-link,
+      .mac-dock-list .dock-link:active { transition: none; transform: none; }
+      .mac-dock-list .dock-item .dock-icon svg,
+      .dock-item.fm-pill.active .fm-icon.dock-icon::after { animation: none !important; }
+    }
+
     @keyframes dockBounce {
       0% {
         transform: translateY(0);
@@ -8079,6 +8227,8 @@
                       <div class="milli-meter" id="codeMilliMeter">
                         <span class="milli-fill" id="codeMilliFill"></span>
                       </div>
+                      <span class="gp-topup" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"
+                          stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 6v12M6 12h12"/></svg></span>
                     </div>
 
                     <div class="gp-stats-row" id="gpStatsRow">
@@ -8631,6 +8781,8 @@
       trash: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6"/></svg>`,
       power: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v8"/><path d="M18.4 6.6a9 9 0 1 1-12.8 0"/></svg>`,
       minus: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14"/></svg>`,
+      exit: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4"/><path d="M10 16l-4-4 4-4M6 12h10"/></svg>`,
+      unlink: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 7H7a5 5 0 0 0 0 10h2M15 7h2a5 5 0 0 1 0 10h-2"/><path d="M4 4l16 16"/></svg>`,
       home: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1h-5a1 1 0 0 1-1-1v-5h-4v5a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5z"/></svg>`,
       menu: `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>`,
       send: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 3 18 9-18 9 4-9Z"/></svg>`,
@@ -10765,7 +10917,7 @@
         document.getElementById("sendIcon").innerHTML = ICONS.send;
         document.querySelectorAll(".dz-remove").forEach(b => b.innerHTML = ICONS.close);
         document.querySelectorAll(".modal-close").forEach(b => b.innerHTML = ICONS.close);
-        document.querySelectorAll(".u-signout").forEach(b => b.innerHTML = ICONS.minus);
+        document.querySelectorAll(".u-signout").forEach(b => b.innerHTML = ICONS.exit);
         document.getElementById("welcome").querySelector(".w-mark").innerHTML = ICONS.ropeak.replace('width="13" height="13"', 'width="20" height="20"');
         document.querySelectorAll(".fm-pill").forEach(p => {
           const info = FORCE_MODE_INFO[p.dataset.force];
@@ -11458,8 +11610,8 @@
 
       if (robloxLinked) {
         title.textContent = robloxUsername ? "@" + robloxUsername : "Connected";
-        sub.innerHTML = '<span class="rc-badge-dot"></span>Studio Plugin linked';
-        action.innerHTML = ICONS.minus;
+        sub.innerHTML = '<span class="rc-badge-dot"></span>Studio plugin linked';
+        action.innerHTML = ICONS.unlink;
         action.className = "rc-unlink-btn";
         action.title = "Disconnect Roblox";
         action.setAttribute("aria-label", "Disconnect Roblox");
