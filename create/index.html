@@ -9290,11 +9290,22 @@
     // Behaviour stays in the key in both modes. Ten solid walls and ninety
     // decorations that nothing should bump into are not one mesh however alike
     // they look: merging them used to hand every decoration a collision shape.
+    // A texture on a MeshPart is drawn instead of its material's own surface:
+    // Wood stops showing grain, Brick stops showing bricks. So only materials
+    // with nothing on their surface to lose are given a palette. Everything
+    // else keeps one mesh per colour in max mode too, and shows its material
+    // exactly as the parts did. A custom MaterialVariant is never flat.
+    const PALETTE_MATERIALS = new Set(["SmoothPlastic", "Plastic", "Neon", "Glass", "ForceField"]);
+    function paletteable(key) {
+      const bits = String(key).split("|");
+      return PALETTE_MATERIALS.has(bits[0]) && !(bits[9] || "");
+    }
+
     const PALETTE_CELL = 16;     // texels per colour; survives four mip levels
     const PALETTE_MAX = 64;      // colours per mesh, so a row stays at 1024
 
     function meshGroupKey(key, max) {
-      if (!max) return key;
+      if (!max || !paletteable(key)) return key;
       const bits = String(key).split("|");
       bits[1] = bits[2] = bits[3] = "255";      // white: the texture does the colour
       return bits.join("|");
@@ -9383,8 +9394,11 @@
         const [u, v] = face.poly ? [0, 0] : FACE_UV[face.axis];
 
         let gkey = meshGroupKey(face.key, max);
+        // Whether this face goes into a palette: max mode, and a material
+        // with nothing on its surface for a texture to hide.
+        const textured = max && paletteable(face.key);
         let cidx = 0;
-        if (max) {
+        if (textured) {
           let pal = paletteOf.get(gkey);
           if (!pal) paletteOf.set(gkey, pal = new Map());
           let at = pal.get(face.key);
@@ -9396,10 +9410,10 @@
 
         let g = groups.get(gkey);
         if (!g) groups.set(gkey, g = { key: gkey, verts: [], tris: [], index: new Map(),
-          uvs: max ? [] : null, colours: max ? [] : null, looks: new Set(),
+          textured, uvs: textured ? [] : null, colours: textured ? [] : null, looks: new Set(),
           min: [Infinity, Infinity, Infinity], max: [-Infinity, -Infinity, -Infinity] });
         g.looks.add(face.key);
-        if (max) g.colours[cidx] = meshColourOf(face.key);
+        if (textured) g.colours[cidx] = meshColourOf(face.key);
 
         // Corners are shared only between faces that point the same way, so
         // the direction is part of what makes a corner that corner.
@@ -9417,13 +9431,13 @@
           const w = m ? frameOut(m, local) : local;
           // A corner where two colours meet is two corners in max mode: each
           // side needs its own place in the palette.
-          const id = nKey + "|" + (max ? cidx + "|" : "") + w.map(n => Math.round(n)).join(",");
+          const id = nKey + "|" + (textured ? cidx + "|" : "") + w.map(n => Math.round(n)).join(",");
           let at = g.index.get(id);
           if (at === undefined) {
             at = g.verts.length / 3;
             g.index.set(id, at);
             g.verts.push(w[0], w[1], w[2]);
-            if (max) g.uvs.push(cidx);
+            if (textured) g.uvs.push(cidx);
             for (let d = 0; d < 3; d++) {
               if (w[d] < g.min[d]) g.min[d] = w[d];
               if (w[d] > g.max[d]) g.max[d] = w[d];
@@ -9475,7 +9489,7 @@
           triangles: g.tris.length / 3
         };
 
-        if (max) {
+        if (g.textured) {
           // One row of square cells, a power of two wide. One row, because
           // then which way up an importer reads V cannot move a colour: every
           // sample is taken halfway down. Each face reads the middle of its
@@ -9963,6 +9977,10 @@
       return { assetId: data.assetId, bytes: bytes.length, meshes: last.meshes.length };
     }
 
+    // What this copy of the page can do beyond knowing a tool's name. Each
+    // entry is something a plugin may ask for in a job's `needs`.
+    const STUDIO_TOOL_CAPS = ["wedges", "max"];
+
     const STUDIO_TOOLS = {
       "optimize-mesh": toolOptimiseMesh,
       "optimize-model": toolOptimiseModel,
@@ -10048,7 +10066,14 @@
         const work = await res.json();
 
         const run = STUDIO_TOOLS[work.tool];
-        if (!run) {
+        // A page can know a tool by name and still be too old for the job:
+        // one from before wedges takes every wedge for a box and says
+        // nothing. So the job says what it needs, and a page that lacks any
+        // of it is as out of date as one that has never heard of the tool.
+        const needs = (work.input && Array.isArray(work.input.needs)) ? work.input.needs : [];
+        const missing = needs.filter(n => !STUDIO_TOOL_CAPS.includes(n));
+        const reloadKey = work.tool + (missing.length ? "|" + missing.join(",") : "");
+        if (!run || missing.length) {
           // This page is older than the plugin asking it for work - a copy
           // held somewhere between here and the last deploy. Telling someone
           // to press Ctrl+Shift+R is not a fix, it is a chore handed over, so
@@ -10059,10 +10084,10 @@
           // Once per tool per session: a tool this page genuinely will never
           // know must not become a reload loop.
           let triedAlready = false;
-          try { triedAlready = sessionStorage.getItem("ropeakToolReload") === work.tool; } catch (e) {}
+          try { triedAlready = sessionStorage.getItem("ropeakToolReload") === reloadKey; } catch (e) {}
 
           if (!triedAlready) {
-            try { sessionStorage.setItem("ropeakToolReload", work.tool); } catch (e) {}
+            try { sessionStorage.setItem("ropeakToolReload", reloadKey); } catch (e) {}
             await authedFetch("/studio/toolresult", {
               method: "POST", headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ jobId, release: true })
@@ -10081,6 +10106,10 @@
         // arithmetic takes the thread away from it.
         await new Promise(r => setTimeout(r, 30));
         result = await run(work.input);
+        // Said on every answer, so the plugin can refuse one from a page that
+        // could not do what it was asked - including a page older than this
+        // check, which says nothing at all.
+        if (result && typeof result === "object") result.caps = STUDIO_TOOL_CAPS.slice();
         if (result && result.meshes && result.meshes.length) {
           studioMeshRemember(work.tool, result);
         }
