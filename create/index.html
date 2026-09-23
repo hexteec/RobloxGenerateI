@@ -9267,16 +9267,63 @@
     // wall built at another end up in the same mesh - which is the point of
     // grouping by how a thing looks rather than by how it happens to be
     // turned. The frame was only ever a device for clipping exactly.
-    function meshesFromFaces(collected, frames, unit) {
+    // ---- one mesh per look, or one mesh per kind of thing -----------------
+    //
+    // A key is Material|R|G|B|transparency|reflectance, and from newer plugins
+    // |collides|anchored|shadow after it. Everything in one MeshPart has to
+    // share whatever a MeshPart can only have one of: its material, how see-
+    // through it is, and above all how it behaves. Colour is the exception -
+    // a texture can carry any number of those - so in max mode colour is the
+    // one thing left out of the grouping and put into a palette instead.
+    //
+    // Behaviour stays in the key in both modes. Ten solid walls and ninety
+    // decorations that nothing should bump into are not one mesh however alike
+    // they look: merging them used to hand every decoration a collision shape.
+    const PALETTE_CELL = 16;     // texels per colour; survives four mip levels
+    const PALETTE_MAX = 64;      // colours per mesh, so a row stays at 1024
+
+    function meshGroupKey(key, max) {
+      if (!max) return key;
+      const bits = String(key).split("|");
+      bits[1] = bits[2] = bits[3] = "255";      // white: the texture does the colour
+      return bits.join("|");
+    }
+
+    function meshColourOf(key) {
+      const bits = String(key).split("|");
+      const n = (v, d) => (Number.isFinite(+v) ? +v : d);
+      return [n(bits[1], 163), n(bits[2], 162), n(bits[3], 165)];
+    }
+
+    function meshesFromFaces(collected, frames, unit, max) {
       const groups = new Map();
+      // In max mode the colours seen so far in each look-less group, and which
+      // of the group's meshes each one went into: a mesh holds so many colours
+      // and then the next one starts.
+      const paletteOf = new Map();
 
       for (const face of collected) {
         const m = frames[face.f - 1] || null;
         const [u, v] = FACE_UV[face.axis];
 
-        let g = groups.get(face.key);
-        if (!g) groups.set(face.key, g = { key: face.key, verts: [], tris: [], index: new Map(),
+        let gkey = meshGroupKey(face.key, max);
+        let cidx = 0;
+        if (max) {
+          let pal = paletteOf.get(gkey);
+          if (!pal) paletteOf.set(gkey, pal = new Map());
+          let at = pal.get(face.key);
+          if (at === undefined) { at = pal.size; pal.set(face.key, at); }
+          const chunk = Math.floor(at / PALETTE_MAX);
+          cidx = at % PALETTE_MAX;
+          if (chunk) gkey = gkey + "#" + chunk;
+        }
+
+        let g = groups.get(gkey);
+        if (!g) groups.set(gkey, g = { key: gkey, verts: [], tris: [], index: new Map(),
+          uvs: max ? [] : null, colours: max ? [] : null, looks: new Set(),
           min: [Infinity, Infinity, Infinity], max: [-Infinity, -Infinity, -Infinity] });
+        g.looks.add(face.key);
+        if (max) g.colours[cidx] = meshColourOf(face.key);
 
         // Corners are shared only between faces that point the same way, so
         // the direction is part of what makes a corner that corner.
@@ -9289,12 +9336,15 @@
           const local = [];
           local[face.axis] = face.c; local[u] = uu; local[v] = vv;
           const w = m ? frameOut(m, local) : local;
-          const id = nKey + "|" + w.map(n => Math.round(n)).join(",");
+          // A corner where two colours meet is two corners in max mode: each
+          // side needs its own place in the palette.
+          const id = nKey + "|" + (max ? cidx + "|" : "") + w.map(n => Math.round(n)).join(",");
           let at = g.index.get(id);
           if (at === undefined) {
             at = g.verts.length / 3;
             g.index.set(id, at);
             g.verts.push(w[0], w[1], w[2]);
+            if (max) g.uvs.push(cidx);
             for (let d = 0; d < 3; d++) {
               if (w[d] < g.min[d]) g.min[d] = w[d];
               if (w[d] > g.max[d]) g.max[d] = w[d];
@@ -9315,14 +9365,32 @@
       const out = [];
       for (const g of groups.values()) {
         const centre = [0, 1, 2].map(d => (g.min[d] + g.max[d]) / 2);
-        out.push({
+        const mesh = {
           key: g.key,
+          looks: [...g.looks],
           verts: g.verts.map((n, i) => (n - centre[i % 3]) / unit),
           tris: g.tris,
           centre: centre.map(n => n / unit),
           size: [0, 1, 2].map(d => (g.max[d] - g.min[d]) / unit),
           triangles: g.tris.length / 3
-        });
+        };
+
+        if (max) {
+          // One row of square cells, a power of two wide. One row, because
+          // then which way up an importer reads V cannot move a colour: every
+          // sample is taken halfway down. Each face reads the middle of its
+          // cell, so it stays its own colour until the image has been shrunk
+          // past sixteen texels a colour.
+          const n = g.colours.length;
+          let cells = 1;
+          while (cells < n) cells *= 2;
+          const w = cells * PALETTE_CELL, h = PALETTE_CELL;
+          mesh.image = { w, h, cell: PALETTE_CELL };
+          mesh.palette = g.colours.map(c => c || [255, 255, 255]);
+          mesh.uvs = [];
+          for (const c of g.uvs) mesh.uvs.push((c + 0.5) * PALETTE_CELL / w, 0.5);
+        }
+        out.push(mesh);
       }
       return out;
     }
@@ -9336,6 +9404,7 @@
         i: p.i, f: p.f || 1, key: p.mk || p.k, box: p.b,
         solid: p.solid !== false, fixed: !!p.fixed
       }));
+      const max = !!(input && input.max);
 
       // 1. Parts swallowed whole by a part facing some other way. Within one
       //    frame the pass below does this better, using the union of
@@ -9416,16 +9485,26 @@
       }
 
       // Now, and only now, the split by look - across every frame at once.
-      for (const g of meshesFromFaces(faces, frames, OPT_UNIT)) {
-        meshes.push({
-          mk: g.key,
-          from: lookSource.get(g.key) || [],
+      for (const g of meshesFromFaces(faces, frames, OPT_UNIT, max)) {
+        // Every real part behind every look that went into this mesh: in max
+        // mode that is several looks, and all of them say how it behaves.
+        const from = [];
+        for (const look of g.looks) for (const i of (lookSource.get(look) || [])) from.push(i);
+        const mesh = {
+          mk: g.key.split("#")[0],
+          from,
           verts: g.verts.map(n => Math.round(n * 10000) / 10000),
           tris: g.tris,
           centre: g.centre,
           size: g.size,
           triangles: g.triangles
-        });
+        };
+        if (g.palette) {
+          mesh.palette = g.palette;
+          mesh.image = g.image;
+          mesh.uvs = g.uvs.map(n => Math.round(n * 100000) / 100000);
+        }
+        meshes.push(mesh);
       }
 
       if (!meshes.length) throw new Error("None of that selection can be seen, so there is no surface to build.");
@@ -9449,6 +9528,7 @@
           // Counting the ones left untouched too would flatter the number.
           wasTriangles: replaced.length * 12,
           kept: parts.filter(p => p.fixed).length,
+          max,
           skipped: (input && input.skipped) || 0
         }
       };
@@ -9539,10 +9619,42 @@
       };
     }
 
+    // The palette as a PNG: one row of square cells, each its colour, and
+    // whatever cells the power-of-two width leaves over painted like the last
+    // real one so that nothing next to an edge ever reads black.
+    function paletteImagePng(m) {
+      const { w, h, cell } = m.image;
+      const canvas = document.createElement("canvas");
+      canvas.width = w; canvas.height = h;
+      const ctx = canvas.getContext("2d");
+      const cells = w / cell;
+      for (let i = 0; i < cells; i++) {
+        const c = m.palette[Math.min(i, m.palette.length - 1)];
+        ctx.fillStyle = `rgb(${c[0]},${c[1]},${c[2]})`;
+        ctx.fillRect(i * cell, 0, cell, h);
+      }
+      const b64 = canvas.toDataURL("image/png").split(",")[1];
+      const bin = atob(b64);
+      const out = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+      return out;
+    }
+
     function glbFromMeshes(meshes) {
       const chunks = [];       // the numbers, in order
       let offset = 0;
       const views = [], accessors = [], materials = [], meshes3 = [], nodes = [];
+      const images = [], textures = [];
+
+      // Raw bytes as a view of their own - an embedded image is not numbers
+      // an accessor reads, so it gets a view and nothing more.
+      const pushBytes = (bytes) => {
+        while (offset % 4) { chunks.push(new Uint8Array([0])); offset++; }
+        views.push({ buffer: 0, byteOffset: offset, byteLength: bytes.length });
+        chunks.push(bytes);
+        offset += bytes.length;
+        return views.length - 1;
+      };
 
       const push = (arr, Type, target, meta) => {
         const data = new Type(arr);
@@ -9599,7 +9711,7 @@
         const idx = push(m.tris, Uint32Array, 34963,
           { count: m.tris.length, componentType: 5125, type: "SCALAR" });
 
-        materials.push({
+        const material = {
           name: look.material,
           pbrMetallicRoughness: {
             baseColorFactor: [look.color[0], look.color[1], look.color[2], 1 - look.transparency],
@@ -9607,12 +9719,27 @@
           },
           alphaMode: look.transparency > 0 ? "BLEND" : "OPAQUE",
           doubleSided: false
-        });
+        };
+
+        // Max mode: the colours travel as a picture. White factor, so the
+        // picture is the colour rather than something tinting it.
+        let uv = null;
+        if (m.palette && m.uvs) {
+          uv = push(m.uvs, Float32Array, 34962,
+            { count: m.uvs.length / 2, componentType: 5126, type: "VEC2" });
+          images.push({ bufferView: pushBytes(paletteImagePng(m)), mimeType: "image/png" });
+          textures.push({ sampler: 0, source: images.length - 1 });
+          material.pbrMetallicRoughness.baseColorFactor = [1, 1, 1, 1 - look.transparency];
+          material.pbrMetallicRoughness.baseColorTexture = { index: textures.length - 1 };
+        }
+        materials.push(material);
         // One mesh and one node each, named. The name is the whole of how
         // Studio pairs what comes back with what it replaced - by look, in
         // order - so it has to be unique and it has to survive the trip.
         const name = "RoPeak_" + (meshes3.length + 1);
-        meshes3.push({ name, primitives: [{ attributes: { POSITION: pos, NORMAL: nrm },
+        const attributes = { POSITION: pos, NORMAL: nrm };
+        if (uv !== null) attributes.TEXCOORD_0 = uv;
+        meshes3.push({ name, primitives: [{ attributes,
           indices: idx, material: materials.length - 1 }] });
         nodes.push({ mesh: meshes3.length - 1, name, translation: [m.centre[0], m.centre[1], m.centre[2]] });
       }
@@ -9631,6 +9758,13 @@
         materials, accessors, bufferViews: views,
         buffers: [{ byteLength: bin.length }]
       };
+      if (images.length) {
+        gltf.images = images;
+        gltf.textures = textures;
+        // Nearest and clamped: a palette is not a photograph, and blending
+        // one cell into the next is exactly the thing not to do.
+        gltf.samplers = [{ magFilter: 9728, minFilter: 9728, wrapS: 33071, wrapT: 33071 }];
+      }
 
       const jsonBytes = new TextEncoder().encode(JSON.stringify(gltf));
       const jsonPad = (4 - (jsonBytes.length % 4)) % 4;
