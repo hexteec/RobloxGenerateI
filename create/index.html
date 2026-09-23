@@ -9124,7 +9124,7 @@
     // still hides what is behind it - a part that is staying put covers just as
     // much as one that is not - but contributes no surface of its own, or it
     // would be drawn twice: once as itself and once inside the mesh.
-    function surfaceOf(parts, emit) {
+    function surfaceOf(parts, emit, contacts) {
       const solid = parts.filter(p => p.solid).map(p => p.box);
       const planes = new Map();   // key|axis|side|c -> rects
 
@@ -9133,6 +9133,9 @@
         for (let a = 0; a < 3; a++) {
           const [u, v] = FACE_UV[a];
           for (const side of [0, 1]) {
+            // A wedge's box stands in for its two square faces and nothing
+            // else: the rest of that box is air.
+            if (p.only && !p.only.some(o => o[0] === a && o[1] === side)) continue;
             const c = p.box[a * 2 + side];
             const face = [p.box[u * 2], p.box[u * 2 + 1], p.box[v * 2], p.box[v * 2 + 1]];
 
@@ -9147,6 +9150,14 @@
               for (const r of rects) for (const piece of rectSub(r, q)) next.push(piece);
               rects = next;
               if (!rects.length) break;
+            }
+            // Pressed flat against something that is not a box.
+            for (const ct of contacts || []) {
+              if (!rects.length) break;
+              if (ct.axis !== a || ct.side !== side || ct.c !== c) continue;
+              const next = [];
+              for (const r of rects) for (const piece of rectSub(r, ct.rect)) next.push(piece);
+              rects = next;
             }
             if (!rects.length) continue;
 
@@ -9295,6 +9306,70 @@
       return [n(bits[1], 163), n(bits[2], 162), n(bits[3], 165)];
     }
 
+    // ---- wedges -------------------------------------------------------------
+    //
+    // A wedge is a box with one corner sliced off: a square bottom, a square
+    // tall face, a sloped face between the two, and a triangle at each end.
+    // Which end of the box the tall face is on is Roblox's convention, and the
+    // plugin measures it on a real wedge rather than this assuming it -
+    // `tall` says whether it stands at the box's back (its largest Z in the
+    // part's own frame) or its front.
+    //
+    // The square faces take part in hiding exactly like a box's faces: they
+    // are clipped against what stands against them. And a face pressed flat
+    // against one of them is hidden by it - but only a face lying in that
+    // plane and looking into the wedge. That is said as a contact, not as a
+    // solid: a slab of the wedge's box standing in for it would also reach
+    // into the air just above the slope, and hide slivers of things that are
+    // out in the open.
+    //
+    // The slope is never hidden, since nothing square can lie flat against
+    // it. An end triangle is dropped only when something covers the whole of
+    // the rectangle around it; a face pressed against an end keeps all of
+    // itself, the part behind the triangle simply being out of sight.
+    function wedgeFaces(b, tall) {
+      const [x0, x1, y0, y1, z0, z1] = b;
+      const back = tall !== "front";
+      const zt = back ? z1 : z0;            // where the tall face stands
+      const zs = back ? z0 : z1;            // where the slope meets the floor
+      const h = y1 - y0, d = z1 - z0;
+
+      // FACE_UV[1] is (z, x) and FACE_UV[2] is (x, y): the rectangles are
+      // written in the plane's own two axes, in that order.
+      return {
+        contacts: [
+          { axis: 1, side: 1, c: y0, rect: [z0, z1, x0, x1] },
+          { axis: 2, side: back ? 0 : 1, c: zt, rect: [x0, x1, y0, y1] }
+        ],
+        only: [[1, 0], [2, back ? 1 : 0]],
+        polys: [
+          { poly: [[x0, y0, zs], [x1, y0, zs], [x1, y1, zt], [x0, y1, zt]],
+            normal: [0, d, back ? -h : h] },
+          { poly: [[x0, y0, z0], [x0, y0, z1], [x0, y1, zt]], normal: [-1, 0, 0],
+            cover: { axis: 0, side: 0, c: x0, rect: [y0, y1, z0, z1] } },
+          { poly: [[x1, y0, z0], [x1, y0, z1], [x1, y1, zt]], normal: [1, 0, 0],
+            cover: { axis: 0, side: 1, c: x1, rect: [y0, y1, z0, z1] } }
+        ]
+      };
+    }
+
+    // Whether the solid boxes cover the whole of a rectangle on a plane, from
+    // the side it faces. The same test surfaceOf makes, asked of one face.
+    function faceCovered(solid, axis, side, c, rect) {
+      const [u, v] = FACE_UV[axis];
+      let rects = [rect];
+      for (const o of solid) {
+        if (side === 1 ? !(o[axis * 2] <= c && o[axis * 2 + 1] > c)
+                       : !(o[axis * 2] < c && o[axis * 2 + 1] >= c)) continue;
+        const q = [o[u * 2], o[u * 2 + 1], o[v * 2], o[v * 2 + 1]];
+        const next = [];
+        for (const r of rects) for (const piece of rectSub(r, q)) next.push(piece);
+        rects = next;
+        if (!rects.length) return true;
+      }
+      return false;
+    }
+
     function meshesFromFaces(collected, frames, unit, max) {
       const groups = new Map();
       // In max mode the colours seen so far in each look-less group, and which
@@ -9304,7 +9379,8 @@
 
       for (const face of collected) {
         const m = frames[face.f - 1] || null;
-        const [u, v] = FACE_UV[face.axis];
+        // A polygon brings its own corners and has no plane axes to span.
+        const [u, v] = face.poly ? [0, 0] : FACE_UV[face.axis];
 
         let gkey = meshGroupKey(face.key, max);
         let cidx = 0;
@@ -9327,14 +9403,17 @@
 
         // Corners are shared only between faces that point the same way, so
         // the direction is part of what makes a corner that corner.
-        const nLocal = [0, 0, 0];
-        nLocal[face.axis] = face.side === 1 ? 1 : -1;
+        let nLocal = [0, 0, 0];
+        if (face.poly) {
+          const len = Math.hypot(face.normal[0], face.normal[1], face.normal[2]) || 1;
+          nLocal = face.normal.map(n => n / len);
+        } else {
+          nLocal[face.axis] = face.side === 1 ? 1 : -1;
+        }
         const nWorld = m ? frameOut(m, nLocal) : nLocal;
         const nKey = nWorld.map(n => Math.round(n * 1000)).join(",");
 
-        const add = (uu, vv) => {
-          const local = [];
-          local[face.axis] = face.c; local[u] = uu; local[v] = vv;
+        const addLocal = (local) => {
           const w = m ? frameOut(m, local) : local;
           // A corner where two colours meet is two corners in max mode: each
           // side needs its own place in the palette.
@@ -9352,6 +9431,27 @@
           }
           return at;
         };
+        const add = (uu, vv) => {
+          const local = [];
+          local[face.axis] = face.c; local[u] = uu; local[v] = vv;
+          return addLocal(local);
+        };
+
+        // A flat polygon that is not square to anything - the slope of a
+        // wedge, its triangular ends. Wound by asking which way it actually
+        // faces rather than trusting the order the corners were listed in, so
+        // a front face can never come out as a back face.
+        if (face.poly) {
+          const P = face.poly;
+          const e1 = [P[1][0] - P[0][0], P[1][1] - P[0][1], P[1][2] - P[0][2]];
+          const e2 = [P[2][0] - P[0][0], P[2][1] - P[0][1], P[2][2] - P[0][2]];
+          const cr = [e1[1] * e2[2] - e1[2] * e2[1], e1[2] * e2[0] - e1[0] * e2[2], e1[0] * e2[1] - e1[1] * e2[0]];
+          const facing = cr[0] * face.normal[0] + cr[1] * face.normal[1] + cr[2] * face.normal[2];
+          const order = facing >= 0 ? P : P.slice().reverse();
+          const ids = order.map(addLocal);
+          for (let k = 1; k + 1 < ids.length; k++) g.tris.push(ids[0], ids[k], ids[k + 1]);
+          continue;
+        }
 
         for (const r of face.rects) {
           const a = add(r[0], r[2]), b2 = add(r[1], r[2]), c2 = add(r[1], r[3]), d = add(r[0], r[3]);
@@ -9402,9 +9502,11 @@
 
       const parts = raw.map(p => ({
         i: p.i, f: p.f || 1, key: p.mk || p.k, box: p.b,
-        solid: p.solid !== false, fixed: !!p.fixed
+        solid: p.solid !== false, fixed: !!p.fixed,
+        kind: p.kind === "wedge" ? "wedge" : "box"
       }));
       const max = !!(input && input.max);
+      const tall = input && input.wedgeTall === "front" ? "front" : "back";
 
       // 1. Parts swallowed whole by a part facing some other way. Within one
       //    frame the pass below does this better, using the union of
@@ -9416,7 +9518,7 @@
       //    the same place each hide the other, and taking both away leaves a
       //    hole where a part used to be.
       const buried = new Set();
-      const standing = parts.filter(p => p.solid);
+      const standing = parts.filter(p => p.solid && p.kind !== "wedge");
       const smallestFirst = parts.filter(p => !p.fixed)
         .sort((x, y) => optVolume(x.box) - optVolume(y.box));
       for (const p of smallestFirst) {
@@ -9455,14 +9557,16 @@
       let hidden = buried.size, solids = 0;
 
       for (const [f, group] of byFrame) {
-        const thinned = optimiseBoxes(group);
+        const boxes = group.filter(p => p.kind !== "wedge");
+        const wedges = group.filter(p => p.kind === "wedge");
+        const thinned = optimiseBoxes(boxes);
         hidden += thinned.hidden;
 
         const gone = new Set(thinned.remove);
         const reduced = [];
         const source = new Map();
         let nid = 0;
-        for (const p of group) {
+        for (const p of boxes) {
           if (gone.has(p.i)) continue;
           const id = nid++;
           reduced.push({ i: id, key: p.key, box: p.box, solid: p.solid, fixed: p.fixed });
@@ -9473,14 +9577,34 @@
           reduced.push({ i: id, key: a.key, box: a.box, solid: a.src ? a.src.solid : true, fixed: false });
           source.set(id, a.from[0]);
         }
+        // Wedges: two contacts that hide what is pressed against them, their two
+        // square faces handed to the same clipping as every box, and the
+        // slope and ends kept as the polygons they are.
+        const wedgePolys = [], contacts = [];
+        for (const w of wedges) {
+          // A wedge flat in any direction has no inside and nothing to draw.
+          const wb = w.box;
+          if (wb[1] <= wb[0] || wb[3] <= wb[2] || wb[5] <= wb[4]) continue;
+          const wf = wedgeFaces(w.box, tall);
+          if (w.solid) for (const ct of wf.contacts) contacts.push(ct);
+          if (w.fixed) continue;
+          reduced.push({ i: nid++, key: w.key, box: w.box, solid: false, fixed: false, only: wf.only });
+          for (const pf of wf.polys) wedgePolys.push({ key: w.key, pf });
+        }
         solids += reduced.length;
 
         const emit = new Set(reduced.filter(p => !p.fixed).map(p => p.i));
         if (!emit.size) continue;
 
-        for (const face of surfaceOf(reduced, emit)) {
+        for (const face of surfaceOf(reduced, emit, contacts)) {
           face.f = f;
           faces.push(face);
+        }
+
+        const solidBoxes = reduced.filter(p => p.solid).map(p => p.box);
+        for (const { key, pf } of wedgePolys) {
+          if (pf.cover && faceCovered(solidBoxes, pf.cover.axis, pf.cover.side, pf.cover.c, pf.cover.rect)) continue;
+          faces.push({ key, f, poly: pf.poly, normal: pf.normal });
         }
       }
 
@@ -9526,7 +9650,8 @@
           triangles: tris,
           // What the parts this actually replaced would have cost as boxes.
           // Counting the ones left untouched too would flatter the number.
-          wasTriangles: replaced.length * 12,
+          wasTriangles: parts.filter(p => !p.fixed)
+            .reduce((n, p) => n + (p.kind === "wedge" ? 8 : 12), 0),
           kept: parts.filter(p => p.fixed).length,
           max,
           skipped: (input && input.skipped) || 0
@@ -9546,7 +9671,11 @@
       const frames = (input && input.frames) || [];
       if (!raw.length) throw new Error("Nothing in that selection could be optimised.");
 
-      const parts = raw.map(p => ({
+      // Only boxes can be fused into boxes. The plugin does not send this
+      // tool anything else, but a wedge that arrived anyway must stay a
+      // wedge rather than come back as a brick - so it is left alone, and it
+      // hides nothing, since most of its box is air.
+      const parts = raw.filter(p => p.kind !== "wedge").map(p => ({
         i: p.i, f: p.f || 1, key: p.k, box: p.b,
         solid: p.solid !== false, fixed: !!p.fixed
       }));
