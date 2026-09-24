@@ -714,10 +714,11 @@
     }
 
     .sb-empty {
-      font-size: 12px;
-      color: var(--ink-faint);
-      padding: 16px 10px;
-      line-height: 1.6;
+      font-size: 13px;
+      color: var(--ink-muted);
+      padding: 14px 10px;
+      line-height: 1.55;
+      max-width: 26ch;
     }
 
     .sb-bottom {
@@ -1926,20 +1927,26 @@
       height: 41px;
     }
 
+    /* The one large piece of type on the page, set tight like a title and
+       not like a form label. */
     .welcome h2 {
       font-family: var(--font-display);
-      font-size: 20px;
-      margin: 0 0 8px;
-      font-weight: 600;
-      letter-spacing: -0.01em;
+      font-size: clamp(26px, 3.2vw, 34px);
+      line-height: 1.08;
+      margin: 0 0 12px;
+      font-weight: 650;
+      letter-spacing: -0.032em;
       color: var(--ink);
+      text-wrap: balance;
     }
 
     .welcome p {
       color: var(--ink-muted);
-      font-size: 13.5px;
+      font-size: 14.5px;
       line-height: 1.6;
-      margin: 0 0 20px;
+      margin: 0 auto 26px;
+      max-width: 42ch;
+      text-wrap: pretty;
     }
 
     /* Examples are keys you can press: the tool each one would use sits on
@@ -5893,7 +5900,6 @@
         gap: 16px;
         width: var(--sidebar-w);
         pointer-events: auto;
-        animation: floatBubble 6s ease-in-out infinite;
       }
 
       .desktop-bubble {
@@ -5920,7 +5926,6 @@
         width: var(--sidebar-w);
         height: 75vh;
         max-height: 800px;
-        animation: floatBubble 6.5s ease-in-out infinite alternate;
         pointer-events: auto;
       }
 
@@ -9573,6 +9578,53 @@
     .ws-x .kbd { margin-left: 0; }
 
     @media (hover: none) { .kbd { display: none; } }
+
+    /* The main actions answer the pointer the way a well-made studio site
+       does: the label rolls up and the same word comes in from below, and
+       the send arrow leaves through the top and returns from the bottom.
+       No looping shine, no glow: it only moves when you are on it. */
+    .roll {
+      position: relative;
+      display: inline-block;
+      overflow: hidden;
+      vertical-align: top;
+      line-height: inherit;
+    }
+
+    .roll > span,
+    .roll::after {
+      display: block;
+      transition: transform .5s cubic-bezier(.7, 0, .2, 1);
+    }
+
+    .roll::after {
+      content: attr(data-label);
+      position: absolute;
+      left: 0;
+      top: 100%;
+      white-space: nowrap;
+    }
+
+    :is(.btn-newchat, .ws-btn.primary, .sys-act.primary, .result-actions button.primary, .st-send, .rgp-apply):hover:not(:disabled) .roll > span,
+    :is(.btn-newchat, .ws-btn.primary, .sys-act.primary, .result-actions button.primary, .st-send, .rgp-apply):hover:not(:disabled) .roll::after {
+      transform: translateY(-100%);
+    }
+
+    .composer-action-btn:hover svg { animation: sendRoll .55s cubic-bezier(.7, 0, .2, 1); }
+
+    @keyframes sendRoll {
+      0% { transform: none; }
+      45% { transform: translateY(-160%); }
+      46% { transform: translateY(160%); }
+      100% { transform: none; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .roll > span, .roll::after { transition: none; }
+      :is(.btn-newchat, .ws-btn.primary, .sys-act.primary, .result-actions button.primary, .st-send, .rgp-apply):hover .roll > span,
+      :is(.btn-newchat, .ws-btn.primary, .sys-act.primary, .result-actions button.primary, .st-send, .rgp-apply):hover .roll::after { transform: none; }
+      .composer-action-btn:hover svg { animation: none; }
+    }
   </style>
 </head>
 
@@ -19989,6 +20041,45 @@
       const btns = (el || document).querySelectorAll(".ws-foot .ws-btn.primary");
       return btns.length ? btns[btns.length - 1] : null;
     }
+
+    // The rolling label on the main actions: the visible word is wrapped once
+    // and its twin is drawn from data-label by CSS, so textContent (which
+    // other code reads) still says the word only once. Buttons rendered
+    // later, or relabelled through textContent, are wrapped again.
+    const ROLL_SELECTOR = ".btn-newchat, .ws-btn.primary, .sys-act.primary, .result-actions button.primary, .st-send, .rgp-apply";
+
+    function rollLabel(btn) {
+      if (btn.querySelector(".roll")) return;
+      for (const node of Array.from(btn.childNodes)) {
+        if (node.nodeType !== 3) continue;
+        const word = node.textContent.trim();
+        if (!word) continue;
+        const roll = document.createElement("span");
+        roll.className = "roll";
+        roll.dataset.label = word;
+        const inner = document.createElement("span");
+        inner.textContent = word;
+        roll.appendChild(inner);
+        const lead = /^\s/.test(node.textContent) ? " " : "";
+        btn.replaceChild(roll, node);
+        if (lead) btn.insertBefore(document.createTextNode(lead), roll);
+        return;
+      }
+    }
+
+    function rollAll(root) {
+      (root || document).querySelectorAll(ROLL_SELECTOR).forEach(rollLabel);
+    }
+
+    if (typeof MutationObserver === "function") {
+      let rollQueued = false;
+      new MutationObserver(() => {
+        if (rollQueued) return;
+        rollQueued = true;
+        requestAnimationFrame(() => { rollQueued = false; rollAll(); });
+      }).observe(document.documentElement, { childList: true, subtree: true, characterData: true });
+    }
+    document.addEventListener("DOMContentLoaded", () => rollAll());
 
     function wsMarkShortcut(el) {
       const btn = wsMainButton(el);
