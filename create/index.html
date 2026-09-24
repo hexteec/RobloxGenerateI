@@ -84,10 +84,14 @@
       --key-shadow: inset 0 1px 0 rgba(255, 255, 255, .85), inset 0 -1px 0 rgba(16, 42, 46, .10), 0 1px 1.5px rgba(16, 42, 46, .08);
       --key-held: inset 0 1px 2.5px rgba(16, 42, 46, .18), inset 0 0 0 1px rgba(16, 42, 46, .04);
       --raise: 0 1px 0 var(--edge), 0 1px 3px rgba(16, 42, 46, .06);
-      --primary-grad: linear-gradient(180deg, color-mix(in srgb, var(--accent) 84%, #fff), var(--accent) 62%);
-      --primary-shadow: inset 0 1px 0 rgba(255, 255, 255, .22), inset 0 -1px 0 rgba(0, 0, 0, .18),
-        0 0 0 1px color-mix(in srgb, var(--accent-deep) 80%, #000), 0 1px 2px rgba(8, 40, 44, .28);
-      --primary-held: inset 0 1px 3px rgba(0, 0, 0, .32), 0 0 0 1px color-mix(in srgb, var(--accent-deep) 80%, #000);
+      /* The main action is black, as on the landing page: near-black with a
+         faint sheen, a lit top edge and a black rim. */
+      --on-primary: #ffffff;
+      --primary-grad: linear-gradient(180deg, #2B3437, #111719 62%);
+      --primary-hover: linear-gradient(180deg, #364144, #192123 62%);
+      --primary-press: #0C1112;
+      --primary-shadow: inset 0 1px 0 rgba(255, 255, 255, .14), 0 0 0 1px #080C0D, 0 1px 2px rgba(0, 0, 0, .3);
+      --primary-held: inset 0 1px 3px rgba(0, 0, 0, .6), 0 0 0 1px #080C0D;
 
       /* The checkerboard behind a transparent image. */
       --Check-1: #E9EBEE;
@@ -160,9 +164,12 @@
       --key-shadow: inset 0 1px 0 rgba(255, 255, 255, .06), inset 0 -1px 0 rgba(0, 0, 0, .35), 0 1px 1px rgba(0, 0, 0, .35);
       --key-held: inset 0 1px 3px rgba(0, 0, 0, .5);
       --raise: 0 1px 0 var(--edge), inset 0 1px 0 rgba(255, 255, 255, .035);
-      --primary-shadow: inset 0 1px 0 rgba(255, 255, 255, .32), inset 0 -1px 0 rgba(0, 0, 0, .14),
-        0 0 0 1px color-mix(in srgb, var(--accent) 60%, #000), 0 1px 2px rgba(0, 0, 0, .45);
-      --primary-held: inset 0 1px 3px rgba(0, 0, 0, .35), 0 0 0 1px color-mix(in srgb, var(--accent) 60%, #000);
+      /* Still black on the dark page; a lighter rim keeps it from reading
+         as a hole. */
+      --primary-grad: linear-gradient(180deg, #232B2E, #0B1011 62%);
+      --primary-hover: linear-gradient(180deg, #2C3639, #111719 62%);
+      --primary-shadow: inset 0 1px 0 rgba(255, 255, 255, .12), 0 0 0 1px rgba(255, 255, 255, .09), 0 1px 2px rgba(0, 0, 0, .5);
+      --primary-held: inset 0 1px 3px rgba(0, 0, 0, .7), 0 0 0 1px rgba(255, 255, 255, .07);
 
       --Check-1: #2A2B2F;
       --Check-2: #323338;
@@ -9300,8 +9307,8 @@
        One system, three kinds, lit the way a well-made key is lit (the
        approach Raycast and macOS take, rather than the outlined box with
        a soft shadow that every component kit ships):
-       - the primary action: sea, with a faint top-to-bottom sheen, a
-         hairline of light on its top edge and a darker rim;
+       - the primary action: black, with a faint top-to-bottom sheen, a
+         hairline of light on its top edge and a black rim;
        - keys: the surface's own tone, light on top, shade underneath, a
          one-pixel contact shadow; no outline, and hovering does not draw
          one either;
@@ -9318,15 +9325,12 @@
     .rgp-apply,
     .gw-add {
       background: var(--primary-grad);
-      color: var(--on-accent);
+      color: var(--on-primary);
       border-color: transparent;
       box-shadow: var(--primary-shadow);
       text-shadow: 0 -1px 0 rgba(0, 0, 0, .12);
     }
 
-    [data-theme="dark"] :is(.btn-newchat, .ws-btn.primary, .sys-act.primary, .result-actions button.primary, .st-send, .rgp-apply, .gw-add) {
-      text-shadow: none;
-    }
 
     .btn-newchat:hover,
     .ws-btn.primary:hover:not(:disabled),
@@ -9335,9 +9339,9 @@
     .st-send:hover:not(:disabled),
     .rgp-apply:hover,
     .gw-add:hover {
-      background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 76%, #fff), color-mix(in srgb, var(--accent) 94%, #fff) 62%);
+      background: var(--primary-hover);
       border-color: transparent;
-      color: var(--on-accent);
+      color: var(--on-primary);
     }
 
     .btn-newchat:active,
@@ -9347,7 +9351,7 @@
     .st-send:active:not(:disabled),
     .rgp-apply:active,
     .gw-add:active {
-      background: var(--accent);
+      background: var(--primary-press);
       box-shadow: var(--primary-held);
       transform: translateY(.5px);
       transition-duration: .06s;
@@ -9474,7 +9478,7 @@
       height: 32px !important;
       border-radius: 9px !important;
       background: var(--primary-grad) !important;
-      color: var(--on-accent) !important;
+      color: var(--on-primary) !important;
       box-shadow: var(--primary-shadow) !important;
       opacity: 1 !important;
       transform: none !important;
@@ -9482,12 +9486,12 @@
     }
 
     .composer-action-btn:hover {
-      background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 76%, #fff), color-mix(in srgb, var(--accent) 94%, #fff) 62%) !important;
+      background: var(--primary-hover) !important;
       transform: none !important;
     }
 
     .composer-action-btn:active {
-      background: var(--accent) !important;
+      background: var(--primary-press) !important;
       box-shadow: var(--primary-held) !important;
       transform: translateY(.5px) !important;
     }
@@ -9559,7 +9563,7 @@
 
     .ws-btn.primary .kbd {
       color: inherit;
-      background: rgba(255, 255, 255, .16);
+      background: rgba(255, 255, 255, .13);
       box-shadow: inset 0 -1px 0 rgba(0, 0, 0, .15);
     }
 
