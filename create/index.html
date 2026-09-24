@@ -81,6 +81,15 @@
       --Check-1: #E9EBEE;
       --Check-2: #F6F7F8;
 
+      /* The baseplate: one-stud lines, and every fourth stud a tile a
+         shade apart, the way Studio lays out its grid. */
+      --grid-line: rgba(28, 33, 39, 0.055);
+      --tile-a: #ECEEF0;
+      --tile-b: #F1F2F4;
+      /* Studio's selection blue, used only for the baseplate's own hover
+         and never as a brand colour. */
+      --studio-select: #00A2FF;
+
       --accent: #0D69AC;
       --accent-deep: #0A568E;
       /* Label colour for accent-filled buttons. The dark theme lightens the
@@ -139,6 +148,10 @@
 
       --Check-1: #2A2B2F;
       --Check-2: #323338;
+
+      --grid-line: rgba(255, 255, 255, 0.035);
+      --tile-a: #1C1D20;
+      --tile-b: #1F2024;
 
       --accent: #5AA8EA;
       --accent-deep: #88C1F0;
@@ -442,10 +455,17 @@
       height: 100dvh;
       width: 100vw;
       position: relative;
-      /* A plain baseplate. The graph-paper grid that used to sit here is the
-         backdrop half the generated sites on the web share; the surfaces on
-         top carry the character instead. */
-      background: var(--bg);
+      /* The baseplate: a one-stud grid over four-stud tiles. Themes that
+         do not set their own tiles get them mixed from their background. */
+      background-color: var(--bg);
+      background-image:
+        linear-gradient(var(--grid-line, rgba(28, 33, 39, .05)) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid-line, rgba(28, 33, 39, .05)) 1px, transparent 1px),
+        conic-gradient(var(--tile-a, var(--bg)) 90deg,
+          var(--tile-b, color-mix(in srgb, var(--bg) 55%, #fff)) 90deg 180deg,
+          var(--tile-a, var(--bg)) 180deg 270deg,
+          var(--tile-b, color-mix(in srgb, var(--bg) 55%, #fff)) 270deg);
+      background-size: 30px 30px, 30px 30px, 240px 240px;
 
       margin: 0;
       min-height: 100vh;
@@ -637,10 +657,8 @@
     }
 
     .chat-item .ci-badge {
-      font-size: 9.5px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: .04em;
+      font-size: 11px;
+      font-weight: 600;
       color: var(--ink-muted);
     }
 
@@ -829,11 +847,9 @@
     }
 
     .rgp-head {
-      font-size: 9.5px;
-      font-weight: 700;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-      color: var(--ink-faint);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--ink-muted);
     }
 
     /* A developer can sit in dozens of groups. The list takes whatever height
@@ -2407,7 +2423,7 @@
       aspect-ratio: 1/1;
       border-radius: 10px;
       overflow: hidden;
-      border: 1px solid var(--border);
+      border: 1px solid transparent;
       background-color: var(--soft);
       background-image:
         radial-gradient(ellipse 34% 9% at 50% 80%, color-mix(in srgb, var(--ink) 20%, transparent), transparent 75%),
@@ -2675,6 +2691,50 @@
     .code-block .cb-btn:hover {
       background: rgba(255, 255, 255, 0.08);
       border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    /* Fix is set in the yellow Studio gives a warning in the Output. */
+    .code-block .cb-fix { color: #FFC600; }
+
+    /* Asking what broke happens under the script, in the editor's own
+       colours, like the command bar under Studio's viewport. */
+    .code-block .inline-fix-form {
+      display: flex;
+      gap: 8px;
+      padding: 8px;
+      background: #2E2E2E;
+      border-top: 1px solid #3A3A3A;
+      border-radius: 0 0 10px 10px;
+    }
+
+    .code-block:has(.inline-fix-form) pre { border-radius: 0; }
+
+    .code-block .fix-input {
+      flex: 1;
+      min-width: 0;
+      padding: 7px 10px;
+      border: 1px solid #454545;
+      border-radius: 7px;
+      background: #252525;
+      color: #CCCCCC;
+      font-family: var(--font-body);
+      font-size: 12.5px;
+    }
+
+    .code-block .fix-input::placeholder { color: #7A7A7A; }
+    .code-block .fix-input:focus { outline: none; border-color: #FFC600; }
+
+    .code-block .fix-submit {
+      padding: 7px 12px 8px;
+      border: 0;
+      border-radius: 7px;
+      background: #FFC600;
+      color: #252525;
+      font-family: var(--font-body);
+      font-size: 12.5px;
+      font-weight: 700;
+      box-shadow: inset 0 -2px 0 #C79A00;
+      cursor: pointer;
     }
 
     .code-block pre {
@@ -3008,11 +3068,9 @@
     }
 
     .m3d-label {
-      font-size: 11.5px;
-      font-weight: 700;
-      color: var(--ink-muted);
-      text-transform: uppercase;
-      letter-spacing: .04em;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--ink);
       display: flex;
       justify-content: space-between;
     }
@@ -3219,11 +3277,9 @@
 
     .publish-field label {
       display: block;
-      font-size: 11.5px;
-      font-weight: 700;
-      color: var(--ink-muted);
-      text-transform: uppercase;
-      letter-spacing: .04em;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--ink);
       margin-bottom: 5px;
     }
 
@@ -7825,9 +7881,10 @@
 
     .ws.ws-leaving { animation: wsLeave .3s ease both; }
 
-    /* The page clears around the work rather than darkening. With the
-       baseplate now plain this is a quiet no-op; it stays so a patterned
-       theme can still be wiped back around the work. Centred on the
+    /* The page clears around the work rather than darkening. Shading it
+       only added another grey surface next to all the others; wiping the
+       grid away leaves plain paper, and the bend of the lens across the
+       edge of that clearing is what says where to look. Centred on the
        frame by wsShadeCentre(), and painted before every positioned child
        of the shell, so it sits under the content. */
     .app-shell::before {
@@ -7995,21 +8052,16 @@
       white-space: nowrap;
     }
 
-    /* The mode sits on a small key, the same one it has in the dock. */
+    /* The mode reads like the title of a Studio tool window: its glyph and
+       its name, with no tile behind the glyph. */
     .ws-mode-ico {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 28px;
-      height: 28px;
-      border-radius: 8px;
-      background: var(--soft);
-      border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--border));
-      color: var(--accent-deep);
-      box-shadow: inset 0 2px 0 var(--soft-2);
+      color: var(--accent);
     }
 
-    .ws-mode-ico svg { width: 15px; height: 15px; }
+    .ws-mode-ico svg { width: 16px; height: 16px; }
 
     /* Where you are, said in words: the step you are on is set like the
        title, the ones behind you stay readable, the ones ahead are faint. */
@@ -8030,27 +8082,50 @@
       white-space: nowrap;
     }
 
-    /* The step you are on gets the turned square the dock puts under the
-       chosen key. */
-    .ws-step.now::before {
-      content: "";
-      width: 6px;
-      height: 6px;
-      border-radius: 1.5px;
-      background: var(--accent);
-      transform: rotate(45deg);
-      animation: dkMark .55s cubic-bezier(.34, 1.8, .5, 1) both;
+    /* Each step is a one-stud brick seen from above: a square with its stud.
+       Bricks behind you are set, the one you are on is blue, the ones ahead
+       are only outlined where they will go. */
+    .ws-step .ws-dot {
+      position: relative;
+      width: 11px;
+      height: 11px;
+      border-radius: 2px;
+      border: 1.5px dashed var(--border);
+      flex: 0 0 auto;
     }
 
-    .ws-step .ws-dot { display: none; }
+    .ws-step .ws-dot::after {
+      content: "";
+      position: absolute;
+      inset: 2px;
+      border-radius: 50%;
+    }
+
+    .ws-step.done .ws-dot { border: 0; background: var(--ink-faint); }
+    .ws-step.done .ws-dot::after { background: color-mix(in srgb, var(--ink-faint) 70%, #fff); }
+
+    .ws-step.now .ws-dot {
+      border: 0;
+      background: var(--accent);
+      animation: wsStud .5s cubic-bezier(.34, 1.8, .5, 1) both;
+    }
+
+    /* The brick for the step you reach drops into place. */
+    @keyframes wsStud {
+      0% { opacity: 0; transform: translateY(-7px) scale(.7, 1.2); }
+      60% { opacity: 1; transform: translateY(1px) scale(1.18, .8); }
+      100% { opacity: 1; transform: none; }
+    }
+
+    .ws-step.now .ws-dot::after { background: color-mix(in srgb, var(--accent) 70%, #fff); }
     .ws-step.done { color: var(--ink-muted); }
     .ws-step.now { color: var(--ink); font-weight: 600; }
 
     .ws-sep {
-      width: 1px;
-      height: 12px;
+      width: 10px;
+      height: 1.5px;
+      border-radius: 1px;
       background: var(--border);
-      transform: rotate(18deg);
       flex: 0 0 auto;
     }
 
@@ -8070,9 +8145,7 @@
       transition: color .15s ease, background .15s ease, border-color .15s ease;
     }
 
-    .ws-x:hover { color: var(--ink); border-color: var(--border); background: var(--soft); }
-    .ws-x:hover svg { transform: rotate(90deg); }
-    .ws-x svg { transition: transform .45s cubic-bezier(.34, 1.8, .5, 1); }
+    .ws-x:hover { color: var(--ink); background: var(--soft); }
     .ws-x svg { width: 14px; height: 14px; }
 
     /* ---------- the middle ---------- */
@@ -8095,16 +8168,14 @@
       max-width: 58ch;
     }
 
-    /* Each child drifts up in turn, so the group settles rather than
-       appearing all at once. */
-    .ws-rise {
-      animation: wsRise .7s cubic-bezier(.16, 1, .3, 1) both;
-      animation-delay: calc(var(--i, 0) * 55ms + 120ms);
-    }
+    /* A step arrives as one piece. Letting every field drift up in turn
+       is the entrance every generated page has, and it made each step
+       slower to use than to look at. */
+    .ws-body.ws-arrive { animation: wsRise .28s ease both; }
 
     @keyframes wsRise {
-      from { opacity: 0; transform: translateY(14px); }
-      to { opacity: 1; transform: none; }
+      from { opacity: 0; }
+      to { opacity: 1; }
     }
 
     .ws-next-title {
@@ -8943,7 +9014,7 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
-      .ws, .ws.ws-leaving, .ws-rise, .ws-step.now::before { animation: none; }
+      .ws, .ws.ws-leaving, .ws-body.ws-arrive, .ws-step.now .ws-dot { animation: none; }
       .ws-btn:active:not(:disabled), .ws-chip:active { transform: none; }
       .app-shell::before { transition: none; }
       body.ws-lens-on .ws-lens,
@@ -8953,6 +9024,78 @@
       .msg, .sidebar, .topbar, .composer-stage { transition: none; }
       .bar-peek::before { transition: none; }
       .ws-bar.indet span { animation: none; width: 100%; opacity: .5; }
+    }
+    /* ---------- the baseplate answers the mouse ----------
+       The one playful thing on the page, and it only happens on the empty
+       grid: the stud under the pointer gets Studio's hover box, and a
+       click on bare baseplate drops a one-stud brick that settles and
+       sinks away again. It sits under every panel, so it never covers
+       anything you are reading. */
+    .bp-layer {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .bp-hover {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 31px;
+      height: 31px;
+      border: 1.5px solid color-mix(in srgb, var(--studio-select, #00A2FF) 70%, transparent);
+      background: color-mix(in srgb, var(--studio-select, #00A2FF) 7%, transparent);
+      opacity: 0;
+      transition: opacity .35s ease;
+    }
+
+    .bp-hover.on { opacity: 1; transition-duration: .12s; }
+
+    .bp-brick {
+      position: absolute;
+      width: 29px;
+      height: 29px;
+      margin: 1px 0 0 1px;
+      border-radius: 3px;
+      background: var(--c);
+      box-shadow: inset 0 -3px 0 color-mix(in srgb, var(--c) 72%, #000),
+        0 2px 0 color-mix(in srgb, var(--c) 45%, transparent);
+      transform-origin: 50% 100%;
+      animation: bpDrop .5s cubic-bezier(.34, 1.7, .5, 1) both,
+        bpSink .6s ease-in 2.2s forwards;
+    }
+
+    /* The stud on top, lit from the upper left like Roblox draws it. */
+    .bp-brick::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: 45%;
+      width: 13px;
+      height: 13px;
+      margin: -6.5px 0 0 -6.5px;
+      border-radius: 50%;
+      background: color-mix(in srgb, var(--c) 88%, #fff);
+      box-shadow: inset 0 -2px 0 color-mix(in srgb, var(--c) 78%, #000);
+    }
+
+    @keyframes bpDrop {
+      0% { opacity: 0; transform: translateY(-16px) scale(.8, 1.15); }
+      55% { opacity: 1; transform: translateY(0) scale(1.14, .82); }
+      100% { opacity: 1; transform: none; }
+    }
+
+    @keyframes bpSink {
+      to { opacity: 0; transform: translateY(4px) scale(.9, .7); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .bp-brick { animation: bpSink .6s ease-in 1.6s forwards; }
+    }
+
+    @media (hover: none) {
+      .bp-layer { display: none; }
     }
   </style>
   <style id="materialCSS">
@@ -9139,6 +9282,7 @@
 <body onload="openComposerStageMode('chat')">
 
   <div class="app-shell">
+    <div class="bp-layer" id="bpLayer" aria-hidden="true"><div class="bp-hover" id="bpHover"></div></div>
 
     <div class="sb-overlay" id="sbOverlay" onclick="toggleSidebar(false)"></div>
 
@@ -9891,7 +10035,7 @@
       chat: { label: "Chat", icon: ICONS.chat, hint: "Tell me what you need - I'll figure out the intent and suggest a generation." },
       image: { label: "Image", icon: ICONS.icon, hint: "Choose a creation method in the message below." },
       model3d: { label: "3D Model", icon: ICONS.cube, hint: "Choose how you want to create the 3D model." },
-      ui2lua: { label: "UI → Lua", icon: ICONS.layout, hint: "A picture of an interface, a description, or blocks you arrange — each becomes a responsive LUA script." },
+      ui2lua: { label: "UI → Lua", icon: ICONS.layout, hint: "A picture of an interface, a description, or blocks you arrange — each becomes a responsive Lua script." },
       code: { label: "Code", icon: ICONS.code, hint: "Describe what the script should do. I can also add functions to existing code." }
     };
 
@@ -13775,12 +13919,12 @@
         if (label) label.textContent = "Picture of the object";
         if (sub) sub.textContent = "A photo or a render to build the model from";
         if (badge) badge.textContent = "required";
-        if (pillText) pillText.textContent = mainImage ? "✓ 3D Reference attached" : "Attach 3D reference";
+        if (pillText) pillText.textContent = mainImage ? "3D reference attached" : "Attach 3D reference";
       } else if (activeForceMode === "ui2lua") {
         if (label) label.textContent = "Interface image";
         if (sub) sub.textContent = "A screenshot, mockup or render to rebuild as a script";
         if (badge) badge.textContent = "required";
-        if (pillText) pillText.textContent = mainImage ? "✓ Interface image attached" : "Attach the interface image";
+        if (pillText) pillText.textContent = mainImage ? "Interface image attached" : "Attach the interface image";
       } else if (currentMethod === "style") {
         if (label) label.textContent = "Your picture";
         if (sub) sub.textContent = "It keeps its subject and takes the new look";
@@ -13789,12 +13933,12 @@
         const refSub = document.getElementById("dzRefSub");
         if (refLbl) refLbl.textContent = "Look to copy";
         if (refSub) refSub.textContent = "Its style goes onto your picture";
-        if (pillText) pillText.textContent = (mainImage && refImage) ? "✓ Both images attached" : (mainImage ? "✓ 1 of 2 attached" : "Attach images");
+        if (pillText) pillText.textContent = (mainImage && refImage) ? "Both images attached" : (mainImage ? "1 of 2 attached" : "Attach images");
       } else {
         if (label) label.textContent = "Picture to edit";
         if (sub) sub.textContent = "Say below what should change";
         if (badge) badge.textContent = "required";
-        if (pillText) pillText.textContent = mainImage ? "✓ Image attached" : "Attach image to edit";
+        if (pillText) pillText.textContent = mainImage ? "Image attached" : "Attach image to edit";
       }
 
       if (pillBtn) {
@@ -14532,10 +14676,8 @@
       if (!btnsRow) return;
 
       const fixBtn = document.createElement("button");
-      fixBtn.className = "cb-btn";
-      fixBtn.style.color = "var(--warn)";
-      fixBtn.style.borderColor = "var(--warn-faint)";
-      fixBtn.innerHTML = "⚠ Fix";
+      fixBtn.className = "cb-btn cb-fix";
+      fixBtn.innerHTML = WS_ICONS.bug + " Fix";
       fixBtn.onclick = () => promptFixCode(chatId, lastCb);
       btnsRow.insertBefore(fixBtn, btnsRow.firstChild);
     }
@@ -14547,9 +14689,9 @@
         return;
       }
       const formHTML = `
-        <div class="inline-fix-form" style="margin-top: 10px; display: flex; gap: 8px; padding: 10px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px;">
-          <input type="text" class="fix-input" placeholder="Co nie działa? (np. błąd w linii 42)" style="flex: 1; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--soft); color: var(--ink); font-size: 13px;" />
-          <button class="fix-submit" style="padding: 6px 12px; border-radius: 6px; background: var(--warn); color: #fff; border: none; cursor: pointer; font-weight: 600; font-size: 13px;">Napraw</button>
+        <div class="inline-fix-form">
+          <input type="text" class="fix-input" placeholder="What goes wrong? Paste the error, or say what happens instead" />
+          <button class="fix-submit" type="button">Fix it</button>
         </div>
       `;
       cbElement.insertAdjacentHTML("beforeend", formHTML);
@@ -14736,7 +14878,7 @@
             <button class="m3d-preset ${!isH ? 'active' : ''}" onclick="setModel3DSeries('p1')">Game Optimized (Recommended)</button>
             <button class="m3d-preset ${isH ? 'active' : ''}" onclick="setModel3DSeries('h')">Normal 3D (High Quality)</button>
           </div>
-          ${isH ? `<div class="m3d-desc" style="color:var(--amber);">⚠ High Quality models have a very high vertex/polygon count and are poorly optimized for real-time games. Use "Game Optimized" if this model will be used in Roblox gameplay.</div>` : ''}
+          ${isH ? `<div class="m3d-desc" style="color:var(--amber);">High Quality models have a very high vertex/polygon count and are poorly optimized for real-time games. Use "Game Optimized" if this model will be used in Roblox gameplay.</div>` : ''}
         </div>`;
 
       const hOnlyOptions = isH ? `
@@ -15226,7 +15368,7 @@
         });
         if (!res.ok) throw new Error(await extractError(res));
 
-        document.getElementById("publishStatus").textContent = "Published successfully! 🎉";
+        document.getElementById("publishStatus").textContent = "Published to the store";
         document.getElementById("publishStatus").style.color = "var(--mint)";
         setTimeout(() => {
           closePublishDialog();
@@ -16625,6 +16767,10 @@
       }).join(`<span class="ws-sep"></span>`);
 
       const view = { config: wsViewConfig, mask: wsViewMask, blocks: wsViewBlocks, run: wsViewRun, result: wsViewResult }[s.step](s, cat);
+      // Only a new step fades in; re-rendering the same one (a chip picked,
+      // a file added) must not blink.
+      const arrive = el.dataset.step !== s.step;
+      el.dataset.step = s.step;
 
       el.innerHTML = `
         <div class="ws-head">
@@ -16632,7 +16778,7 @@
           <div class="ws-steps">${stepsHtml}</div>
           <button class="ws-x" type="button" onclick="closeWorkspace()" aria-label="Close" title="Close">${WS_ICONS.close}</button>
         </div>
-        <div class="ws-body" id="wsBody">${view.html}</div>
+        <div class="ws-body${arrive ? " ws-arrive" : ""}" id="wsBody">${view.html}</div>
         ${view.foot ? `<div class="ws-foot">${view.foot}</div>` : ""}`;
 
       if (view.after) view.after();
@@ -16950,7 +17096,7 @@
                      </div>` : `<div class="ws-note" style="margin-top:14px">Click a piece on the stage to rename or recolour it.</div>`}
                  </aside>
                </div>`,
-        foot: `<span class="ws-foot-note">${wsLayout.blocks.length ? `${wsLayout.blocks.length} piece${wsLayout.blocks.length === 1 ? "" : "s"} placed` : "nothing placed yet"}</span>
+        foot: `<span class="ws-foot-note">${wsLayout.blocks.length ? `${wsLayout.blocks.length} piece${wsLayout.blocks.length === 1 ? "" : "s"} placed` : "Nothing placed yet"}</span>
                <button class="ws-btn ws-quiet" type="button" onclick="wsBack()">${WS_ICONS.back}Back</button>
                <button class="ws-btn primary" type="button" ${empty ? "disabled" : ""} onclick="wsGo('config')">Next</button>`,
         after: wsLayoutMount
@@ -17252,7 +17398,7 @@
                    oninput="wsMaskPrompt(this.value)">${escapeHtml(s.cfg.prompt || "")}</textarea>
                  <div class="ws-note">Describe the whole scene as it should end up, not just the new object — and never what to take away.</div>
                </div>`,
-        foot: `<span class="ws-foot-note">costs 2 tokens</span>
+        foot: `<span class="ws-foot-note">Costs 2 tokens</span>
                <button class="ws-btn ws-quiet" type="button" onclick="wsBack()">${WS_ICONS.back}Back</button>
                <button class="ws-btn primary" type="button" ${(s.cfg.prompt || "").trim() ? "" : "disabled"} onclick="wsRunMaskEdit()">Generate</button>`,
         after: wsMaskInit
@@ -17424,13 +17570,13 @@
     function wsCostNote(s) {
       if (s.task === "m-rig") {
         const anims = Array.isArray(s.cfg.animations) ? s.cfg.animations.length : 0;
-        return anims ? "costs 8 tokens to rig, 6 more to animate" : "costs 8 tokens — the check beforehand is free";
+        return anims ? "Costs 8 tokens to rig, 6 more to animate" : "Costs 8 tokens. The check beforehand is free";
       }
-      if (WS_TASK_COST[s.task]) return `costs ${WS_TASK_COST[s.task]} tokens`;
-      if (s.task === "takes") return `costs ${2 * (parseInt(s.cfg.count, 10) || 3)} tokens`;
-      if (s.task === "m-text" || s.task === "m-image" || s.task === "m-gen") return "cost depends on the mesh settings on the next step";
-      if (s.mode === "image" || s.mode === "ui2lua") return "costs 2 tokens";
-      if (s.mode === "code") return "billed per generation in millitokens";
+      if (WS_TASK_COST[s.task]) return `Costs ${WS_TASK_COST[s.task]} tokens`;
+      if (s.task === "takes") return `Costs ${2 * (parseInt(s.cfg.count, 10) || 3)} tokens`;
+      if (s.task === "m-text" || s.task === "m-image" || s.task === "m-gen") return "The price follows the mesh settings on the next step";
+      if (s.mode === "image" || s.mode === "ui2lua") return "Costs 2 tokens";
+      if (s.mode === "code") return "Costs a fraction of a token, by length";
       return "";
     }
 
@@ -17517,6 +17663,71 @@
     }
 
     function wsResizeShade() { if (wsOpen()) wsShadeCentre(); }
+
+    // ---------- the baseplate ----------
+    // The grid behind everything is a Roblox baseplate, and it behaves like
+    // one: the stud under the mouse gets Studio's hover box, and clicking
+    // bare baseplate drops a brick in one of Roblox's own colours. Only on
+    // the grid itself, never on anything that does something.
+    const BP_STUD = 30;
+    const BP_COLOURS = ["#C4281C", "#0D69AC", "#F5CD30", "#287F47", "#DA8541", "#A3A2A5", "#6B327C"];
+    const BP_SOLID = "button, a, input, textarea, select, label, [contenteditable], .msg-bubble, .msg-avatar, "
+      + ".composer, .composer-stage, .desktop-bubble, .ws, .mac-dock-container, .modal-overlay, .studio-panel, "
+      + ".topbar-title, .topbar-right, .studio-chip, .gw-card, .welcome, .it-more-menu, .ui-dropdown, .publish-overlay";
+    let bpIdle = 0, bpLast = -1;
+
+    function bpCell(e) {
+      const shell = document.querySelector(".app-shell");
+      if (!shell) return null;
+      const r = shell.getBoundingClientRect();
+      return {
+        x: Math.floor((e.clientX - r.left) / BP_STUD) * BP_STUD,
+        y: Math.floor((e.clientY - r.top) / BP_STUD) * BP_STUD
+      };
+    }
+
+    function bpOnBare(e) {
+      const t = e.target;
+      if (!(t instanceof Element) || t.closest(BP_SOLID)) return false;
+      return !document.body.classList.contains("ws-on");
+    }
+
+    window.addEventListener("pointermove", e => {
+      if (e.pointerType !== "mouse") return;
+      const hover = document.getElementById("bpHover");
+      if (!hover) return;
+      const cell = bpOnBare(e) && bpCell(e);
+      if (!cell) { hover.classList.remove("on"); return; }
+      const key = cell.x * 100000 + cell.y;
+      if (key !== bpLast) {
+        bpLast = key;
+        hover.style.transform = `translate(${cell.x}px, ${cell.y}px)`;
+      }
+      hover.classList.add("on");
+      clearTimeout(bpIdle);
+      bpIdle = setTimeout(() => hover.classList.remove("on"), 1400);
+    }, { passive: true });
+
+    document.addEventListener("pointerleave", () => {
+      const hover = document.getElementById("bpHover");
+      if (hover) hover.classList.remove("on");
+    });
+
+    window.addEventListener("pointerdown", e => {
+      if (e.pointerType !== "mouse" || e.button !== 0 || !bpOnBare(e)) return;
+      const layer = document.getElementById("bpLayer");
+      const cell = bpCell(e);
+      if (!layer || !cell) return;
+      const bricks = layer.querySelectorAll(".bp-brick");
+      if (bricks.length >= 14) bricks[0].remove();
+      const b = document.createElement("div");
+      b.className = "bp-brick";
+      b.style.left = cell.x + "px";
+      b.style.top = cell.y + "px";
+      b.style.setProperty("--c", BP_COLOURS[Math.floor(Math.random() * BP_COLOURS.length)]);
+      b.addEventListener("animationend", ev => { if (ev.animationName === "bpSink") b.remove(); });
+      layer.appendChild(b);
+    });
 
     function wsNextFor(s, r) {
       if (r.kind === "refimage") {
@@ -18309,7 +18520,7 @@
 
       const foot = el.querySelector(".ws-foot");
       if (foot) {
-        foot.innerHTML = `<span class="ws-foot-note">Every setting moves the price — the button keeps the running total.</span>
+        foot.innerHTML = `<span class="ws-foot-note">Every setting moves the price; the button keeps the running total.</span>
           <button class="ws-btn ws-quiet" type="button" onclick="wsBack()">${WS_ICONS.back}Start over</button>
           <button class="ws-btn primary" type="button" id="wsMeshGo" onclick="wsMeshGenerate()">Generate</button>`;
       }

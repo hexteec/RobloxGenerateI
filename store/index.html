@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
-    href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
     rel="stylesheet">
 
   <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
@@ -57,67 +57,71 @@
 
   <style>
     :root {
-      --bg: #FAFAF9;
+      --bg: #ECEEF0;
       --card: #FFFFFF;
-      --soft: #F4F3F1;
-      --soft-2: #EAE8E4;
-      --border: #E5E3DF;
-      --ink: #201F1C;
-      --ink-2: #2b2a2a;
-      --ink-muted: #6B6862;
-      --ink-faint: #A6A29A;
+      --soft: #F3F4F6;
+      --soft-2: #E0E3E7;
+      --border: #D9DDE2;
+      --ink: #1C2127;
+      --ink-2: #272D33;
+      --ink-muted: #5B6470;
+      --ink-faint: #98A0A9;
 
-      --gridColor: rgba(70, 68, 64, 0.055);
-      --Check-1: #f5f4f2;
-      --Check-2: #fafaf9;
+      --gridColor: rgba(28, 33, 39, 0.055);
+      --Check-1: #ECEEF0;
+      --Check-2: #F1F2F4;
 
-      --accent: #B45A34;
-      --accent-deep: #954A2A;
-      --accent-wash: #FBEEE7;
+      --accent: #0D69AC;
+      --accent-deep: #0A568E;
+      --accent-wash: #E3EDF6;
 
-      --mint: #3E7A5F;
-      --mint-wash: #EAF3EE;
-      --coral: #B9482F;
+      --mint: #287F47;
+      --mint-wash: #E4F1E8;
+      --coral: #C4281C;
       --amber: #A87A2A;
-      --amber-wash: #F7F0E2;
+      --amber-wash: #F6EFE1;
 
       --radius-lg: 16px;
       --radius-md: 12px;
       --radius-sm: 9px;
 
-      --shadow-sm: 0 1px 2px rgba(32, 31, 28, 0.05);
-      --shadow-md: 0 6px 20px rgba(32, 31, 28, 0.06);
-      --shadow-lg: 0 16px 40px rgba(32, 31, 28, 0.10);
+      --shadow-sm: 0 1px 0 rgba(28, 33, 39, 0.06);
+      --shadow-md: 0 2px 0 var(--edge);
+      --shadow-lg: 0 2px 0 var(--edge), 0 18px 34px -16px rgba(28, 33, 39, 0.28);
 
-      --font-display: 'Sora', sans-serif;
-      --font-body: 'Inter', sans-serif;
-      --font-mono: 'JetBrains Mono', monospace;
+      --font-display: 'Schibsted Grotesk', system-ui, sans-serif;
+      --font-body: 'Schibsted Grotesk', system-ui, sans-serif;
+      --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+      --on-accent: #ffffff;
+      --edge: #D6DADF;
     }
 
     [data-theme="dark"] {
-      --bg: #17161A;
-      --card: #1F1E23;
-      --soft: #26252B;
-      --soft-2: #333138;
-      --border: #35333A;
-      --ink: #C0ADC9;
-      --ink-2: #cfc2d3;
-      --ink-muted: #A19FA8;
-      --ink-faint: #6E6C75;
-      --gridColor: rgba(78, 78, 80, 0.164);
-      --Check-1: #242224;
-      --Check-2: rgb(32, 31, 32);
-      --accent: #E08350;
-      --accent-deep: #F0996A;
-      --accent-wash: #3A2A20;
-      --mint: #5FAE8A;
-      --mint-wash: #1E2E27;
-      --coral: #E17A63;
+      --bg: #1C1D20;
+      --card: #26272B;
+      --soft: #2E2F34;
+      --soft-2: #393B40;
+      --border: #3F4147;
+      --ink: #E8E9EB;
+      --ink-2: #D6D8DB;
+      --ink-muted: #A3A8AF;
+      --ink-faint: #6C7179;
+      --gridColor: rgba(255, 255, 255, 0.035);
+      --Check-1: #1C1D20;
+      --Check-2: #1F2024;
+      --accent: #5AA8EA;
+      --accent-deep: #88C1F0;
+      --accent-wash: #1C2A37;
+      --mint: #5BB47F;
+      --mint-wash: #1C2E23;
+      --coral: #E5675C;
       --amber: #D3A657;
       --amber-wash: #332A1A;
-      --shadow-sm: 0 1px 2px rgba(0, 0, 0, .25);
-      --shadow-md: 0 6px 20px rgba(0, 0, 0, .3);
-      --shadow-lg: 0 16px 40px rgba(0, 0, 0, .45);
+      --shadow-sm: 0 1px 0 rgba(0, 0, 0, 0.3);
+      --shadow-md: 0 2px 0 var(--edge);
+      --shadow-lg: 0 2px 0 var(--edge), 0 18px 34px -14px rgba(0, 0, 0, 0.6);
+      --on-accent: #0D1720;
+      --edge: #131416;
     }
 
     [data-theme="sea"] {
@@ -141,9 +145,9 @@
       --coral: #C25A45;
       --amber: #B08A2E;
       --amber-wash: #F3EDDD;
-      --shadow-sm: 0 1px 2px rgba(20, 50, 60, .06);
-      --shadow-md: 0 6px 20px rgba(20, 50, 60, .08);
-      --shadow-lg: 0 16px 40px rgba(20, 50, 60, .12);
+      --shadow-sm: 0 1px 0 rgba(20, 30, 30, 0.06);
+      --shadow-md: 0 2px 0 var(--edge);
+      --shadow-lg: 0 2px 0 var(--edge), 0 18px 34px -16px rgba(20, 30, 30, 0.26);
     }
 
     [data-theme="forest"] {
@@ -167,9 +171,9 @@
       --coral: #B0553A;
       --amber: #A8842C;
       --amber-wash: #F2ECDA;
-      --shadow-sm: 0 1px 2px rgba(30, 40, 20, .06);
-      --shadow-md: 0 6px 20px rgba(30, 40, 20, .08);
-      --shadow-lg: 0 16px 40px rgba(30, 40, 20, .12);
+      --shadow-sm: 0 1px 0 rgba(20, 30, 30, 0.06);
+      --shadow-md: 0 2px 0 var(--edge);
+      --shadow-lg: 0 2px 0 var(--edge), 0 18px 34px -16px rgba(20, 30, 30, 0.26);
     }
 
     [data-theme="sun"] {
@@ -193,9 +197,9 @@
       --coral: #C1502F;
       --amber: #C1911F;
       --amber-wash: #F7EBCE;
-      --shadow-sm: 0 1px 2px rgba(60, 45, 10, .06);
-      --shadow-md: 0 6px 20px rgba(60, 45, 10, .08);
-      --shadow-lg: 0 16px 40px rgba(60, 45, 10, .12);
+      --shadow-sm: 0 1px 0 rgba(20, 30, 30, 0.06);
+      --shadow-md: 0 2px 0 var(--edge);
+      --shadow-lg: 0 2px 0 var(--edge), 0 18px 34px -16px rgba(20, 30, 30, 0.26);
     }
 
     * {
@@ -398,11 +402,11 @@
     }
 
     .theme-dot[data-theme-id="light"] {
-      background: linear-gradient(135deg, #FAFAF9 50%, #B45A34 50%);
+      background: linear-gradient(135deg, #ECEEF0 50%, #0D69AC 50%);
     }
 
     .theme-dot[data-theme-id="dark"] {
-      background: linear-gradient(135deg, #17161A 50%, #E08350 50%);
+      background: linear-gradient(135deg, #1C1D20 50%, #5AA8EA 50%);
     }
 
     .theme-dot[data-theme-id="sea"] {
@@ -1243,6 +1247,184 @@
         flex: none;
       }
     }
+    /* ============================ MATERIAL ============================
+       The store is the app's Toolbox: same baseplate, same plastic. Plates
+       stand off the grid by tone and a crisp underside instead of an
+       outline and a halo; keys are pressed, not hovered into the air;
+       categories are tabs you hold down, not a row of pills; and nothing
+       is labelled in spaced capitals. */
+    .btn-google-nav,
+    .token-balance,
+    .btn-signout,
+    .btn-load-more {
+      border: 0 !important;
+      border-radius: var(--radius-sm) !important;
+      background: var(--card) !important;
+      color: var(--ink) !important;
+      box-shadow: 0 2px 0 var(--edge) !important;
+      font-family: var(--font-body);
+      transition: transform .45s cubic-bezier(.34, 1.9, .5, 1), box-shadow .15s ease !important;
+    }
+
+    .btn-google-nav:active,
+    .token-balance:active,
+    .btn-signout:active,
+    .btn-load-more:active { transform: scale(.95, .9); transition-duration: .08s !important; }
+
+    .btn-signout { color: var(--ink-muted) !important; }
+    .btn-signout:hover { color: var(--coral) !important; }
+    .token-balance { font-weight: 700; }
+    .u-avatar-nav { border: 0 !important; background: var(--soft-2); }
+
+    /* The three places are one segmented control. */
+    .store-nav {
+      background: var(--soft-2);
+      border: 0;
+      border-radius: 11px;
+      padding: 3px;
+      gap: 2px;
+      box-shadow: none;
+    }
+
+    .store-nav-link {
+      border-radius: 8px;
+      color: var(--ink-muted);
+    }
+
+    .store-nav-link.active,
+    .store-nav-link.active:hover {
+      background: var(--card);
+      color: var(--ink);
+      box-shadow: 0 2px 0 var(--edge);
+    }
+
+    .store-hero { text-align: left; max-width: 1040px; margin-left: auto; margin-right: auto; }
+    .sh-title { font-size: clamp(28px, 6vw, 40px); letter-spacing: -0.025em; line-height: 1.05; }
+    .sh-sub { margin-left: 0; max-width: 52ch; }
+
+    .store-search,
+    .store-select {
+      border-radius: var(--radius-sm) !important;
+      box-shadow: none !important;
+    }
+
+    /* Categories: held-down tabs, like the Toolbox's own. */
+    .cat-pill {
+      border: 0;
+      border-radius: var(--radius-sm);
+      background: transparent;
+      color: var(--ink-muted);
+      padding: 8px 12px;
+    }
+
+    .cat-pill:hover { background: color-mix(in srgb, var(--soft-2) 60%, transparent); color: var(--ink); }
+
+    .cat-pill.active,
+    .cat-pill.active:hover {
+      background: var(--soft-2);
+      color: var(--ink);
+      box-shadow: inset 0 2px 0 color-mix(in srgb, var(--ink) 8%, transparent);
+    }
+
+    /* A model stands on its own little baseplate. */
+    .asset-card {
+      border: 0;
+      box-shadow: 0 3px 0 var(--edge);
+      animation: none;
+      transition: box-shadow .15s ease;
+    }
+
+    .asset-card:hover {
+      transform: none;
+      border-color: transparent;
+      box-shadow: 0 3px 0 color-mix(in srgb, var(--edge) 50%, var(--ink-faint));
+    }
+
+    .asset-preview {
+      background-color: var(--soft);
+      background-image: radial-gradient(circle at center, color-mix(in srgb, var(--ink) 9%, transparent) 2px, transparent 2.6px);
+      background-size: 14px 14px;
+      transition: transform .5s cubic-bezier(.34, 1.5, .5, 1);
+    }
+
+    .asset-card:hover .asset-preview { transform: scale(1.03); }
+    .asset-card { overflow: hidden; }
+
+    .asset-price { font-family: var(--font-body); font-weight: 700; color: var(--ink); }
+    .asset-stats { font-family: var(--font-body); }
+    .asset-stats svg { width: 12px; height: 12px; }
+
+    .asset-owned-badge {
+      text-transform: none;
+      letter-spacing: 0;
+      border-radius: 5px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .dash-stat,
+    .dash-table-wrap {
+      border: 0;
+      box-shadow: 0 3px 0 var(--edge);
+    }
+
+    .dash-stat-label,
+    .list-table th,
+    .detail-stat-label,
+    .section-title {
+      text-transform: none;
+      letter-spacing: 0;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--ink-muted);
+    }
+
+    .list-table td.money { font-family: var(--font-body); font-weight: 700; }
+    .list-table th, .list-table td { border-bottom-color: var(--soft-2); }
+
+    .detail-overlay {
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+      background: rgba(20, 24, 28, 0.45);
+    }
+
+    .detail-modal { border: 0; }
+
+    .detail-close svg { width: 15px; height: 15px; }
+
+    .detail-buy-btn {
+      border-radius: var(--radius-sm);
+      background: var(--accent);
+      color: var(--on-accent);
+      box-shadow: inset 0 -3px 0 var(--accent-deep);
+      transition: transform .45s cubic-bezier(.34, 1.9, .5, 1), background .15s ease;
+    }
+
+    .detail-buy-btn:hover:not(:disabled) { transform: none; background: color-mix(in srgb, var(--accent) 90%, #fff); }
+    .detail-buy-btn:active:not(:disabled) { transform: scale(.97, .92); transition-duration: .08s; }
+
+    .like-btn {
+      border: 0;
+      border-radius: var(--radius-sm);
+      background: var(--soft);
+      box-shadow: inset 0 -2px 0 var(--soft-2);
+    }
+
+    .status-toast { border-radius: var(--radius-sm); }
+
+    .store-hero { padding-left: 0; padding-right: 0; }
+
+    /* The grid lines up with the search and the categories above it. */
+    #assetGrid, .load-more-wrap { max-width: 1040px; margin-left: auto; margin-right: auto; }
+
+    /* On a phone the three places take their own full row under the brand
+       and the account, instead of running off the side of the screen. */
+    @media (max-width: 768px) {
+      .nav-left { display: contents; }
+      .store-nav { order: 3; width: 100%; }
+      .store-nav-link { flex: 1; text-align: center; padding-left: 6px; padding-right: 6px; }
+      .store-hero { padding-top: 24px; }
+    }
   </style>
 </head>
 
@@ -1280,11 +1462,7 @@
         <div class="user-row-nav" id="userRow">
           <div class="token-balance" id="tokenBalanceChip" title="Buy more tokens"
             onclick="window.location.href='/tokens/index.html'">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-              stroke-linejoin="round">
-              <circle cx="12" cy="12" r="10"></circle>
-              <polyline points="12 6 12 12 16 14"></polyline>
-            </svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/></svg>
             <span id="tokenCount">–</span>
           </div>
           <img class="u-avatar-nav" id="userAvatar" alt="">
@@ -1300,10 +1478,9 @@
         <div class="store-content-inner">
 
           <div class="store-hero">
-            <div class="hero-eyebrow"><span id="eyebrowIcon"></span>Community Store</div>
-            <h1 class="sh-title">Discover premium community assets</h1>
-            <p class="sh-sub">High‑quality 3D models, props and UI scripts made by the RoPeak community — ready to drop
-              into your Roblox experience.</p>
+            <h1 class="sh-title">Models from other creators</h1>
+            <p class="sh-sub">Props, buildings, vehicles and characters that people on RoPeak made and put up for
+              tokens. Each one opens straight in Studio.</p>
           </div>
 
           <div class="store-filters">
@@ -1353,7 +1530,7 @@
         <div class="store-content-inner">
           <div class="section-hero">
             <h2>My Library</h2>
-            <p>Access and manage your personal collection of generated and purchased 3D models.</p>
+            <p>Every model you made or bought, ready to download again.</p>
           </div>
           <div class="asset-grid" id="libraryGrid" style="max-width:1040px; margin-left:auto; margin-right:auto;"></div>
         </div>
@@ -1364,18 +1541,14 @@
         <div class="store-content-inner">
           <div class="section-hero">
             <h2>Creator Dashboard</h2>
-            <p>Track sales, earnings and engagement across everything you've published.</p>
+            <p>What your published models sold and earned.</p>
           </div>
 
           <div class="dash-stats">
             <div class="dash-stat earned">
               <div class="dash-stat-label">Total earned</div>
               <div class="dash-stat-value">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                  stroke-linecap="round" stroke-linejoin="round">
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <polyline points="12 6 12 12 16 14"></polyline>
-                </svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/></svg>
                 <span id="dashEarned">–</span>
               </div>
             </div>
@@ -1415,7 +1588,7 @@
   <!-- DETAIL MODAL -->
   <div class="detail-overlay" id="detailModal">
     <div class="detail-modal">
-      <button class="detail-close" onclick="closeDetailModal()">✕</button>
+      <button class="detail-close" onclick="closeDetailModal()" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
 
       <div class="detail-left">
         <model-viewer id="detailModelViewer" class="detail-model" auto-rotate camera-controls shadow-intensity="1"
@@ -1497,7 +1670,6 @@
 
     paintIcon("brandMark", ICONS.ropeak);
     paintIcon("signOutIcon", ICONS.power);
-    paintIcon("eyebrowIcon", ICONS.spark);
 
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
@@ -1673,7 +1845,7 @@
         if (containerId !== "assetGrid" || currentExplorePage === 1) {
           container.innerHTML = `<div class="empty-state">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 9h18"/></svg>
-            No assets found.
+            Nothing here yet. Try another category or a shorter search.
           </div>`;
         }
         return;
@@ -1688,11 +1860,11 @@
           <div class="asset-meta">
             ${a.owned
           ? '<span class="asset-owned-badge">Owned</span>'
-          : `<span class="asset-price">${a.priceTokens} T</span>`
+          : `<span class="asset-price">${a.priceTokens} tokens</span>`
         }
             <div class="asset-stats">
-              <span>★ ${a.likesCount || 0}</span>
-              <span>⬇ ${a.salesCount || 0}</span>
+              <span title="Likes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1 1.1L12 21l7.8-7.5 1-1.1a5.5 5.5 0 0 0 0-7.8Z"/></svg>${a.likesCount || 0}</span>
+              <span title="Sold"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0-4-4m4 4 4-4M5 21h14"/></svg>${a.salesCount || 0}</span>
             </div>
           </div>
         </div>

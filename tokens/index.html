@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
-    href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
     rel="stylesheet">
 
   <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
@@ -18,67 +18,71 @@
 
   <style>
     :root {
-      --bg: #FAFAF9;
+      --bg: #ECEEF0;
       --card: #FFFFFF;
-      --soft: #F4F3F1;
-      --soft-2: #EAE8E4;
-      --border: #E5E3DF;
-      --ink: #201F1C;
-      --ink-2: #2b2a2a;
-      --ink-muted: #6B6862;
-      --ink-faint: #A6A29A;
+      --soft: #F3F4F6;
+      --soft-2: #E0E3E7;
+      --border: #D9DDE2;
+      --ink: #1C2127;
+      --ink-2: #272D33;
+      --ink-muted: #5B6470;
+      --ink-faint: #98A0A9;
 
-      --gridColor: rgba(70, 68, 64, 0.055);
-      --Check-1: #f5f4f2;
-      --Check-2: #fafaf9;
+      --gridColor: rgba(28, 33, 39, 0.055);
+      --Check-1: #ECEEF0;
+      --Check-2: #F1F2F4;
 
-      --accent: #B45A34;
-      --accent-deep: #954A2A;
-      --accent-wash: #FBEEE7;
+      --accent: #0D69AC;
+      --accent-deep: #0A568E;
+      --accent-wash: #E3EDF6;
 
-      --mint: #3E7A5F;
-      --mint-wash: #EAF3EE;
-      --coral: #B9482F;
+      --mint: #287F47;
+      --mint-wash: #E4F1E8;
+      --coral: #C4281C;
       --amber: #A87A2A;
-      --amber-wash: #F7F0E2;
+      --amber-wash: #F6EFE1;
 
       --radius-lg: 16px;
       --radius-md: 12px;
       --radius-sm: 9px;
 
-      --shadow-sm: 0 1px 2px rgba(32, 31, 28, 0.05);
-      --shadow-md: 0 6px 20px rgba(32, 31, 28, 0.06);
-      --shadow-lg: 0 16px 40px rgba(32, 31, 28, 0.10);
+      --shadow-sm: 0 1px 0 rgba(28, 33, 39, 0.06);
+      --shadow-md: 0 2px 0 var(--edge);
+      --shadow-lg: 0 2px 0 var(--edge), 0 18px 34px -16px rgba(28, 33, 39, 0.28);
 
-      --font-display: 'Sora', sans-serif;
-      --font-body: 'Inter', sans-serif;
-      --font-mono: 'JetBrains Mono', monospace;
+      --font-display: 'Schibsted Grotesk', system-ui, sans-serif;
+      --font-body: 'Schibsted Grotesk', system-ui, sans-serif;
+      --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+      --on-accent: #ffffff;
+      --edge: #D6DADF;
     }
 
     [data-theme="dark"] {
-      --bg: #17161A;
-      --card: #1F1E23;
-      --soft: #26252B;
-      --soft-2: #333138;
-      --border: #35333A;
-      --ink: #C0ADC9;
-      --ink-2: #cfc2d3;
-      --ink-muted: #A19FA8;
-      --ink-faint: #6E6C75;
-      --gridColor: rgba(78, 78, 80, 0.164);
-      --Check-1: #242224;
-      --Check-2: rgb(32, 31, 32);
-      --accent: #E08350;
-      --accent-deep: #F0996A;
-      --accent-wash: #3A2A20;
-      --mint: #5FAE8A;
-      --mint-wash: #1E2E27;
-      --coral: #E17A63;
+      --bg: #1C1D20;
+      --card: #26272B;
+      --soft: #2E2F34;
+      --soft-2: #393B40;
+      --border: #3F4147;
+      --ink: #E8E9EB;
+      --ink-2: #D6D8DB;
+      --ink-muted: #A3A8AF;
+      --ink-faint: #6C7179;
+      --gridColor: rgba(255, 255, 255, 0.035);
+      --Check-1: #1C1D20;
+      --Check-2: #1F2024;
+      --accent: #5AA8EA;
+      --accent-deep: #88C1F0;
+      --accent-wash: #1C2A37;
+      --mint: #5BB47F;
+      --mint-wash: #1C2E23;
+      --coral: #E5675C;
       --amber: #D3A657;
       --amber-wash: #332A1A;
-      --shadow-sm: 0 1px 2px rgba(0, 0, 0, .25);
-      --shadow-md: 0 6px 20px rgba(0, 0, 0, .3);
-      --shadow-lg: 0 16px 40px rgba(0, 0, 0, .45);
+      --shadow-sm: 0 1px 0 rgba(0, 0, 0, 0.3);
+      --shadow-md: 0 2px 0 var(--edge);
+      --shadow-lg: 0 2px 0 var(--edge), 0 18px 34px -14px rgba(0, 0, 0, 0.6);
+      --on-accent: #0D1720;
+      --edge: #131416;
     }
 
     [data-theme="sea"] {
@@ -102,9 +106,9 @@
       --coral: #C25A45;
       --amber: #B08A2E;
       --amber-wash: #F3EDDD;
-      --shadow-sm: 0 1px 2px rgba(20, 50, 60, .06);
-      --shadow-md: 0 6px 20px rgba(20, 50, 60, .08);
-      --shadow-lg: 0 16px 40px rgba(20, 50, 60, .12);
+      --shadow-sm: 0 1px 0 rgba(20, 30, 30, 0.06);
+      --shadow-md: 0 2px 0 var(--edge);
+      --shadow-lg: 0 2px 0 var(--edge), 0 18px 34px -16px rgba(20, 30, 30, 0.26);
     }
 
     [data-theme="forest"] {
@@ -128,9 +132,9 @@
       --coral: #B0553A;
       --amber: #A8842C;
       --amber-wash: #F2ECDA;
-      --shadow-sm: 0 1px 2px rgba(30, 40, 20, .06);
-      --shadow-md: 0 6px 20px rgba(30, 40, 20, .08);
-      --shadow-lg: 0 16px 40px rgba(30, 40, 20, .12);
+      --shadow-sm: 0 1px 0 rgba(20, 30, 30, 0.06);
+      --shadow-md: 0 2px 0 var(--edge);
+      --shadow-lg: 0 2px 0 var(--edge), 0 18px 34px -16px rgba(20, 30, 30, 0.26);
     }
 
     [data-theme="sun"] {
@@ -154,9 +158,9 @@
       --coral: #C1502F;
       --amber: #C1911F;
       --amber-wash: #F7EBCE;
-      --shadow-sm: 0 1px 2px rgba(60, 45, 10, .06);
-      --shadow-md: 0 6px 20px rgba(60, 45, 10, .08);
-      --shadow-lg: 0 16px 40px rgba(60, 45, 10, .12);
+      --shadow-sm: 0 1px 0 rgba(20, 30, 30, 0.06);
+      --shadow-md: 0 2px 0 var(--edge);
+      --shadow-lg: 0 2px 0 var(--edge), 0 18px 34px -16px rgba(20, 30, 30, 0.26);
     }
 
     * {
@@ -313,27 +317,26 @@
       height: 14px;
     }
 
+    /* Keys, not pills: the same pressable plastic as in the app. */
     .btn-google-nav {
       display: flex;
       align-items: center;
       gap: 8px;
-      background: var(--soft);
-      border: 1px solid var(--border);
+      background: var(--card);
+      border: 0;
       color: var(--ink);
-      font-size: 12.5px;
+      font-size: 13px;
       font-weight: 600;
-      padding: 9px 15px;
-      border-radius: 999px;
+      padding: 9px 14px 10px;
+      border-radius: var(--radius-sm);
+      box-shadow: 0 2px 0 var(--edge);
       cursor: pointer;
-      transition: border-color .15s ease, background .15s ease;
+      transition: transform .45s cubic-bezier(.34, 1.9, .5, 1);
       flex-shrink: 0;
       white-space: nowrap;
     }
 
-    .btn-google-nav:hover {
-      border-color: var(--ink-faint);
-      background: var(--soft-2);
-    }
+    .btn-google-nav:active { transform: scale(.95, .9); transition-duration: .08s; }
 
     .btn-google-nav svg {
       width: 14px;
@@ -358,22 +361,21 @@
       height: 30px;
       border-radius: 50%;
       object-fit: cover;
-      border: 1px solid var(--border);
+      background: var(--soft-2);
       flex-shrink: 0;
     }
 
     .token-balance {
-      font-family: var(--font-mono);
       font-size: 13px;
-      font-weight: 600;
-      color: var(--mint);
-      background: var(--mint-wash);
-      padding: 7px 13px 7px 11px;
-      border-radius: 999px;
+      font-weight: 700;
+      color: var(--ink);
+      background: var(--card);
+      padding: 7px 12px 8px 10px;
+      border-radius: var(--radius-sm);
+      box-shadow: 0 2px 0 var(--edge);
       display: flex;
       align-items: center;
-      gap: 6px;
-      border: 1px solid color-mix(in srgb, var(--mint) 28%, transparent);
+      gap: 7px;
       cursor: default;
       flex-shrink: 0;
       white-space: nowrap;
@@ -391,19 +393,17 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background: var(--soft);
-      border: 1px solid var(--border);
-      border-radius: 9px;
-      color: var(--ink-faint);
+      background: var(--card);
+      border: 0;
+      border-radius: var(--radius-sm);
+      box-shadow: 0 2px 0 var(--edge);
+      color: var(--ink-muted);
       cursor: pointer;
-      transition: color .15s ease, border-color .15s ease;
+      transition: color .15s ease;
       flex-shrink: 0;
     }
 
-    .btn-signout:hover {
-      color: var(--coral);
-      border-color: var(--coral);
-    }
+    .btn-signout:hover { color: var(--coral); }
 
     .btn-signout svg {
       width: 14px;
@@ -412,291 +412,137 @@
 
     /* ---------------- Header ---------------- */
     .hero {
-      max-width: 720px;
+      max-width: 560px;
       margin: 0 auto;
-      text-align: center;
-      padding: 68px 24px 40px;
-      position: relative;
-    }
-
-    .hero-eyebrow {
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      font-family: var(--font-mono);
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: .06em;
-      text-transform: uppercase;
-      color: var(--ink-faint);
-      background: var(--soft);
-      border: 1px solid var(--border);
-      padding: 6px 12px;
-      border-radius: 999px;
-      margin-bottom: 20px;
-    }
-
-    .hero-eyebrow svg {
-      width: 12px;
-      height: 12px;
-      color: var(--accent);
+      padding: 64px 24px 0;
     }
 
     .hero h1 {
       font-family: var(--font-display);
       font-weight: 700;
-      font-size: clamp(26px, 7vw, 38px);
-      letter-spacing: -0.02em;
+      font-size: clamp(30px, 7vw, 42px);
+      letter-spacing: -0.025em;
+      line-height: 1.05;
       margin: 0 0 12px;
       color: var(--ink);
     }
 
     .hero p {
       color: var(--ink-muted);
-      font-size: 14.5px;
+      font-size: 15px;
       line-height: 1.6;
-      max-width: 480px;
-      margin: 0 auto;
+      margin: 0;
+      max-width: 46ch;
     }
 
-    /* ---------------- Rate strip ---------------- */
-    .rate-strip {
-      max-width: 780px;
-      margin: 30px auto 0;
-      padding: 0 24px;
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-    }
+    .hero p b { color: var(--ink); font-weight: 600; }
 
-    .rate-item {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-      padding: 14px 16px;
-      display: flex;
-      align-items: center;
-      gap: 11px;
-      box-shadow: var(--shadow-sm);
-      min-width: 0;
-    }
-
-    .rate-item .ri-icon {
-      width: 32px;
-      height: 32px;
-      border-radius: 8px;
-      background: var(--soft);
-      color: var(--accent);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-
-    .rate-item .ri-icon svg {
-      width: 15px;
-      height: 15px;
-    }
-
-    .rate-item .ri-text {
-      min-width: 0;
-    }
-
-    .rate-item .ri-label {
-      font-size: 11px;
-      color: var(--ink-faint);
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: .03em;
-    }
-
-    .rate-item .ri-value {
-      font-family: var(--font-mono);
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--ink);
-      margin-top: 2px;
-    }
-
-    /* ---------------- Packages ---------------- */
+    /* ---------------- Packages ----------------
+       One ledger, ruled like the one in the app's top-up window: a stack
+       of coins that grows by one per step, the amount, what a token comes
+       to, and the price. The savings are computed, not labelled. */
     .packages-wrap {
-      max-width: 720px;
-      margin: 46px auto 0;
+      max-width: 560px;
+      margin: 30px auto 0;
       padding: 0 24px;
     }
 
     .packages-list {
-      border-top: 1px solid var(--border);
+      background: var(--card);
+      border-radius: var(--radius-lg);
+      box-shadow: 0 3px 0 var(--edge);
+      overflow: hidden;
     }
 
     .pkg-row {
       display: grid;
-      grid-template-columns: 28px 1fr auto auto;
+      grid-template-columns: 30px minmax(0, 1fr) auto;
       align-items: center;
-      column-gap: 18px;
-      padding: 16px 4px;
-      border-bottom: 1px solid var(--border);
+      gap: 16px;
+      width: 100%;
+      padding: 16px 20px 16px 18px;
+      border: 0;
+      border-top: 1px solid var(--soft-2);
+      background: none;
+      font: inherit;
+      color: var(--ink);
+      text-align: left;
       cursor: pointer;
-      position: relative;
       transition: background .15s ease;
-      animation: floatUp .28s ease both;
     }
 
-    .pkg-row:nth-child(1) {
-      animation-delay: .0s;
+    .pkg-row:first-child { border-top: 0; }
+    .pkg-row:hover { background: var(--soft); }
+    .pkg-row:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+    .pkg-row.best { background: var(--accent-wash); }
+    .pkg-row.best:hover { background: color-mix(in srgb, var(--accent) 16%, var(--card)); }
+
+    .p-stack {
+      display: flex;
+      flex-direction: column-reverse;
+      align-items: center;
+      gap: 2px;
+      height: 30px;
     }
 
-    .pkg-row:nth-child(2) {
-      animation-delay: .03s;
+    .p-stack i {
+      display: block;
+      width: 20px;
+      height: 4px;
+      border-radius: 2px;
+      background: var(--ink-faint);
+      transition: transform .45s cubic-bezier(.34, 1.9, .5, 1);
     }
 
-    .pkg-row:nth-child(3) {
-      animation-delay: .06s;
-    }
+    .p-stack i:nth-child(even) { transform: translateX(2px); }
+    .pkg-row:hover .p-stack i:last-child { transform: translateY(-3px); }
+    .pkg-row.best .p-stack i { background: var(--accent); }
 
-    .pkg-row:nth-child(4) {
-      animation-delay: .09s;
-    }
+    .p-main { min-width: 0; }
 
-    .pkg-row:nth-child(5) {
-      animation-delay: .12s;
-    }
-
-    .pkg-row:hover {
-      background: var(--soft);
-    }
-
-    .pkg-row.best {
-      background: color-mix(in srgb, var(--accent-wash) 55%, transparent);
-    }
-
-    .pkg-row.best:hover {
-      background: var(--accent-wash);
-    }
-
-    .pr-mark {
-      font-family: var(--font-mono);
-      font-size: 11px;
-      color: var(--ink-faint);
-      text-align: right;
-    }
-
-    .pkg-row.best .pr-mark {
-      color: var(--accent);
-    }
-
-    .pr-main {
-      min-width: 0;
-    }
-
-    .pr-tokens {
+    .p-amount {
+      display: block;
       font-family: var(--font-display);
-      font-size: 16.5px;
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--ink-muted);
+    }
+
+    .p-amount b {
+      font-size: 19px;
       font-weight: 700;
       color: var(--ink);
-      letter-spacing: -0.01em;
-      display: flex;
-      align-items: baseline;
-      gap: 6px;
-      flex-wrap: wrap;
+      letter-spacing: -0.02em;
+      margin-right: 4px;
     }
 
-    .pr-tokens .unit {
-      font-family: var(--font-body);
-      font-size: 12px;
-      font-weight: 500;
-      color: var(--ink-faint);
+    .p-meta {
+      display: block;
+      margin-top: 2px;
+      font-size: 12.5px;
+      color: var(--ink-muted);
     }
 
-    .pr-tokens .pr-tag {
-      font-size: 10.5px;
+    .p-meta em {
+      font-style: normal;
       font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: .04em;
-      color: var(--ink-faint);
-      background: var(--soft-2);
-      padding: 2px 7px;
-      border-radius: 5px;
-    }
-
-    .pkg-row.best .pr-tag {
       color: var(--accent-deep);
-      background: color-mix(in srgb, var(--accent) 16%, var(--card));
     }
 
-    .pr-rate {
-      font-family: var(--font-mono);
-      font-size: 11px;
-      color: var(--ink-faint);
-      margin-top: 3px;
-    }
-
-    .pr-price {
-      font-family: var(--font-mono);
-      font-size: 14.5px;
-      font-weight: 600;
+    .p-price {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 16px;
       color: var(--ink);
       white-space: nowrap;
     }
 
-    .pr-go {
-      justify-self: end;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      font-size: 12.5px;
-      font-weight: 600;
-      color: var(--ink-muted);
-      padding: 7px 10px;
-      border-radius: 999px;
-      border: 1px solid transparent;
-      transition: border-color .15s ease, color .15s ease, background .15s ease;
-    }
-
-    .pr-go svg {
-      width: 12px;
-      height: 12px;
-      transition: transform .15s ease;
-    }
-
-    .pkg-row:hover .pr-go {
-      border-color: var(--border);
-      background: var(--card);
-      color: var(--ink);
-    }
-
-    .pkg-row:hover .pr-go svg {
-      transform: translateX(2px);
-    }
-
-    .pkg-row.best .pr-go {
-      color: var(--accent-deep);
-    }
-
-    .pkg-row.best:hover .pr-go {
-      border-color: var(--accent);
-      background: var(--card);
-    }
-
-    /* ---------------- FAQ / note ---------------- */
     .note-row {
-      max-width: 1040px;
-      margin: 40px auto 90px;
+      max-width: 560px;
+      margin: 18px auto 90px;
       padding: 0 24px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      color: var(--ink-faint);
-      font-size: 12px;
-      text-align: center;
-      flex-wrap: wrap;
-    }
-
-    .note-row svg {
-      width: 13px;
-      height: 13px;
-      flex-shrink: 0;
+      color: var(--ink-muted);
+      font-size: 12.5px;
     }
 
     /* ---------------- Toast / status ---------------- */
@@ -751,7 +597,7 @@
     }
 
     .theme-dot:hover {
-      transform: scale(1.12);
+      border-color: var(--ink-faint);
     }
 
     .theme-dot.active::after {
@@ -763,11 +609,11 @@
     }
 
     .theme-dot[data-theme-id="light"] {
-      background: linear-gradient(135deg, #FAFAF9 50%, #B45A34 50%);
+      background: linear-gradient(135deg, #ECEEF0 50%, #0D69AC 50%);
     }
 
     .theme-dot[data-theme-id="dark"] {
-      background: linear-gradient(135deg, #17161A 50%, #E08350 50%);
+      background: linear-gradient(135deg, #1C1D20 50%, #5AA8EA 50%);
     }
 
     .theme-dot[data-theme-id="sea"] {
@@ -783,11 +629,6 @@
     }
 
     /* ---------------- Responsive ---------------- */
-    @media (max-width: 980px) {
-      .rate-strip {
-        grid-template-columns: 1fr;
-      }
-    }
 
     @media (max-width: 700px) {
       .btn-google-nav .btn-label {
@@ -824,9 +665,6 @@
         font-size: 13.5px;
       }
 
-      .rate-strip {
-        padding: 0 18px;
-      }
 
       .packages-wrap {
         margin-top: 30px;
@@ -834,23 +672,13 @@
       }
 
       .pkg-row {
-        grid-template-columns: 22px 1fr auto;
-        row-gap: 8px;
-        padding: 14px 4px;
-      }
-
-      .pr-go {
-        display: none;
-      }
-
-      .pr-mark {
-        font-size: 10px;
+        padding: 14px 16px 14px 14px;
+        gap: 12px;
       }
 
       .note-row {
-        margin: 32px auto 70px;
+        margin: 16px auto 70px;
         padding: 0 18px;
-        font-size: 11.5px;
       }
     }
 
@@ -878,12 +706,8 @@
         height: 26px;
       }
 
-      .pr-tokens {
-        font-size: 15px;
-      }
-
-      .pr-price {
-        font-size: 13.5px;
+      .p-amount b {
+        font-size: 17px;
       }
     }
   </style>
@@ -915,12 +739,7 @@
       </button>
       <div class="user-row-nav" id="userMenu">
         <div class="token-balance" id="topNavTokenBalance">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-            stroke-linejoin="round">
-            <circle cx="12" cy="12" r="10"></circle>
-            <polyline points="12 6 12 12 16 14"></polyline>
-          </svg>
-          <span id="navTokenCount">–</span>
+          <span id="navTokenCount">–</span> tokens
         </div>
         <img class="u-avatar-nav" id="userAvatar" alt="">
         <button class="btn-signout" onclick="signOutUser()" title="Sign out"><span id="signOutIcon"></span></button>
@@ -929,41 +748,16 @@
   </nav>
 
   <div class="hero">
-    <h1>Fuel your next generation</h1>
-    <p>Buy tokens once, spend them on icons, thumbnails, 3D models or UI‑to‑Lua conversions — whenever you need them. No
-      subscription, nothing expires.</p>
-  </div>
-
-  <div class="rate-strip">
-    <div class="rate-item">
-      <div class="ri-icon" id="rateIconImage"></div>
-      <div class="ri-text">
-        <div class="ri-label">Image</div>
-        <div class="ri-value">2 tokens</div>
-      </div>
-    </div>
-    <div class="rate-item">
-      <div class="ri-icon" id="rateIconModel"></div>
-      <div class="ri-text">
-        <div class="ri-label">3D model</div>
-        <div class="ri-value">25–35 tokens</div>
-      </div>
-    </div>
-    <div class="rate-item">
-      <div class="ri-icon" id="rateIconLua"></div>
-      <div class="ri-text">
-        <div class="ri-label">UI → Lua</div>
-        <div class="ri-value">2 tokens / script</div>
-      </div>
-    </div>
+    <h1>Tokens</h1>
+    <p>Buy them once and spend them on anything you make: an image or a UI script is <b>2 tokens</b>, a 3D model
+      <b>25 to 35</b>. Nothing expires and there is no subscription.</p>
   </div>
 
   <div class="packages-wrap">
     <div class="packages-list" id="packagesContainer"></div>
   </div>
 
-  <div class="note-row"><span id="noteIcon"></span>Secure checkout via Stripe. Tokens are added to your account
-    instantly after payment.</div>
+  <div class="note-row">Payment goes through Stripe. The tokens are on your account as soon as it clears.</div>
 
   <div class="status-toast" id="statusToast"></div>
 
@@ -1015,10 +809,6 @@
       document.getElementById("brandMark").innerHTML = ICONS.ropeak;
       document.getElementById("backIcon").innerHTML = ICONS.arrowLeft;
       document.getElementById("signOutIcon").innerHTML = ICONS.power;
-      document.getElementById("noteIcon").innerHTML = ICONS.lock;
-      document.getElementById("rateIconImage").innerHTML = ICONS.image;
-      document.getElementById("rateIconModel").innerHTML = ICONS.cube;
-      document.getElementById("rateIconLua").innerHTML = ICONS.layout;
 
       initThemeSwitch();
       renderPackages();
@@ -1028,7 +818,7 @@
       auth.onAuthStateChanged(onAuthChange);
 
       if (location.search.includes("paid=1")) {
-        showToast("Payment received — updating your balance…");
+        showToast("Payment received. Updating your balance…");
         pollBalanceAfterPurchase();
         window.history.replaceState(null, "", location.pathname);
       }
@@ -1073,18 +863,23 @@
     function renderPackages() {
       const container = document.getElementById("packagesContainer");
       container.innerHTML = "";
+      // Value is computed from the prices rather than described with a
+      // label: "power user" tells a buyer nothing about which pack is cheaper.
+      const perToken = pkg => parseFloat(pkg.price.replace(/[^0-9.]/g, "")) / pkg.tokens;
+      const baseline = Math.max(...PACKAGES.map(perToken));
       PACKAGES.forEach((pkg, i) => {
-        const row = document.createElement("div");
+        const saving = Math.round((1 - perToken(pkg) / baseline) * 100);
+        const cents = (perToken(pkg) * 100).toFixed(1).replace(/\.0$/, "");
+        const row = document.createElement("button");
+        row.type = "button";
         row.className = "pkg-row" + (pkg.best ? " best" : "");
-        const perToken = (parseFloat(pkg.price.replace("$", "")) / pkg.tokens * 100).toFixed(2);
         row.innerHTML = `
-          <div class="pr-mark">${String(i + 1).padStart(2, "0")}</div>
-          <div class="pr-main">
-            <div class="pr-tokens">${pkg.tokens}<span class="unit">tokens</span><span class="pr-tag">${pkg.tag}</span></div>
-            <div class="pr-rate">${perToken}¢ / token</div>
-          </div>
-          <div class="pr-price">${pkg.price}</div>
-          <div class="pr-go">Select ${ICONS.chevronRight}</div>
+          <span class="p-stack" aria-hidden="true">${"<i></i>".repeat(i + 1)}</span>
+          <span class="p-main">
+            <span class="p-amount"><b>${pkg.tokens.toLocaleString("en-US")}</b>tokens</span>
+            <span class="p-meta">${cents}¢ a token${saving > 0 ? `, <em>save ${saving}%</em>` : ""}${pkg.best ? ", most picked" : ""}</span>
+          </span>
+          <span class="p-price">${pkg.price}</span>
         `;
         row.addEventListener("click", () => buyPackage(pkg.id));
         container.appendChild(row);

@@ -6,59 +6,85 @@
 <title>RoPeak — Terms of Service</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
+  /* A document on the baseplate: one white plate, a readable column, the
+     clause numbers hung in the margin where a reader looks for them, and
+     nothing decorated for its own sake. Same palette and type as the app. */
   :root{
-    --bg:#FAFAF9; --card:#FFFFFF; --soft:#F4F3F1; --soft-2:#EAE8E4; --border:#E5E3DF;
-    --ink:#201F1C; --ink-muted:#6B6862; --ink-faint:#A6A29A;
-    --accent:#B45A34; --accent-deep:#954A2A; --accent-wash:#FBEEE7;
-    --mint:#3E7A5F; --mint-wash:#EAF3EE; --coral:#B9482F; --amber:#A87A2A; --amber-wash:#F7F0E2;
+    --bg:#ECEEF0; --card:#FFFFFF; --soft:#F3F4F6; --soft-2:#E0E3E7; --border:#D9DDE2; --edge:#D6DADF;
+    --ink:#1C2127; --ink-muted:#5B6470; --ink-faint:#98A0A9;
+    --accent:#0D69AC; --accent-deep:#0A568E; --accent-wash:#E3EDF6;
+    --mint:#287F47; --mint-wash:#E4F1E8; --coral:#C4281C; --amber:#A87A2A; --amber-wash:#F6EFE1;
     --radius-lg:16px; --radius-md:12px; --radius-sm:9px;
-    --shadow-md:0 6px 20px rgba(32,31,28,.06);
-    --font-display:'Sora',sans-serif; --font-body:'Inter',sans-serif;
+    --font-display:'Schibsted Grotesk',system-ui,sans-serif; --font-body:'Schibsted Grotesk',system-ui,sans-serif;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#1C1D20; --card:#26272B; --soft:#2E2F34; --soft-2:#393B40; --border:#3F4147; --edge:#131416;
+      --ink:#E8E9EB; --ink-muted:#A3A8AF; --ink-faint:#6C7179;
+      --accent:#5AA8EA; --accent-deep:#88C1F0; --accent-wash:#1C2A37;
+      --mint:#5BB47F; --mint-wash:#1C2E23; --coral:#E5675C; --amber:#D3A657; --amber-wash:#332A1A;
+    }
   }
   *{box-sizing:border-box;}
   body{
-    margin:0; background:var(--bg); color:var(--ink); font-family:var(--font-body);
-    font-size:14.5px; line-height:1.65; -webkit-font-smoothing:antialiased;
+    margin:0; color:var(--ink); font-family:var(--font-body);
+    font-size:15px; line-height:1.65; -webkit-font-smoothing:antialiased;
+    background-color:var(--bg);
+    background-image:
+      linear-gradient(color-mix(in srgb, var(--ink) 5.5%, transparent) 1px, transparent 1px),
+      linear-gradient(90deg, color-mix(in srgb, var(--ink) 5.5%, transparent) 1px, transparent 1px),
+      conic-gradient(var(--bg) 90deg, color-mix(in srgb, var(--bg) 70%, var(--card)) 90deg 180deg, var(--bg) 180deg 270deg, color-mix(in srgb, var(--bg) 70%, var(--card)) 270deg);
+    background-size:30px 30px, 30px 30px, 240px 240px;
   }
-  .wrap{max-width:820px; margin:0 auto; padding:60px 24px 100px;}
-  .brand{display:flex; align-items:center; gap:10px; font-family:var(--font-display); font-weight:700; font-size:15px; margin-bottom:34px;}
-  .brand .mark{width:34px; height:34px; border-radius:9px; background:var(--ink); color:#fff; display:flex; align-items:center; justify-content:center;}
-  .brand .mark svg{width:14px; height:14px;}
-  .doc-card{background:var(--card); border:1px solid var(--border); border-radius:var(--radius-lg); box-shadow:var(--shadow-md); padding:40px 44px;}
-  h1{font-family:var(--font-display); font-size:25px; font-weight:700; letter-spacing:-.01em; margin:0 0 6px;}
-  .updated{font-size:12.5px; color:var(--ink-faint); margin-bottom:28px;}
-  .updated .tag{display:inline-block; background:var(--soft); border:1px solid var(--border); border-radius:999px; padding:4px 11px; font-weight:600; color:var(--ink-muted); margin-right:8px;}
-  h2{font-family:var(--font-display); font-size:16.5px; font-weight:700; margin:32px 0 10px; letter-spacing:-.01em; display:flex; align-items:center; gap:8px;}
-  h2 .num{display:inline-flex; align-items:center; justify-content:center; width:24px; height:24px; border-radius:7px; background:var(--accent-wash); color:var(--accent-deep); font-size:12px; font-weight:700; flex-shrink:0;}
+  .wrap{max-width:780px; margin:0 auto; padding:48px 24px 100px;}
+  .brand{display:inline-flex; align-items:center; gap:9px; font-family:var(--font-display); font-weight:700; font-size:15px; margin-bottom:26px; color:var(--ink); border:0;}
+  .brand .mark{width:26px; height:26px; color:var(--accent); display:flex; align-items:center; justify-content:center;}
+  .brand .mark svg{width:26px; height:26px;}
+  .doc-card{background:var(--card); border-radius:var(--radius-lg); box-shadow:0 3px 0 var(--edge); padding:44px 56px 40px 72px;}
+  h1{font-family:var(--font-display); font-size:clamp(28px,6vw,38px); font-weight:700; letter-spacing:-.025em; line-height:1.05; margin:0 0 8px;}
+  .updated{font-size:13px; color:var(--ink-muted); margin-bottom:30px;}
+  .updated .tag{font-weight:600; color:var(--ink-muted); margin-right:4px;}
+  h2{position:relative; font-family:var(--font-display); font-size:17px; font-weight:700; margin:34px 0 10px; letter-spacing:-.01em;}
+  h2 .num{position:absolute; right:100%; margin-right:14px; top:1px; font-size:14px; font-weight:600; color:var(--ink-faint); font-variant-numeric:tabular-nums;}
   p{margin:0 0 12px; color:var(--ink);}
   ul{margin:0 0 12px; padding-left:20px;}
   li{margin-bottom:6px;}
+  li::marker{color:var(--ink-faint);}
   strong{font-weight:700;}
-  a{color:var(--accent-deep); font-weight:600; text-decoration:none; border-bottom:1px solid var(--accent-wash);}
-  .callout{background:var(--soft); border:1px solid var(--border); border-radius:var(--radius-sm); padding:14px 16px; margin:14px 0; font-size:13px; color:var(--ink-muted);}
-  .callout.warn{background:var(--amber-wash); border-color:#EBDFC4;}
-  .callout.mint{background:var(--mint-wash);}
+  a{color:var(--accent-deep); font-weight:600; text-decoration:underline; text-decoration-color:color-mix(in srgb, var(--accent) 35%, transparent); text-underline-offset:3px;}
+  .callout{border-left:3px solid var(--soft-2); padding:2px 0 2px 16px; margin:16px 0; font-size:14px; color:var(--ink-muted);}
   .callout b{color:var(--ink);}
-  table{width:100%; border-collapse:collapse; margin:10px 0 16px; font-size:13px;}
-  th,td{text-align:left; padding:9px 12px; border-bottom:1px solid var(--border);}
-  th{color:var(--ink-muted); font-weight:700; font-size:11.5px; text-transform:uppercase; letter-spacing:.03em; background:var(--soft);}
-  .price-tag{font-weight:700; color:var(--accent-deep);}
-  .footer-note{margin-top:34px; padding-top:20px; border-top:1px solid var(--border); font-size:12.5px; color:var(--ink-faint);}
-  .badge-row{display:flex; flex-wrap:wrap; gap:8px; margin:10px 0 16px;}
-  .badge{font-size:11.5px; font-weight:700; color:var(--ink-muted); background:var(--soft); border:1px solid var(--border); padding:6px 12px; border-radius:999px;}
+  .callout.warn{border-left-color:var(--amber);}
+  .callout.mint{border-left-color:var(--mint);}
+  .pill-row,.badge-row{margin:6px 0 16px; color:var(--ink-muted); font-size:14px;}
+  .pill,.badge{font-weight:600; color:var(--ink);}
+  .pill:not(:last-child)::after,.badge:not(:last-child)::after{content:", ";}
+  table{width:100%; border-collapse:collapse; margin:10px 0 18px; font-size:14px;}
+  th,td{text-align:left; padding:9px 12px 9px 0; border-bottom:1px solid var(--soft-2); vertical-align:top;}
+  th{color:var(--ink-muted); font-weight:600; font-size:13px; border-bottom-color:var(--border);}
+  .price-tag{font-weight:700; color:var(--ink); white-space:nowrap;}
+  .footer-note{margin-top:36px; padding-top:18px; border-top:1px solid var(--soft-2); font-size:13px; color:var(--ink-muted);}
+  .contact-card{margin-top:6px;}
+  .contact-card .c-ico{display:none;}
+  @media (max-width:640px){
+    .wrap{padding:28px 14px 70px;}
+    .doc-card{padding:28px 20px 26px;}
+    h2 .num{position:static; margin-right:8px;}
+    table{font-size:13px;}
+  }
 </style>
 </head>
 <body>
 <div class="wrap">
 
-  <div class="brand">
+  <a class="brand" href="/create/index.html">
     <div class="mark">
       <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g transform="translate(0 5.6239) scale(0.034188)"><path fill="currentColor" d="M 450.5 7 Q 463.2 6.3 468 13.5 L 549 354.5 Q 548.1 361.6 542.5 364 L 474 365 L 323 142.5 L 327 140 L 443.5 10 L 450.5 7 Z"/><path fill="currentColor" d="M 585.5 40 Q 596.3 40.3 600 47.5 Q 645.5 200.5 696 348.5 L 696 356.5 L 691.5 363 L 688.5 365 L 573.5 365 L 566 358.5 L 500 85.5 L 585.5 40 Z"/><path fill="currentColor" d="M 258.5 86 Q 268.6 86.4 272 93.5 L 446 348.5 L 447 357.5 L 440.5 365 L 301.5 365 L 299 362.5 L 254 295 L 247.5 294 L 244 296.5 L 232 311 L 228 314.5 L 180.5 365 L 12.5 365 L 6 359.5 L 5 351.5 L 16 337.5 L 250.5 89 L 258.5 86 Z"/></g></svg>
     </div>
     RoPeak
-  </div>
+  </a>
 
   <div class="doc-card">
     <h1>Terms of Service</h1>
@@ -66,7 +92,7 @@
 
     <p>These Terms of Service govern your use of RoPeak — a platform for generating icons, thumbnails, 3D models, and Lua scripts for Roblox creators (the "Service"). By creating an account or using the Service, you agree to the terms below.</p>
 
-    <h2><span class="num">1</span>Your Account</h2>
+    <h2><span class="num">1.</span>Your Account</h2>
     <ul>
       <li>Using the Service requires signing in with a Google account.</li>
       <li>You are responsible for keeping your account credentials secure.</li>
@@ -74,7 +100,7 @@
       <li>We reserve the right to suspend or terminate accounts that violate these Terms.</li>
     </ul>
 
-    <h2><span class="num">2</span>Tokens & Payments</h2>
+    <h2><span class="num">2.</span>Tokens & Payments</h2>
     <p>Content generation on the Service runs on an internal currency — tokens — purchased in packages via Stripe.</p>
     <table>
       <tr><th>Service</th><th>Cost</th></tr>
@@ -87,7 +113,7 @@
     <div class="callout"><b>Note:</b> the exact cost of a 3D model depends on the settings you choose (textures, quality, PBR) and is always shown before you confirm generation.</div>
     <p>All payments are processed by Stripe. Purchased tokens are <strong>non-refundable</strong>, except where required by applicable law (e.g. a failed transaction or duplicate charge).</p>
 
-    <h2><span class="num">3</span>Generated Content</h2>
+    <h2><span class="num">3.</span>Generated Content</h2>
     <ul>
       <li>Content (images, 3D models, code) is generated automatically based on your prompts and uploaded materials using AI models.</li>
       <li>We do not guarantee that generated content will be error-free, fully match your expectations, or be unique.</li>
@@ -95,17 +121,17 @@
       <li>Generating content that is unlawful, infringes third-party copyright, or contains hate speech, violence, sexual material, or content aimed at exploiting minors is strictly prohibited.</li>
     </ul>
 
-    <h2><span class="num">4</span>Ownership of Generated Content</h2>
+    <h2><span class="num">4.</span>Ownership of Generated Content</h2>
     <p>To the extent permitted by applicable law and the licensing terms of our AI model providers, you are granted rights to use content generated at your request (images, 3D models, code) in your Roblox projects. We are not responsible for any resemblance between generated content and pre-existing third-party works.</p>
 
-    <h2><span class="num">5</span>Community Store</h2>
+    <h2><span class="num">5.</span>Community Store</h2>
     <p>By publishing a 3D model to the Community Store, you agree to make its thumbnail, title, and description publicly visible and allow other users to purchase it with tokens. You earn tokens according to the rules in effect at the time of sale.</p>
     <div class="badge-row">
       <span class="badge">Props</span><span class="badge">Buildings</span><span class="badge">Vehicles</span>
       <span class="badge">Characters</span><span class="badge">Environment</span><span class="badge">Weapons</span>
     </div>
 
-    <h2><span class="num">6</span>Prohibited Uses</h2>
+    <h2><span class="num">6.</span>Prohibited Uses</h2>
     <ul>
       <li>Attempting to circumvent the token system, payment fraud, or unjustified chargebacks.</li>
       <li>Automating bulk generation requests (bots, scripts) without our consent.</li>
@@ -113,19 +139,19 @@
       <li>Using the Service to create content that violates the law or Roblox Corporation's terms.</li>
     </ul>
 
-    <h2><span class="num">7</span>Service Availability</h2>
+    <h2><span class="num">7.</span>Service Availability</h2>
     <p>We work to keep the Service running reliably but do not guarantee 100% uptime. Features such as image generation, 3D models, and Roblox statistics partly depend on third-party providers we do not fully control.</p>
 
-    <h2><span class="num">8</span>Limitation of Liability</h2>
+    <h2><span class="num">8.</span>Limitation of Liability</h2>
     <div class="callout warn"><b>The Service is provided "as is"</b>, without warranties of fitness for a particular purpose. To the maximum extent permitted by law, we are not liable for lost profits, lost data, or indirect damages arising from your use of the Service or its generated content.</div>
 
-    <h2><span class="num">9</span>Changes to These Terms</h2>
+    <h2><span class="num">9.</span>Changes to These Terms</h2>
     <p>We may update these Terms from time to time. Continued use of the Service after changes take effect constitutes acceptance of the updated Terms. We will notify you of material changes in-app.</p>
 
-    <h2><span class="num">10</span>Termination</h2>
+    <h2><span class="num">10.</span>Termination</h2>
     <p>You may stop using the Service and delete your account at any time. We reserve the right to suspend or terminate accounts that violate these Terms, without refunding any unused tokens in cases of violation.</p>
 
-    <h2><span class="num">11</span>Contact Us</h2>
+    <h2><span class="num">11.</span>Contact Us</h2>
     <div class="callout mint">For questions about these Terms, billing, or complaints, contact us via the details available on the Service's homepage.</div>
 
     <div class="footer-note">© 2026 RoPeak. All rights reserved. This document is a general summary and does not constitute legal advice.</div>
