@@ -58,33 +58,41 @@
 
   <style>
     :root {
-      --bg: #FAFAF9;
+      /* The palette comes from Roblox's own bricks: a baseplate grey, white
+         plates, "Bright blue" for the one thing that matters on a surface,
+         "Dark green" and "Bright red" for yes and no. Ink is a plain,
+         barely cool near-black so text never reads as tinted. */
+      --bg: #ECEEF0;
       --card: #FFFFFF;
-      --soft: #F4F3F1;
-      --soft-2: #EAE8E4;
-      --border: #E5E3DF;
-      --ink: #201F1C;
-      --ink-2: #2b2a2a;
-      --ink-3: #d4d1d1;
-      --ink-muted: #6B6862;
-      --ink-faint: #A6A29A;
+      --soft: #F3F4F6;
+      --soft-2: #E0E3E7;
+      --border: #D9DDE2;
+      --ink: #1C2127;
+      --ink-2: #272D33;
+      --ink-3: #d3d7dc;
+      --ink-muted: #5B6470;
+      --ink-faint: #98A0A9;
 
-      --gridColor: rgba(70, 68, 64, 0.055);
-      --Check-1: #f5f4f2;
-      --Check-2: #fafaf9;
+      /* The underside of a plate sitting on the baseplate: surfaces are told
+         apart by tone and this one crisp edge, not by outlines and blur. */
+      --edge: #D6DADF;
 
-      --accent: #B45A34;
-      --accent-deep: #954A2A;
+      /* The checkerboard behind a transparent image. */
+      --Check-1: #E9EBEE;
+      --Check-2: #F6F7F8;
+
+      --accent: #0D69AC;
+      --accent-deep: #0A568E;
       /* Label colour for accent-filled buttons. The dark theme lightens the
          accent, where white text drops to 2.8:1, so it flips to dark ink. */
       --on-accent: #ffffff;
-      --accent-wash: #FBEEE7;
+      --accent-wash: #E3EDF6;
 
-      --mint: #3E7A5F;
-      --mint-wash: #EAF3EE;
-      --coral: #B9482F;
+      --mint: #287F47;
+      --mint-wash: #E4F1E8;
+      --coral: #C4281C;
       --amber: #A87A2A;
-      --amber-wash: #F7F0E2;
+      --amber-wash: #F6EFE1;
 
       /* Instance-family colours for the system tree. */
       --c-server: #6B6862;
@@ -100,9 +108,11 @@
       --radius-md: 12px;
       --radius-sm: 9px;
 
-      --shadow-sm: 0 1px 2px rgba(32, 31, 28, 0.05);
-      --shadow-md: 0 6px 20px rgba(32, 31, 28, 0.06);
-      --shadow-lg: 0 16px 40px rgba(32, 31, 28, 0.10);
+      --shadow-sm: 0 1px 0 rgba(28, 33, 39, 0.06);
+      --shadow-md: 0 2px 0 var(--edge);
+      /* Only things that really float over the page (menus, dialogs) cast a
+         shadow, and a short one. */
+      --shadow-lg: 0 2px 0 var(--edge), 0 18px 34px -16px rgba(28, 33, 39, 0.28);
 
       --font-display: 'Schibsted Grotesk', system-ui, sans-serif;
       --font-body: 'Schibsted Grotesk', system-ui, sans-serif;
@@ -113,28 +123,31 @@
     }
 
     [data-theme="dark"] {
-      --bg: #17161A;
-      --card: #1F1E23;
-      --soft: #26252B;
-      --soft-2: #333138;
-      --border: #35333A;
-      --ink: #C0ADC9;
-      --ink-2: #cfc2d3;
-      --ink-muted: #A19FA8;
-      --ink-faint: #6E6C75;
+      /* Studio's dark theme: neutral charcoal panels, white text, and the
+         lighter blue Studio uses for a selection. */
+      --bg: #1C1D20;
+      --card: #26272B;
+      --soft: #2E2F34;
+      --soft-2: #393B40;
+      --border: #3F4147;
+      --ink: #E8E9EB;
+      --ink-2: #D6D8DB;
+      --ink-muted: #A3A8AF;
+      --ink-faint: #6C7179;
 
-      --gridColor: rgba(78, 78, 80, 0.164);
-      --Check-1: #242224;
-      --Check-2: rgb(32, 31, 32);
+      --edge: #131416;
 
-      --accent: #E08350;
-      --accent-deep: #F0996A;
-      --on-accent: #17161A;
-      --accent-wash: #3A2A20;
+      --Check-1: #2A2B2F;
+      --Check-2: #323338;
 
-      --mint: #5FAE8A;
-      --mint-wash: #1E2E27;
-      --coral: #E17A63;
+      --accent: #5AA8EA;
+      --accent-deep: #88C1F0;
+      --on-accent: #0D1720;
+      --accent-wash: #1C2A37;
+
+      --mint: #5BB47F;
+      --mint-wash: #1C2E23;
+      --coral: #E5675C;
       --amber: #D3A657;
       --amber-wash: #332A1A;
 
@@ -147,9 +160,9 @@
       --c-world:  #6FBE93;
       --c-value:  #D3A657;
 
-      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.25);
-      --shadow-md: 0 6px 20px rgba(0, 0, 0, 0.3);
-      --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.45);
+      --shadow-sm: 0 1px 0 rgba(0, 0, 0, 0.3);
+      --shadow-md: 0 2px 0 var(--edge);
+      --shadow-lg: 0 2px 0 var(--edge), 0 18px 34px -14px rgba(0, 0, 0, 0.6);
     }
 
     [data-theme="sea"] {
@@ -163,9 +176,6 @@
       --ink-muted: #556E78;
       --ink-faint: #93A9B1;
 
-      --gridColor: rgba(64, 68, 70, 0.055);
-      --Check-1: #f1f4f5;
-      --Check-2: #f9fafa;
 
       --accent: #1E7A8C;
       --accent-deep: #16606F;
@@ -177,9 +187,10 @@
       --amber: #B08A2E;
       --amber-wash: #F3EDDD;
 
-      --shadow-sm: 0 1px 2px rgba(20, 50, 60, 0.06);
-      --shadow-md: 0 6px 20px rgba(20, 50, 60, 0.08);
-      --shadow-lg: 0 16px 40px rgba(20, 50, 60, 0.12);
+      --edge: color-mix(in srgb, var(--soft-2) 70%, var(--ink-faint));
+      --shadow-sm: 0 1px 0 rgba(20, 50, 60, 0.06);
+      --shadow-md: 0 2px 0 var(--edge);
+      --shadow-lg: 0 2px 0 var(--edge), 0 18px 34px -16px rgba(20, 50, 60, 0.26);
     }
 
     [data-theme="forest"] {
@@ -193,9 +204,6 @@
       --ink-muted: #5F6B54;
       --ink-faint: #97A188;
 
-      --gridColor: rgba(64, 70, 65, 0.055);
-      --Check-1: #f1f5f1;
-      --Check-2: #f9faf9;
 
       --accent: #4C7A3F;
       --accent-deep: #3B6130;
@@ -207,9 +215,10 @@
       --amber: #A8842C;
       --amber-wash: #F2ECDA;
 
-      --shadow-sm: 0 1px 2px rgba(30, 40, 20, 0.06);
-      --shadow-md: 0 6px 20px rgba(30, 40, 20, 0.08);
-      --shadow-lg: 0 16px 40px rgba(30, 40, 20, 0.12);
+      --edge: color-mix(in srgb, var(--soft-2) 70%, var(--ink-faint));
+      --shadow-sm: 0 1px 0 rgba(30, 40, 20, 0.06);
+      --shadow-md: 0 2px 0 var(--edge);
+      --shadow-lg: 0 2px 0 var(--edge), 0 18px 34px -16px rgba(30, 40, 20, 0.26);
     }
 
     [data-theme="sun"] {
@@ -223,9 +232,6 @@
       --ink-muted: #75674C;
       --ink-faint: #AB9C7C;
 
-      --gridColor: rgba(70, 68, 64, 0.055);
-      --Check-1: #f5f3f1;
-      --Check-2: #faf9f9;
 
       --accent: #C97A25;
       --accent-deep: #A6621A;
@@ -237,9 +243,10 @@
       --amber: #C1911F;
       --amber-wash: #F7EBCE;
 
-      --shadow-sm: 0 1px 2px rgba(60, 45, 10, 0.06);
-      --shadow-md: 0 6px 20px rgba(60, 45, 10, 0.08);
-      --shadow-lg: 0 16px 40px rgba(60, 45, 10, 0.12);
+      --edge: color-mix(in srgb, var(--soft-2) 70%, var(--ink-faint));
+      --shadow-sm: 0 1px 0 rgba(60, 45, 10, 0.06);
+      --shadow-md: 0 2px 0 var(--edge);
+      --shadow-lg: 0 2px 0 var(--edge), 0 18px 34px -16px rgba(60, 45, 10, 0.26);
     }
 
     body {
@@ -292,11 +299,11 @@
     }
 
     .theme-dot[data-theme-id="light"] {
-      background: linear-gradient(135deg, #FAFAF9 50%, #B45A34 50%);
+      background: linear-gradient(135deg, #ECEEF0 50%, #0D69AC 50%);
     }
 
     .theme-dot[data-theme-id="dark"] {
-      background: linear-gradient(135deg, #17161A 50%, #E08350 50%);
+      background: linear-gradient(135deg, #1C1D20 50%, #5AA8EA 50%);
     }
 
     .theme-dot[data-theme-id="sea"] {
@@ -435,32 +442,10 @@
       height: 100dvh;
       width: 100vw;
       position: relative;
-      background-image:
-
-        /* Drobna siatka — pozioma */
-        linear-gradient(var(--gridColor) 1px,
-          transparent 1px),
-
-        /* Drobna siatka — pionowa */
-        linear-gradient(90deg,
-          var(--gridColor) 1px,
-          transparent 1px),
-
-        /* Subtelna szachownica */
-        conic-gradient(var(--Check-1) 90deg,
-          var(--Check-2) 90deg 180deg,
-          var(--Check-1) 180deg 270deg,
-          var(--Check-2) 270deg);
-
-      background-size:
-        30px 30px,
-        30px 30px,
-        240px 240px;
-
-      background-position:
-        0 0,
-        0 0,
-        0 0;
+      /* A plain baseplate. The graph-paper grid that used to sit here is the
+         backdrop half the generated sites on the web share; the surfaces on
+         top carry the character instead. */
+      background: var(--bg);
 
       margin: 0;
       min-height: 100vh;
@@ -477,7 +462,6 @@
       height: 100%;
       transition: transform .25s ease;
       position: relative;
-      backdrop-filter: blur(13px) saturate(110%);
     }
 
     .sb-top {
@@ -504,30 +488,37 @@
       height: 13px;
     }
 
+    /* The one filled key on the page: blue plastic with a darker underside,
+       squashed while it is held. */
     .btn-newchat {
       width: 100%;
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      background: var(--ink);
-      color: #fff;
+      background: var(--accent);
+      color: var(--on-accent);
       border: none;
+      border-radius: var(--radius-sm);
       font-family: var(--font-display);
       font-weight: 700;
       font-size: 13.5px;
-      padding: 11px 20px;
+      padding: 11px 16px 12px;
       cursor: pointer;
-      transition: background .15s ease, transform .12s ease, box-shadow .15s ease;
-      box-shadow: 0 1px 2px rgba(20, 20, 15, 0.1);
+      box-shadow: inset 0 -3px 0 var(--accent-deep);
+      transition: background .15s ease, transform .45s cubic-bezier(.34, 1.9, .5, 1);
     }
 
+    [data-theme="dark"] .RoPeakImg { filter: invert(1) brightness(.92); }
+
+    [data-theme="dark"] .btn-newchat { box-shadow: inset 0 -3px 0 color-mix(in srgb, var(--accent) 55%, #000); }
+
     .btn-newchat:hover {
-      background: #34322D;
-      transform: translateY(-1px);
+      background: color-mix(in srgb, var(--accent) 90%, #fff);
     }
 
     .btn-newchat:active {
-      transform: translateY(0);
+      transform: scale(.97, .92);
+      transition-duration: .08s;
     }
 
     .center-botom {
@@ -539,6 +530,8 @@
       margin-bottom: 0;
     }
 
+    /* Two plain keys. They were black bars in square brackets — the
+       brackets are a stock "techy" decoration and said nothing. */
     .btn-store,
     .btn-tokens {
       flex: 1;
@@ -547,31 +540,31 @@
       justify-content: center;
       text-align: center;
       gap: 6px;
-      background: var(--ink);
+      background: var(--soft);
       border: none;
-      border-radius: 0;
-      color: white;
+      border-radius: var(--radius-sm);
+      color: var(--ink);
       font-family: var(--font-display);
-      font-weight: 700;
-      font-size: 10px;
-      padding: 10px 6px;
+      font-weight: 600;
+      font-size: 12.5px;
+      padding: 9px 8px 10px;
       cursor: pointer;
       text-decoration: none;
-      transition: background .15s ease, transform .12s ease, box-shadow .15s ease, opacity .15s ease;
-      box-shadow: 0 1px 2px rgba(20, 20, 15, 0.1);
+      box-shadow: inset 0 -2px 0 var(--soft-2);
+      transition: background .15s ease, transform .45s cubic-bezier(.34, 1.9, .5, 1);
       box-sizing: border-box;
       white-space: nowrap;
     }
 
     .btn-store:hover,
     .btn-tokens:hover {
-      opacity: 0.92;
-      transform: translateY(-1px);
+      background: var(--soft-2);
     }
 
     .btn-store:active,
     .btn-tokens:active {
-      transform: translateY(0);
+      transform: scale(.95, .9);
+      transition-duration: .08s;
     }
 
     .sb-chats {
@@ -902,14 +895,15 @@
     }
 
     .rgp-apply {
-      font-family: var(--font-mono);
-      font-size: 10.5px;
-      font-weight: 600;
-      padding: 7px;
+      font-family: var(--font-display);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 7px 7px 8px;
       border: none;
       border-radius: var(--radius-sm);
       background: var(--accent);
       color: var(--on-accent);
+      box-shadow: inset 0 -2px 0 var(--accent-deep);
       cursor: pointer;
     }
 
@@ -1085,7 +1079,7 @@
       background: var(--ink);
       border-radius: var(--radius-md);
       overflow: hidden;
-      box-shadow: 0 1px 2px rgba(20, 20, 15, 0.1);
+      box-shadow: 0 1px 2px rgba(28, 33, 39, 0.1);
     }
 
     .gp-token-box {
@@ -1213,7 +1207,7 @@
     /* The card's background follows --ink, which inverts with the theme, so
        only the ink on top of it needs flipping. */
     [data-theme="dark"] .gp-wallet {
-      --on-card: #17161A;
+      --on-card: #1C1D20;
     }
 
     /* Roblox Card & Disconnect styling */
@@ -1361,7 +1355,7 @@
 
     .gp-welcome > * { position: relative; }
 
-    [data-theme="dark"] .gp-welcome { --on-card: #17161A; }
+    [data-theme="dark"] .gp-welcome { --on-card: #1C1D20; }
 
     .gp-welcome .gp-home {
       position: absolute;
@@ -1649,7 +1643,7 @@
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(32, 31, 28, 0.28);
+      background: rgba(28, 33, 39, 0.28);
       z-index: 60;
     }
 
@@ -3084,7 +3078,7 @@
       border-radius: 50%;
       background: var(--accent);
       border: 3px solid #fff;
-      box-shadow: 0 1px 4px rgba(32, 31, 28, 0.3);
+      box-shadow: 0 1px 4px rgba(28, 33, 39, 0.3);
       cursor: pointer;
       transition: transform .12s ease;
       margin-top: -6px;
@@ -3108,7 +3102,7 @@
       background: var(--accent);
       border: 3px solid #fff;
       cursor: pointer;
-      box-shadow: 0 1px 4px rgba(32, 31, 28, 0.3);
+      box-shadow: 0 1px 4px rgba(28, 33, 39, 0.3);
     }
 
     .m3d-steps {
@@ -3193,7 +3187,6 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      backdrop-filter: blur(4px);
     }
 
     .publish-card {
@@ -3338,23 +3331,10 @@
     }
 
     .composer {
-      background:
-        radial-gradient(circle at 20% 0%,
-          color-mix(in srgb, var(--bg) 18%, transparent),
-          transparent 45%),
-        linear-gradient(135deg,
-          color-mix(in srgb, var(--card) 72%, transparent),
-          color-mix(in srgb, var(--card) 48%, transparent));
-
-      backdrop-filter: blur(24px) saturate(140%);
-      -webkit-backdrop-filter: blur(24px) saturate(140%);
-
-      border: 1px solid color-mix(in srgb, white 12%, var(--border));
+      background: var(--card);
+      border: 1px solid transparent;
       border-radius: 18px;
-
-      box-shadow:
-        0 8px 32px rgba(0, 0, 0, 0.12),
-        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      box-shadow: 0 3px 0 var(--edge);
 
       padding: 12px 14px 14px;
       width: 100%;
@@ -4352,7 +4332,7 @@
       width: 16px;
       height: 16px;
       border-radius: 50%;
-      background: rgba(32, 31, 28, 0.6);
+      background: rgba(28, 33, 39, 0.6);
       color: #fff;
       border: none;
       font-size: 10px;
@@ -5397,8 +5377,7 @@
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(32, 31, 28, 0.35);
-      backdrop-filter: blur(2px);
+      background: rgba(20, 24, 28, 0.4);
       z-index: 80;
       align-items: center;
       justify-content: center;
@@ -5841,11 +5820,9 @@
       .desktop-bubble {
         width: 100%;
         background: var(--card);
-        background-size: 14px 14px;
-        background-position: -4px -4px;
-        backdrop-filter: blur(8px) saturate(105%);
         border-radius: 20px;
-        box-shadow: var(--shadow-lg);
+        /* A plate on the baseplate: no halo, just its own underside. */
+        box-shadow: 0 3px 0 var(--edge);
         display: flex;
         flex-direction: column;
         overflow: hidden;
@@ -7020,11 +6997,11 @@
     }
 
     .composer {
-      background: color-mix(in srgb, var(--card) 78%, transparent) !important;
-      backdrop-filter: blur(24px) saturate(160%) !important;
-      -webkit-backdrop-filter: blur(24px) saturate(160%) !important;
-      border: 1px solid color-mix(in srgb, white 14%, var(--border)) !important;
-      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.07), 0 1px 0 color-mix(in srgb, white 35%, transparent) inset !important;
+      /* Solid, like every other plate: frosted glass over a busy page is the
+         most recognisable generated-UI effect there is. */
+      background: var(--card) !important;
+      border: 1px solid transparent !important;
+      box-shadow: 0 3px 0 var(--edge) !important;
       border-radius: 24px !important;
       width: 100% !important;
       max-width: 340px;
@@ -7848,20 +7825,9 @@
 
     .ws.ws-leaving { animation: wsLeave .3s ease both; }
 
-    /* The backdrop steps down while work is on the bench: its own grid,
-       darker, over a wash that deepens towards the edges. Drawn as a layer
-       rather than by swapping --gridColor, because custom properties in a
-       gradient cannot fade — and this has to arrive as slowly as the work
-       it is exposing. It paints before every positioned child of the
-       shell, so it darkens the background without touching the content.
-       The wash is black rather than --ink because the dark theme's ink is
-       a pale lilac, which would lighten the page instead of deepening it;
-       the grid lines still follow --ink, so they gain contrast either way. */
-
-    /* The page clears around the work rather than darkening. Shading it
-       only added another grey surface next to all the others; wiping the
-       grid away leaves plain paper, and the bend of the lens across the
-       edge of that clearing is what says where to look. Centred on the
+    /* The page clears around the work rather than darkening. With the
+       baseplate now plain this is a quiet no-op; it stays so a patterned
+       theme can still be wiped back around the work. Centred on the
        frame by wsShadeCentre(), and painted before every positioned child
        of the shell, so it sits under the content. */
     .app-shell::before {
@@ -8989,6 +8955,185 @@
       .ws-bar.indet span { animation: none; width: 100%; opacity: .5; }
     }
   </style>
+  <style id="materialCSS">
+    /* ============================ MATERIAL ============================
+       One pass that decides how every surface is told apart, written last
+       so it settles what the component rules above leave open.
+
+       The page reads as plastic on a baseplate, not as a stack of outlined
+       boxes: a one-pixel outline plus a soft grey halo on every element is
+       the single most common trait of generated interfaces. So:
+       - plates (messages, panels, cards) have no outline; they stand off
+         the grey by tone and sit on a crisp underside, --edge;
+       - keys (anything you press) have no outline either: a slightly darker
+         fill and a lip, as they already squash when pressed;
+       - fields you type into keep their outline, because there it says
+         "this takes input";
+       - only things that float over the page cast a (short) shadow.
+       Borders are made transparent rather than removed, so nothing moves
+       by a pixel. */
+
+    /* Plates standing on the page. */
+    .msg-bot .msg-bubble,
+    .widgets-side .gw-card,
+    .gw-card,
+    .ws,
+    .sys,
+    .studio-panel,
+    .modal-card,
+    .publish-card,
+    .gen-photo,
+    .gen-cube,
+    .result-frame-wrap:has(.result-frame),
+    .result-frame-wrap:has(.model-frame),
+    .analysis-box,
+    .ui-result,
+    .ui2lua-hint-box,
+    .msg-bot:has(.chooser-3d) .bot-body> :not(.chooser-3d):not(.c3-more) {
+      border-color: transparent !important;
+    }
+
+    .msg-bot .msg-bubble { box-shadow: 0 2px 0 var(--edge); }
+    .msg-bot .msg-bubble::before { border-color: transparent; }
+    .widgets-side .gw-card,
+    .gw-card { box-shadow: 0 2px 0 var(--edge) !important; }
+    .sys { box-shadow: 0 2px 0 var(--edge); }
+    .ws { box-shadow: 0 3px 0 var(--edge); }
+
+    /* Things that float over everything: no outline, the one real shadow. */
+    .it-more-menu,
+    .lang-menu,
+    .ui-dropdown,
+    .rc-groups-pop,
+    .dock-tooltip {
+      border-color: transparent !important;
+    }
+
+    .dock-tooltip { box-shadow: var(--shadow-lg); }
+
+    /* Keys on the baseplate: white plastic with its underside showing. */
+    .welcome .w-hint,
+    .widget-add-btn,
+    .studio-chip,
+    .sb-toggle {
+      border-color: transparent;
+      background: var(--card);
+      box-shadow: 0 2px 0 var(--edge);
+    }
+
+    .welcome .w-hint:hover,
+    .widget-add-btn:hover,
+    .studio-chip:hover,
+    .sb-toggle:hover {
+      border-color: transparent;
+      background: var(--card);
+      box-shadow: 0 2px 0 color-mix(in srgb, var(--edge) 55%, var(--ink-faint));
+    }
+
+    /* Keys on a plate: a shade darker than the plate, with a lip. */
+    .welcome .wh-ico,
+    .msg-user .msg-avatar,
+    .msg-bot .msg-avatar,
+    .rc-groups-btn,
+    .gp-icon-btn,
+    .rc-unlink-btn,
+    .btn-google-card .rc-action,
+    .user-row .u-signout,
+    .result-actions a,
+    .chooser-3d button,
+    .chooser-templates .ct-opt,
+    .m3d-toggle,
+    .publish-btn-cancel,
+    .dz-upload-cta,
+    .dz-action-pill,
+    .it-opt,
+    .it-normal,
+    .it-more-btn,
+    .attach-btn,
+    .enhance-btn,
+    .pa-chip,
+    .st-cancel,
+    .pj-reload,
+    .pj-back,
+    .st-keep,
+    .sys-act,
+    .sys-all,
+    .promo-btn,
+    .pa-toggle,
+    .ws-chip,
+    .ws-btn,
+    .ws-unfold,
+    .mcb-method-pill,
+    .mcb-label,
+    .fm-pill,
+    .model-keys,
+    .shape-keys,
+    .st-tabs,
+    .pa-uses,
+    .package-grid,
+    .m3d-cost,
+    .m3d-cost-breakdown {
+      border-color: transparent;
+    }
+
+    .msg-bot .msg-avatar { box-shadow: 0 2px 0 var(--edge); }
+
+    .ui-pill-btn.it-trigger,
+    .ui-pill-btn.enhance-key,
+    .mac-dock-list .fm-pill .fm-icon.dock-icon {
+      border-color: transparent !important;
+    }
+
+    /* The account cards are trays set into the sidebar plate: a shade
+       darker, no outline, and hovering them changes nothing, because only
+       the keys inside do anything. */
+    .account-card,
+    .account-card.linked,
+    .account-card:hover,
+    .roblox-card:hover {
+      border-color: transparent;
+      box-shadow: none;
+    }
+
+    .account-card.linked,
+    .account-card.linked:hover,
+    .roblox-card.linked {
+      background: var(--soft);
+    }
+
+    .account-card.linked .rc-stats,
+    .account-card.linked .rc-dev { border-color: var(--soft-2); }
+
+    /* Image types: each canvas is a filled little sheet rather than an
+       outline, and the chosen one is held down instead of boxed in ink. */
+    .itp-chip .itp-frame,
+    .itp-chip:hover .itp-frame {
+      border-color: transparent;
+      background: var(--soft);
+      box-shadow: inset 0 -2px 0 var(--soft-2);
+    }
+
+    .itp-chip:hover .itp-frame { background: var(--card); }
+
+    .itp-chip.active {
+      border-color: transparent;
+      box-shadow: inset 0 2px 0 var(--soft-2);
+    }
+
+    .itp-chip.active .itp-frame {
+      border-color: transparent;
+      background: var(--accent-wash);
+      box-shadow: inset 0 -2px 0 color-mix(in srgb, var(--accent) 22%, var(--accent-wash));
+    }
+
+    /* Sections inside a sidebar plate are set apart by space, not by
+       hairlines drawn edge to edge. */
+    .desktop-bubble .sb-top,
+    .desktop-bubble .sb-bottom,
+    .desktop-bubble .sb-top-chat {
+      border-color: transparent;
+    }
+  </style>
 </head>
 
 <body onload="openComposerStageMode('chat')">
@@ -9191,7 +9336,7 @@
                   <div class="rc-groups-pop" id="robloxGroupsPop" hidden>
                     <div class="rgp-head">Count experiences from</div>
                     <div class="rgp-list" id="robloxGroupsList"></div>
-                    <button type="button" class="rgp-apply" onclick="saveRobloxGroups(event)">[ Apply ]</button>
+                    <button type="button" class="rgp-apply" onclick="saveRobloxGroups(event)">Apply</button>
                   </div>
                 </div>
 
@@ -9202,8 +9347,8 @@
 
           <div class="sb-bottom">
             <div class="center-botom">
-              <a class="btn-store" href="/store">[ Assets Store ]</a>
-              <a id="navTokensBtn" class="btn-tokens" href="/tokens">[ X Tokens ]</a>
+              <a class="btn-store" href="/store">Asset store</a>
+              <a id="navTokensBtn" class="btn-tokens" href="/tokens">Tokens</a>
             </div>
 
             <div class="theme-switch" id="themeSwitch"></div>
@@ -12647,7 +12792,7 @@
 
       const navTokensBtn = document.getElementById("navTokensBtn");
       if (navTokensBtn) {
-        navTokensBtn.textContent = "[ " + (tokenBalance ?? "–") + " Tokens ]";
+        navTokensBtn.textContent = (tokenBalance ?? "–") + " tokens";
       }
     }
 
@@ -16911,7 +17056,7 @@
       const ctx = cv.getContext("2d");
       ctx.scale(dpr, dpr);
       ctx.clearRect(0, 0, r.width, r.height);
-      ctx.strokeStyle = "#E08350";
+      ctx.strokeStyle = "#00A2FF";
       ctx.lineWidth = 2.5;
       ctx.lineCap = "round";
       ctx.lineJoin = "round";
@@ -17060,7 +17205,7 @@
           ctx.fillText(String(b.text).slice(0, 40), x + 7, y + 40);
         }
       }
-      ctx.strokeStyle = "#E08350";
+      ctx.strokeStyle = "#00A2FF";
       ctx.lineWidth = 3;
       ctx.lineCap = "round";
       ctx.lineJoin = "round";
@@ -17171,8 +17316,8 @@
       const stroke = (from, to) => {
         const ctx = s.maskStrokes.getContext("2d");
         ctx.globalCompositeOperation = wsBrush.mode === "erase" ? "destination-out" : "source-over";
-        ctx.strokeStyle = "#E08350";
-        ctx.fillStyle = "#E08350";
+        ctx.strokeStyle = "#00A2FF";
+        ctx.fillStyle = "#00A2FF";
         ctx.lineWidth = wsBrush.size;
         ctx.lineCap = "round";
         ctx.lineJoin = "round";
