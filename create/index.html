@@ -9536,14 +9536,14 @@
 
     const imagePresets = {
       normal: { label: "Normal Image", group: "special", icon: ICONS.spark, description: "Generate an image without a predefined purpose or style.", backendCategory: "icon", promptPrefix: "", injectStyle: false },
-      icon: { label: "Icon", group: "quick", icon: ICONS.icon, backendCategory: "icon", promptPrefix: "Roblox game icon: centered subject, clean readable silhouette at small size, strong composition, eye-catching icon-style rendering.", injectStyle: true },
-      thumbnail: { label: "Thumbnail", group: "quick", icon: ICONS.thumb, backendCategory: "thumbnail", promptPrefix: "Roblox game thumbnail: wide cinematic key-art composition, dynamic scene, clear focal subject, dramatic use of space.", injectStyle: true },
+      icon: { label: "Icon", group: "quick", icon: ICONS.icon, backendCategory: "icon", promptPrefix: "Game icon: centered subject, clean readable silhouette at small size, strong composition.", injectStyle: true },
+      thumbnail: { label: "Thumbnail", group: "quick", icon: ICONS.thumb, backendCategory: "thumbnail", promptPrefix: "Game thumbnail (key art): wide cinematic composition, dynamic scene, clear focal subject.", injectStyle: true },
       particle: { label: "Particle", group: "quick", icon: ICONS.spark, backendCategory: "icon", promptPrefix: "Single particle effect asset: one isolated effect (smoke/fire/spark/dust/magic as described), clean readable silhouette, simple background suited for a particle texture.", injectStyle: true },
-      ui: { label: "UI", group: "quick", icon: ICONS.layout, backendCategory: "icon", promptPrefix: "Roblox game UI element.", injectStyle: true, subtypes: ["Button", "Panel", "Frame", "Background", "HUD", "Inventory", "Menu", "Shop", "Other"] },
+      ui: { label: "UI", group: "quick", icon: ICONS.layout, backendCategory: "icon", promptPrefix: "Game UI element.", injectStyle: true, subtypes: ["Button", "Panel", "Frame", "Background", "HUD", "Inventory", "Menu", "Shop", "Other"] },
       background: { label: "Background", group: "quick", icon: ICONS.layout, backendCategory: "thumbnail", promptPrefix: "Background artwork: composition-focused, leaves clean space for UI/text overlay, no unnecessary central subject, appropriate level of detail.", injectStyle: true },
       logo: { label: "Logo", group: "quick", icon: ICONS.wand, backendCategory: "icon", promptPrefix: "Logo design: simple recognizable form, strong clean silhouette, branding-focused, no unnecessary elements.", injectStyle: true },
-      gamepass: { label: "Gamepass", group: "more", backendCategory: "icon", promptPrefix: "Roblox gamepass icon: bold clear subject, instantly recognizable at small size.", injectStyle: true },
-      badge: { label: "Badge", group: "more", backendCategory: "icon", promptPrefix: "Roblox badge icon: emblem-style, celebratory, clear silhouette.", injectStyle: true },
+      gamepass: { label: "Gamepass", group: "more", backendCategory: "icon", promptPrefix: "Gamepass icon: bold clear subject, instantly recognizable at small size.", injectStyle: true },
+      badge: { label: "Badge", group: "more", backendCategory: "icon", promptPrefix: "Badge icon: emblem-style, celebratory, clear silhouette.", injectStyle: true },
       item: { label: "Item", group: "more", backendCategory: "icon", promptPrefix: "Game item icon: single object, product-style lighting, centered.", injectStyle: true },
       weapon: { label: "Weapon", group: "more", backendCategory: "icon", promptPrefix: "Game weapon icon/art: clean angle, readable shape, dramatic lighting.", injectStyle: true },
       ability: { label: "Ability", group: "more", backendCategory: "icon", promptPrefix: "Game ability/skill icon: symbolic, glowing accent if relevant, clear at small size.", injectStyle: true },
@@ -9553,7 +9553,7 @@
       map: { label: "Map", group: "more", backendCategory: "thumbnail", promptPrefix: "Top-down or isometric game map artwork.", injectStyle: true },
       environment: { label: "Environment", group: "more", backendCategory: "thumbnail", promptPrefix: "Environment concept art: wide scene, atmosphere, depth.", injectStyle: true },
       texture: { label: "Texture", group: "more", backendCategory: "icon", promptPrefix: "Seamless/tileable texture swatch.", injectStyle: true },
-      decal: { label: "Decal", group: "more", backendCategory: "icon", promptPrefix: "Roblox decal graphic: flat, clean edges, transparent-friendly subject.", injectStyle: true },
+      decal: { label: "Decal", group: "more", backendCategory: "icon", promptPrefix: "Decal graphic: flat, clean edges, transparent-friendly subject.", injectStyle: true },
       banner: { label: "Banner", group: "more", backendCategory: "thumbnail", promptPrefix: "Wide promotional banner artwork.", injectStyle: true },
       loadingscreen: { label: "Loading Screen", group: "more", backendCategory: "thumbnail", promptPrefix: "Full-screen loading screen artwork, atmospheric, leaves room for a loading bar/logo.", injectStyle: true },
       shop: { label: "Shop", group: "more", backendCategory: "icon", promptPrefix: "Shop/store UI icon or panel graphic.", injectStyle: true },
@@ -9561,8 +9561,8 @@
       rank: { label: "Rank", group: "more", backendCategory: "icon", promptPrefix: "Rank/tier emblem: symmetrical, medal-like.", injectStyle: true },
       emote: { label: "Emote", group: "more", backendCategory: "icon", promptPrefix: "Emote icon: expressive, simple, readable tiny.", injectStyle: true },
       avatar: { label: "Avatar", group: "more", backendCategory: "icon", promptPrefix: "Avatar/profile picture: centered subject, clean background.", injectStyle: true },
-      ugc: { label: "UGC", group: "more", backendCategory: "icon", promptPrefix: "Roblox UGC item catalog render: studio lighting, centered.", injectStyle: true },
-      gameui: { label: "Game UI", group: "more", backendCategory: "icon", promptPrefix: "General Roblox game UI graphic.", injectStyle: true }
+      ugc: { label: "UGC", group: "more", backendCategory: "icon", promptPrefix: "Catalog render of a wearable accessory: studio lighting, centered.", injectStyle: true },
+      gameui: { label: "Game UI", group: "more", backendCategory: "icon", promptPrefix: "General game UI graphic.", injectStyle: true }
     };
 
     let selectedImageType = "normal";
@@ -13806,8 +13806,13 @@
           const { text } = await translateToEnglish(raw);
           finalPrompt = text;
         }
-        if (preset.injectStyle && preset.promptPrefix) {
-          finalPrompt = preset.promptPrefix + " " + finalPrompt;
+        // The user's words and the format go to the worker apart as well:
+        // it reads the style and mood from the words and uses the format
+        // only for framing. `prompt` keeps both, for an older worker.
+        const userPrompt = finalPrompt;
+        const presetBrief = preset.injectStyle && preset.promptPrefix ? preset.promptPrefix : "";
+        if (presetBrief) {
+          finalPrompt = presetBrief + " " + finalPrompt;
         }
         if (currentMethod === "image" && mainImage) {
           finalPrompt = "Using the attached image as the base, keep its main subject, character, and pose recognizable. Apply this edit: " + finalPrompt;
@@ -13818,6 +13823,8 @@
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             prompt: finalPrompt,
+            userPrompt,
+            presetBrief,
             image: currentMethod !== "text" ? mainImage : null,
             referenceImage: currentMethod === "style" ? refImage : null,
             mode: METHOD_INFO[currentMethod].api,
