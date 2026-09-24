@@ -62,20 +62,20 @@
          plates, "Bright blue" for the one thing that matters on a surface,
          "Dark green" and "Bright red" for yes and no. Ink is a plain,
          barely cool near-black so text never reads as tinted. */
-      --bg: #ECEEF0;
+      --bg: #E8EEEE;
       --card: #FFFFFF;
-      --soft: #F3F4F6;
-      --soft-2: #E0E3E7;
-      --border: #D9DDE2;
-      --ink: #1C2127;
-      --ink-2: #272D33;
+      --soft: #F1F5F5;
+      --soft-2: #DCE5E5;
+      --border: #D0DBDB;
+      --ink: #172124;
+      --ink-2: #222D30;
       --ink-3: #d3d7dc;
-      --ink-muted: #5B6470;
-      --ink-faint: #98A0A9;
+      --ink-muted: #536468;
+      --ink-faint: #8FA1A4;
 
       /* The underside of a plate sitting on the baseplate: surfaces are told
          apart by tone and this one crisp edge, not by outlines and blur. */
-      --edge: #D6DADF;
+      --edge: #CDD8D8;
 
       /* The checkerboard behind a transparent image. */
       --Check-1: #E9EBEE;
@@ -84,18 +84,17 @@
       /* The baseplate: one-stud lines, and every fourth stud a tile a
          shade apart, the way Studio lays out its grid. */
       --grid-line: rgba(28, 33, 39, 0.055);
-      --tile-a: #ECEEF0;
-      --tile-b: #F1F2F4;
-      /* Studio's selection blue, used only for the baseplate's own hover
-         and never as a brand colour. */
-      --studio-select: #00A2FF;
+      --tile-a: #E8EEEE;
+      --tile-b: #EDF2F2;
+      /* The baseplate's hover box, in the page's own sea colour. */
+      --studio-select: var(--accent);
 
-      --accent: #0D69AC;
-      --accent-deep: #0A568E;
+      --accent: #0F6B73;
+      --accent-deep: #0B5359;
       /* Label colour for accent-filled buttons. The dark theme lightens the
          accent, where white text drops to 2.8:1, so it flips to dark ink. */
       --on-accent: #ffffff;
-      --accent-wash: #E3EDF6;
+      --accent-wash: #DDEDEE;
 
       --mint: #287F47;
       --mint-wash: #E4F1E8;
@@ -134,29 +133,29 @@
     [data-theme="dark"] {
       /* Studio's dark theme: neutral charcoal panels, white text, and the
          lighter blue Studio uses for a selection. */
-      --bg: #1C1D20;
-      --card: #26272B;
-      --soft: #2E2F34;
-      --soft-2: #393B40;
-      --border: #3F4147;
-      --ink: #E8E9EB;
-      --ink-2: #D6D8DB;
-      --ink-muted: #A3A8AF;
-      --ink-faint: #6C7179;
+      --bg: #151B1D;
+      --card: #1E272A;
+      --soft: #253033;
+      --soft-2: #2F3B3F;
+      --border: #36444A;
+      --ink: #E6EEEF;
+      --ink-2: #D2DDDF;
+      --ink-muted: #9DB0B3;
+      --ink-faint: #66797D;
 
-      --edge: #131416;
+      --edge: #0C1112;
 
       --Check-1: #2A2B2F;
       --Check-2: #323338;
 
       --grid-line: rgba(255, 255, 255, 0.035);
-      --tile-a: #1C1D20;
-      --tile-b: #1F2024;
+      --tile-a: #151B1D;
+      --tile-b: #182022;
 
-      --accent: #5AA8EA;
-      --accent-deep: #88C1F0;
-      --on-accent: #0D1720;
-      --accent-wash: #1C2A37;
+      --accent: #4DB6BE;
+      --accent-deep: #7FCDD3;
+      --on-accent: #0A1B1D;
+      --accent-wash: #15302F;
 
       --mint: #5BB47F;
       --mint-wash: #1C2E23;
@@ -312,11 +311,11 @@
     }
 
     .theme-dot[data-theme-id="light"] {
-      background: linear-gradient(135deg, #ECEEF0 50%, #0D69AC 50%);
+      background: linear-gradient(135deg, #E8EEEE 50%, #0F6B73 50%);
     }
 
     .theme-dot[data-theme-id="dark"] {
-      background: linear-gradient(135deg, #1C1D20 50%, #5AA8EA 50%);
+      background: linear-gradient(135deg, #151B1D 50%, #4DB6BE 50%);
     }
 
     .theme-dot[data-theme-id="sea"] {
@@ -524,20 +523,20 @@
       font-size: 13.5px;
       padding: 11px 16px 12px;
       cursor: pointer;
-      box-shadow: inset 0 -3px 0 var(--accent-deep);
-      transition: background .15s ease, transform .45s cubic-bezier(.34, 1.9, .5, 1);
+      box-shadow: inset 0 -2px 0 var(--accent-deep);
+      transition: background .15s ease, transform .45s cubic-bezier(.3, 1.35, .5, 1);
     }
 
     [data-theme="dark"] .RoPeakImg { filter: invert(1) brightness(.92); }
 
-    [data-theme="dark"] .btn-newchat { box-shadow: inset 0 -3px 0 color-mix(in srgb, var(--accent) 55%, #000); }
+    [data-theme="dark"] .btn-newchat { box-shadow: inset 0 -2px 0 color-mix(in srgb, var(--accent) 55%, #000); }
 
     .btn-newchat:hover {
       background: color-mix(in srgb, var(--accent) 90%, #fff);
     }
 
     .btn-newchat:active {
-      transform: scale(.97, .92);
+      transform: scale(.98, .95);
       transition-duration: .08s;
     }
 
@@ -571,7 +570,7 @@
       cursor: pointer;
       text-decoration: none;
       box-shadow: inset 0 -2px 0 var(--soft-2);
-      transition: background .15s ease, transform .45s cubic-bezier(.34, 1.9, .5, 1);
+      transition: background .15s ease, transform .45s cubic-bezier(.3, 1.35, .5, 1);
       box-sizing: border-box;
       white-space: nowrap;
     }
@@ -583,7 +582,7 @@
 
     .btn-store:active,
     .btn-tokens:active {
-      transform: scale(.95, .9);
+      transform: scale(.97, .94);
       transition-duration: .08s;
     }
 
@@ -1146,7 +1145,7 @@
       background: var(--on-card);
       color: var(--ink);
       box-shadow: inset 0 -2px 0 color-mix(in srgb, var(--ink) 22%, transparent);
-      transition: transform .45s cubic-bezier(.34, 1.8, .5, 1);
+      transition: transform .45s cubic-bezier(.3, 1.3, .5, 1);
     }
 
     .gp-topup svg { width: 12px; height: 12px; }
@@ -1223,7 +1222,7 @@
     /* The card's background follows --ink, which inverts with the theme, so
        only the ink on top of it needs flipping. */
     [data-theme="dark"] .gp-wallet {
-      --on-card: #1C1D20;
+      --on-card: #151B1D;
     }
 
     /* Roblox Card & Disconnect styling */
@@ -1371,7 +1370,7 @@
 
     .gp-welcome > * { position: relative; }
 
-    [data-theme="dark"] .gp-welcome { --on-card: #1C1D20; }
+    [data-theme="dark"] .gp-welcome { --on-card: #151B1D; }
 
     .gp-welcome .gp-home {
       position: absolute;
@@ -1946,11 +1945,11 @@
       text-align: left;
       cursor: pointer;
       transition: border-color .15s ease, color .15s ease, background .15s ease,
-        transform .45s cubic-bezier(.34, 1.9, .5, 1);
+        transform .45s cubic-bezier(.3, 1.35, .5, 1);
     }
 
     .welcome .w-hint:hover { border-color: var(--ink-faint); color: var(--ink); }
-    .welcome .w-hint:active { transform: scale(.96, .92); transition-duration: .08s; }
+    .welcome .w-hint:active { transform: scale(.98, .95); transition-duration: .08s; }
 
     .welcome .wh-ico {
       display: inline-flex;
@@ -1964,7 +1963,7 @@
       border: 1px solid var(--border);
       color: var(--ink-muted);
       box-shadow: inset 0 -2px 0 var(--soft-2);
-      transition: color .15s ease, transform .5s cubic-bezier(.34, 1.8, .5, 1);
+      transition: color .15s ease, transform .5s cubic-bezier(.3, 1.3, .5, 1);
     }
 
     .welcome .wh-ico svg { width: 15px; height: 15px; }
@@ -2001,7 +2000,6 @@
     .msg-user .msg-avatar {
       background: var(--soft);
       border: 1px solid var(--border);
-      transform: rotate(4deg);
     }
 
     .msg-user .msg-avatar img {
@@ -2014,7 +2012,6 @@
       background: var(--card);
       border: 1px solid var(--border);
       color: var(--accent);
-      transform: rotate(-6deg);
     }
 
     .msg-bot .msg-avatar svg {
@@ -2548,14 +2545,14 @@
       cursor: pointer;
       text-decoration: none;
       box-shadow: inset 0 -2px 0 var(--soft-2);
-      transition: border-color .15s ease, background .15s ease, transform .45s cubic-bezier(.34, 1.9, .5, 1);
+      transition: border-color .15s ease, background .15s ease, transform .45s cubic-bezier(.3, 1.35, .5, 1);
       display: inline-flex;
       align-items: center;
       gap: 6px;
     }
 
     .result-actions button:active:not(:disabled),
-    .result-actions a:active { transform: scale(.95, .9); transition-duration: .08s; }
+    .result-actions a:active { transform: scale(.97, .94); transition-duration: .08s; }
 
     .result-actions svg { width: 13px; height: 13px; }
 
@@ -3390,7 +3387,7 @@
       background: var(--card);
       border: 1px solid transparent;
       border-radius: 18px;
-      box-shadow: 0 3px 0 var(--edge);
+      box-shadow: 0 2px 0 var(--edge);
 
       padding: 12px 14px 14px;
       width: 100%;
@@ -3821,7 +3818,7 @@
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
-      transition: color .15s ease, transform .5s cubic-bezier(.34, 1.8, .5, 1);
+      transition: color .15s ease, transform .5s cubic-bezier(.3, 1.3, .5, 1);
     }
 
     .dropzone:hover .dz-icon-wrap { color: var(--accent); transform: rotate(-6deg); }
@@ -3956,7 +3953,7 @@
       border-radius: var(--radius-sm);
       padding: 5px 10px 6px;
       cursor: pointer;
-      transition: border-color .15s ease, transform .45s cubic-bezier(.34, 1.9, .5, 1);
+      transition: border-color .15s ease, transform .45s cubic-bezier(.3, 1.35, .5, 1);
     }
 
     .dz-action-pill:hover { border-color: var(--ink-faint); }
@@ -5157,10 +5154,10 @@
       border-radius: var(--radius-sm);
       cursor: pointer;
       box-shadow: inset 0 -2px 0 var(--soft-2);
-      transition: border-color .15s ease, background .15s ease, transform .45s cubic-bezier(.34, 1.9, .5, 1);
+      transition: border-color .15s ease, background .15s ease, transform .45s cubic-bezier(.3, 1.35, .5, 1);
     }
 
-    .sys-act:active:not(:disabled), .sys-all:active { transform: scale(.95, .9); transition-duration: .08s; }
+    .sys-act:active:not(:disabled), .sys-all:active { transform: scale(.97, .94); transition-duration: .08s; }
 
     .sys-act svg { width: 13px; height: 13px; }
     .sys-act:hover { border-color: var(--ink-faint); background: var(--soft); }
@@ -5176,7 +5173,7 @@
       border-radius: var(--radius-sm);
       cursor: pointer;
       box-shadow: inset 0 -2px 0 var(--soft-2);
-      transition: border-color .15s ease, background .15s ease, transform .45s cubic-bezier(.34, 1.9, .5, 1);
+      transition: border-color .15s ease, background .15s ease, transform .45s cubic-bezier(.3, 1.35, .5, 1);
     }
 
     .sys-all:hover { border-color: var(--ink-faint); background: var(--soft-2); }
@@ -5660,11 +5657,11 @@
       font-weight: 600;
       cursor: pointer;
       box-shadow: inset 0 -2px 0 var(--soft-2);
-      transition: background .15s ease, border-color .15s ease, transform .45s cubic-bezier(.34, 1.9, .5, 1);
+      transition: background .15s ease, border-color .15s ease, transform .45s cubic-bezier(.3, 1.35, .5, 1);
     }
 
     .promo-btn:hover:not(:disabled) { background: var(--soft); border-color: var(--ink-faint); }
-    .promo-btn:active:not(:disabled) { transform: scale(.95, .9); transition-duration: .08s; }
+    .promo-btn:active:not(:disabled) { transform: scale(.97, .94); transition-duration: .08s; }
     .promo-btn:disabled { opacity: .5; cursor: default; }
 
     .promo-status {
@@ -5680,7 +5677,7 @@
     /* The tokens land with the same little give as everything else. */
     .promo-status.ok b {
       display: inline-block;
-      animation: promoPop .6s cubic-bezier(.34, 1.8, .5, 1) both;
+      animation: promoPop .6s cubic-bezier(.3, 1.3, .5, 1) both;
     }
 
     @keyframes promoPop {
@@ -5878,7 +5875,7 @@
         background: var(--card);
         border-radius: 20px;
         /* A plate on the baseplate: no halo, just its own underside. */
-        box-shadow: 0 3px 0 var(--edge);
+        box-shadow: 0 2px 0 var(--edge);
         display: flex;
         flex-direction: column;
         overflow: hidden;
@@ -6911,7 +6908,7 @@
        glyph on each key does the thing it stands for. None of it touches
        the dock's own magnification or its bounce. */
     .mac-dock-list .dock-link {
-      transition: transform .5s cubic-bezier(.34, 1.9, .5, 1);
+      transition: transform .5s cubic-bezier(.3, 1.35, .5, 1);
     }
 
     .mac-dock-list .dock-link:active {
@@ -6957,7 +6954,7 @@
 
     /* The marker drops in under the key that went down. */
     .dock-item.fm-pill.active .fm-icon.dock-icon::after {
-      animation: dkMark .55s cubic-bezier(.34, 1.8, .5, 1) both;
+      animation: dkMark .55s cubic-bezier(.3, 1.3, .5, 1) both;
     }
 
     @keyframes dkTalk {
@@ -7057,7 +7054,7 @@
          most recognisable generated-UI effect there is. */
       background: var(--card) !important;
       border: 1px solid transparent !important;
-      box-shadow: 0 3px 0 var(--edge) !important;
+      box-shadow: 0 2px 0 var(--edge) !important;
       border-radius: 24px !important;
       width: 100% !important;
       max-width: 340px;
@@ -7507,10 +7504,10 @@
       color: var(--ink-faint);
       cursor: pointer;
       transition: background .15s ease, color .15s ease, border-color .15s ease, box-shadow .15s ease,
-        transform .45s cubic-bezier(.34, 1.9, .5, 1);
+        transform .45s cubic-bezier(.3, 1.35, .5, 1);
     }
 
-    .model-key svg { width: 15px; height: 15px; transition: transform .5s cubic-bezier(.34, 1.8, .5, 1); }
+    .model-key svg { width: 15px; height: 15px; transition: transform .5s cubic-bezier(.3, 1.3, .5, 1); }
     .model-key.on[data-model="luna"] { color: var(--ink); }
     .model-key.on[data-model="gemini"] { color: #3186FF; }
     .model-key.on[data-model="deepseek"] { color: #4D6BFE; }
@@ -7544,7 +7541,7 @@
       color: var(--ink) !important;
       font-size: 12.5px !important;
       box-shadow: inset 0 -2px 0 var(--soft-2) !important;
-      transition: border-color .15s ease, background .15s ease, transform .45s cubic-bezier(.34, 1.9, .5, 1) !important;
+      transition: border-color .15s ease, background .15s ease, transform .45s cubic-bezier(.3, 1.35, .5, 1) !important;
     }
 
     .ui-pill-btn.enhance-key:hover {
@@ -7563,7 +7560,7 @@
 
     #enhanceIcon { display: inline-flex; }
     #enhanceIcon svg { width: 15px; height: 15px; }
-    #enhanceIcon .acc { stroke: var(--accent); transform-origin: 12px 12px; transition: transform .5s cubic-bezier(.34, 1.8, .5, 1); }
+    #enhanceIcon .acc { stroke: var(--accent); transform-origin: 12px 12px; transition: transform .5s cubic-bezier(.3, 1.3, .5, 1); }
     .enhance-key:hover #enhanceIcon .acc { transform: translateX(1.5px); }
 
     @media (max-width: 560px) {
@@ -7598,10 +7595,10 @@
       white-space: nowrap;
       cursor: pointer;
       transition: background .15s ease, color .15s ease, border-color .15s ease, box-shadow .15s ease,
-        transform .45s cubic-bezier(.34, 1.9, .5, 1);
+        transform .45s cubic-bezier(.3, 1.35, .5, 1);
     }
 
-    .shape-key svg { width: 14px; height: 14px; flex-shrink: 0; transition: transform .5s cubic-bezier(.34, 1.8, .5, 1); }
+    .shape-key svg { width: 14px; height: 14px; flex-shrink: 0; transition: transform .5s cubic-bezier(.3, 1.3, .5, 1); }
     .shape-key:hover { color: var(--ink); }
     .shape-key:active { transform: scale(.94, .88); transition-duration: .08s; }
 
@@ -8107,7 +8104,7 @@
     .ws-step.now .ws-dot {
       border: 0;
       background: var(--accent);
-      animation: wsStud .5s cubic-bezier(.34, 1.8, .5, 1) both;
+      animation: wsStud .5s cubic-bezier(.3, 1.3, .5, 1) both;
     }
 
     /* The brick for the step you reach drops into place. */
@@ -8267,11 +8264,11 @@
       cursor: pointer;
       box-shadow: inset 0 -2px 0 var(--soft-2);
       transition: border-color .15s ease, background .15s ease, color .15s ease, box-shadow .15s ease,
-        transform .45s cubic-bezier(.34, 1.9, .5, 1);
+        transform .45s cubic-bezier(.3, 1.35, .5, 1);
     }
 
     .ws-chip:hover { border-color: var(--ink-faint); }
-    .ws-chip:active { transform: scale(.95, .9); transition-duration: .08s; }
+    .ws-chip:active { transform: scale(.97, .94); transition-duration: .08s; }
 
     .ws-chip.on {
       border-color: color-mix(in srgb, var(--accent) 35%, var(--border));
@@ -8362,7 +8359,7 @@
       white-space: nowrap;
       box-shadow: inset 0 -2px 0 var(--soft-2);
       transition: border-color .15s ease, background .15s ease, opacity .15s ease,
-        transform .45s cubic-bezier(.34, 1.9, .5, 1);
+        transform .45s cubic-bezier(.3, 1.35, .5, 1);
     }
 
     .ws-btn:hover:not(:disabled) {
@@ -8370,7 +8367,7 @@
       border-color: var(--ink-faint);
     }
 
-    .ws-btn:active:not(:disabled) { transform: scale(.95, .9); transition-duration: .08s; }
+    .ws-btn:active:not(:disabled) { transform: scale(.97, .94); transition-duration: .08s; }
 
     .ws-btn svg { width: 13px; height: 13px; }
 
@@ -9027,7 +9024,7 @@
     }
     /* ---------- the baseplate answers the mouse ----------
        The one playful thing on the page, and it only happens on the empty
-       grid: the stud under the pointer gets Studio's hover box, and a
+       grid: the stud under the pointer gets a hover box like Studio's, and a
        click on bare baseplate drops a one-stud brick that settles and
        sinks away again. It sits under every panel, so it never covers
        anything you are reading. */
@@ -9044,8 +9041,8 @@
       top: 0;
       width: 31px;
       height: 31px;
-      border: 1.5px solid color-mix(in srgb, var(--studio-select, #00A2FF) 70%, transparent);
-      background: color-mix(in srgb, var(--studio-select, #00A2FF) 7%, transparent);
+      border: 1px solid color-mix(in srgb, var(--studio-select, #0F6B73) 55%, transparent);
+      background: color-mix(in srgb, var(--studio-select, #0F6B73) 6%, transparent);
       opacity: 0;
       transition: opacity .35s ease;
     }
@@ -9057,37 +9054,39 @@
       width: 29px;
       height: 29px;
       margin: 1px 0 0 1px;
-      border-radius: 3px;
+      border-radius: 2px;
       background: var(--c);
-      box-shadow: inset 0 -3px 0 color-mix(in srgb, var(--c) 72%, #000),
-        0 2px 0 color-mix(in srgb, var(--c) 45%, transparent);
+      box-shadow: inset 0 -2px 0 color-mix(in srgb, var(--c) 80%, #000);
       transform-origin: 50% 100%;
-      animation: bpDrop .5s cubic-bezier(.34, 1.7, .5, 1) both,
-        bpSink .6s ease-in 2.2s forwards;
+      animation: bpDrop .38s cubic-bezier(.2, .9, .3, 1.15) both,
+        bpSink .7s ease-in 2.4s forwards;
     }
 
-    /* The stud on top, lit from the upper left like Roblox draws it. */
+    /* The stud on top: a flat disc a shade lighter, with a hairline of
+       shadow on its lower edge. */
     .bp-brick::after {
       content: "";
       position: absolute;
       left: 50%;
-      top: 45%;
-      width: 13px;
-      height: 13px;
-      margin: -6.5px 0 0 -6.5px;
+      top: 50%;
+      width: 12px;
+      height: 12px;
+      margin: -7px 0 0 -6px;
       border-radius: 50%;
-      background: color-mix(in srgb, var(--c) 88%, #fff);
-      box-shadow: inset 0 -2px 0 color-mix(in srgb, var(--c) 78%, #000);
+      background: color-mix(in srgb, var(--c) 90%, #fff);
+      box-shadow: 0 1px 0 color-mix(in srgb, var(--c) 75%, #000);
     }
 
+    /* On the dark baseplate the same greys would glow; they sit lower. */
+    [data-theme="dark"] .bp-brick { filter: brightness(.5); }
+
     @keyframes bpDrop {
-      0% { opacity: 0; transform: translateY(-16px) scale(.8, 1.15); }
-      55% { opacity: 1; transform: translateY(0) scale(1.14, .82); }
+      0% { opacity: 0; transform: translateY(-8px); }
       100% { opacity: 1; transform: none; }
     }
 
     @keyframes bpSink {
-      to { opacity: 0; transform: translateY(4px) scale(.9, .7); }
+      to { opacity: 0; transform: translateY(2px); }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -9141,7 +9140,7 @@
     .widgets-side .gw-card,
     .gw-card { box-shadow: 0 2px 0 var(--edge) !important; }
     .sys { box-shadow: 0 2px 0 var(--edge); }
-    .ws { box-shadow: 0 3px 0 var(--edge); }
+    .ws { box-shadow: 0 2px 0 var(--edge); }
 
     /* Things that float over everything: no outline, the one real shadow. */
     .it-more-menu,
@@ -17666,11 +17665,12 @@
 
     // ---------- the baseplate ----------
     // The grid behind everything is a Roblox baseplate, and it behaves like
-    // one: the stud under the mouse gets Studio's hover box, and clicking
-    // bare baseplate drops a brick in one of Roblox's own colours. Only on
+    // one: the stud under the mouse gets a hover box like Studio's, and
+    // clicking bare baseplate drops a plain grey brick. Only on
     // the grid itself, never on anything that does something.
     const BP_STUD = 30;
-    const BP_COLOURS = ["#C4281C", "#0D69AC", "#F5CD30", "#287F47", "#DA8541", "#A3A2A5", "#6B327C"];
+    // Greys only: the bricks are part of the baseplate, not confetti.
+    const BP_COLOURS = ["#A3A2A5", "#9AA3A6", "#B4BBBD", "#8C9598", "#C3C8C9"];
     const BP_SOLID = "button, a, input, textarea, select, label, [contenteditable], .msg-bubble, .msg-avatar, "
       + ".composer, .composer-stage, .desktop-bubble, .ws, .mac-dock-container, .modal-overlay, .studio-panel, "
       + ".topbar-title, .topbar-right, .studio-chip, .gw-card, .welcome, .it-more-menu, .ui-dropdown, .publish-overlay";
