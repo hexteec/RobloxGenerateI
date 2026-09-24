@@ -5535,6 +5535,216 @@
       color: var(--ink);
     }
 
+    /* ---------- a code instead of a card ---------- */
+    .promo-row {
+      margin-top: 16px;
+      padding-top: 14px;
+      border-top: 1px dashed var(--border);
+    }
+
+    .promo-label {
+      display: block;
+      font-size: 12.8px;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 7px;
+    }
+
+    .promo-field {
+      display: flex;
+      gap: 6px;
+    }
+
+    .promo-field input {
+      flex: 1 1 auto;
+      min-width: 0;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--card);
+      color: var(--ink);
+      padding: 9px 12px;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+
+    .promo-field input::placeholder { font-family: var(--font-body); letter-spacing: 0; text-transform: none; color: var(--ink-faint); }
+
+    .promo-field input:focus,
+    .promo-field input:focus-visible { outline: none; border-color: var(--ink-faint); box-shadow: 0 0 0 3px var(--soft-2); }
+
+    .promo-btn {
+      flex-shrink: 0;
+      padding: 8px 14px 9px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 12.8px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: inset 0 -2px 0 var(--soft-2);
+      transition: background .15s ease, border-color .15s ease, transform .45s cubic-bezier(.34, 1.9, .5, 1);
+    }
+
+    .promo-btn:hover:not(:disabled) { background: var(--soft); border-color: var(--ink-faint); }
+    .promo-btn:active:not(:disabled) { transform: scale(.95, .9); transition-duration: .08s; }
+    .promo-btn:disabled { opacity: .5; cursor: default; }
+
+    .promo-status {
+      min-height: 18px;
+      margin-top: 7px;
+      font-size: 12.3px;
+      color: var(--ink-muted);
+    }
+
+    .promo-status.error { color: var(--coral); }
+    .promo-status.ok { color: var(--mint); font-weight: 600; }
+
+    /* The tokens land with the same little give as everything else. */
+    .promo-status.ok b {
+      display: inline-block;
+      animation: promoPop .6s cubic-bezier(.34, 1.8, .5, 1) both;
+    }
+
+    @keyframes promoPop {
+      0% { transform: scale(.6); opacity: 0; }
+      60% { transform: scale(1.15); opacity: 1; }
+      100% { transform: none; }
+    }
+
+    .promo-admin-link {
+      display: inline;
+      margin-left: 6px;
+      padding: 0;
+      border: 0;
+      background: none;
+      font: inherit;
+      color: var(--ink-muted);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      cursor: pointer;
+    }
+
+    .promo-admin-link[hidden] { display: none; }
+
+    /* ---------- managing codes ---------- */
+    .modal-card.promo-admin { max-width: 540px; max-height: calc(100vh - 40px); overflow-y: auto; }
+
+    .pa-form { display: grid; gap: 12px; }
+    .pa-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+    .pa-field { display: grid; gap: 6px; font-size: 12.5px; font-weight: 600; color: var(--ink); }
+    .pa-field small { font-weight: 500; color: var(--ink-faint); margin-left: 3px; }
+
+    .pa-field input {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--card);
+      color: var(--ink);
+      padding: 9px 11px;
+      font-family: var(--font-body);
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    #paCode { font-family: var(--font-mono); text-transform: uppercase; letter-spacing: .05em; }
+    #paCode::placeholder { font-family: var(--font-body); text-transform: none; letter-spacing: 0; }
+
+    .pa-field input:focus,
+    .pa-field input:focus-visible { outline: none; border-color: var(--ink-faint); box-shadow: 0 0 0 3px var(--soft-2); }
+
+    .pa-uses {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      padding: 3px;
+      border-radius: 10px;
+      background: var(--soft);
+      border: 1px solid var(--border);
+    }
+
+    .pa-uses button {
+      flex: 1 1 auto;
+      padding: 7px 10px;
+      border: 1px solid transparent;
+      border-radius: 7px;
+      background: none;
+      color: var(--ink-muted);
+      font-family: var(--font-body);
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .pa-uses button.on {
+      background: var(--card);
+      border-color: var(--border);
+      color: var(--ink);
+      box-shadow: inset 0 -2px 0 var(--soft-2);
+    }
+
+    .pa-uses input { width: 70px; flex: 0 0 auto; padding: 6px 8px; border: 1px solid var(--border); border-radius: 7px; background: var(--card); color: var(--ink); font-size: 13px; }
+    .pa-uses input[hidden] { display: none; }
+
+    .pa-list { margin-top: 18px; border-top: 1px solid var(--border); }
+    .pa-empty { padding: 16px 2px 4px; font-size: 12.5px; color: var(--ink-faint); }
+
+    .pa-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto auto;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 2px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .pa-row.off { opacity: .5; }
+
+    .pa-code {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 0;
+      border: 0;
+      background: none;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: .04em;
+      color: var(--ink);
+      cursor: copy;
+    }
+
+    .pa-code svg { width: 12px; height: 12px; color: var(--ink-faint); }
+    .pa-meta { display: block; margin-top: 3px; font-size: 11.8px; color: var(--ink-muted); }
+    .pa-tokens { font-family: var(--font-display); font-size: 15px; font-weight: 700; color: var(--ink); white-space: nowrap; }
+    .pa-tokens span { font-family: var(--font-body); font-size: 11px; font-weight: 500; color: var(--ink-faint); margin-left: 2px; }
+
+    .pa-toggle {
+      padding: 6px 10px 7px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--ink-muted);
+      font-family: var(--font-body);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: inset 0 -2px 0 var(--soft-2);
+    }
+
+    .pa-toggle:hover { color: var(--ink); border-color: var(--ink-faint); }
+
+    @media (max-width: 520px) {
+      .pa-grid { grid-template-columns: 1fr; }
+      .pa-row { grid-template-columns: minmax(0, 1fr) auto; }
+      .pa-row .pa-toggle { grid-column: 1 / -1; justify-self: start; }
+    }
+
     .modal-status {
       margin-top: 13px;
       font-size: 12px;
@@ -9363,7 +9573,54 @@
       <p class="price-facts">An image or a UI script costs <b>2 tokens</b>, a 3D model <b>15 or more</b>.</p>
       <div class="package-grid" id="packageGrid"></div>
       <div class="modal-status" id="modalStatus"></div>
-      <p class="modal-foot">Payment goes through Stripe.</p>
+
+      <form class="promo-row" onsubmit="event.preventDefault(); redeemPromo();">
+        <label class="promo-label" for="promoInput">Have a code?</label>
+        <div class="promo-field">
+          <input id="promoInput" type="text" placeholder="Enter it here" autocomplete="off" spellcheck="false"
+            autocapitalize="characters" maxlength="32">
+          <button type="submit" class="promo-btn" id="promoBtn">Redeem</button>
+        </div>
+        <div class="promo-status" id="promoStatus" role="status"></div>
+      </form>
+
+      <p class="modal-foot">Payment goes through Stripe.
+        <button type="button" class="promo-admin-link" id="promoAdminLink" hidden onclick="openPromoAdmin()">Manage promo codes</button></p>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="promoAdminModal">
+    <div class="modal-card promo-admin">
+      <button class="modal-close" onclick="closePromoAdmin()"></button>
+      <p class="modal-title">Promo codes</p>
+      <p class="modal-sub">Each account can use a code once. Codes you make here work right away.</p>
+
+      <form class="pa-form" onsubmit="event.preventDefault(); createPromo();">
+        <div class="pa-grid">
+          <label class="pa-field"><span>Code</span>
+            <input id="paCode" type="text" placeholder="Leave empty to generate one" maxlength="32" autocomplete="off" spellcheck="false"></label>
+          <label class="pa-field"><span>Tokens</span>
+            <input id="paTokens" type="number" min="1" max="100000" value="25" required></label>
+        </div>
+        <div class="pa-field"><span>How many people</span>
+          <div class="pa-uses" id="paUses" role="radiogroup">
+            <button type="button" class="on" data-uses="single" onclick="setPromoUses('single')">One person</button>
+            <button type="button" data-uses="limited" onclick="setPromoUses('limited')">Up to</button>
+            <input id="paMax" type="number" min="2" value="10" aria-label="Maximum people" hidden>
+            <button type="button" data-uses="open" onclick="setPromoUses('open')">Anyone</button>
+          </div>
+        </div>
+        <div class="pa-grid">
+          <label class="pa-field"><span>Expires <small>optional</small></span>
+            <input id="paExpires" type="date"></label>
+          <label class="pa-field"><span>Note <small>only you see it</small></span>
+            <input id="paNote" type="text" maxlength="200" placeholder="e.g. Discord giveaway"></label>
+        </div>
+        <button type="submit" class="gw-add" id="paCreate">Create code</button>
+        <div class="promo-status" id="paStatus" role="status"></div>
+      </form>
+
+      <div class="pa-list" id="paList"></div>
     </div>
   </div>
 
@@ -11675,6 +11932,7 @@
         }
         renderUserStats();
         await refreshBalance();
+        promoFromUrl();
         await loadChats();
         await loadGameWidgets();
       } else {
@@ -11697,6 +11955,9 @@
         gameWidgets = [];
         renderGameWidgets();
         renderChatList();
+        // A code link still opens for someone signed out; redeeming asks
+        // them to sign in, and the code stays in the field meanwhile.
+        promoFromUrl();
       }
     }
 
@@ -11991,6 +12252,9 @@
         robloxLinked = !!data.robloxUserId;
         robloxUsername = data.robloxUsername || null;
         robloxUserId = data.robloxUserId || null;
+        isPromoAdmin = !!data.isAdmin;
+        const adminLink = document.getElementById("promoAdminLink");
+        if (adminLink) adminLink.hidden = !isPromoAdmin;
         updateTokenPill();
         updateCodeMilliBar();
         updateRobloxCard();
@@ -14813,9 +15077,173 @@
       });
     }
 
+    // ---------- promo codes ----------
+    let isPromoAdmin = false;
+
+    async function redeemPromo() {
+      const input = document.getElementById("promoInput");
+      const status = document.getElementById("promoStatus");
+      const btn = document.getElementById("promoBtn");
+      const code = (input.value || "").trim();
+      if (!code) { input.focus(); return; }
+      if (!currentUser) { document.getElementById("signInBtn").click(); return; }
+
+      btn.disabled = true;
+      status.className = "promo-status";
+      status.textContent = "Checking the code…";
+      try {
+        const res = await authedFetch("/promo/redeem", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ code })
+        });
+        const data = await res.json().catch(() => ({}));
+        if (res.status === 404 && !data.error) throw new Error("Codes need the updated worker. Paste the new worker.js first.");
+        if (!res.ok) throw new Error(data.error || "That code did not work.");
+        status.className = "promo-status ok";
+        status.innerHTML = `<b>+${Number(data.tokens).toLocaleString("en-US")} tokens</b> added to your account.`;
+        input.value = "";
+        if (typeof data.balance === "number") { tokenBalance = data.balance; updateTokenPill(); }
+        refreshBalance();
+      } catch (e) {
+        status.className = "promo-status error";
+        status.textContent = e.message;
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    // A link like /create/?code=LAUNCH opens the top-up with the code in it,
+    // so a code can be handed out as a link.
+    function promoFromUrl() {
+      let code = null;
+      try { code = new URLSearchParams(location.search).get("code"); } catch (e) { /* ignore */ }
+      if (!code) return;
+      const input = document.getElementById("promoInput");
+      if (input) input.value = code;
+      openBuyModal();
+      try {
+        const url = new URL(location.href);
+        url.searchParams.delete("code");
+        history.replaceState(null, "", url.pathname + url.search + url.hash);
+      } catch (e) { /* ignore */ }
+    }
+
+    let promoUses = "single";
+    function setPromoUses(kind) {
+      promoUses = kind;
+      document.querySelectorAll("#paUses button").forEach(b => b.classList.toggle("on", b.dataset.uses === kind));
+      document.getElementById("paMax").hidden = kind !== "limited";
+    }
+
+    function openPromoAdmin() {
+      closeBuyModal();
+      document.getElementById("promoAdminModal").classList.add("show");
+      document.getElementById("paStatus").textContent = "";
+      loadPromoCodes();
+    }
+
+    function closePromoAdmin() { document.getElementById("promoAdminModal").classList.remove("show"); }
+
+    function promoUsesText(p) {
+      if (p.maxUses === 1) return p.uses ? "used" : "one person";
+      if (p.maxUses > 1) return `${p.uses} of ${p.maxUses} used`;
+      return `${p.uses} used, anyone`;
+    }
+
+    async function loadPromoCodes() {
+      const list = document.getElementById("paList");
+      list.innerHTML = `<div class="pa-empty">Loading codes…</div>`;
+      try {
+        const res = await authedFetch("/promo/admin");
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error || "Could not load codes.");
+        const codes = data.codes || [];
+        if (!codes.length) { list.innerHTML = `<div class="pa-empty">No codes yet. The first one you make shows up here.</div>`; return; }
+        list.innerHTML = codes.map(p => {
+          const expired = p.expiresAt && Date.parse(p.expiresAt) <= Date.now();
+          const bits = [promoUsesText(p)];
+          if (p.expiresAt) bits.push((expired ? "expired " : "until ") + new Date(p.expiresAt).toLocaleDateString());
+          if (p.note) bits.push(escapeHtml(p.note));
+          return `<div class="pa-row ${p.active && !expired ? "" : "off"}">
+            <div>
+              <button type="button" class="pa-code" title="Copy the code" onclick="copyPromoCode('${escapeHtml(p.code)}', this)">${escapeHtml(p.code)}${ICONS.copy}</button>
+              <span class="pa-meta">${bits.join(", ")}</span>
+            </div>
+            <span class="pa-tokens">${Number(p.tokens).toLocaleString("en-US")}<span>tokens</span></span>
+            <button type="button" class="pa-toggle" onclick="togglePromo('${escapeHtml(p.code)}', ${!p.active})">${p.active ? "Switch off" : "Switch on"}</button>
+          </div>`;
+        }).join("");
+      } catch (e) {
+        list.innerHTML = `<div class="pa-empty">${escapeHtml(e.message)}</div>`;
+      }
+    }
+
+    async function createPromo() {
+      const status = document.getElementById("paStatus");
+      const btn = document.getElementById("paCreate");
+      const maxUses = promoUses === "single" ? 1 : promoUses === "open" ? 0 : Math.max(2, parseInt(document.getElementById("paMax").value, 10) || 2);
+      const expires = document.getElementById("paExpires").value;
+      btn.disabled = true;
+      status.className = "promo-status";
+      status.textContent = "Creating…";
+      try {
+        const res = await authedFetch("/promo/admin", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            code: document.getElementById("paCode").value.trim(),
+            tokens: parseInt(document.getElementById("paTokens").value, 10),
+            maxUses,
+            // End of the chosen day, so "until the 5th" includes the 5th.
+            expiresAt: expires ? new Date(expires + "T23:59:59").toISOString() : null,
+            note: document.getElementById("paNote").value.trim()
+          })
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error || "Could not create the code.");
+        status.className = "promo-status ok";
+        status.innerHTML = `<b>${escapeHtml(data.promo.code)}</b> is ready.`;
+        document.getElementById("paCode").value = "";
+        document.getElementById("paNote").value = "";
+        loadPromoCodes();
+      } catch (e) {
+        status.className = "promo-status error";
+        status.textContent = e.message;
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    async function togglePromo(code, active) {
+      try {
+        const res = await authedFetch("/promo/admin", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "toggle", code, active })
+        });
+        if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || "Could not change it.");
+      } catch (e) {
+        const status = document.getElementById("paStatus");
+        status.className = "promo-status error";
+        status.textContent = e.message;
+      }
+      loadPromoCodes();
+    }
+
+    function copyPromoCode(code, btn) {
+      const link = location.origin + location.pathname + "?code=" + encodeURIComponent(code);
+      navigator.clipboard?.writeText(code).then(() => {
+        const meta = btn.parentElement.querySelector(".pa-meta");
+        if (meta) { const was = meta.innerHTML; meta.textContent = "Copied. As a link: " + link; setTimeout(() => { meta.innerHTML = was; }, 2600); }
+      }).catch(() => {});
+    }
+
     function openBuyModal() {
       document.getElementById("buyModal").classList.add("show");
       document.getElementById("modalStatus").textContent = "";
+      const ps = document.getElementById("promoStatus");
+      if (ps && !ps.classList.contains("ok")) { ps.textContent = ""; ps.className = "promo-status"; }
     }
     function closeBuyModal() { document.getElementById("buyModal").classList.remove("show"); }
 
