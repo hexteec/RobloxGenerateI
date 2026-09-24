@@ -77,6 +77,18 @@
          apart by tone and this one crisp edge, not by outlines and blur. */
       --edge: #CDD8D8;
 
+      /* Buttons are lit from above, like keys on a good keyboard: a hairline
+         of light on the top edge, a hairline of shade on the bottom, and
+         a contact shadow no wider than a pixel. Pressed, the light goes and
+         the shade moves inside. No thick lips, no outlines, no halos. */
+      --key-shadow: inset 0 1px 0 rgba(255, 255, 255, .85), inset 0 -1px 0 rgba(16, 42, 46, .10), 0 1px 1.5px rgba(16, 42, 46, .08);
+      --key-held: inset 0 1px 2.5px rgba(16, 42, 46, .18), inset 0 0 0 1px rgba(16, 42, 46, .04);
+      --raise: 0 1px 0 var(--edge), 0 1px 3px rgba(16, 42, 46, .06);
+      --primary-grad: linear-gradient(180deg, color-mix(in srgb, var(--accent) 84%, #fff), var(--accent) 62%);
+      --primary-shadow: inset 0 1px 0 rgba(255, 255, 255, .22), inset 0 -1px 0 rgba(0, 0, 0, .18),
+        0 0 0 1px color-mix(in srgb, var(--accent-deep) 80%, #000), 0 1px 2px rgba(8, 40, 44, .28);
+      --primary-held: inset 0 1px 3px rgba(0, 0, 0, .32), 0 0 0 1px color-mix(in srgb, var(--accent-deep) 80%, #000);
+
       /* The checkerboard behind a transparent image. */
       --Check-1: #E9EBEE;
       --Check-2: #F6F7F8;
@@ -117,10 +129,10 @@
       --radius-sm: 9px;
 
       --shadow-sm: 0 1px 0 rgba(28, 33, 39, 0.06);
-      --shadow-md: 0 2px 0 var(--edge);
+      --shadow-md: var(--raise);
       /* Only things that really float over the page (menus, dialogs) cast a
          shadow, and a short one. */
-      --shadow-lg: 0 2px 0 var(--edge), 0 18px 34px -16px rgba(28, 33, 39, 0.28);
+      --shadow-lg: var(--raise), 0 18px 34px -16px rgba(28, 33, 39, 0.28);
 
       --font-display: 'Schibsted Grotesk', system-ui, sans-serif;
       --font-body: 'Schibsted Grotesk', system-ui, sans-serif;
@@ -144,6 +156,13 @@
       --ink-faint: #66797D;
 
       --edge: #0C1112;
+
+      --key-shadow: inset 0 1px 0 rgba(255, 255, 255, .06), inset 0 -1px 0 rgba(0, 0, 0, .35), 0 1px 1px rgba(0, 0, 0, .35);
+      --key-held: inset 0 1px 3px rgba(0, 0, 0, .5);
+      --raise: 0 1px 0 var(--edge), inset 0 1px 0 rgba(255, 255, 255, .035);
+      --primary-shadow: inset 0 1px 0 rgba(255, 255, 255, .32), inset 0 -1px 0 rgba(0, 0, 0, .14),
+        0 0 0 1px color-mix(in srgb, var(--accent) 60%, #000), 0 1px 2px rgba(0, 0, 0, .45);
+      --primary-held: inset 0 1px 3px rgba(0, 0, 0, .35), 0 0 0 1px color-mix(in srgb, var(--accent) 60%, #000);
 
       --Check-1: #2A2B2F;
       --Check-2: #323338;
@@ -173,8 +192,8 @@
       --c-value:  #D3A657;
 
       --shadow-sm: 0 1px 0 rgba(0, 0, 0, 0.3);
-      --shadow-md: 0 2px 0 var(--edge);
-      --shadow-lg: 0 2px 0 var(--edge), 0 18px 34px -14px rgba(0, 0, 0, 0.6);
+      --shadow-md: var(--raise);
+      --shadow-lg: var(--raise), 0 18px 34px -14px rgba(0, 0, 0, 0.6);
     }
 
     [data-theme="sea"] {
@@ -201,8 +220,8 @@
 
       --edge: color-mix(in srgb, var(--soft-2) 70%, var(--ink-faint));
       --shadow-sm: 0 1px 0 rgba(20, 50, 60, 0.06);
-      --shadow-md: 0 2px 0 var(--edge);
-      --shadow-lg: 0 2px 0 var(--edge), 0 18px 34px -16px rgba(20, 50, 60, 0.26);
+      --shadow-md: var(--raise);
+      --shadow-lg: var(--raise), 0 18px 34px -16px rgba(20, 50, 60, 0.26);
     }
 
     [data-theme="forest"] {
@@ -229,8 +248,8 @@
 
       --edge: color-mix(in srgb, var(--soft-2) 70%, var(--ink-faint));
       --shadow-sm: 0 1px 0 rgba(30, 40, 20, 0.06);
-      --shadow-md: 0 2px 0 var(--edge);
-      --shadow-lg: 0 2px 0 var(--edge), 0 18px 34px -16px rgba(30, 40, 20, 0.26);
+      --shadow-md: var(--raise);
+      --shadow-lg: var(--raise), 0 18px 34px -16px rgba(30, 40, 20, 0.26);
     }
 
     [data-theme="sun"] {
@@ -257,8 +276,8 @@
 
       --edge: color-mix(in srgb, var(--soft-2) 70%, var(--ink-faint));
       --shadow-sm: 0 1px 0 rgba(60, 45, 10, 0.06);
-      --shadow-md: 0 2px 0 var(--edge);
-      --shadow-lg: 0 2px 0 var(--edge), 0 18px 34px -16px rgba(60, 45, 10, 0.26);
+      --shadow-md: var(--raise);
+      --shadow-lg: var(--raise), 0 18px 34px -16px rgba(60, 45, 10, 0.26);
     }
 
     body {
@@ -536,7 +555,7 @@
     }
 
     .btn-newchat:active {
-      transform: scale(.98, .95);
+      transform: scale(.98);
       transition-duration: .08s;
     }
 
@@ -569,7 +588,7 @@
       padding: 9px 8px 10px;
       cursor: pointer;
       text-decoration: none;
-      box-shadow: inset 0 -2px 0 var(--soft-2);
+      box-shadow: var(--key-shadow);
       transition: background .15s ease, transform .45s cubic-bezier(.3, 1.35, .5, 1);
       box-sizing: border-box;
       white-space: nowrap;
@@ -582,7 +601,7 @@
 
     .btn-store:active,
     .btn-tokens:active {
-      transform: scale(.97, .94);
+      transform: scale(.975);
       transition-duration: .08s;
     }
 
@@ -1936,7 +1955,7 @@
       border: 1px solid var(--border);
       border-radius: var(--radius-md);
       background: var(--card);
-      box-shadow: inset 0 -2px 0 var(--soft-2);
+      box-shadow: var(--key-shadow);
       color: var(--ink-muted);
       font-family: var(--font-body);
       font-size: 12.8px;
@@ -1949,7 +1968,7 @@
     }
 
     .welcome .w-hint:hover { border-color: var(--ink-faint); color: var(--ink); }
-    .welcome .w-hint:active { transform: scale(.98, .95); transition-duration: .08s; }
+    .welcome .w-hint:active { transform: scale(.98); transition-duration: .08s; }
 
     .welcome .wh-ico {
       display: inline-flex;
@@ -1962,7 +1981,7 @@
       background: var(--soft);
       border: 1px solid var(--border);
       color: var(--ink-muted);
-      box-shadow: inset 0 -2px 0 var(--soft-2);
+      box-shadow: var(--key-shadow);
       transition: color .15s ease, transform .5s cubic-bezier(.3, 1.3, .5, 1);
     }
 
@@ -2544,7 +2563,7 @@
       border-radius: var(--radius-sm);
       cursor: pointer;
       text-decoration: none;
-      box-shadow: inset 0 -2px 0 var(--soft-2);
+      box-shadow: var(--key-shadow);
       transition: border-color .15s ease, background .15s ease, transform .45s cubic-bezier(.3, 1.35, .5, 1);
       display: inline-flex;
       align-items: center;
@@ -2552,7 +2571,7 @@
     }
 
     .result-actions button:active:not(:disabled),
-    .result-actions a:active { transform: scale(.97, .94); transition-duration: .08s; }
+    .result-actions a:active { transform: scale(.975); transition-duration: .08s; }
 
     .result-actions svg { width: 13px; height: 13px; }
 
@@ -3038,7 +3057,7 @@
       font-weight: 600;
       color: var(--ink-muted);
       cursor: pointer;
-      box-shadow: inset 0 -2px 0 var(--soft-2);
+      box-shadow: var(--key-shadow);
     }
 
     .chooser-templates .ct-opt:hover { color: var(--ink); border-color: var(--ink-faint); }
@@ -3047,7 +3066,7 @@
       border-color: color-mix(in srgb, var(--accent) 35%, var(--border));
       color: var(--accent-deep);
       background: var(--soft);
-      box-shadow: inset 0 2px 0 var(--soft-2);
+      box-shadow: var(--key-held);
     }
 
     .m3d-panel {
@@ -3387,7 +3406,7 @@
       background: var(--card);
       border: 1px solid transparent;
       border-radius: 18px;
-      box-shadow: 0 2px 0 var(--edge);
+      box-shadow: var(--raise);
 
       padding: 12px 14px 14px;
       width: 100%;
@@ -3788,7 +3807,7 @@
       border-style: solid;
       border-color: var(--border);
       background: var(--card);
-      box-shadow: inset 0 -2px 0 var(--soft-2);
+      box-shadow: var(--key-shadow);
     }
 
     .dropzone.filled .dz-empty {
@@ -3812,7 +3831,7 @@
       border-radius: 8px;
       background: var(--card);
       border: 1px solid var(--border);
-      box-shadow: inset 0 -2px 0 var(--soft-2);
+      box-shadow: var(--key-shadow);
       color: var(--ink-muted);
       display: flex;
       align-items: center;
@@ -3873,7 +3892,7 @@
       border-radius: var(--radius-sm);
       background: var(--card);
       border: 1px solid var(--border);
-      box-shadow: inset 0 -2px 0 var(--soft-2);
+      box-shadow: var(--key-shadow);
       color: var(--ink);
       font-size: 12px;
       font-weight: 600;
@@ -3945,7 +3964,7 @@
     .dz-action-pill {
       background: var(--card);
       border: 1px solid var(--border);
-      box-shadow: inset 0 -2px 0 var(--soft-2);
+      box-shadow: var(--key-shadow);
       color: var(--ink);
       font-family: var(--font-body);
       font-size: 12px;
@@ -5104,7 +5123,7 @@
       background: var(--soft);
       border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--border));
       color: var(--accent-deep);
-      box-shadow: inset 0 2px 0 var(--soft-2);
+      box-shadow: var(--key-held);
       transform: rotate(-4deg);
     }
 
@@ -5153,11 +5172,11 @@
       padding: 7px 11px 8px;
       border-radius: var(--radius-sm);
       cursor: pointer;
-      box-shadow: inset 0 -2px 0 var(--soft-2);
+      box-shadow: var(--key-shadow);
       transition: border-color .15s ease, background .15s ease, transform .45s cubic-bezier(.3, 1.35, .5, 1);
     }
 
-    .sys-act:active:not(:disabled), .sys-all:active { transform: scale(.97, .94); transition-duration: .08s; }
+    .sys-act:active:not(:disabled), .sys-all:active { transform: scale(.975); transition-duration: .08s; }
 
     .sys-act svg { width: 13px; height: 13px; }
     .sys-act:hover { border-color: var(--ink-faint); background: var(--soft); }
@@ -5172,7 +5191,7 @@
       padding: 7px 11px 8px;
       border-radius: var(--radius-sm);
       cursor: pointer;
-      box-shadow: inset 0 -2px 0 var(--soft-2);
+      box-shadow: var(--key-shadow);
       transition: border-color .15s ease, background .15s ease, transform .45s cubic-bezier(.3, 1.35, .5, 1);
     }
 
@@ -5656,12 +5675,12 @@
       font-size: 12.8px;
       font-weight: 600;
       cursor: pointer;
-      box-shadow: inset 0 -2px 0 var(--soft-2);
+      box-shadow: var(--key-shadow);
       transition: background .15s ease, border-color .15s ease, transform .45s cubic-bezier(.3, 1.35, .5, 1);
     }
 
     .promo-btn:hover:not(:disabled) { background: var(--soft); border-color: var(--ink-faint); }
-    .promo-btn:active:not(:disabled) { transform: scale(.97, .94); transition-duration: .08s; }
+    .promo-btn:active:not(:disabled) { transform: scale(.975); transition-duration: .08s; }
     .promo-btn:disabled { opacity: .5; cursor: default; }
 
     .promo-status {
@@ -5755,7 +5774,7 @@
       background: var(--card);
       border-color: var(--border);
       color: var(--ink);
-      box-shadow: inset 0 -2px 0 var(--soft-2);
+      box-shadow: var(--key-shadow);
     }
 
     .pa-uses input { width: 70px; flex: 0 0 auto; padding: 6px 8px; border: 1px solid var(--border); border-radius: 7px; background: var(--card); color: var(--ink); font-size: 13px; }
@@ -5805,7 +5824,7 @@
       font-size: 12px;
       font-weight: 600;
       cursor: pointer;
-      box-shadow: inset 0 -2px 0 var(--soft-2);
+      box-shadow: var(--key-shadow);
     }
 
     .pa-toggle:hover { color: var(--ink); border-color: var(--ink-faint); }
@@ -5875,7 +5894,7 @@
         background: var(--card);
         border-radius: 20px;
         /* A plate on the baseplate: no halo, just its own underside. */
-        box-shadow: 0 2px 0 var(--edge);
+        box-shadow: var(--raise);
         display: flex;
         flex-direction: column;
         overflow: hidden;
@@ -6843,7 +6862,7 @@
       background: var(--soft) !important;
       border-color: color-mix(in srgb, var(--accent) 30%, var(--border)) !important;
       color: var(--accent-deep) !important;
-      box-shadow: inset 0 2px 0 var(--soft-2), inset 0 3px 6px color-mix(in srgb, var(--ink) 7%, transparent) !important;
+      box-shadow: var(--key-held), inset 0 3px 6px color-mix(in srgb, var(--ink) 7%, transparent) !important;
     }
 
     /* A small turned square under the key that is down, the mark Studio
@@ -7054,7 +7073,7 @@
          most recognisable generated-UI effect there is. */
       background: var(--card) !important;
       border: 1px solid transparent !important;
-      box-shadow: 0 2px 0 var(--edge) !important;
+      box-shadow: var(--raise) !important;
       border-radius: 24px !important;
       width: 100% !important;
       max-width: 340px;
@@ -7519,7 +7538,7 @@
       background: var(--card);
       border-color: var(--border);
       color: var(--accent);
-      box-shadow: inset 0 -2px 0 var(--soft-2), 0 1px 2px rgba(0, 0, 0, .06);
+      box-shadow: var(--key-shadow), 0 1px 2px rgba(0, 0, 0, .06);
     }
 
     .model-name {
@@ -7540,7 +7559,7 @@
       background: var(--card) !important;
       color: var(--ink) !important;
       font-size: 12.5px !important;
-      box-shadow: inset 0 -2px 0 var(--soft-2) !important;
+      box-shadow: var(--key-shadow) !important;
       transition: border-color .15s ease, background .15s ease, transform .45s cubic-bezier(.3, 1.35, .5, 1) !important;
     }
 
@@ -7606,7 +7625,7 @@
       background: var(--card);
       border-color: var(--border);
       color: var(--ink);
-      box-shadow: inset 0 -2px 0 var(--soft-2), 0 1px 2px rgba(0, 0, 0, .06);
+      box-shadow: var(--key-shadow), 0 1px 2px rgba(0, 0, 0, .06);
     }
 
     .shape-key.on svg { color: var(--accent); transform: rotate(-8deg); }
@@ -8262,19 +8281,19 @@
       padding: 8px 13px 9px;
       border-radius: 9px;
       cursor: pointer;
-      box-shadow: inset 0 -2px 0 var(--soft-2);
+      box-shadow: var(--key-shadow);
       transition: border-color .15s ease, background .15s ease, color .15s ease, box-shadow .15s ease,
         transform .45s cubic-bezier(.3, 1.35, .5, 1);
     }
 
     .ws-chip:hover { border-color: var(--ink-faint); }
-    .ws-chip:active { transform: scale(.97, .94); transition-duration: .08s; }
+    .ws-chip:active { transform: scale(.975); transition-duration: .08s; }
 
     .ws-chip.on {
       border-color: color-mix(in srgb, var(--accent) 35%, var(--border));
       background: var(--soft);
       color: var(--accent-deep);
-      box-shadow: inset 0 2px 0 var(--soft-2), inset 0 3px 6px color-mix(in srgb, var(--ink) 6%, transparent);
+      box-shadow: var(--key-held), inset 0 3px 6px color-mix(in srgb, var(--ink) 6%, transparent);
     }
 
     .ws-chip-sub { font-size: 10.5px; font-weight: 500; color: var(--ink-faint); }
@@ -8357,7 +8376,7 @@
       border-radius: var(--radius-sm);
       cursor: pointer;
       white-space: nowrap;
-      box-shadow: inset 0 -2px 0 var(--soft-2);
+      box-shadow: var(--key-shadow);
       transition: border-color .15s ease, background .15s ease, opacity .15s ease,
         transform .45s cubic-bezier(.3, 1.35, .5, 1);
     }
@@ -8367,7 +8386,7 @@
       border-color: var(--ink-faint);
     }
 
-    .ws-btn:active:not(:disabled) { transform: scale(.97, .94); transition-duration: .08s; }
+    .ws-btn:active:not(:disabled) { transform: scale(.975); transition-duration: .08s; }
 
     .ws-btn svg { width: 13px; height: 13px; }
 
@@ -9135,12 +9154,12 @@
       border-color: transparent !important;
     }
 
-    .msg-bot .msg-bubble { box-shadow: 0 2px 0 var(--edge); }
+    .msg-bot .msg-bubble { box-shadow: var(--raise); }
     .msg-bot .msg-bubble::before { border-color: transparent; }
     .widgets-side .gw-card,
-    .gw-card { box-shadow: 0 2px 0 var(--edge) !important; }
-    .sys { box-shadow: 0 2px 0 var(--edge); }
-    .ws { box-shadow: 0 2px 0 var(--edge); }
+    .gw-card { box-shadow: var(--raise) !important; }
+    .sys { box-shadow: var(--raise); }
+    .ws { box-shadow: var(--raise); }
 
     /* Things that float over everything: no outline, the one real shadow. */
     .it-more-menu,
@@ -9160,7 +9179,7 @@
     .sb-toggle {
       border-color: transparent;
       background: var(--card);
-      box-shadow: 0 2px 0 var(--edge);
+      box-shadow: var(--raise);
     }
 
     .welcome .w-hint:hover,
@@ -9169,7 +9188,7 @@
     .sb-toggle:hover {
       border-color: transparent;
       background: var(--card);
-      box-shadow: 0 2px 0 color-mix(in srgb, var(--edge) 55%, var(--ink-faint));
+      box-shadow: 0 1px 0 var(--edge), 0 2px 5px rgba(16, 42, 46, .10);
     }
 
     /* Keys on a plate: a shade darker than the plate, with a lip. */
@@ -9218,7 +9237,7 @@
       border-color: transparent;
     }
 
-    .msg-bot .msg-avatar { box-shadow: 0 2px 0 var(--edge); }
+    .msg-bot .msg-avatar { box-shadow: var(--raise); }
 
     .ui-pill-btn.it-trigger,
     .ui-pill-btn.enhance-key,
@@ -9252,14 +9271,14 @@
     .itp-chip:hover .itp-frame {
       border-color: transparent;
       background: var(--soft);
-      box-shadow: inset 0 -2px 0 var(--soft-2);
+      box-shadow: var(--key-shadow);
     }
 
     .itp-chip:hover .itp-frame { background: var(--card); }
 
     .itp-chip.active {
       border-color: transparent;
-      box-shadow: inset 0 2px 0 var(--soft-2);
+      box-shadow: var(--key-held);
     }
 
     .itp-chip.active .itp-frame {
@@ -9275,6 +9294,281 @@
     .desktop-bubble .sb-top-chat {
       border-color: transparent;
     }
+  </style>
+  <style id="buttonCSS">
+    /* ============================ BUTTONS ============================
+       One system, three kinds, lit the way a well-made key is lit (the
+       approach Raycast and macOS take, rather than the outlined box with
+       a soft shadow that every component kit ships):
+       - the primary action: sea, with a faint top-to-bottom sheen, a
+         hairline of light on its top edge and a darker rim;
+       - keys: the surface's own tone, light on top, shade underneath, a
+         one-pixel contact shadow; no outline, and hovering does not draw
+         one either;
+       - quiet icon buttons: nothing until you are on them.
+       Pressed, every kind loses its light and takes the shade inside, and
+       sinks half a pixel. Where a real shortcut exists, the button says
+       so in a small key cap. */
+
+    .btn-newchat,
+    .ws-btn.primary,
+    .sys-act.primary,
+    .result-actions button.primary,
+    .st-send,
+    .rgp-apply,
+    .gw-add {
+      background: var(--primary-grad);
+      color: var(--on-accent);
+      border-color: transparent;
+      box-shadow: var(--primary-shadow);
+      text-shadow: 0 -1px 0 rgba(0, 0, 0, .12);
+    }
+
+    [data-theme="dark"] :is(.btn-newchat, .ws-btn.primary, .sys-act.primary, .result-actions button.primary, .st-send, .rgp-apply, .gw-add) {
+      text-shadow: none;
+    }
+
+    .btn-newchat:hover,
+    .ws-btn.primary:hover:not(:disabled),
+    .sys-act.primary:hover,
+    .result-actions button.primary:hover,
+    .st-send:hover:not(:disabled),
+    .rgp-apply:hover,
+    .gw-add:hover {
+      background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 76%, #fff), color-mix(in srgb, var(--accent) 94%, #fff) 62%);
+      border-color: transparent;
+      color: var(--on-accent);
+    }
+
+    .btn-newchat:active,
+    .ws-btn.primary:active:not(:disabled),
+    .sys-act.primary:active,
+    .result-actions button.primary:active,
+    .st-send:active:not(:disabled),
+    .rgp-apply:active,
+    .gw-add:active {
+      background: var(--accent);
+      box-shadow: var(--primary-held);
+      transform: translateY(.5px);
+      transition-duration: .06s;
+    }
+
+    [data-theme="dark"] .btn-newchat { box-shadow: var(--primary-shadow); }
+
+    /* Keys. */
+    .ws-btn:not(.primary),
+    .promo-btn,
+    .sys-act:not(.primary),
+    .sys-all,
+    .result-actions a,
+    .result-actions button:not(.primary),
+    .st-cancel,
+    .st-keep,
+    .pj-reload,
+    .pj-back,
+    .pa-toggle,
+    .pa-chip,
+    .ws-chip:not(.on),
+    .ws-unfold,
+    .chooser-3d button,
+    .chooser-templates .ct-opt,
+    .m3d-toggle,
+    .publish-btn-cancel,
+    .dz-upload-cta,
+    .dz-action-pill,
+    .it-opt:not(.active),
+    .it-more-btn,
+    .enhance-btn,
+    .btn-store,
+    .btn-tokens,
+    .account-card.unlinked .rc-action,
+    .btn-google-card .rc-action,
+    .welcome .wh-ico {
+      border-color: transparent !important;
+      box-shadow: var(--key-shadow);
+    }
+
+    :is(.ws-btn:not(.primary),
+    .promo-btn,
+    .sys-act:not(.primary),
+    .sys-all,
+    .result-actions a,
+    .result-actions button:not(.primary),
+    .st-cancel,
+    .st-keep,
+    .pj-reload,
+    .pj-back,
+    .pa-toggle,
+    .pa-chip,
+    .ws-chip:not(.on),
+    .ws-unfold,
+    .chooser-3d button,
+    .chooser-templates .ct-opt,
+    .m3d-toggle,
+    .publish-btn-cancel,
+    .dz-upload-cta,
+    .dz-action-pill,
+    .it-opt:not(.active),
+    .it-more-btn,
+    .enhance-btn,
+    .btn-store,
+    .btn-tokens,
+    .account-card.unlinked .rc-action,
+    .btn-google-card .rc-action,
+    .welcome .wh-ico):hover {
+      border-color: transparent !important;
+      background: color-mix(in srgb, var(--soft) 55%, var(--soft-2));
+    }
+
+    :is(.ws-btn:not(.primary),
+    .promo-btn,
+    .sys-act:not(.primary),
+    .sys-all,
+    .result-actions a,
+    .result-actions button:not(.primary),
+    .st-cancel,
+    .st-keep,
+    .pj-reload,
+    .pj-back,
+    .pa-toggle,
+    .pa-chip,
+    .ws-chip:not(.on),
+    .ws-unfold,
+    .chooser-3d button,
+    .chooser-templates .ct-opt,
+    .m3d-toggle,
+    .publish-btn-cancel,
+    .dz-upload-cta,
+    .dz-action-pill,
+    .it-opt:not(.active),
+    .it-more-btn,
+    .enhance-btn,
+    .btn-store,
+    .btn-tokens,
+    .account-card.unlinked .rc-action,
+    .btn-google-card .rc-action,
+    .welcome .wh-ico):active {
+      background: var(--soft-2);
+      box-shadow: var(--key-held);
+      transform: translateY(.5px);
+      transition-duration: .06s;
+    }
+
+    /* Keys that sit on white plates start from the plate's tone. */
+    .ws-btn:not(.primary),
+    .promo-btn,
+    .sys-act:not(.primary),
+    .result-actions a,
+    .result-actions button:not(.primary),
+    .account-card.unlinked .rc-action,
+    .btn-google-card .rc-action {
+      background: var(--card);
+    }
+
+    .account-card.unlinked .rc-action svg { transform: none; }
+
+    /* The composer's send key: a small primary with an arrow, not a
+       half-transparent dot that spins when you point at it. */
+    .composer-action-btn {
+      width: 32px !important;
+      height: 32px !important;
+      border-radius: 9px !important;
+      background: var(--primary-grad) !important;
+      color: var(--on-accent) !important;
+      box-shadow: var(--primary-shadow) !important;
+      opacity: 1 !important;
+      transform: none !important;
+      transition: background .15s ease, box-shadow .15s ease, transform .06s ease !important;
+    }
+
+    .composer-action-btn:hover {
+      background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 76%, #fff), color-mix(in srgb, var(--accent) 94%, #fff) 62%) !important;
+      transform: none !important;
+    }
+
+    .composer-action-btn:active {
+      background: var(--accent) !important;
+      box-shadow: var(--primary-held) !important;
+      transform: translateY(.5px) !important;
+    }
+
+    /* Quiet icon buttons. */
+    .ws-x,
+    .modal-close,
+    .user-row .u-signout,
+    .gp-icon-btn,
+    .rc-unlink-btn {
+      border-color: transparent !important;
+      box-shadow: none;
+    }
+
+    .ws-x:hover,
+    .modal-close:hover,
+    .user-row .u-signout:hover,
+    .gp-icon-btn:hover,
+    .rc-unlink-btn:hover {
+      border-color: transparent !important;
+      background: var(--soft);
+      box-shadow: var(--key-shadow);
+    }
+
+    .ws-x:active,
+    .modal-close:active,
+    .gp-icon-btn:active,
+    .rc-unlink-btn:active {
+      background: var(--soft-2);
+      box-shadow: var(--key-held);
+    }
+
+    /* The dock: the same keys, a size up. The chosen one is held down. */
+    .mac-dock-list .fm-pill .fm-icon.dock-icon {
+      border-color: transparent !important;
+      box-shadow: var(--key-shadow), 0 2px 6px -2px rgba(16, 42, 46, .12) !important;
+    }
+
+    .mac-dock-list .dock-item.fm-pill:hover .fm-icon.dock-icon { border-color: transparent !important; }
+
+    .mac-dock-list .dock-item.fm-pill:not(.active):hover .fm-icon.dock-icon {
+      box-shadow: var(--key-shadow), 0 3px 8px -2px rgba(16, 42, 46, .16) !important;
+    }
+
+    .dock-item.fm-pill.active .fm-icon.dock-icon {
+      border-color: transparent !important;
+      background: var(--soft-2) !important;
+      box-shadow: var(--key-held) !important;
+    }
+
+    /* Key caps for real shortcuts. */
+    .kbd {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      margin-left: 8px;
+      padding: 2px 5px 3px;
+      border-radius: 5px;
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      font-weight: 500;
+      line-height: 1;
+      letter-spacing: 0;
+      color: var(--ink-muted);
+      background: var(--soft);
+      box-shadow: var(--key-shadow);
+      text-shadow: none;
+    }
+
+    .ws-btn.primary .kbd {
+      color: inherit;
+      background: rgba(255, 255, 255, .16);
+      box-shadow: inset 0 -1px 0 rgba(0, 0, 0, .15);
+    }
+
+    .ws-btn.primary:disabled .kbd { display: none; }
+
+    .ws-x { width: auto !important; padding: 0 6px !important; gap: 6px; }
+    .ws-x .kbd { margin-left: 0; }
+
+    @media (hover: none) { .kbd { display: none; } }
   </style>
 </head>
 
@@ -16775,12 +17069,13 @@
         <div class="ws-head">
           <span class="ws-mode"><span class="ws-mode-ico">${info.icon || ""}</span>${escapeHtml(info.label)}</span>
           <div class="ws-steps">${stepsHtml}</div>
-          <button class="ws-x" type="button" onclick="closeWorkspace()" aria-label="Close" title="Close">${WS_ICONS.close}</button>
+          <button class="ws-x" type="button" onclick="closeWorkspace()" aria-label="Close" title="Close"><span class="kbd" aria-hidden="true">Esc</span>${WS_ICONS.close}</button>
         </div>
         <div class="ws-body${arrive ? " ws-arrive" : ""}" id="wsBody">${view.html}</div>
         ${view.foot ? `<div class="ws-foot">${view.foot}</div>` : ""}`;
 
       if (view.after) view.after();
+      wsMarkShortcut(el);
       wsFocusFeed();
       // Steps differ wildly in height; re-measure once this one has laid out.
       requestAnimationFrame(wsGuardFloaters);
@@ -18523,6 +18818,7 @@
         foot.innerHTML = `<span class="ws-foot-note">Every setting moves the price; the button keeps the running total.</span>
           <button class="ws-btn ws-quiet" type="button" onclick="wsBack()">${WS_ICONS.back}Start over</button>
           <button class="ws-btn primary" type="button" id="wsMeshGo" onclick="wsMeshGenerate()">Generate</button>`;
+        wsMarkShortcut(el);
       }
       // Anything touched in the panel can move the price, and the panel
       // rewrites itself on most of them, so the footer button re-reads the
@@ -18538,7 +18834,7 @@
     function wsSyncMeshButton() {
       const real = document.querySelector("#wsMeshSlot .m3d-generate");
       const proxy = document.getElementById("wsMeshGo");
-      if (real && proxy) proxy.textContent = real.textContent.trim();
+      if (real && proxy) { proxy.textContent = real.textContent.trim(); wsMarkShortcut(wsEl()); }
     }
 
     function wsMeshGenerate() {
@@ -19681,10 +19977,31 @@
       openWorkspace(mode, { result: payload });
     }
 
+    // The step's main action also answers Cmd/Ctrl+Enter, and its button
+    // shows that in a key cap, so the shortcut is found by looking.
+    const WS_MOD = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent) ? "⌘" : "Ctrl";
+
+    function wsMainButton(el) {
+      const btns = (el || document).querySelectorAll(".ws-foot .ws-btn.primary");
+      return btns.length ? btns[btns.length - 1] : null;
+    }
+
+    function wsMarkShortcut(el) {
+      const btn = wsMainButton(el);
+      if (btn && !btn.querySelector(".kbd")) {
+        btn.insertAdjacentHTML("beforeend", `<span class="kbd" aria-hidden="true">${WS_MOD} ↵</span>`);
+      }
+    }
+
     document.addEventListener("keydown", (e) => {
       if (e.key === "Escape" && wsOpen()) {
         e.preventDefault();
         closeWorkspace();
+        return;
+      }
+      if (e.key === "Enter" && (e.metaKey || e.ctrlKey) && wsOpen()) {
+        const btn = wsMainButton(wsEl());
+        if (btn && !btn.disabled) { e.preventDefault(); btn.click(); }
       }
     });
 

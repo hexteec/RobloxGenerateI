@@ -252,8 +252,7 @@
     }
 
     .btn-primary:hover {
-      background: #335fff;
-      transform: translateY(3px);
+      background: var(--accent-deep);
     }
 
     .btn-ghost {
@@ -2921,6 +2920,43 @@
     .mode-kicker,
     .panel-head,
     .foot-col-head { font-size: 13px !important; font-weight: 600 !important; }
+
+    /* Buttons, the same as in the app: the primary is sea with a faint
+       sheen, a hairline of light along its top and a darker rim; it
+       sinks half a pixel when pressed instead of jumping. The sign-in key
+       is lit the same way in white. */
+    .btn-primary,
+    .foot-cta {
+      border-radius: 8px !important;
+      background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 84%, #fff), var(--accent) 62%) !important;
+      color: #fff !important;
+      text-shadow: 0 -1px 0 rgba(0, 0, 0, .15);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, .22), inset 0 -1px 0 rgba(0, 0, 0, .2),
+        0 0 0 1px color-mix(in srgb, var(--accent-deep) 80%, #000), 0 1px 2px rgba(8, 40, 44, .3) !important;
+      transition: background .15s ease, box-shadow .15s ease, transform .06s ease !important;
+    }
+
+    .btn-primary:hover,
+    .foot-cta:hover {
+      background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 76%, #fff), color-mix(in srgb, var(--accent) 94%, #fff) 62%) !important;
+      transform: none !important;
+    }
+
+    .btn-primary:active,
+    .foot-cta:active {
+      background: var(--accent) !important;
+      box-shadow: inset 0 1px 3px rgba(0, 0, 0, .32), 0 0 0 1px color-mix(in srgb, var(--accent-deep) 80%, #000) !important;
+      transform: translateY(.5px) !important;
+    }
+
+    .btn-google {
+      border: 0 !important;
+      border-radius: 9px !important;
+      background: #fff !important;
+      box-shadow: inset 0 -1px 0 rgba(16, 42, 46, .10), 0 1px 1.5px rgba(16, 42, 46, .12), 0 0 0 1px rgba(16, 42, 46, .06) !important;
+    }
+
+    .btn-google:active { box-shadow: inset 0 1px 2.5px rgba(16, 42, 46, .2) !important; transform: translateY(.5px); }
   </style>
 </head>
 
