@@ -7198,6 +7198,94 @@
       background: color-mix(in srgb, var(--ink) 8%, transparent) !important;
     }
 
+    /* The model as a row of small keys, each drawn after its name (a moon
+       for Luna, the twins for Gemini, a lens under the waterline for
+       DeepSeek), with the chosen one's name written small beside them. */
+    .model-keys {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      padding: 3px 9px 3px 3px;
+      border-radius: 10px;
+      background: var(--soft);
+      border: 1px solid var(--border);
+    }
+
+    .model-key {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 26px;
+      padding: 0;
+      border-radius: 7px;
+      border: 1px solid transparent;
+      background: none;
+      color: var(--ink-faint);
+      cursor: pointer;
+      transition: background .15s ease, color .15s ease, border-color .15s ease, box-shadow .15s ease,
+        transform .45s cubic-bezier(.34, 1.9, .5, 1);
+    }
+
+    .model-key svg { width: 15px; height: 15px; transition: transform .5s cubic-bezier(.34, 1.8, .5, 1); }
+    .model-key:hover { color: var(--ink); }
+    .model-key:hover svg { transform: rotate(-12deg) scale(1.08); }
+    .model-key:active { transform: scale(.9, .84); transition-duration: .08s; }
+
+    .model-key.on {
+      background: var(--card);
+      border-color: var(--border);
+      color: var(--accent);
+      box-shadow: inset 0 -2px 0 var(--soft-2), 0 1px 2px rgba(0, 0, 0, .06);
+    }
+
+    .model-name {
+      margin-left: 5px;
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--ink-muted);
+      white-space: nowrap;
+    }
+
+    /* Enhance is a key like the rest, with the added line in the accent. */
+    .ui-pill-btn.enhance-key {
+      opacity: 1 !important;
+      gap: 6px !important;
+      padding: 5px 10px 6px 8px !important;
+      border: 1px solid var(--border) !important;
+      border-radius: 9px !important;
+      background: var(--card) !important;
+      color: var(--ink) !important;
+      font-size: 12.5px !important;
+      box-shadow: inset 0 -2px 0 var(--soft-2) !important;
+      transition: border-color .15s ease, background .15s ease, transform .45s cubic-bezier(.34, 1.9, .5, 1) !important;
+    }
+
+    .ui-pill-btn.enhance-key:hover {
+      background: var(--soft) !important;
+      border-color: var(--ink-faint) !important;
+    }
+
+    .ui-pill-btn.enhance-key:active { transform: scale(.94, .88) !important; transition-duration: .08s !important; }
+    .ui-pill-btn.enhance-key.busy { color: var(--ink-muted) !important; }
+
+    /* .ui-pill-btn forces display:flex with !important, which beat the
+       inline display:none the modes set, so Enhance showed in every mode
+       though it only works on images. Hidden has to win. */
+    #enhanceBtn[style*="display: none"],
+    #enhanceBtn[style*="display:none"] { display: none !important; }
+
+    #enhanceIcon { display: inline-flex; }
+    #enhanceIcon svg { width: 15px; height: 15px; }
+    #enhanceIcon .acc { stroke: var(--accent); transform-origin: 12px 12px; transition: transform .5s cubic-bezier(.34, 1.8, .5, 1); }
+    .enhance-key:hover #enhanceIcon .acc { transform: translateX(1.5px); }
+
+    @media (max-width: 560px) {
+      .model-name { display: none; }
+      .model-keys { padding-right: 3px; }
+      #enhanceLabel { display: none; }
+    }
+
     /* One script or a whole system, as two keys side by side: the chosen
        one held down with its glyph in the accent, like the dock. */
     .shape-keys {
@@ -9152,16 +9240,17 @@
 
                 <div class="composer-bottom-actions">
                   <div style="position: relative; display:none;" id="codeModelSelectorWrap">
-                    <button class="ui-pill-btn" onclick="toggleDropdown('codeModelDropdown', event)">
-                      <span id="activeCodeModelLabel">GPT-5.6 Luna</span>
-                    </button>
-                    <div class="ui-dropdown" id="codeModelDropdown">
-                      <button class="ui-dropdown-item" onclick="selectCodeModel('luna', 'GPT-5.6 Luna', event)">GPT-5.6
-                        Luna</button>
-                      <button class="ui-dropdown-item"
-                        onclick="selectCodeModel('gemini', 'Gemini 3.8 Flash', event)">Gemini 3.8 Flash</button>
-                      <button class="ui-dropdown-item"
-                        onclick="selectCodeModel('deepseek', 'DeepSeek V4 Flash', event)">DeepSeek V4 Flash</button>
+                    <div class="model-keys" role="radiogroup" aria-label="Model">
+                      <button type="button" class="model-key on" data-model="luna" role="radio"
+                        aria-checked="true" title="GPT-5.6 Luna" aria-label="GPT-5.6 Luna"
+                        onclick="selectCodeModel('luna', 'GPT-5.6 Luna', event)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg></button>
+                      <button type="button" class="model-key" data-model="gemini" role="radio"
+                        aria-checked="false" title="Gemini 3.8 Flash" aria-label="Gemini 3.8 Flash"
+                        onclick="selectCodeModel('gemini', 'Gemini 3.8 Flash', event)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4.5c4 1.6 10 1.6 14 0M5 19.5c4-1.6 10-1.6 14 0M9 6v12M15 6v12"/></svg></button>
+                      <button type="button" class="model-key" data-model="deepseek" role="radio"
+                        aria-checked="false" title="DeepSeek V4 Flash" aria-label="DeepSeek V4 Flash"
+                        onclick="selectCodeModel('deepseek', 'DeepSeek V4 Flash', event)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7c2-1.5 4-1.5 6 0s4 1.5 6 0 4-1.5 6 0"/><circle cx="11" cy="15" r="4"/><path d="m14 18 3.5 3.5"/></svg></button>
+                      <span class="model-name" id="activeCodeModelLabel">Luna</span>
                     </div>
                   </div>
 
@@ -9181,12 +9270,14 @@
                   </div>
 
                   <div style="position: relative; display:none;" id="ui2luaSelectorWrap">
-                    <button class="ui-pill-btn" onclick="toggleDropdown('ui2luaDropdown', event)">
-                      <span id="activeUiModelLabel">GPT-5.6 Luna</span>
-                    </button>
-                    <div class="ui-dropdown" id="ui2luaDropdown">
-                      <button class="ui-dropdown-item" onclick="selectUiModel('luna', event)">GPT-5.6 Luna</button>
-                      <button class="ui-dropdown-item" onclick="selectUiModel('gemini', event)">Gemini 3.8 Flash</button>
+                    <div class="model-keys" role="radiogroup" aria-label="Model">
+                      <button type="button" class="model-key on" data-model="luna" role="radio"
+                        aria-checked="true" title="GPT-5.6 Luna" aria-label="GPT-5.6 Luna"
+                        onclick="selectUiModel('luna', event)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg></button>
+                      <button type="button" class="model-key" data-model="gemini" role="radio"
+                        aria-checked="false" title="Gemini 3.8 Flash" aria-label="Gemini 3.8 Flash"
+                        onclick="selectUiModel('gemini', event)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4.5c4 1.6 10 1.6 14 0M5 19.5c4-1.6 10-1.6 14 0M9 6v12M15 6v12"/></svg></button>
+                      <span class="model-name" id="activeUiModelLabel">Luna</span>
                     </div>
                   </div>
 
@@ -9216,8 +9307,8 @@
                     </button>
                   </div>
 
-                  <button class="ui-pill-btn" id="enhanceBtn" onclick="enhancePrompt()" style="display:none;"
-                    title="Enhance prompt">
+                  <button class="ui-pill-btn enhance-key" id="enhanceBtn" onclick="enhancePrompt()" style="display:none;"
+                    title="Add detail to the prompt: lighting, style, composition">
                     <span id="enhanceIcon"></span><span id="enhanceLabel">Enhance</span>
                   </button>
                   <span class="char-count" id="charCount" style="display:none;">0 characters</span>
@@ -9373,6 +9464,9 @@
     // models offered here are the two that can look at a picture. DeepSeek
     // is not among them — it has no eyes.
     const UI_MODEL_LABELS = { luna: "GPT-5.6 Luna", gemini: "Gemini 3.8 Flash" };
+    // Beside the model keys a model goes by its first name; the full one is
+    // on each key's tooltip and on every answer it writes.
+    const MODEL_SHORT_NAMES = { luna: "Luna", gemini: "Gemini", deepseek: "DeepSeek" };
     const WS_UI_DEFAULT_MODEL = "luna";
     function codeModelBadgeHtml(model, pricingNote) {
       if (!model) return "";
@@ -11449,7 +11543,7 @@
 
         document.querySelector(".sb-toggle").innerHTML = ICONS.menu;
         document.getElementById("attachBtn").innerHTML = ICONS.paperclip;
-        document.getElementById("enhanceIcon").innerHTML = ICONS.wand;
+        document.getElementById("enhanceIcon").innerHTML = ENHANCE_ICON;
         document.getElementById("sendIcon").innerHTML = ICONS.send;
         document.querySelectorAll(".dz-remove").forEach(b => b.innerHTML = ICONS.close);
         document.querySelectorAll(".modal-close").forEach(b => b.innerHTML = ICONS.close);
@@ -12997,8 +13091,19 @@
       });
     }
 
+    function syncModelKeys(wrapId, model) {
+      document.querySelectorAll(`#${wrapId} .model-key`).forEach(k => {
+        const on = k.dataset.model === model;
+        k.classList.toggle("on", on);
+        k.setAttribute("aria-checked", on ? "true" : "false");
+      });
+    }
+
     function updateSelectedCodeModel(model) {
       selectedCodeModel = model;
+      syncModelKeys("codeModelSelectorWrap", model);
+      const lbl = document.getElementById("activeCodeModelLabel");
+      if (lbl && MODEL_SHORT_NAMES[model]) lbl.textContent = MODEL_SHORT_NAMES[model];
       document.querySelectorAll("#codeModelBar .fm-pill").forEach(p =>
         p.classList.toggle("active", p.dataset.codemodel === model)
       );
@@ -13562,6 +13667,10 @@
       renderPendingAttachments();
     }
 
+    // A short line growing into a full one, the last stroke in the accent:
+    // more said, not magic.
+    const ENHANCE_ICON = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h9M4 12h13"/><path class="acc" d="M4 17h16M18 4.5v5M15.5 7h5"/></svg>`;
+
     async function enhancePrompt() {
       if (!currentUser) { document.getElementById("signInBtn").click(); return; }
 
@@ -13577,8 +13686,8 @@
       if (!raw && !usingAnalyze) return;
 
       btn.disabled = true;
-      icon.innerHTML = ICONS.spinner;
-      icon.querySelector("svg") && icon.querySelector("svg").classList.add("spin");
+      btn.classList.add("busy");
+      icon.innerHTML = `<span class="mini-loader"><span></span><span></span><span></span></span>`;
 
       try {
         if (usingAnalyze) {
@@ -13608,7 +13717,8 @@
         alert("Enhance error: " + e.message);
       } finally {
         btn.disabled = false;
-        icon.innerHTML = ICONS.wand;
+        btn.classList.remove("busy");
+        icon.innerHTML = ENHANCE_ICON;
       }
     }
 
@@ -15177,7 +15287,7 @@
     function selectCodeModel(model, label, event) {
       if (event) event.stopPropagation();
       const lbl = document.getElementById('activeCodeModelLabel');
-      if (lbl) lbl.textContent = label;
+      if (lbl) lbl.textContent = MODEL_SHORT_NAMES[model] || label;
       selectedCodeModel = model;
       if (typeof updateSelectedCodeModel === 'function') updateSelectedCodeModel(model);
       closeAllDropdowns();
@@ -15220,7 +15330,8 @@
       if (!UI_MODEL_LABELS[model]) return;
       selectedUiModel = model;
       const lbl = document.getElementById('activeUiModelLabel');
-      if (lbl) lbl.textContent = UI_MODEL_LABELS[model];
+      if (lbl) lbl.textContent = MODEL_SHORT_NAMES[model] || UI_MODEL_LABELS[model];
+      syncModelKeys("ui2luaSelectorWrap", model);
       closeAllDropdowns();
     }
 
