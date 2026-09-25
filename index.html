@@ -14,10 +14,7 @@
 
   <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <script src="https://unpkg.com/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script type="module" src="https://cdnjs.cloudflare.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js"></script>
   <script>
     tailwind.config = {
       corePlugins: {
@@ -186,10 +183,6 @@
       .reveal {
         opacity: 1;
         transform: none;
-      }
-
-      #brickCanvas {
-        display: none;
       }
     }
 
@@ -1899,16 +1892,6 @@
       color: var(--ink-muted);
     }
 
-    /* ---------- falling brick (signature element) ---------- */
-    #brickCanvas {
-      position: fixed;
-      inset: 0;
-      width: 100vw;
-      height: 100vh;
-      z-index: 5;
-      pointer-events: none;
-    }
-
     @media (max-width:768px) {
       nav {
         padding: 12px 18px;
@@ -1929,10 +1912,6 @@
       footer {
         flex-direction: column;
         text-align: center;
-      }
-
-      #brickCanvas {
-        opacity: 0.85;
       }
     }
 
@@ -2701,13 +2680,6 @@
       top: 0;
     }
 
-    .AssetViewer {
-      width: 40%;
-      height: 90%;
-      position: absolute;
-      right: -5%;
-      top: 0;
-    }
 
     .AssetText {
       position: absolute;
@@ -2731,9 +2703,6 @@
     }
 
     @media (max-width: 1550px) {
-      .AssetViewer {
-        right: -10%;
-      }
 
       .AssetText {
         position: absolute;
@@ -2747,9 +2716,6 @@
     }
 
     @media (max-width: 1400px) {
-      .AssetViewer {
-        visibility: hidden;
-      }
 
       .AssetText {
         right: 0;
@@ -2782,14 +2748,6 @@
     }
 
     @media (max-width: 500px) {
-      .AssetViewer {
-        width: 60%;
-        height: 450px;
-        transform: rotate(0);
-        left: -5%;
-        top: 50%;
-        visibility: visible;
-      }
 
       .AssetImage {
         top: 10%;
@@ -2904,8 +2862,6 @@
 </head>
 
 <body onload="handleFluidExpand('fluid-item-misty')">
-
-  <canvas id="brickCanvas" aria-hidden="true"></canvas>
 
   <nav>
     <div class="nav-brand">
@@ -3112,11 +3068,6 @@
             <strong>✻ Idea → Image → 3D Model</strong>.
           </p>
         </div>
-        <div class="mt-auto max-w-[50ch] text-[clamp(1rem,2.5vw,2rem)] font-normal leading-relaxed m-0"
-          style="color: #fff;">
-          <model-viewer src="Sword.glb" alt="Opis modelu 3D" auto-rotate camera-controls class="AssetViewer">
-          </model-viewer>
-        </div>
         <hr class="my-[2vw] border-none border-t border-black opacity-100" />
         <p class="mt-auto max-w-[50ch] text-[clamp(1rem,2.5vw,2rem)] font-normal leading-relaxed m-0"
           style="color: #fff;">
@@ -3132,306 +3083,332 @@
     <section data-flow-section aria-label="La mission" class="relative min-h-screen w-full overflow-hidden"
       style="max-width: 100%; padding: 0;">
       <style>
-        #code-section-container>*:not(#pixel-stars-canvas) {
-          position: relative;
-          z-index: 10;
+        #code-section-container {
+          --ca-ink: #F2F2F0;
+          --ca-mute: #8C8C88;
+          --ca-dim: #4A4A47;
+          --ca-hot: #FF6720;
         }
 
-        .code-hero {
+        .ca-row {
           display: grid;
-          grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
-          gap: 4vw;
-          align-items: center;
-        }
-
-        #code-section-container .code-hero h2 {
-          font-size: clamp(2.6rem, 7vw, 7rem);
-        }
-
-        #code-section-container .code-hero .lead,
-        #code-section-container .agent-block .lead {
-          font-size: clamp(0.95rem, 1.4vw, 1.15rem);
-          margin-top: 16px;
-        }
-
-        #code-section-container .spec {
-          margin-top: 18px;
-        }
-
-        #code-section-container .spec-row {
-          padding: 7px 0;
-        }
-
-        .spec {
-          display: flex;
-          flex-direction: column;
-          margin-top: 26px;
-          border-top: 1px solid rgba(255, 255, 255, .18);
-          max-width: 46ch;
-        }
-
-        .spec-row {
-          display: flex;
-          align-items: baseline;
-          gap: 14px;
-          padding: 9px 0;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.11);
-          font-size: 11.5px;
-        }
-
-        .spec-row .k {
-          font-size: 11px;
-          letter-spacing: .12em;
-          color: rgba(255, 255, 255, 0.151);
-        }
-
-        .spec-row .v {
-          font-size: 12px;
-          letter-spacing: .02em;
-          text-transform: none;
-          color: rgba(255, 255, 255, .88);
-        }
-
-        .spec-row .v em {
-          font-style: normal;
-          color: #fff;
-          box-shadow: inset 0 -1px 0 green;
-        }
-
-        .panel-head {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 18px;
-          padding: 11px 14px;
-          border-bottom: 1px solid rgba(255, 255, 255, .18);
-          background: rgba(255, 255, 255, .03);
-          font-family: var(--font-display);
-          font-weight: 800;
-          font-size: 11px;
-          letter-spacing: .14em;
-          text-transform: uppercase;
-          color: rgba(255, 255, 255, .62);
-          white-space: nowrap;
-          overflow: hidden;
-        }
-
-        .panel-head>span:first-child {
-          min-width: 0;
-          overflow: hidden;
-          text-overflow: ellipsis;
-        }
-
-        .panel-head .acts {
-          flex-shrink: 0;
-        }
-
-        .panel-head .file {
-          font-family: var(--font-mono);
-          font-weight: 400;
-          letter-spacing: .02em;
-          text-transform: none;
-          font-size: 11px;
-          color: rgba(255, 255, 255, .4);
-        }
-
-        .panel-head .acts {
-          display: flex;
-          gap: 18px;
-          font-family: var(--font-mono);
-          font-weight: 400;
-          font-size: 10.5px;
-          letter-spacing: .1em;
-          color: rgba(255, 255, 255, .55);
-        }
-
-        .cw-prompt {
-          display: flex;
-          gap: 10px;
-          padding: 13px 14px;
-          border-bottom: 1px solid rgba(255, 255, 255, .16);
-          font-family: var(--font-mono);
-          font-size: 12px;
-          line-height: 1.55;
-          color: #fff;
-        }
-
-        .cw-prompt .caret {
-          color: rgba(255, 255, 255, .38);
-          flex-shrink: 0;
-        }
-
-        .cw-code {
-          margin: 0;
-          padding: 14px;
-          font-family: var(--font-mono);
-          font-size: 11px;
-          line-height: 1.75;
-          color: #D7D7DE;
-          white-space: pre;
-          overflow-x: auto;
-          font-size: clamp(9.5px, 0.78vw, 11px);
-        }
-
-        .cw-code .c-key { color: #eb7973; }
-        .cw-code .c-str { color: #c3e88d; }
-        .cw-code .c-blu { color: #82aaff; }
-        .cw-code .c-num { color: #f78c6c; }
-        .cw-code .c-com { color: #6B6C76; }
-
-        .cw-fix {
-          display: flex;
-          align-items: baseline;
-          gap: 12px;
-          padding: 11px 14px;
-          border-top: 1px solid rgba(255, 255, 255, .16);
-          font-family: var(--font-mono);
-          font-size: 11px;
-          color: rgba(255, 255, 255, .45);
-        }
-
-        .cw-fix .fx {
-          font-family: var(--font-display);
-          font-weight: 800;
-          font-size: 10.5px;
-          letter-spacing: .14em;
-          text-transform: uppercase;
-          color: #fff;
-          box-shadow: inset 0 -1px 0 var(--accent);
-        }
-
-        .agent-block {
-          display: grid;
-          grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
-          gap: 4vw;
+          grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+          gap: 5vw;
           align-items: start;
         }
 
-        .agent-word {
+        .ca-row.flip {
+          grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+        }
+
+        .ca-word {
           font-family: var(--font-display);
-          font-weight: 800;
-          font-size: clamp(2.4rem, 6vw, 6rem);
-          line-height: .88;
-          letter-spacing: -0.02em;
+          font-weight: 900;
+          font-size: clamp(3.6rem, 11vw, 10.5rem);
+          line-height: .84;
+          letter-spacing: -0.035em;
           text-transform: uppercase;
+          color: var(--ca-ink);
           margin: 0;
-          color: transparent;
-          -webkit-text-stroke: 2px #fff;
         }
 
-        .agent-log {
-          border-top: 1px solid rgba(255, 255, 255, .18);
-          background: #0B0B0D;
-        }
-
-        .agent-step {
-          display: grid;
-          grid-template-columns: 3ch minmax(0, 1fr) auto;
-          gap: 14px;
-          align-items: baseline;
-          padding: 10px 0;
-          border-bottom: 1px solid rgba(255, 255, 255, .1);
-          font-family: var(--font-mono);
-        }
-
-        .agent-step .no {
-          font-size: 11px;
-          color: rgba(255, 255, 255, .32);
-        }
-
-        .agent-step .what {
-          font-size: 12.5px;
+        .ca-lead {
+          font-family: var(--font-body);
+          font-size: clamp(1.05rem, 1.55vw, 1.4rem);
           line-height: 1.5;
-          color: rgba(255, 255, 255, .9);
+          color: var(--ca-ink);
+          max-width: 34ch;
+          margin: 28px 0 0;
         }
 
-        .agent-step .meta {
+        .ca-facts {
+          display: grid;
+          grid-template-columns: max-content minmax(0, 1fr);
+          gap: 10px 22px;
+          margin: 34px 0 0;
+          font-family: var(--font-body);
+          font-size: 15px;
+          line-height: 1.45;
+          max-width: 46ch;
+        }
+
+        .ca-facts dt {
+          color: var(--ca-mute);
+        }
+
+        .ca-facts dd {
+          margin: 0;
+          color: var(--ca-ink);
+        }
+
+        /* the script, set as type rather than as a screenshot of an editor */
+        .ca-ask {
+          font-family: var(--font-body);
+          font-size: clamp(1.1rem, 1.7vw, 1.5rem);
+          line-height: 1.4;
+          color: var(--ca-ink);
+          margin: 0;
+          max-width: 36ch;
+        }
+
+        .ca-ask q {
+          quotes: "\201C" "\201D";
+        }
+
+        .ca-file {
+          margin: 22px 0 0;
+          padding-top: 14px;
+          border-top: 1px solid #262624;
+          font-family: var(--font-mono);
+          font-size: 12.5px;
+          color: var(--ca-mute);
+        }
+
+        .ca-file b {
+          font-weight: 500;
+          color: var(--ca-ink);
+        }
+
+        .ca-code {
+          margin: 16px 0 0;
+          font-family: var(--font-mono);
+          font-size: clamp(11.5px, 0.95vw, 14px);
+          line-height: 1.7;
+          color: #D9D9D5;
+          white-space: pre;
+          overflow-x: auto;
+          counter-reset: ln;
+          tab-size: 4;
+        }
+
+        .ca-code span.l {
           display: block;
-          font-size: 10.5px;
-          color: rgba(255, 255, 255, .32);
-          margin-top: 4px;
-          letter-spacing: .02em;
         }
 
-        .agent-step .state {
+        .ca-code span.l::before {
+          counter-increment: ln;
+          content: counter(ln);
+          display: inline-block;
+          width: 3ch;
+          margin-right: 2ch;
+          text-align: right;
+          color: var(--ca-dim);
+        }
+
+        .ca-code .k { color: var(--ca-hot); }
+        .ca-code .s { color: #A9A9A4; }
+        .ca-code .n { color: var(--ca-hot); }
+        .ca-code .c { color: #62625E; font-style: italic; }
+
+        /* the Studio run, the way the web app reports it */
+        .ca-run {
+          margin: 0;
+          font-family: var(--font-body);
+        }
+
+        .ca-run .ca-ask {
+          margin-bottom: 22px;
+        }
+
+        .ca-place {
+          display: flex;
+          justify-content: space-between;
+          gap: 16px;
+          padding: 12px 0;
+          border-top: 1px solid #262624;
+          border-bottom: 1px solid #262624;
+          font-size: 14px;
+          color: var(--ca-mute);
+        }
+
+        .ca-place b {
+          font-weight: 600;
+          color: var(--ca-ink);
+        }
+
+        .ca-steps {
+          list-style: none;
+          margin: 6px 0 0;
+          padding: 0;
+        }
+
+        .ca-steps li {
+          display: grid;
+          grid-template-columns: 6.5ch minmax(0, 1fr);
+          gap: 18px;
+          padding: 11px 0;
+          font-size: clamp(14px, 1.1vw, 16px);
+          line-height: 1.45;
+          color: var(--ca-ink);
+        }
+
+        .ca-steps time {
+          font-family: var(--font-mono);
+          font-size: 12.5px;
+          line-height: 1.9;
+          color: var(--ca-mute);
+        }
+
+        .ca-steps .ok {
+          color: var(--ca-mute);
+        }
+
+        .ca-steps li.now {
+          color: var(--ca-hot);
+        }
+
+        .ca-steps li.now span::after {
+          content: "";
+          display: inline-block;
+          width: .5em;
+          height: 1.05em;
+          margin-left: 4px;
+          vertical-align: -0.15em;
+          background: currentColor;
+          animation: ca-caret 1.1s steps(1) infinite;
+        }
+
+        @keyframes ca-caret {
+          50% { opacity: 0; }
+        }
+
+        /* steps arrive one by one the first time the log scrolls into view */
+        .ca-steps.armed li {
+          opacity: 0;
+          transform: translateY(6px);
+        }
+
+        .ca-steps.armed.play li {
+          opacity: 1;
+          transform: none;
+          transition: opacity .35s ease, transform .35s ease;
+          transition-delay: calc(var(--i) * 520ms);
+        }
+
+        .ca-close {
+          margin: 0 0 0 auto;
+          max-width: 30ch;
+          text-align: right;
           font-family: var(--font-display);
           font-weight: 800;
-          font-size: 10px;
-          letter-spacing: .14em;
-          text-transform: uppercase;
-          color: rgba(255, 255, 255, .28);
-          white-space: nowrap;
+          font-size: clamp(1.4rem, 2.6vw, 2.4rem);
+          line-height: 1.1;
+          letter-spacing: -0.01em;
+          color: var(--ca-ink);
         }
-
-        .agent-step.done .state { color: rgba(255, 255, 255, .55); }
-
-        .agent-step.run .state {
-          color: var(--accent);
-          animation: blink 1.2s ease-in-out infinite;
-        }
-
-        .agent-step.idle .what { color: rgba(255, 255, 255, .38); }
 
         @media (max-width: 900px) {
-          .code-hero { grid-template-columns: 1fr; gap: 7vw; }
-          .agent-block { grid-template-columns: 1fr; gap: 7vw; }
+          .ca-row,
+          .ca-row.flip {
+            grid-template-columns: minmax(0, 1fr);
+            gap: 44px;
+          }
+
+          .ca-row.flip .ca-copy {
+            order: -1;
+          }
+
+          .ca-close {
+            text-align: left;
+            margin: 0;
+          }
+        }
+
+        @media (max-width: 520px) {
+          .ca-code span.l::before {
+            width: 2ch;
+            margin-right: 1.4ch;
+          }
+
+          .ca-place {
+            flex-direction: column;
+            gap: 2px;
+          }
+
+          .ca-code {
+            tab-size: 2;
+          }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .ca-steps li.now span::after { animation: none; }
+          .ca-steps.armed li { opacity: 1; transform: none; }
         }
       </style>
       <div id="code-section-container"
         class="flow-art-container relative flex min-h-screen w-full flex-col justify-between gap-6 px-[4vw] pt-[clamp(2rem,8vw,4vw)] pb-[4vw] will-change-transform"
-        style="background-color: #000; background-size: 10px; color: #fff; transform-origin: bottom left; padding-left: 4vw; padding-right: 4vw; padding-top: clamp(2rem, 8vw, 4vw); padding-bottom: 4vw;">
-        <canvas id="pixel-stars-canvas" class="pointer-events-none absolute inset-0 z-0 w-full h-full"></canvas>
+        style="background-color: #000; color: #fff; transform-origin: bottom left; padding-left: 4vw; padding-right: 4vw; padding-top: clamp(2rem, 8vw, 4vw); padding-bottom: 4vw;">
         <p class="text-xs font-bold uppercase tracking-[0.2em] m-0">/[02]///CODE + AGENT\\\\</p>
         <hr class="my-[2vw] border-none border-t border-white/60" />
-        <div class="code-hero">
-          <div>
-            <h2 class="text-[clamp(3.5rem,10vw,11rem)] font-bold leading-[0.85] uppercase tracking-tight m-0"
-              style="color: #fff;">
-              CODE
-            </h2>
-            <p class="lead max-w-[42ch] font-normal leading-relaxed m-0" style="color: #fff; margin-top: 22px;">
-              Describe the mechanic, get the Luau. Server, local and module scripts written in chat and ready to drop
-              into your place.
-            </p>
-            <div class="spec">
-              <div class="spec-row"><span class="k">Models</span><span class="v"><em>GPT-5.6 Luna</em> - Gemini 3.7
-                  Flash - DeepSeek V4 Flash</span></div>
-              <div class="spec-row"><span class="k">Output</span><span class="v">Server - Local - Module - Lua</span>
-              </div>
-              <div class="spec-row"><span class="k">Export</span><span class="v">Copy - .lua - Studio</span>
-              </div>
-            </div>
+
+        <div class="ca-row">
+          <div class="ca-copy">
+            <h2 class="ca-word">Code</h2>
+            <p class="ca-lead">Describe the mechanic, get the Luau. Server, local and module scripts written in chat,
+              ready to drop into your place.</p>
+            <dl class="ca-facts">
+              <dt>Models</dt>
+              <dd>GPT-5.6 Luna, Gemini 3.7 Flash, DeepSeek V4 Flash</dd>
+              <dt>Writes</dt>
+              <dd>Script, LocalScript, ModuleScript</dd>
+              <dt>Export</dt>
+              <dd>Copy it, save a .lua file, or send it to Studio</dd>
+            </dl>
           </div>
-          <div class="panel code-window">
-            <img src="CODEimg.png">
+          <figure class="m-0">
+            <p class="ca-ask"><q>Coins in the Coins folder give +1 and come back ten seconds after someone takes
+                them.</q></p>
+            <p class="ca-file"><b>CoinPickup</b> in ServerScriptService</p>
+            <pre class="ca-code" aria-label="Generated Luau script"><span class="l"><span class="k">local</span> Players = game:GetService(<span class="s">"Players"</span>)</span><span class="l"><span class="k">local</span> coins = workspace:WaitForChild(<span class="s">"Coins"</span>)</span><span class="l"><span class="k">local</span> RESPAWN = <span class="n">10</span></span><span class="l"> </span><span class="l"><span class="k">local function</span> hook(coin)</span><span class="l">	<span class="k">local</span> taken = <span class="k">false</span></span><span class="l">	coin.Touched:Connect(<span class="k">function</span>(hit)</span><span class="l">		<span class="k">local</span> player = Players:GetPlayerFromCharacter(hit.Parent)</span><span class="l">		<span class="k">if</span> taken <span class="k">or not</span> player <span class="k">then return end</span></span><span class="l"> </span><span class="l">		taken = <span class="k">true</span></span><span class="l">		player.leaderstats.Coins.Value += <span class="n">1</span></span><span class="l">		coin.Transparency = <span class="n">1</span>  <span class="c">-- hidden, not destroyed</span></span><span class="l">		task.wait(RESPAWN)</span><span class="l">		coin.Transparency = <span class="n">0</span></span><span class="l">		taken = <span class="k">false</span></span><span class="l">	<span class="k">end</span>)</span><span class="l"><span class="k">end</span></span><span class="l"> </span><span class="l"><span class="k">for</span> _, coin <span class="k">in</span> coins:GetChildren() <span class="k">do</span></span><span class="l">	hook(coin)</span><span class="l"><span class="k">end</span></span></pre>
+          </figure>
+        </div>
+
+        <hr class="my-[2vw] border-none border-t border-white/60" />
+
+        <div class="ca-row flip">
+          <figure class="ca-run">
+            <p class="ca-ask"><q>Build a small lobby with a spawn pad and a coin leaderboard.</q></p>
+            <div class="ca-place"><span>Studio agent in <b>Obby Island</b></span><span>Sent from the web app</span></div>
+            <ol class="ca-steps">
+              <li style="--i:0"><time>14:02</time><span class="ok">Read the place: Workspace, 2 folders, 3 scripts</span></li>
+              <li style="--i:1"><time>14:02</time><span>Built Workspace.Lobby from 38 parts</span></li>
+              <li style="--i:2"><time>14:03</time><span>Moved the SpawnLocation onto Lobby.Pad</span></li>
+              <li style="--i:3"><time>14:03</time><span>Wrote ServerScriptService.Leaderstats</span></li>
+              <li style="--i:4" class="now"><time>14:04</time><span>Running a playtest</span></li>
+            </ol>
+          </figure>
+          <div class="ca-copy">
+            <h3 class="ca-word">Agent</h3>
+            <p class="ca-lead">Ask for the whole thing, not one file. The agent works inside your open place through the
+              RoPeak plugin, and every step shows up in the web app as it happens.</p>
+            <dl class="ca-facts">
+              <dt>You write</dt>
+              <dd>One request, in plain words</dd>
+              <dt>It does</dt>
+              <dd>Builds parts, writes scripts, runs a playtest</dd>
+              <dt>You keep</dt>
+              <dd>A confirm step before it starts, and a stop button while it runs</dd>
+            </dl>
           </div>
         </div>
+
         <hr class="my-[2vw] border-none border-t border-white/60" />
-        <div class="agent-block">
-          <div>
-            <h3 class="agent-word">Agent</h3>
-            <p class="lead max-w-[46ch] font-normal leading-relaxed m-0" style="color: #fff; margin-top: 22px;">
-              Give it the goal instead of the file. The agent plans the work, writes the scripts it needs and hands the
-              whole set back as one change you can review.
-            </p>
-            <div class="spec">
-              <div class="spec-row"><span class="k">Input</span><span class="v">One goal - in plain words</span></div>
-              <div class="spec-row"><span class="k">Does</span><span class="v">Plans - writes scripts - fixes its own
-                  errors</span></div>
-              <div class="spec-row"><span class="k">Output</span><span class="v"><em>One reviewable change set</em></span>
-              </div>
-            </div>
-          </div>
-          <div>
-            <img src="AGENTimg.png">
-          </div>
-        </div>
-        <hr class="my-[2vw] border-none border-t border-white/60" />
-        <p class="mt-auto ml-auto max-w-[54ch] text-right text-[clamp(0.95rem,1.7vw,1.4rem)] font-normal leading-relaxed m-0"
-          style="color: #fff;">
-          You don't have to give up creating, you can become more productive.
-        </p>
+        <p class="ca-close">You don't have to give up creating. You can just make more of it.</p>
       </div>
+      <script>
+        (function () {
+          const list = document.querySelector('#code-section-container .ca-steps');
+          if (!list || !('IntersectionObserver' in window)) return;
+          if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+          list.classList.add('armed');
+          const io = new IntersectionObserver(entries => {
+            if (!entries.some(e => e.isIntersecting)) return;
+            list.classList.add('play');
+            io.disconnect();
+          }, { threshold: 0.4 });
+          io.observe(list);
+        })();
+      </script>
     </section>
 
     <!-- Section 3 — footer card -->
@@ -3558,33 +3535,6 @@
       </div>
     </section>
   </main>
-  <script type="module">
-    import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
-    import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/loaders/GLTFLoader.js';
-
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    const renderer = new THREE.WebGLRenderer();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    document.body.appendChild(renderer.domElement);
-
-    const light = new THREE.DirectionalLight(0xffffff, 1);
-    light.position.set(5, 5, 5);
-    scene.add(light);
-
-    const loader = new GLTFLoader();
-    loader.load('model.glb', (gltf) => {
-      scene.add(gltf.scene);
-    });
-
-    camera.position.z = 5;
-
-    function animate() {
-      requestAnimationFrame(animate);
-      renderer.render(scene, camera);
-    }
-    animate();
-  </script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       gsap.registerPlugin(ScrollTrigger);
@@ -3730,307 +3680,6 @@
       }
       tick();
     });
-    /* =========================================================
-       Two falling 3D models — fixed to the VIEWPORT, not the page.
-       One rendered plain white (no texture), one with its own
-       embedded GLB texture. Independent gravity/bounce physics.
-       Skipped entirely if the user prefers reduced motion.
-    ========================================================= */
-    (function () {
-      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      const canvas = document.getElementById('brickCanvas');
-      if (reduceMotion || !window.THREE || !window.THREE.GLTFLoader || !canvas) return;
-
-      const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-
-      const scene = new THREE.Scene();
-      const camera = new THREE.PerspectiveCamera(38, window.innerWidth / window.innerHeight, 0.1, 100);
-      camera.position.set(0, 0, 14);
-
-      scene.add(new THREE.AmbientLight(0xffffff, 0.35));
-      const key = new THREE.DirectionalLight(0xffffff, 1.0);
-      key.position.set(4, 6, 8);
-      scene.add(key);
-      const fill = new THREE.DirectionalLight(0xBFD4FF, 0.4);
-      fill.position.set(-6, 1, 4);
-      scene.add(fill);
-      const rim = new THREE.DirectionalLight(0xE1834F, 0.55);
-      rim.position.set(-5, 4, -6);
-      scene.add(rim);
-
-      function buildEnvironment() {
-        const c = document.createElement('canvas');
-        c.width = 512; c.height = 256;
-        const ctx = c.getContext('2d');
-
-        const g = ctx.createLinearGradient(0, 0, 0, 256);
-        g.addColorStop(0, '#E8EEF3');
-        g.addColorStop(0.45, '#C9D5DC');
-        g.addColorStop(0.55, '#9EAFB8');
-        g.addColorStop(1, '#52745E');
-
-        ctx.fillStyle = g;
-        ctx.fillRect(0, 0, 512, 256);
-
-        const sun = ctx.createRadialGradient(360, 60, 10, 360, 60, 140);
-        sun.addColorStop(0, 'rgba(220,240,255,0.9)');
-        sun.addColorStop(1, 'rgba(220,240,255,0)');
-
-        ctx.fillStyle = sun;
-        ctx.fillRect(0, 0, 512, 256);
-
-        const tex = new THREE.CanvasTexture(c);
-        tex.mapping = THREE.EquirectangularReflectionMapping;
-        tex.colorSpace = THREE.SRGBColorSpace || THREE.sRGBEncoding;
-
-        const pmrem = new THREE.PMREMGenerator(renderer);
-        pmrem.compileEquirectangularShader();
-
-        const envMap = pmrem.fromEquirectangular(tex).texture;
-
-        tex.dispose();
-        pmrem.dispose();
-
-        return envMap;
-      }
-      const envMap = buildEnvironment();
-      scene.environment = envMap;
-
-      function viewBounds() {
-        const dist = camera.position.z;
-        const vFov = camera.fov * Math.PI / 180;
-        const height = 2 * Math.tan(vFov / 2) * dist;
-        const width = height * camera.aspect;
-        return { halfW: width / 2, halfH: height / 2 };
-      }
-
-      function resize() {
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth, window.innerHeight, true);
-      }
-      window.addEventListener('resize', resize);
-      resize();
-
-      const loader = new THREE.GLTFLoader();
-      const bodies = [];
-
-      function normalize(root, targetSize) {
-        const box = new THREE.Box3().setFromObject(root);
-        const center = box.getCenter(new THREE.Vector3());
-        const size = box.getSize(new THREE.Vector3());
-
-        const maxDim = Math.max(size.x, size.y, size.z) || 1;
-        const scale = targetSize / maxDim;
-
-        root.position.set(-center.x, -center.y, -center.z);
-
-        const wrapper = new THREE.Group();
-        wrapper.add(root);
-        wrapper.scale.setScalar(scale);
-
-        const holder = new THREE.Group();
-        holder.add(wrapper);
-
-        const sphere = new THREE.Box3().setFromObject(holder).getBoundingSphere(new THREE.Sphere());
-        return { holder, radius: sphere.radius };
-      }
-
-      function addBody(holder, radius, startX) {
-        scene.add(holder);
-        const body = {
-          holder,
-          radius,
-          pos: new THREE.Vector3(startX, 8, 0),
-          velY: 0,
-          landed: false,
-
-          squash: 0,
-          squashVel: 0,
-          wobble: 0,
-          wobbleVel: 0,
-
-          baseX: startX,
-          driftPhase: Math.random() * Math.PI * 2,
-          driftFreq: 0.12 + Math.random() * 0.06,
-
-          driftAmp: 1.0 + Math.random() * 0.4,
-
-          spinSpeed: 0.16 + Math.random() * 0.08,
-          tiltPhaseX: Math.random() * Math.PI * 2,
-          tiltPhaseZ: Math.random() * Math.PI * 2,
-        };
-        bodies.push(body);
-      }
-
-      // SPRAW, BY MODELE SPAWNOWAŁY SIĘ OBOK SIEBIE (-1.5)
-      loader.load('assets/roblox-bacon-hair.glb', (gltf) => {
-        const root = gltf.scene;
-        root.traverse((child) => {
-          if (child.isMesh) {
-            child.castShadow = false;
-            if (child.material) {
-              child.material.roughness = Math.min(child.material.roughness ?? 0.6, 0.7);
-              child.material.envMap = envMap;
-              child.material.envMapIntensity = 0.9;
-              child.material.needsUpdate = true;
-            }
-          }
-        });
-        const { holder, radius } = normalize(root, 2.1);
-        addBody(holder, radius, -6.5); // <--- Przesunięto w lewo
-      }, undefined, (err) => console.error('roblox-bacon-hair.glb failed to load', err));
-
-      // SPRAW, BY MODELE SPAWNOWAŁY SIĘ OBOK SIEBIE (1.5)
-      loader.load('assets/roblox_noob.glb', (gltf) => {
-        const root = gltf.scene;
-        root.traverse((child) => {
-          if (child.isMesh) {
-            child.castShadow = false;
-            if (child.material) {
-              child.material.roughness = Math.min(child.material.roughness ?? 0.6, 0.7);
-              child.material.envMap = envMap;
-              child.material.envMapIntensity = 0.9;
-              child.material.needsUpdate = true;
-            }
-          }
-        });
-        const { holder, radius } = normalize(root, 2.1);
-        addBody(holder, radius, 6.5); // <--- Przesunięto w prawo
-      }, undefined, (err) => console.error('roblox_noob.glb failed to load', err));
-
-      const GRAVITY = -0.028;
-      const SPRING_K = 100;
-      const SPRING_D = 5;
-      const WOBBLE_K = 80;
-      const WOBBLE_D = 4;
-
-      let targetScrollY = window.scrollY || 0;
-      let currentScrollY = targetScrollY;
-
-      window.addEventListener('scroll', () => {
-        targetScrollY = window.scrollY;
-      });
-
-      let last = performance.now();
-      let clock = 0;
-
-      function tick(now) {
-        requestAnimationFrame(tick);
-        const dtMs = Math.min(now - last, 42);
-        last = now;
-        const dt = dtMs / 16.67;
-        const dtSec = dtMs / 1000;
-        clock += dtSec;
-
-        const b = viewBounds();
-        const maxX = b.halfW - 1.1;
-
-        const scrollDiff = targetScrollY - currentScrollY;
-        currentScrollY += scrollDiff * 0.08;
-        const scrollOffsetY = currentScrollY * 0.01;
-
-        // KROK 1: Obliczamy pozycje bazowe dla każdego modelu
-        bodies.forEach((body) => {
-          const floorY = -b.halfH + body.radius;
-
-          if (!body.landed) {
-            body.velY += GRAVITY * dt;
-            body.pos.y += body.velY * dt;
-            if (body.pos.y <= floorY) {
-              body.pos.y = floorY;
-              body.landed = true;
-              const impact = Math.min(Math.abs(body.velY), 2.0);
-              body.squashVel = impact * 10;
-              body.wobbleVel = impact * 4 * (Math.random() < 0.5 ? -1 : 1);
-              body.velY = 0;
-            }
-          } else {
-            body.pos.y = floorY + Math.sin(clock * 0.9 + body.driftPhase) * 0.05;
-          }
-
-          const driftTarget = body.baseX + Math.sin(clock * body.driftFreq + body.driftPhase) * body.driftAmp;
-          body.pos.x += (driftTarget - body.pos.x) * Math.min(1, 0.06 * dt);
-        });
-
-        // KROK 2: SYSTEM KOLIZJI - Zapobiega przenikaniu modeli
-        for (let i = 0; i < bodies.length; i++) {
-          for (let j = i + 1; j < bodies.length; j++) {
-            const b1 = bodies[i];
-            const b2 = bodies[j];
-
-            const dx = b2.pos.x - b1.pos.x;
-            const dy = b2.pos.y - b1.pos.y;
-            // Unikamy dzielenia przez 0
-            const distanceSq = dx * dx + dy * dy || 0.001;
-            const distance = Math.sqrt(distanceSq);
-
-            // Mnożnik 0.85 sprawia, że box kolizji jest minimalnie mniejszy niż renderowany model, 
-            // dzięki czemu mają "miękki" punkt styku
-            const minDistance = (b1.radius + b2.radius) * 0.85;
-
-            if (distance < minDistance) {
-              const overlap = minDistance - distance;
-              const nx = dx / distance;
-              const ny = dy / distance;
-
-              // Siła, z jaką się odpychają
-              const pushX = nx * overlap * 0.5;
-              const pushY = ny * overlap * 0.5;
-
-              // Rozdzielamy pozycje
-              b1.pos.x -= pushX;
-              b1.pos.y -= pushY;
-              b2.pos.x += pushX;
-              b2.pos.y += pushY;
-
-              // Dodajemy wobble (chybotanie) wywołane siłą zderzenia!
-              b1.wobbleVel -= overlap * 5;
-              b2.wobbleVel += overlap * 5;
-
-              // Odpychamy również ich "punkt przyciągania", aby nie napierały ciągle na siebie
-              b1.baseX -= pushX * 0.05;
-              b2.baseX += pushX * 0.05;
-            }
-          }
-        }
-
-        // KROK 3: Aktualizujemy sprężyny po rozwiązaniu fizyki & aplikujemy pozycje
-        bodies.forEach((body) => {
-          const floorY = -b.halfH + body.radius;
-
-          // Jeszcze jedno wymuszenie granic po dodaniu kolizji (na wypadek, gdyby model wypchnięto za ekran)
-          if (body.pos.x > maxX) body.pos.x = maxX;
-          if (body.pos.x < -maxX) body.pos.x = -maxX;
-          if (body.pos.y < floorY) body.pos.y = floorY;
-
-          const squashForce = -SPRING_K * body.squash - SPRING_D * body.squashVel;
-          body.squashVel += squashForce * dtSec;
-          body.squash += body.squashVel * dtSec;
-
-          const wobbleForce = -WOBBLE_K * body.wobble - WOBBLE_D * body.wobbleVel;
-          body.wobbleVel += wobbleForce * dtSec;
-          body.wobble += body.wobbleVel * dtSec;
-
-          const velocityStretch = scrollDiff * 0.0015;
-          const scaleY = THREE.MathUtils.clamp(1 - body.squash * 0.6 + velocityStretch, 0.4, 1.6);
-          const scaleXZ = THREE.MathUtils.clamp(1 + body.squash * 0.3 - velocityStretch * 0.5, 0.5, 1.5);
-
-          body.holder.scale.set(scaleXZ, scaleY, scaleXZ);
-
-          body.holder.rotation.y += body.spinSpeed * dtSec;
-          body.holder.rotation.x = Math.sin(clock * 0.6 + body.tiltPhaseX) * 0.12 + body.wobble * 0.4;
-          body.holder.rotation.z = Math.sin(clock * 0.5 + body.tiltPhaseZ) * 0.1 + body.wobble * 0.3;
-
-          body.holder.position.copy(body.pos);
-          body.holder.position.y += scrollOffsetY;
-        });
-
-        renderer.render(scene, camera);
-      }
-      requestAnimationFrame(tick);
-    })();
   </script>
 
   <script>
@@ -4399,219 +4048,6 @@
     });
   </script>
 
-  <!-- Pixel Stars Animation for Section 2 -->
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const canvas = document.getElementById("pixel-stars-canvas");
-      if (!canvas) return;
-
-      const STAR_COLORS = [
-        "#FFFFFF", "#FFFFAA", "#AAAAFF", "#FFAAAA", "#AAFFAA", "#FFAAFF", "#AAFFFF"
-      ];
-
-      const starDensity = 0.00004;
-      const twinkleProbability = 0.7;
-      const minTwinkleSpeed = 2;
-      const maxTwinkleSpeed = 4;
-      const pixelSize = 5;
-      const starRegenerationInterval = 5000;
-      const percentToRegenerate = 0.15;
-      const shootingStarPixelSize = 2;
-      const targetFps = 16;
-      const frameInterval = 1000 / targetFps;
-
-      let backgroundStars = [];
-      let shootingStars = [];
-      let lastRenderTime = 0;
-      let animationFrameRef = null;
-      let regenerationInterval = null;
-      let shootingStarTimeout = null;
-
-      const getRandomStartPoint = () => {
-        const x = Math.random() * canvas.width;
-        const angle = 45 + Math.random() * 90;
-        return { x, y: 0, angle };
-      };
-
-      const createNewShootingStar = () => {
-        const { x, y, angle } = getRandomStartPoint();
-        return {
-          id: Date.now(),
-          x,
-          y,
-          angle,
-          scale: 1,
-          speed: Math.random() * 5 + 8,
-          distance: 0,
-          trail: [],
-        };
-      };
-
-      const initBackgroundStars = () => {
-        backgroundStars = [];
-        const area = canvas.width * canvas.height;
-        const numStars = Math.floor(area * starDensity);
-
-        for (let i = 0; i < numStars; i++) {
-          const shouldTwinkle = Math.random() < twinkleProbability;
-          const gridX = Math.floor(Math.random() * (canvas.width / pixelSize)) * pixelSize;
-          const gridY = Math.floor(Math.random() * (canvas.height / pixelSize)) * pixelSize;
-          const colorIndex = Math.floor(Math.random() * STAR_COLORS.length);
-          const baseOpacity = Math.random() * 0.5 + 0.5;
-
-          backgroundStars.push({
-            x: gridX,
-            y: gridY,
-            color: STAR_COLORS[colorIndex],
-            baseOpacity,
-            currentOpacity: baseOpacity,
-            twinkle: shouldTwinkle,
-            twinkleSpeed: minTwinkleSpeed + Math.random() * (maxTwinkleSpeed - minTwinkleSpeed),
-            twinkleDirection: -1,
-            twinkleTimer: 0,
-          });
-        }
-      };
-
-      const regenerateBackgroundStars = () => {
-        if (backgroundStars.length === 0) return;
-        const numToRegenerate = Math.max(1, Math.floor(backgroundStars.length * percentToRegenerate));
-
-        for (let i = 0; i < numToRegenerate; i++) {
-          const randomIndex = Math.floor(Math.random() * backgroundStars.length);
-          const shouldTwinkle = Math.random() < twinkleProbability;
-          const gridX = Math.floor(Math.random() * (canvas.width / pixelSize)) * pixelSize;
-          const gridY = Math.floor(Math.random() * (canvas.height / pixelSize)) * pixelSize;
-          const colorIndex = Math.floor(Math.random() * STAR_COLORS.length);
-          const baseOpacity = Math.random() * 0.5 + 0.5;
-
-          backgroundStars[randomIndex] = {
-            x: gridX,
-            y: gridY,
-            color: STAR_COLORS[colorIndex],
-            baseOpacity,
-            currentOpacity: baseOpacity,
-            twinkle: shouldTwinkle,
-            twinkleSpeed: minTwinkleSpeed + Math.random() * (maxTwinkleSpeed - minTwinkleSpeed),
-            twinkleDirection: -1,
-            twinkleTimer: 0,
-          };
-        }
-      };
-
-      const animateCanvas = (timestamp) => {
-        if (timestamp - lastRenderTime < frameInterval) {
-          animationFrameRef = requestAnimationFrame(animateCanvas);
-          return;
-        }
-        lastRenderTime = timestamp;
-
-        const ctx = canvas.getContext("2d");
-        if (!ctx) return;
-
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        backgroundStars.forEach((star) => {
-          ctx.fillStyle = star.color;
-          ctx.globalAlpha = star.currentOpacity;
-          ctx.fillRect(star.x, star.y, pixelSize, pixelSize);
-
-          if (star.twinkle) {
-            star.twinkleTimer += 1 / targetFps;
-            if (star.twinkleTimer >= star.twinkleSpeed) {
-              star.twinkleTimer = 0;
-              star.twinkleDirection *= -1;
-            }
-            const progress = star.twinkleTimer / star.twinkleSpeed;
-            if (progress < 0.5) {
-              star.currentOpacity = star.twinkleDirection < 0 ? star.baseOpacity : star.baseOpacity * 0.3;
-            } else {
-              star.currentOpacity = star.twinkleDirection < 0 ? star.baseOpacity * 0.3 : star.baseOpacity;
-            }
-          }
-        });
-
-        if (shootingStars.length) {
-          shootingStars = shootingStars.map((star) => {
-            const newX = star.x + star.speed * Math.cos((star.angle * Math.PI) / 180);
-            const newY = star.y + star.speed * Math.sin((star.angle * Math.PI) / 180);
-            const newDistance = star.distance + star.speed;
-            const newTrail = [...star.trail];
-
-            if (newDistance % 8 < star.speed) {
-              newTrail.push({ x: star.x, y: star.y, opacity: 1.0 });
-            }
-
-            const updatedTrail = newTrail
-              .map((point) => ({ ...point, opacity: point.opacity - 0.1 }))
-              .filter((point) => point.opacity > 0);
-
-            return { ...star, x: newX, y: newY, distance: newDistance, trail: updatedTrail };
-          }).filter(
-            (star) =>
-              star.x >= -30 && star.x <= canvas.width + 30 &&
-              star.y >= -30 && star.y <= canvas.height + 30
-          );
-
-          shootingStars.forEach((star) => {
-            star.trail.forEach((point) => {
-              ctx.save();
-              ctx.translate(point.x, point.y);
-              ctx.rotate((star.angle * Math.PI) / 180);
-              ctx.translate(-point.x, -point.y);
-              ctx.fillStyle = "rgba(180, 242, 255, " + point.opacity + ")";
-              ctx.fillRect(point.x, point.y, shootingStarPixelSize, shootingStarPixelSize);
-              ctx.restore();
-            });
-
-            const starWidth = 4;
-            const starHeight = 2;
-            ctx.save();
-            ctx.translate(star.x, star.y);
-            ctx.rotate((star.angle * Math.PI) / 180);
-            ctx.translate(-star.x, -star.y);
-            ctx.fillStyle = "#ffffff";
-            ctx.globalAlpha = 1.0;
-
-            for (let y = 0; y < starHeight; y++) {
-              for (let x = 0; x < starWidth; x++) {
-                if ((x === 0 && y === 1) || (x === 3 && y === 0)) continue;
-                ctx.fillRect(
-                  star.x + x * shootingStarPixelSize,
-                  star.y + y * shootingStarPixelSize,
-                  shootingStarPixelSize,
-                  shootingStarPixelSize
-                );
-              }
-            }
-            ctx.restore();
-          });
-        }
-        animationFrameRef = requestAnimationFrame(animateCanvas);
-      };
-
-      const resize = () => {
-        const container = canvas.parentElement;
-        canvas.width = container.clientWidth;
-        canvas.height = container.clientHeight;
-        initBackgroundStars();
-      };
-
-      window.addEventListener("resize", resize);
-      resize();
-
-      animationFrameRef = requestAnimationFrame(animateCanvas);
-
-      const createShootingStar = () => {
-        shootingStars.push(createNewShootingStar());
-        const randomDelay = Math.random() * 4000 + 2000;
-        shootingStarTimeout = setTimeout(createShootingStar, randomDelay);
-      };
-      createShootingStar();
-
-      regenerationInterval = setInterval(regenerateBackgroundStars, starRegenerationInterval);
-    });
-  </script>
 </body>
 
 </html>
