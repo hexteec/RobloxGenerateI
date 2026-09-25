@@ -9625,6 +9625,62 @@
       :is(.btn-newchat, .ws-btn.primary, .sys-act.primary, .result-actions button.primary, .st-send, .rgp-apply):hover .roll::after { transform: none; }
       .composer-action-btn:hover svg { animation: none; }
     }
+
+    /* ---------- the assistant's own notes and questions ---------- */
+    .agent-note {
+      margin-top: 10px;
+      font-size: 12.8px;
+      color: var(--ink-muted);
+    }
+
+    .agent-confirm {
+      margin-top: 12px;
+      padding: 12px 14px 12px;
+      border-radius: var(--radius-md);
+      background: var(--soft);
+      box-shadow: var(--key-shadow);
+      max-width: 460px;
+    }
+
+    .agent-confirm .ac-head {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .agent-confirm .ac-head svg { width: 14px; height: 14px; color: var(--accent); }
+
+    .agent-confirm .ac-request {
+      margin: 8px 0 10px;
+      padding: 9px 11px;
+      border-radius: var(--radius-sm);
+      background: var(--card);
+      font-size: 13px;
+      line-height: 1.5;
+      color: var(--ink);
+      white-space: pre-wrap;
+    }
+
+    .agent-confirm .ac-always {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 12.3px;
+      color: var(--ink-muted);
+      cursor: pointer;
+    }
+
+    .agent-confirm .ac-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .agent-confirm .ac-done { font-size: 12.8px; color: var(--ink-muted); }
   </style>
 </head>
 
@@ -13656,6 +13712,9 @@
     }
 
     function appendUserBubble(text, attachments) {
+      // When the assistant runs a tool for a message the user already sent,
+      // the tool must not post that message a second time.
+      if (agentQuietBubble) { agentQuietBubble = false; return null; }
       const inner = document.getElementById("feedInner");
       const welcome = document.getElementById("welcome");
       if (welcome) welcome.remove();
@@ -14852,7 +14911,11 @@
         clearMainImage();
         clearRefImage();
         flowState = "choose_method";
-        if (typeof wsOpen === 'function' && wsOpen()) {
+        agentLastImage = { type: selectedImageType, prompt: raw };
+        if (agentRunning) {
+          // The assistant ran this; the conversation carries on in chat.
+          applyFlowComposerState();
+        } else if (typeof wsOpen === 'function' && wsOpen()) {
           // The frame just opened on this result, and it is the next step.
           // Posting the chooser now would leave it stranded in the chat if
           // the answer turns out to be Done.
@@ -15100,7 +15163,9 @@
           chatId,
           message: messageForModel,
           image: imageAttachments[0] || null,
-          images: imageAttachments
+          images: imageAttachments,
+          agent: 2,
+          context: agentContext(imageAttachments.length)
         }, {
           onStage: (stage) => {
             if (streamed) return; // prose already started; do not clobber it
@@ -15121,7 +15186,13 @@
 
         const action = data.action;
 
-        if (!action) {
+        if (action && AGENT_ACTIONS.includes(action.type)) {
+          await persistMessage(chatId, { type: "text", prompt: raw, reply: data.reply || "" });
+          clearPendingAttachments();
+          resetComposerAfterSend();
+          await runAgentAction(action, { chatId, raw, images: imageAttachments, el: pendingEl });
+
+        } else if (!action) {
           await persistMessage(chatId, { type: "text", prompt: raw, reply: data.reply || "" });
 
         } else if (action.type === "generated_image") {
@@ -15209,6 +15280,249 @@
         sendBtn.disabled = false;
         sendIcon.innerHTML = ICONS.send;
       }
+    }
+
+    // ---------- the assistant runs the app ----------
+    // The chat answers with at most one action (worker, protocol 2) and this
+    // runs it through the same functions the buttons use, so an assistant
+    // request costs and behaves exactly like doing it by hand. What it is
+    // told about the screen comes from agentContext().
+    const AGENT_ACTIONS = ["image", "model3d", "code", "ui_to_lua", "workspace", "studio", "enhance", "mode", "settings"];
+    const STUDIO_AUTO_KEY = "ropeak-studio-auto";
+    var agentQuietBubble = false;
+    var agentRunning = false;
+    var agentLastImage = null;
+
+    function studioAutoApprove() {
+      try { return localStorage.getItem(STUDIO_AUTO_KEY) === "1"; } catch (e) { return false; }
+    }
+
+    function setStudioAutoApprove(on) {
+      try { localStorage.setItem(STUDIO_AUTO_KEY, on ? "1" : "0"); } catch (e) {}
+    }
+
+    // The newest picture in the conversation: the last one made, or failing
+    // that the last one the user attached.
+    function agentLastImageEl() {
+      const inner = document.getElementById("feedInner");
+      if (!inner) return null;
+      const made = Array.from(inner.querySelectorAll(".result-frame img")).filter(i => i.getAttribute("src"));
+      if (made.length) return made[made.length - 1];
+      const sent = Array.from(inner.querySelectorAll(".msg-user .msg-attach-grid img")).filter(i => i.getAttribute("src"));
+      return sent.length ? sent[sent.length - 1] : null;
+    }
+
+    async function agentImageData(src) {
+      if (!src) return null;
+      if (src.startsWith("data:")) return src;
+      const res = await fetch(src);
+      if (!res.ok) throw new Error("Could not read the last image (" + res.status + ").");
+      const blob = await res.blob();
+      return await new Promise((resolve, reject) => {
+        const r = new FileReader();
+        r.onload = () => resolve(r.result);
+        r.onerror = () => reject(new Error("Could not read the last image."));
+        r.readAsDataURL(blob);
+      });
+    }
+
+    async function agentSource(which, images) {
+      if (which === "attached") return images && images[0] ? images[0] : null;
+      if (which === "last_image") {
+        const img = agentLastImageEl();
+        return img ? await agentImageData(img.getAttribute("src")) : null;
+      }
+      return null;
+    }
+
+    function agentContext(attachments) {
+      const lastImg = agentLastImageEl();
+      const inner = document.getElementById("feedInner");
+      const p = (typeof studioState !== "undefined" && studioState.presence) || {};
+      return {
+        mode: activeForceMode,
+        imageType: selectedImageType,
+        attachments: attachments || 0,
+        lastImage: {
+          exists: !!lastImg,
+          type: lastImg && agentLastImage ? agentLastImage.type : null,
+          prompt: lastImg && agentLastImage ? agentLastImage.prompt : null
+        },
+        lastModel: !!(wsLastModel || (inner && inner.querySelector(".model-frame model-viewer"))),
+        lastCode: !!(typeof currentCodeState !== "undefined" && currentCodeState && currentCodeState.code),
+        studio: { online: !!p.online, place: p.placeName || "" },
+        studioAutoApprove: studioAutoApprove(),
+        imageTypes: Object.keys(imagePresets).map(k => ({ key: k, label: imagePresets[k].label }))
+      };
+    }
+
+    function agentNote(el, html) {
+      if (el) appendBotBody(el, `<div class="agent-note">${html}</div>`);
+    }
+
+    async function runAgentAction(a, ctx) {
+      agentRunning = true;
+      try {
+        switch (a.type) {
+          case "image": return await agentImage(a, ctx);
+          case "enhance": return await agentEnhance(a);
+          case "model3d": return await agentModel3D(a, ctx);
+          case "code": return await agentCode(a);
+          case "ui_to_lua": return await agentUiToLua(a, ctx);
+          case "workspace": return await agentWorkspace(a, ctx);
+          case "studio": return agentStudio(a, ctx);
+          case "mode":
+            setForceMode(a.mode, { skipAutoChooser: true });
+            if (a.image_type && imagePresets[a.image_type]) selectImageType(a.image_type);
+            return;
+          case "settings":
+            setStudioAutoApprove(a.studio_auto_approve);
+            return;
+        }
+      } catch (e) {
+        console.error(e);
+        agentNote(ctx.el, escapeHtml(e.message || "That did not go through."));
+      } finally {
+        agentRunning = false;
+      }
+    }
+
+    function agentPickType(key) {
+      selectImageType(imagePresets[key] ? key : "normal");
+      if (typeof updateImageTypeTrigger === "function") updateImageTypeTrigger();
+    }
+
+    async function agentImage(a, ctx) {
+      const base = a.base ? await agentSource(a.base, ctx.images) : null;
+      const style = a.style ? await agentSource(a.style, ctx.images) : null;
+      if (a.op !== "create" && !base) throw new Error("There is no image to work on yet.");
+
+      setForceMode("image", { skipAutoChooser: true });
+      agentPickType(a.image_type);
+      currentMethod = a.op === "create" ? "text" : (a.op === "restyle" && style ? "style" : "image");
+      mainImage = base;
+      refImage = currentMethod === "style" ? style : null;
+
+      const promptEl = document.getElementById("prompt");
+      promptEl.value = a.prompt || "";
+      if (a.enhance && a.op === "create") await enhancePrompt();
+
+      agentQuietBubble = true;
+      try {
+        await generateImage();
+      } finally {
+        agentQuietBubble = false;
+        promptEl.value = "";
+        setForceMode("chat", { skipAutoChooser: true });
+      }
+    }
+
+    async function agentEnhance(a) {
+      setForceMode("image", { skipAutoChooser: true });
+      agentPickType(a.image_type);
+      currentMethod = "text";
+      const promptEl = document.getElementById("prompt");
+      promptEl.value = a.prompt;
+      promptEl.dispatchEvent(new Event("input"));
+      flowState = "awaiting_input";
+      applyFlowComposerState();
+      await enhancePrompt();
+      if (typeof expandComposer === "function") expandComposer();
+      promptEl.focus();
+    }
+
+    async function agentModel3D(a, ctx) {
+      const base = a.base ? await agentSource(a.base, ctx.images) : null;
+      setForceMode("model3d", { skipAutoChooser: true });
+      agentQuietBubble = true;
+      try {
+        // The settings and the price are shown before anything is spent.
+        presentModel3DSettingsStep(a.prompt || (base ? "(reference image)" : ""), base ? [{ kind: "image", dataUrl: base }] : [], base);
+      } finally {
+        agentQuietBubble = false;
+      }
+    }
+
+    async function agentCode(a) {
+      setForceMode("code", { skipAutoChooser: true });
+      if (a.model && typeof selectCodeModel === "function") selectCodeModel(a.model, CODE_MODEL_LABELS[a.model] || a.model);
+      selectCodeShape(a.shape);
+      agentQuietBubble = true;
+      try {
+        await sendCodeMessage(a.prompt, false, a.shape);
+      } finally {
+        agentQuietBubble = false;
+        setForceMode("chat", { skipAutoChooser: true });
+      }
+    }
+
+    async function agentUiToLua(a, ctx) {
+      const base = await agentSource(a.base, ctx.images);
+      if (!base) throw new Error("There is no interface picture to rebuild yet.");
+      setForceMode("ui2lua", { skipAutoChooser: true });
+      mainImage = base;
+      const promptEl = document.getElementById("prompt");
+      promptEl.value = a.prompt || "";
+      agentQuietBubble = true;
+      try {
+        await sendUiToLua();
+      } finally {
+        agentQuietBubble = false;
+        promptEl.value = "";
+        setForceMode("chat", { skipAutoChooser: true });
+      }
+    }
+
+    async function agentWorkspace(a, ctx) {
+      const base = a.base ? await agentSource(a.base, ctx.images) : null;
+      const style = a.style ? await agentSource(a.style, ctx.images) : null;
+      if (wsOpen()) closeWorkspace({ force: true });
+      await openWorkspace(a.mode, { task: a.task });
+      if (!wsState) return;
+      const fill = {};
+      if (a.prompt) fill.prompt = a.prompt;
+      if (a.image_type) fill.type = a.image_type;
+      if (base) fill.image = base;
+      if (style) fill.reference = style;
+      wsState.cfg = Object.assign(wsTaskDefaults(a.task), wsState.cfg || {}, fill);
+      wsState.step = "config";
+      wsRender();
+      if (typeof wsScrollIntoView === "function") wsScrollIntoView();
+    }
+
+    // Studio changes the user's place, so it is asked first — unless the
+    // user has said it may go ahead on its own.
+    function agentStudio(a, ctx) {
+      const p = (typeof studioState !== "undefined" && studioState.presence) || {};
+      if (!p.online) {
+        agentNote(ctx.el, "Studio is not connected. Open your place with the RoPeak plugin running, then ask again.");
+        return;
+      }
+      if (studioAutoApprove()) {
+        agentNote(ctx.el, "Sent to Studio.");
+        studioSendAgent(a.request);
+        return;
+      }
+      const id = "ag_" + Math.random().toString(36).slice(2, 9);
+      appendBotBody(ctx.el, `
+        <div class="agent-confirm" id="${id}">
+          <div class="ac-head">${ICONS.studio || ""}<span>Send to Studio</span></div>
+          <div class="ac-request">${escapeHtml(a.request)}</div>
+          <label class="ac-always"><input type="checkbox"> Send Studio requests without asking</label>
+          <div class="ac-actions">
+            <button type="button" class="ws-btn ws-quiet" data-no>Not now</button>
+            <button type="button" class="ws-btn primary" data-yes>Send to Studio</button>
+          </div>
+        </div>`);
+      const box = document.getElementById(id);
+      if (!box) return;
+      const settle = (text) => { box.innerHTML = `<div class="ac-done">${escapeHtml(text)}</div>`; };
+      box.querySelector("[data-yes]").onclick = () => {
+        if (box.querySelector(".ac-always input").checked) setStudioAutoApprove(true);
+        settle("Sent to Studio.");
+        studioSendAgent(a.request);
+      };
+      box.querySelector("[data-no]").onclick = () => settle("Not sent.");
     }
 
     function model3DSettingsPanelHtml() {
@@ -19994,8 +20308,9 @@
     function wsNotify(payload) {
       if (!wsOpen()) {
         // Nothing is open, so this is the chat finishing a generation of
-        // its own: that is the moment the frame is for.
-        if (payload.stage === "done") wsOpenForResult(payload);
+        // its own: that is the moment the frame is for. Not when the
+        // assistant ran it, though: the conversation is still going.
+        if (payload.stage === "done" && !agentRunning) wsOpenForResult(payload);
         return;
       }
       if (payload.progress != null && wsState.step === "run") {
