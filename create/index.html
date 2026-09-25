@@ -9771,6 +9771,79 @@
       .agent-plan .ap-cost { flex-basis: 100%; margin-bottom: 2px; }
     }
     .agent-confirm.settled { padding: 9px 14px; }
+
+    /* A Studio run followed in the chat. */
+    .studio-run {
+      margin-top: 12px;
+      padding: 12px 14px;
+      border-radius: var(--radius-md);
+      background: var(--soft);
+      box-shadow: var(--key-shadow);
+      max-width: 520px;
+    }
+
+    .studio-run .sr-head { display: flex; align-items: center; gap: 8px; min-width: 0; }
+    .studio-run .sr-mark {
+      width: 9px; height: 9px; border-radius: 2px; flex: 0 0 auto;
+      background: var(--ink-faint); transform: rotate(45deg);
+    }
+    .studio-run.t-live .sr-mark { background: var(--accent); animation: stBreathe 1.6s ease-in-out infinite; }
+    .studio-run.t-done .sr-mark { background: var(--mint); }
+    .studio-run.t-bad .sr-mark { background: var(--coral); }
+    .studio-run .sr-title {
+      font-size: 12.8px; font-weight: 700; color: var(--ink); min-width: 0;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+
+    @media (max-width: 480px) {
+      .studio-run .sr-head { flex-wrap: wrap; row-gap: 4px; }
+      .studio-run .sr-state { margin-left: 17px; flex-basis: 100%; }
+    }
+    .studio-run .sr-place { margin-left: 6px; font-weight: 500; color: var(--ink-muted); }
+    .studio-run .sr-state {
+      margin-left: auto; display: inline-flex; align-items: center; gap: 7px;
+      font-size: 12px; font-weight: 600; color: var(--ink-muted); white-space: nowrap;
+    }
+    .studio-run.t-done .sr-state { color: var(--mint); }
+    .studio-run.t-bad .sr-state { color: var(--coral); }
+
+    .studio-run .sr-request {
+      margin: 9px 0 0;
+      padding: 8px 11px;
+      border-radius: var(--radius-sm);
+      background: var(--card);
+      font-size: 13px;
+      line-height: 1.5;
+      color: var(--ink);
+      white-space: pre-wrap;
+    }
+
+    .studio-run .sr-now {
+      margin-top: 9px;
+      font-size: 12.8px;
+      color: var(--ink);
+      padding-left: 10px;
+      border-left: 2px solid var(--accent);
+    }
+
+    .studio-run .sr-steps { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 5px; }
+    .studio-run .sr-steps li { display: flex; gap: 9px; font-size: 12.5px; line-height: 1.45; color: var(--ink-muted); }
+    .studio-run .sr-steps li.k-done, .studio-run .sr-steps li.k-ok { color: var(--mint); }
+    .studio-run .sr-steps li.k-error, .studio-run .sr-steps li.k-warn { color: var(--coral); }
+    .studio-run .sr-time { font-family: var(--font-mono); font-size: 11px; color: var(--ink-faint); padding-top: 1px; flex: 0 0 auto; }
+
+    .studio-run .sr-said {
+      margin-top: 10px;
+      padding: 9px 11px;
+      border-radius: var(--radius-sm);
+      background: var(--card);
+      font-size: 13px;
+      line-height: 1.55;
+      color: var(--ink);
+    }
+
+    .studio-run .sr-error { margin-top: 9px; font-size: 12.8px; color: var(--coral); }
+    .studio-run .sr-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
   </style>
 </head>
 
@@ -13669,7 +13742,9 @@
         <div class="msg-meta"><span>${historyBadge(m)}</span></div>
       </div>
     `;
-      inner.appendChild(userMsg);
+      // A reply with nothing said before it (a Studio run's account, a
+      // chooser) has no user bubble to show, not an empty one.
+      if (promptText || hasInputImage) inner.appendChild(userMsg);
 
       const botMsg = document.createElement("div");
       botMsg.className = "msg msg-bot";
@@ -15577,6 +15652,113 @@
       setForceMode(a.mode, a.mode === "model3d" || a.mode === "ui2lua" ? {} : { skipAutoChooser: true });
     }
 
+    // ---------- a Studio run, followed in the chat ----------
+    // Whatever the assistant sends to the agent in Studio is followed right
+    // where it was asked for: the request, where the run is (waiting for
+    // Studio, working, done, failed), what the agent is doing this second,
+    // each step it logs, and how it ended. It rides on the status poll the
+    // page already makes; when the run ends, a short account of it goes into
+    // the chat history, so the assistant knows what happened in Studio.
+    const agentStudioRuns = new Map();
+
+    async function agentStudioSend(request, ctx) {
+      const id = "sr_" + Math.random().toString(36).slice(2, 9);
+      appendBotBody(ctx.el, `<div class="studio-run" id="${id}"></div>`);
+      const run = { cardId: id, request, chatId: ctx.chatId || activeChatId, jobId: null, settled: false, startedAt: Date.now() };
+      agentStudioPaint(run, null);
+      try {
+        run.jobId = await studioSendAgent(request, { inline: true });
+      } catch (e) {
+        run.settled = true;
+        agentStudioPaint(run, { status: "failed", error: e.message, log: [] });
+        return;
+      }
+      if (!run.jobId) return;
+      agentStudioRuns.set(run.jobId, run);
+      agentStudioRender();
+    }
+
+    function agentStudioRender() {
+      agentStudioRuns.forEach(run => {
+        if (run.settled) return;
+        const job = (studioState.jobs || []).find(j => j.id === run.jobId);
+        agentStudioPaint(run, job || null);
+        const live = !job || job.status === "queued" || job.status === "running";
+        // Keep the poll on this run while it is going, whatever else the
+        // panel was last looking at.
+        if (live) studioState.watching = run.jobId;
+        else agentStudioSettle(run, job);
+      });
+    }
+
+    function agentStudioState(job) {
+      if (!job) return { word: "Sending to Studio…", tone: "wait" };
+      const p = studioState.presence || {};
+      if (job.status === "queued") return p.online
+        ? { word: "Waiting for Studio to pick it up", tone: "wait" }
+        : { word: "Studio is closed, it will run when you open it", tone: "wait" };
+      if (job.status === "running") return { word: "Working in Studio", tone: "live" };
+      if (job.status === "done") return { word: "Done", tone: "done" };
+      if (job.status === "cancelled") return { word: "Stopped", tone: "off" };
+      if (job.status === "expired") return { word: "Studio never picked it up", tone: "off" };
+      return { word: "Failed", tone: "bad" };
+    }
+
+    // The first log line only repeats the request ("From the web: ..."), and
+    // the agent's own closing line says nothing the state does not.
+    function agentStudioSteps(job) {
+      return (job && job.log || []).filter(l => l && l.text &&
+        !/^From the web:/i.test(l.text) && !/^The agent finished\.?$/i.test(l.text));
+    }
+
+    function agentStudioPaint(run, job) {
+      const el = document.getElementById(run.cardId);
+      if (!el) return;
+      const st = agentStudioState(job);
+      const live = st.tone === "live" || st.tone === "wait";
+      const agent = (studioState.presence && studioState.presence.agent) || {};
+      const now = job && job.status === "running" && agent.busy
+        ? (agent.activity || agent.thinking || "") : "";
+      const steps = agentStudioSteps(job).slice(-8);
+      const said = job && job.status === "done" && !agent.busy && agent.say ? String(agent.say) : "";
+      const place = (studioState.presence && studioState.presence.placeName) || "";
+      el.className = "studio-run t-" + st.tone;
+      el.innerHTML = `
+        <div class="sr-head">
+          <span class="sr-mark" aria-hidden="true"></span>
+          <span class="sr-title">Studio agent${place ? `<span class="sr-place">${escapeHtml(place)}</span>` : ""}</span>
+          <span class="sr-state">${live ? `<span class="mini-loader"><span></span><span></span><span></span></span>` : ""}${escapeHtml(st.word)}</span>
+        </div>
+        <div class="sr-request">${escapeHtml(run.request)}</div>
+        ${now ? `<div class="sr-now">${escapeHtml(String(now).slice(0, 220))}</div>` : ""}
+        ${steps.length ? `<ol class="sr-steps">${steps.map(l =>
+          `<li class="k-${escapeHtml(l.kind || "info")}"><span class="sr-time">${studioClock(l.t)}</span><span>${escapeHtml(String(l.text).slice(0, 300))}</span></li>`).join("")}</ol>` : ""}
+        ${said ? `<div class="sr-said">${renderInlineMarkdown(said.slice(0, 1200))}</div>` : ""}
+        ${job && job.error ? `<div class="sr-error">${escapeHtml(job.error)}</div>` : ""}
+        <div class="sr-actions">
+          ${live && run.jobId ? `<button type="button" class="ws-btn ws-quiet" onclick="studioCancel('${run.jobId}')">Stop it</button>` : ""}
+          <button type="button" class="ws-btn ws-quiet" onclick="studioOpenPanel()">Open the Studio panel</button>
+        </div>`;
+      if (typeof scrollFeedToBottom === "function" && live) scrollFeedToBottom();
+    }
+
+    async function agentStudioSettle(run, job) {
+      run.settled = true;
+      agentStudioPaint(run, job);
+      agentStudioRuns.delete(run.jobId);
+      const st = agentStudioState(job);
+      const steps = agentStudioSteps(job).slice(-5).map(l => "- " + l.text);
+      const agent = (studioState.presence && studioState.presence.agent) || {};
+      const summary = ["Studio agent (" + st.word.toLowerCase() + "): " + run.request]
+        .concat(steps)
+        .concat(job && job.error ? ["Error: " + job.error] : [])
+        .concat(job && job.status === "done" && agent.say ? ["Agent said: " + String(agent.say).slice(0, 600)] : [])
+        .join("\n");
+      try {
+        if (run.chatId) await persistMessage(run.chatId, { type: "text", prompt: "", reply: summary });
+      } catch (e) { /* the card already shows it; history is a nicety */ }
+    }
+
     function agentPickType(key) {
       selectImageType(imagePresets[key] ? key : "normal");
       if (typeof updateImageTypeTrigger === "function") updateImageTypeTrigger();
@@ -15689,8 +15871,7 @@
         return;
       }
       if (studioAutoApprove()) {
-        agentNote(ctx.el, "Sent to Studio.");
-        studioSendAgent(a.request);
+        agentStudioSend(a.request, ctx);
         return;
       }
       const id = "ag_" + Math.random().toString(36).slice(2, 9);
@@ -15709,8 +15890,8 @@
       const settle = (text) => { box.innerHTML = `<div class="ac-done">${escapeHtml(text)}</div>`; };
       box.querySelector("[data-yes]").onclick = () => {
         if (box.querySelector(".ac-always input").checked) setStudioAutoApprove(true);
-        settle("Sent to Studio.");
-        studioSendAgent(a.request);
+        box.remove();
+        agentStudioSend(a.request, ctx);
       };
       box.querySelector("[data-no]").onclick = () => settle("Not sent.");
     }
@@ -20022,6 +20203,7 @@
       }
       document.querySelectorAll(".sys-deploy").forEach(b => studioSyncDeployBtn(b));
       studioRenderPanel(true);
+      if (typeof agentStudioRender === "function") agentStudioRender();
     }
 
     // The button says what will happen, including when nothing can.
@@ -20246,9 +20428,12 @@
     }
 
     // Driving the agent in Studio from here.
-    async function studioSendAgent(text) {
+    // Returns the job id. From the chat it stays in the chat (`inline`), where
+    // a card follows the run; typed into the panel, the panel follows it.
+    async function studioSendAgent(text, opts) {
+      opts = opts || {};
       const message = String(text || "").trim();
-      if (!message) return;
+      if (!message) return null;
       try {
         const res = await authedFetch("/studio/deploy", {
           method: "POST", headers: { "Content-Type": "application/json" },
@@ -20257,9 +20442,14 @@
         if (!res.ok) throw new Error(await wsApiError(res, "/studio/deploy"));
         const data = await res.json();
         studioState.watching = data.jobId;
-        studioOpenPanel();
+        if (!opts.inline) studioOpenPanel();
         studioKick();
-      } catch (e) { alert(e.message); }
+        return data.jobId;
+      } catch (e) {
+        if (opts.inline) throw e;
+        alert(e.message);
+        return null;
+      }
     }
 
     function studioAskAgent() {
