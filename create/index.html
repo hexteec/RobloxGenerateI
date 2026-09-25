@@ -15467,10 +15467,7 @@
           case "ui_to_lua": return await agentUiToLua(a, ctx);
           case "workspace": return await agentWorkspace(a, ctx);
           case "studio": return agentStudio(a, ctx);
-          case "mode":
-            setForceMode(a.mode, { skipAutoChooser: true });
-            if (a.image_type && imagePresets[a.image_type]) selectImageType(a.image_type);
-            return;
+          case "mode": return agentMode(a);
           case "settings":
             setStudioAutoApprove(a.studio_auto_approve);
             return;
@@ -15558,6 +15555,26 @@
         settle(plan.title + ": going ahead.");
         return runAgentAction(chosen, Object.assign({}, ctx, { confirmed: true }));
       };
+    }
+
+    // Switching the tool leaves the composer ready to type into. Images go
+    // straight to "from a description" in the asked-for type; the modes
+    // that need a way in (3D, UI) show their chooser as they always do.
+    function agentMode(a) {
+      if (a.mode === "image") {
+        setForceMode("image", { skipAutoChooser: true });
+        agentPickType(a.image_type || selectedImageType);
+        currentMethod = "text";
+        flowState = "awaiting_input";
+        const promptEl = document.getElementById("prompt");
+        const label = (imagePresets[selectedImageType] || imagePresets.normal).label.toLowerCase();
+        if (promptEl) promptEl.placeholder = "Describe the " + label + "…";
+        if (typeof updateEnhanceButtonLabel === "function") updateEnhanceButtonLabel();
+        applyFlowComposerState();
+        if (promptEl) promptEl.focus();
+        return;
+      }
+      setForceMode(a.mode, a.mode === "model3d" || a.mode === "ui2lua" ? {} : { skipAutoChooser: true });
     }
 
     function agentPickType(key) {
