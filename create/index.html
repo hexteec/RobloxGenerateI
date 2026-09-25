@@ -9681,6 +9681,96 @@
     }
 
     .agent-confirm .ac-done { font-size: 12.8px; color: var(--ink-muted); }
+
+    /* ---------- the top bar on a phone ----------
+       One row that never wraps: the title takes whatever the buttons leave
+       and ends in an ellipsis, so a long chat name can no longer push
+       Studio and Live stats down a line. The widgets get the row below. */
+    @media (max-width: 768px) {
+      .topbar {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: center;
+        column-gap: 10px;
+        row-gap: 8px;
+      }
+
+      .topbar-title { min-width: 0; }
+      .topbar-title .tt-text { max-width: none; min-width: 0; }
+      .topbar-right { margin-left: 0; flex-wrap: nowrap; }
+      .topbar-widgets-mobile { grid-column: 1 / -1; }
+    }
+
+    /* The title reads as a title, not as a grey outlined pill. */
+    @media (max-width: 420px) {
+      .topbar-title .tt-text {
+        background: none;
+        border: 0;
+        padding: 0;
+        border-radius: 0;
+        color: var(--ink);
+        font-size: 14.5px;
+        font-weight: 650;
+        letter-spacing: -0.015em;
+      }
+    }
+
+    @media (max-width: 360px) {
+      .widget-add-btn-mobile > span:not(.wab-icon) { display: none; }
+    }
+
+    /* The plan the assistant wants to run, laid out before it runs. */
+    .agent-plan .ap-pics { display: flex; gap: 10px; margin: 10px 0 2px; }
+    .agent-plan .ap-pics figure { margin: 0; }
+    .agent-plan .ap-pics img {
+      display: block;
+      width: 64px;
+      height: 64px;
+      object-fit: cover;
+      border-radius: 8px;
+      box-shadow: var(--raise);
+      background: var(--card);
+    }
+    .agent-plan .ap-pics figcaption { margin-top: 4px; font-size: 11px; color: var(--ink-muted); }
+
+    .agent-plan .ap-rows { margin: 10px 0 2px; display: grid; gap: 4px; }
+    .agent-plan .ap-row { display: flex; gap: 8px; font-size: 12.8px; }
+    .agent-plan .ap-row span { color: var(--ink-muted); min-width: 72px; }
+    .agent-plan .ap-row b { font-weight: 600; color: var(--ink); }
+
+    .agent-plan .ap-label {
+      display: block;
+      margin: 10px 0 5px;
+      font-size: 12.3px;
+      font-weight: 600;
+      color: var(--ink-muted);
+    }
+
+    .agent-plan .ap-prompt {
+      display: block;
+      width: 100%;
+      resize: none;
+      padding: 9px 11px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--card);
+      color: var(--ink);
+      font: inherit;
+      font-size: 13px;
+      line-height: 1.5;
+      margin-bottom: 8px;
+    }
+
+    .agent-plan .ap-prompt:focus { outline: none; border-color: var(--accent); }
+
+    .agent-plan .ac-actions { align-items: center; }
+    .agent-plan .ap-cost { margin-right: auto; font-size: 12px; color: var(--ink-muted); white-space: nowrap; }
+
+    @media (max-width: 480px) {
+      .agent-plan .ac-actions { flex-wrap: wrap; }
+      .agent-plan .ap-cost { flex-basis: 100%; margin-bottom: 2px; }
+    }
+    .agent-confirm.settled { padding: 9px 14px; }
   </style>
 </head>
 
@@ -15360,7 +15450,13 @@
       if (el) appendBotBody(el, `<div class="agent-note">${html}</div>`);
     }
 
+    // What the assistant decides to make is shown before anything is made:
+    // the tool, the type, the model, the picture it starts from, the prompt
+    // (which can still be changed) and the price. Only then does it run.
+    const AGENT_ASKS_FIRST = ["image", "code", "ui_to_lua"];
+
     async function runAgentAction(a, ctx) {
+      if (AGENT_ASKS_FIRST.includes(a.type) && !ctx.confirmed) return agentAskFirst(a, ctx);
       agentRunning = true;
       try {
         switch (a.type) {
@@ -15385,6 +15481,83 @@
       } finally {
         agentRunning = false;
       }
+    }
+
+    function agentPlan(a) {
+      const preset = imagePresets[a.image_type] || imagePresets.normal;
+      if (a.type === "image") {
+        const title = a.op === "edit" ? "Change the " + (a.base === "attached" ? "attached image" : "last image")
+          : a.op === "restyle" ? "Restyle the " + (a.base === "attached" ? "attached image" : "last image")
+          : "Create an image";
+        return {
+          icon: WS_ICONS.photo, title, run: a.op === "create" ? "Generate" : "Apply the change",
+          rows: [["Type", preset.label]].concat(a.style ? [["Style from", a.style === "attached" ? "the attached image" : "the last image"]] : []),
+          base: a.base, style: a.style, promptLabel: a.op === "create" ? "Prompt" : "The change",
+          enhance: a.op === "create", cost: "2 tokens"
+        };
+      }
+      if (a.type === "code") {
+        const model = a.model || selectedCodeModel;
+        return {
+          icon: WS_ICONS.code, title: a.shape === "system" ? "Build a whole system" : "Write a script",
+          run: a.shape === "system" ? "Build it" : "Write it",
+          rows: [["Model", CODE_MODEL_LABELS[model] || model]],
+          promptLabel: "What it should do", cost: "a fraction of a token"
+        };
+      }
+      return {
+        icon: WS_ICONS.layout, title: "Rebuild this interface as a script", run: "Build it",
+        rows: [], base: a.base, promptLabel: "Extra hints", cost: "2 tokens"
+      };
+    }
+
+    function agentAskFirst(a, ctx) {
+      const plan = agentPlan(a);
+      const id = "ag_" + Math.random().toString(36).slice(2, 9);
+      const pic = which => {
+        const img = which === "attached" ? null : agentLastImageEl();
+        const src = which === "attached" ? (ctx.images && ctx.images[0]) : (img && img.getAttribute("src"));
+        return src ? `<img src="${escapeHtml(src)}" alt="">` : "";
+      };
+      const rows = plan.rows.map(([k, v]) => `<div class="ap-row"><span>${escapeHtml(k)}</span><b>${escapeHtml(v)}</b></div>`).join("");
+      const pics = (plan.base || plan.style)
+        ? `<div class="ap-pics">${plan.base ? `<figure>${pic(plan.base)}<figcaption>Starts from</figcaption></figure>` : ""}` +
+          `${plan.style ? `<figure>${pic(plan.style)}<figcaption>Style</figcaption></figure>` : ""}</div>`
+        : "";
+      appendBotBody(ctx.el, `
+        <div class="agent-confirm agent-plan" id="${id}">
+          <div class="ac-head">${plan.icon}<span>${escapeHtml(plan.title)}</span></div>
+          ${pics}
+          ${rows ? `<div class="ap-rows">${rows}</div>` : ""}
+          <label class="ap-label" for="${id}_p">${escapeHtml(plan.promptLabel)}</label>
+          <textarea class="ap-prompt" id="${id}_p" rows="3">${escapeHtml(a.prompt || "")}</textarea>
+          ${plan.enhance ? `<label class="ac-always"><input type="checkbox" class="ap-enhance"${a.enhance ? " checked" : ""}> Enhance the prompt first</label>` : ""}
+          <div class="ac-actions">
+            <span class="ap-cost">Costs ${escapeHtml(plan.cost)}</span>
+            <button type="button" class="ws-btn ws-quiet" data-no>Not now</button>
+            <button type="button" class="ws-btn primary" data-yes>${escapeHtml(plan.run)}</button>
+          </div>
+        </div>`);
+      const box = document.getElementById(id);
+      if (!box) return;
+      const area = box.querySelector(".ap-prompt");
+      const fit = () => { area.style.height = "auto"; area.style.height = Math.min(area.scrollHeight + 2, 220) + "px"; };
+      area.addEventListener("input", fit);
+      requestAnimationFrame(fit);
+      const settle = text => {
+        box.classList.add("settled");
+        box.innerHTML = `<div class="ac-done">${escapeHtml(text)}</div>`;
+      };
+      box.querySelector("[data-no]").onclick = () => settle("Not made.");
+      box.querySelector("[data-yes]").onclick = () => {
+        const prompt = area.value.trim();
+        if (!prompt && !(a.type === "ui_to_lua" || a.op === "restyle")) { area.focus(); return; }
+        const chosen = Object.assign({}, a, { prompt });
+        const enh = box.querySelector(".ap-enhance");
+        if (enh) chosen.enhance = enh.checked;
+        settle(plan.title + ": going ahead.");
+        return runAgentAction(chosen, Object.assign({}, ctx, { confirmed: true }));
+      };
     }
 
     function agentPickType(key) {
