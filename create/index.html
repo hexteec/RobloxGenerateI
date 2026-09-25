@@ -9845,6 +9845,308 @@
     .studio-run .sr-error { margin-top: 9px; font-size: 12.8px; color: var(--coral); }
     .studio-run .sr-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
   </style>
+  <style id="finishCSS">
+    /* The finish: a tool, not a toy. Everything above still decides colour
+       and layout; this layer only takes the plastic off. Keys lose their
+       lips and become flat faces with a 1px edge, corners tighten, the
+       black buttons stop shining, and the baseplate turns into drafting
+       paper: a quiet stud grid with a firmer line every fourth stud. */
+    :root {
+      --radius-lg: 12px;
+      --radius-md: 10px;
+      --radius-sm: 7px;
+
+      --line: #D3DCDC;
+      --line-strong: #B9C6C7;
+
+      --key-shadow: 0 0 0 1px var(--line), 0 1px 1px rgba(16, 42, 46, .04);
+      --key-held: inset 0 0 0 1px var(--line-strong), inset 0 1px 2px rgba(16, 42, 46, .07);
+      --raise: 0 0 0 1px var(--line), 0 1px 2px rgba(16, 42, 46, .04);
+      --shadow-lg: 0 0 0 1px var(--line), 0 12px 32px -14px rgba(16, 42, 46, .22);
+
+      --primary-grad: linear-gradient(#172124, #172124);
+      --primary-hover: linear-gradient(#26353A, #26353A);
+      --primary-press: #0E1517;
+      --primary-shadow: 0 0 0 1px #172124;
+      --primary-held: inset 0 1px 2px rgba(0, 0, 0, .45), 0 0 0 1px #0E1517;
+
+      --grid-minor: rgba(23, 33, 36, .04);
+      --grid-major: rgba(23, 33, 36, .075);
+    }
+
+    [data-theme="dark"] {
+      --line: #2E3A3E;
+      --line-strong: #43535A;
+
+      --key-shadow: 0 0 0 1px var(--line);
+      --key-held: inset 0 0 0 1px var(--line-strong), inset 0 1px 2px rgba(0, 0, 0, .35);
+      --raise: 0 0 0 1px var(--line);
+      --shadow-lg: 0 0 0 1px var(--line), 0 14px 34px -14px rgba(0, 0, 0, .7);
+
+      --primary-grad: linear-gradient(#0A0F10, #0A0F10);
+      --primary-hover: linear-gradient(#141C1E, #141C1E);
+      --primary-press: #050808;
+      --primary-shadow: 0 0 0 1px rgba(255, 255, 255, .13);
+      --primary-held: inset 0 1px 2px rgba(0, 0, 0, .7), 0 0 0 1px rgba(255, 255, 255, .1);
+
+      --grid-minor: rgba(255, 255, 255, .025);
+      --grid-major: rgba(255, 255, 255, .05);
+    }
+
+    [data-theme="sea"],
+    [data-theme="forest"],
+    [data-theme="sun"] {
+      --line: color-mix(in srgb, var(--border) 85%, var(--card));
+      --line-strong: var(--border);
+    }
+
+    .app-shell {
+      background-image:
+        linear-gradient(var(--grid-major) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid-major) 1px, transparent 1px),
+        linear-gradient(var(--grid-minor) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid-minor) 1px, transparent 1px);
+      background-size: 120px 120px, 120px 120px, 30px 30px, 30px 30px;
+    }
+
+    /* Panels: one edge, tighter corners. */
+    .desktop-bubble { border-radius: var(--radius-lg); }
+
+    .composer { border-radius: 14px !important; }
+
+    /* Messages: flat sheets. No pointer tails, no lip underneath, and the
+       newest pair fades in instead of landing with a squash. */
+    .msg-user .msg-bubble {
+      border-radius: 12px 12px 4px 12px;
+      box-shadow: none;
+    }
+
+    .msg-bot .msg-bubble {
+      border-color: var(--line);
+      border-radius: 4px 12px 12px 12px;
+      box-shadow: none;
+    }
+
+    .msg-bubble::before { display: none; }
+
+    .msg:nth-last-child(-n+2) .msg-bubble {
+      animation: finLand .28s ease-out both;
+    }
+
+    @keyframes finLand {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: none; }
+    }
+
+    /* Pictures sit square on the page. Tilted prints, drop-in spins and
+       drifting colour blobs read as a scrapbook, not a tool. */
+    .gen-photo,
+    .gen-cube,
+    .result-frame-wrap:has(.result-frame),
+    .result-frame-wrap:has(.result-frame):hover,
+    .ws-preview > img,
+    .ws-gallery img,
+    .ws-gallery img:nth-child(even),
+    .dz-filled img {
+      transform: none;
+    }
+
+    .ws-gallery img:hover { transform: none; }
+
+    .gen-photo,
+    .gen-cube {
+      box-shadow: none;
+      border-color: var(--line);
+      animation: finLand .28s ease-out both;
+    }
+
+    .result-frame-wrap:has(.result-frame) .result-frame,
+    .ws-preview > img {
+      animation: finLand .28s ease-out both;
+    }
+
+    .result-frame-wrap:has(.result-frame) {
+      box-shadow: none;
+      border-color: var(--line);
+    }
+
+    /* A picture on its way: an empty plate on the stud grid. */
+    .gp-film {
+      animation: none;
+      background-color: var(--soft);
+      background-image:
+        linear-gradient(var(--line) 1px, transparent 1px),
+        linear-gradient(90deg, var(--line) 1px, transparent 1px);
+      background-size: 20px 20px;
+      background-position: -1px -1px;
+    }
+
+    .gp-film i { display: none; }
+
+    /* Icons do not wiggle when pointed at. */
+    .dropzone:hover .dz-icon-wrap,
+    .model-key:hover svg,
+    .shape-key.on svg,
+    .gp-token-box:hover .gp-topup,
+    .gp-token-box:active .gp-topup,
+    .account-card.unlinked .rc-action svg {
+      transform: none;
+    }
+
+    .fm-pill-code,
+    .dock-link { border-radius: var(--radius-md); }
+
+    .mac-dock-list .fm-icon.dock-icon { border-radius: 9px !important; }
+
+    /* No lift on hover: the edge darkens instead. */
+    .mac-dock-list .dock-item.fm-pill:not(.active):hover .fm-icon.dock-icon {
+      box-shadow: 0 0 0 1px var(--line-strong) !important;
+    }
+
+    /* The dock holds still: no wobbling glyphs, no squash when a key goes
+       down, no bounce when the mode changes. */
+    .mac-dock-list .dock-item .dock-icon svg { animation: none !important; }
+
+    .mac-dock-list .dock-link:active {
+      transform: translateY(1px);
+      transition-duration: .06s;
+    }
+
+    .mac-dock-list.dock-bounce,
+    .composer.bounce { animation: none !important; }
+
+    .dock-item.fm-pill.active .fm-icon.dock-icon {
+      background: var(--card) !important;
+      color: var(--accent) !important;
+      box-shadow: inset 0 0 0 1.5px var(--accent) !important;
+    }
+
+    .dock-item.fm-pill.active .fm-icon.dock-icon::after {
+      width: 12px;
+      height: 2px;
+      margin-left: -6px;
+      bottom: -8px;
+      border-radius: 1px;
+      transform: none;
+      animation: finMark .2s ease-out both !important;
+    }
+
+    @keyframes finMark {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    /* The chosen option is outlined in the accent, not pressed into
+       the page. */
+    .ws-chip.on {
+      background: var(--card);
+      border-color: var(--accent);
+      color: var(--accent-deep);
+      box-shadow: inset 0 0 0 .5px var(--accent);
+    }
+
+    /* Focus is one clear ring, not a haze around the field. */
+    .ws-input:focus,
+    .ws-area:focus,
+    .ws-select:focus,
+    .ws-input:focus-visible,
+    .ws-area:focus-visible,
+    .ws-select:focus-visible,
+    .gw-modal-input:focus-visible,
+    .promo-field input:focus-visible,
+    .pa-field input:focus-visible {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px var(--accent);
+    }
+
+    /* Black buttons are flat ink. */
+    .btn-newchat,
+    .ws-btn.primary,
+    .sys-act.primary,
+    .result-actions button.primary,
+    .st-send,
+    .rgp-apply,
+    .gw-add {
+      text-shadow: none;
+    }
+
+    .composer-action-btn { border-radius: var(--radius-sm) !important; }
+
+    /* Signing in: a plain ink card. The stud pattern was decoration. */
+    .gp-welcome {
+      background-image: none;
+      border-radius: var(--radius-md);
+    }
+
+    .gp-welcome::before { display: none; }
+
+    /* The wordmark signs the panel; it does not need to shout over it. */
+    .RoPeakImg {
+      height: 42px;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: left center;
+    }
+
+    /* Where to start: example requests as a short list, each saying
+       what it makes. */
+    .welcome .w-hints {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      max-width: 460px;
+      border-top: 1px solid var(--line);
+    }
+
+    .welcome .w-hint,
+    .welcome .w-hint:hover {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 12px 2px;
+      border: 0;
+      border-bottom: 1px solid var(--line);
+      border-radius: 0;
+      background: transparent;
+      box-shadow: none;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--ink);
+    }
+
+    .welcome .w-hint:active { transform: none; }
+
+    .welcome .w-hint .wh-kind {
+      flex-shrink: 0;
+      font-size: 12.5px;
+      font-weight: 500;
+      color: var(--ink-faint);
+      transition: color .15s ease;
+    }
+
+    .welcome .w-hint:hover .wh-text {
+      text-decoration: underline;
+      text-decoration-color: var(--line-strong);
+      text-underline-offset: 4px;
+    }
+
+    .welcome .w-hint:hover .wh-kind { color: var(--accent); }
+
+    .welcome .w-hint:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    .welcome .wh-ico { display: none; }
+
+    /* Keys press straight down instead of springing. */
+    .btn-store:active,
+    .btn-tokens:active,
+    .btn-newchat:active {
+      transform: translateY(1px);
+    }
+  </style>
 </head>
 
 <body onload="openComposerStageMode('chat')">
@@ -10158,16 +10460,16 @@
             <p>Describe what you want to make. The right tool is picked for you, or choose one in the dock below.</p>
             <div class="w-hints">
               <button type="button" class="w-hint" data-mode="image" onclick="useWelcomeExample(this)">
-                <span class="wh-ico" data-ico="icon"></span><span class="wh-text">A dragon icon for a fantasy game</span>
+                <span class="wh-text">A dragon icon for a fantasy game</span><span class="wh-kind">Icon</span>
               </button>
               <button type="button" class="w-hint" data-mode="image" onclick="useWelcomeExample(this)">
-                <span class="wh-ico" data-ico="thumb"></span><span class="wh-text">A thumbnail for a zombie survival game</span>
+                <span class="wh-text">A thumbnail for a zombie survival game</span><span class="wh-kind">Thumbnail</span>
               </button>
               <button type="button" class="w-hint" data-mode="model3d" onclick="useWelcomeExample(this)">
-                <span class="wh-ico" data-ico="cube"></span><span class="wh-text">A 3D model of a rusty sword</span>
+                <span class="wh-text">A 3D model of a rusty sword</span><span class="wh-kind">3D model</span>
               </button>
               <button type="button" class="w-hint" data-mode="code" onclick="useWelcomeExample(this)">
-                <span class="wh-ico" data-ico="code"></span><span class="wh-text">A door that opens when a player touches it</span>
+                <span class="wh-text">A door that opens when a player touches it</span><span class="wh-kind">Script</span>
               </button>
             </div>
           </div>
@@ -16814,9 +17116,9 @@
       const config = {
         magneticFactor: 0.1,
         speedMultiplier: 0.1,
-        maxScaleX: 1,
-        maxScaleY: 0.3,
-        cursorSize: 30,
+        maxScaleX: 0.35,
+        maxScaleY: 0.15,
+        cursorSize: 20,
         lerpAmount: 0.1,
         hoverPadding: 2,
         hoverAttribute: 'data-magnetic',
