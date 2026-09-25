@@ -9845,6 +9845,165 @@
     .studio-run .sr-error { margin-top: 9px; font-size: 12.8px; color: var(--coral); }
     .studio-run .sr-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
   </style>
+  <style id="hintsCSS">
+    /* Where to start: a shelf of four things you could make. Each one shows
+       the shape of what comes back (a square icon, a 16:9 thumbnail, a
+       model, a script) drawn small on a patch of baseplate, and pointing at
+       it develops that picture in the page's colour. Pressing one puts the
+       words in the box, to be changed before sending. */
+    .welcome:has(.w-hints) { max-width: 760px; }
+
+    .welcome .w-hints {
+      display: grid;
+      grid-template-columns: 1fr 1.25fr 1fr 1fr;
+      gap: 10px;
+      max-width: 700px;
+      margin: 0 auto;
+      text-align: left;
+    }
+
+    .welcome .w-hints .w-hint {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0;
+      padding: 6px 6px 11px;
+      border: 0;
+      border-radius: var(--radius-md);
+      background: var(--card);
+      box-shadow: var(--raise);
+      color: var(--ink);
+      font-family: var(--font-body);
+      text-align: left;
+      cursor: pointer;
+      transition: box-shadow .18s ease, transform .18s ease;
+    }
+
+    .welcome .w-hints .w-hint:hover {
+      border: 0;
+      background: var(--card);
+      transform: translateY(-2px);
+      box-shadow: 0 1px 0 var(--edge), 0 8px 18px -10px rgba(16, 42, 46, .35);
+    }
+
+    .welcome .w-hints .w-hint:active {
+      transform: translateY(0);
+      box-shadow: var(--raise);
+      transition-duration: .06s;
+    }
+
+    .welcome .w-hints .w-hint:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    /* A patch of baseplate, the grid the whole page sits on. */
+    .welcome .wh-plate {
+      display: block;
+      height: 64px;
+      margin-bottom: 10px;
+      border-radius: calc(var(--radius-md) - 4px);
+      background-color: var(--soft);
+      background-image:
+        linear-gradient(var(--grid-line, rgba(28, 33, 39, .05)) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid-line, rgba(28, 33, 39, .05)) 1px, transparent 1px);
+      background-size: 8px 8px;
+      background-position: -1px -1px;
+      overflow: hidden;
+    }
+
+    .welcome .wh-plate svg {
+      display: block;
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+    }
+
+    .welcome .wh-plate svg * {
+      stroke-linejoin: round;
+      transition: fill .3s ease, stroke .3s ease, transform .45s cubic-bezier(.2, .8, .2, 1);
+      transform-box: fill-box;
+    }
+
+    .welcome .wh-text {
+      display: block;
+      padding: 0 5px;
+      font-size: 12.8px;
+      font-weight: 550;
+      line-height: 1.35;
+      color: var(--ink);
+      text-wrap: pretty;
+    }
+
+    .welcome .wh-kind {
+      display: block;
+      margin-top: auto;
+      padding: 8px 5px 0;
+      font-size: 11.5px;
+      font-weight: 500;
+      color: var(--ink-faint);
+      transition: color .2s ease;
+    }
+
+    .welcome .w-hint:hover .wh-kind { color: var(--accent); }
+
+    /* Icon: a square tile with an emblem that fills in. */
+    .wh-icon .pv-frame { fill: var(--card); stroke: var(--ink-faint); stroke-width: 1.5; }
+    .wh-icon .pv-mark { fill: none; stroke: var(--ink-muted); stroke-width: 1.5; }
+    .wh-icon .pv-dot { fill: var(--ink-muted); }
+    .wh-icon:hover .pv-frame { fill: var(--accent); stroke: var(--accent); }
+    .wh-icon:hover .pv-mark { fill: var(--on-accent); stroke: var(--on-accent); }
+    .wh-icon:hover .pv-dot { fill: var(--accent); }
+
+    /* Thumbnail: a wide frame whose sun comes up. */
+    .wh-thumb .pv-frame { fill: var(--card); stroke: var(--ink-faint); stroke-width: 1.5; }
+    .wh-thumb .pv-sun { fill: none; stroke: var(--ink-muted); stroke-width: 1.5; transform: translateY(6px); }
+    .wh-thumb .pv-hill { fill: var(--soft-2); }
+    .wh-thumb .pv-ridge { fill: none; stroke: var(--ink-faint); stroke-width: 1.5; }
+    .wh-thumb:hover .pv-frame { stroke: var(--accent); }
+    .wh-thumb:hover .pv-sun { fill: var(--accent); stroke: var(--accent); transform: translateY(0); }
+    .wh-thumb:hover .pv-hill { fill: color-mix(in srgb, var(--accent) 22%, var(--card)); }
+    .wh-thumb:hover .pv-ridge { stroke: var(--accent); }
+
+    /* Model: a wireframe block whose faces get shaded, lit from the left. */
+    .wh-cube .pv-top,
+    .wh-cube .pv-left,
+    .wh-cube .pv-right { fill: var(--card); stroke: var(--ink-muted); stroke-width: 1.5; }
+    .wh-cube:hover .pv-top { fill: color-mix(in srgb, var(--accent) 30%, var(--card)); stroke: var(--accent); }
+    .wh-cube:hover .pv-left { fill: var(--accent); stroke: var(--accent); }
+    .wh-cube:hover .pv-right { fill: var(--accent-deep); stroke: var(--accent-deep); }
+
+    /* Script: short lines that run out to full length. */
+    .wh-code .pv-kw { fill: var(--ink-muted); }
+    .wh-code .pv-ln { fill: var(--ink-faint); transform: scaleX(.6); transform-origin: left center; }
+    .wh-code:hover .pv-kw { fill: var(--accent); }
+    .wh-code:hover .pv-ln { fill: var(--ink-muted); transform: scaleX(1); }
+    .wh-code:hover .pv-ln:nth-child(4) { transition-delay: .06s; }
+    .wh-code:hover .pv-ln:nth-child(5) { transition-delay: .12s; }
+
+    [data-theme="dark"] .welcome .w-hints .w-hint:hover {
+      box-shadow: 0 1px 0 var(--edge), 0 10px 22px -10px rgba(0, 0, 0, .7);
+    }
+
+    @media (max-width: 700px) {
+      .welcome .w-hints {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        max-width: 420px;
+        gap: 8px;
+      }
+
+      .welcome .w-hints .w-hint { padding: 5px 5px 9px; }
+      .welcome .wh-plate { height: 44px; margin-bottom: 8px; }
+      .welcome .wh-text { font-size: 12.5px; }
+      .welcome .wh-kind { padding-top: 6px; font-size: 11px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .welcome .w-hints .w-hint,
+      .welcome .wh-plate svg * { transition: none; }
+      .welcome .w-hints .w-hint:hover { transform: none; }
+    }
+  </style>
 </head>
 
 <body onload="openComposerStageMode('chat')">
@@ -10157,17 +10316,25 @@
             <h2>What are we working on?</h2>
             <p>Describe what you want to make. The right tool is picked for you, or choose one in the dock below.</p>
             <div class="w-hints">
-              <button type="button" class="w-hint" data-mode="image" onclick="useWelcomeExample(this)">
-                <span class="wh-ico" data-ico="icon"></span><span class="wh-text">A dragon icon for a fantasy game</span>
+              <button type="button" class="w-hint wh-icon" data-mode="image" onclick="useWelcomeExample(this)">
+                <span class="wh-plate" aria-hidden="true"><svg viewBox="0 0 96 56"><rect class="pv-frame" x="31" y="11" width="34" height="34" rx="9"/><path class="pv-mark" d="M48 17.5 56.5 28 48 38.5 39.5 28Z"/><circle class="pv-dot" cx="48" cy="28" r="3"/></svg></span>
+                <span class="wh-text">A dragon icon for a fantasy game</span>
+                <span class="wh-kind">Icon</span>
               </button>
-              <button type="button" class="w-hint" data-mode="image" onclick="useWelcomeExample(this)">
-                <span class="wh-ico" data-ico="thumb"></span><span class="wh-text">A thumbnail for a zombie survival game</span>
+              <button type="button" class="w-hint wh-thumb" data-mode="image" onclick="useWelcomeExample(this)">
+                <span class="wh-plate" aria-hidden="true"><svg viewBox="0 0 96 56"><rect class="pv-frame" x="16" y="10" width="64" height="36" rx="4"/><circle class="pv-sun" cx="63" cy="24" r="4.5"/><path class="pv-hill" d="M17 45V36l14-9 11 7 9-5 28 16V45Z"/><path class="pv-ridge" d="M17 36l14-9 11 7 9-5 28 16"/></svg></span>
+                <span class="wh-text">A thumbnail for a zombie survival game</span>
+                <span class="wh-kind">Thumbnail</span>
               </button>
-              <button type="button" class="w-hint" data-mode="model3d" onclick="useWelcomeExample(this)">
-                <span class="wh-ico" data-ico="cube"></span><span class="wh-text">A 3D model of a rusty sword</span>
+              <button type="button" class="w-hint wh-cube" data-mode="model3d" onclick="useWelcomeExample(this)">
+                <span class="wh-plate" aria-hidden="true"><svg viewBox="0 0 96 56"><path class="pv-top" d="M48 9 64 18 48 27 32 18Z"/><path class="pv-left" d="M32 18 48 27V46L32 37Z"/><path class="pv-right" d="M64 18 48 27V46L64 37Z"/></svg></span>
+                <span class="wh-text">A 3D model of a rusty sword</span>
+                <span class="wh-kind">3D model</span>
               </button>
-              <button type="button" class="w-hint" data-mode="code" onclick="useWelcomeExample(this)">
-                <span class="wh-ico" data-ico="code"></span><span class="wh-text">A door that opens when a player touches it</span>
+              <button type="button" class="w-hint wh-code" data-mode="code" onclick="useWelcomeExample(this)">
+                <span class="wh-plate" aria-hidden="true"><svg viewBox="0 0 96 56"><rect class="pv-kw" x="24" y="11" width="12" height="5" rx="2.5"/><rect class="pv-ln" x="39" y="11" width="33" height="5" rx="2.5"/><rect class="pv-kw" x="31" y="20.5" width="8" height="5" rx="2.5"/><rect class="pv-ln" x="42" y="20.5" width="28" height="5" rx="2.5"/><rect class="pv-ln" x="31" y="30" width="36" height="5" rx="2.5"/><rect class="pv-kw" x="24" y="39.5" width="12" height="5" rx="2.5"/></svg></span>
+                <span class="wh-text">A door that opens when a player touches it</span>
+                <span class="wh-kind">Script</span>
               </button>
             </div>
           </div>
