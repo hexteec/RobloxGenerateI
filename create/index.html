@@ -14526,18 +14526,38 @@
       if (typeof openWorkspace === "function") openWorkspace(mode, { task: taskId });
     }
 
+    function retireStandingChooser() {
+      const el = pendingChoiceMessage && pendingChoiceMessage._tempEl;
+      if (el) el.querySelectorAll(".chooser-3d button, .c3-more").forEach(b => { b.disabled = true; });
+    }
+
     function applyFlowComposerState() {
       const dropzoneRow = document.getElementById("dropzoneRow");
       const dzRef = document.getElementById("dzRef");
       const modeAttachWrap = document.getElementById("modeAttachPillWrap");
 
-      if (flowState === "choose_method" || flowState === "busy") {
+      if (flowState === "busy") {
         setPromptBoxEnabled(false);
         if (dropzoneRow) dropzoneRow.style.display = "none";
         if (dzRef) dzRef.style.display = "none";
         if (modeAttachWrap) modeAttachWrap.style.display = "none";
+        document.getElementById("composerHint").textContent = "Generation in progress - wait for the result below.";
+        return;
+      }
+
+      // The options in the chat are shortcuts, not a gate. The box stays
+      // open: whatever is written here (with pictures attached through +)
+      // goes to the assistant, which picks the way in by itself.
+      if (flowState === "choose_method") {
+        setPromptBoxEnabled(true);
+        if (dropzoneRow) dropzoneRow.style.display = "none";
+        if (dzRef) dzRef.style.display = "none";
+        if (modeAttachWrap) modeAttachWrap.style.display = "none";
+        const promptEl = document.getElementById("prompt");
+        if (promptEl) promptEl.placeholder = TOOL_PLACEHOLDERS[activeForceMode] || "Write a message…";
         document.getElementById("composerHint").textContent =
-          flowState === "busy" ? "Generation in progress - wait for the result below." : "Choose one of the options above in the chat.";
+          "Pick an option above, or just say what you want. Attach a picture with + if it starts from one.";
+        if (isComposerExpanded && typeof syncComposerLayout === 'function') syncComposerLayout();
         return;
       }
 
@@ -14591,6 +14611,69 @@
       }
       document.getElementById("composerHint").textContent = METHOD_INFO[currentMethod].hint;
       if (isComposerExpanded && typeof syncComposerLayout === 'function') syncComposerLayout();
+    }
+
+    const TOOL_PLACEHOLDERS = {
+      image: "Describe the picture, or attach one and say what to change…",
+      model3d: "Describe the object, or attach a photo of it…",
+      ui2lua: "Attach a screenshot, or describe the interface…"
+    };
+
+    // Which of the assistant's actions count as "this tool doing its job".
+    // Asked for from inside the tool, those run at once, without the plan
+    // card the assistant shows when it decides to make something itself.
+    const TOOL_ACTIONS = {
+      image: ["image", "enhance"],
+      model3d: ["model3d"],
+      ui2lua: ["ui_to_lua", "workspace"]
+    };
+
+    // Pictures added with + (or pasted, or dropped on the box) are the same
+    // pictures the dropzones take. Once a tool has a way in that reads its
+    // picture from a dropzone, an attached picture goes straight there.
+    function setDropImage(slot, dataUrl) {
+      const pre = slot === "ref" ? "dzRef" : "dzMain";
+      if (slot === "ref") refImage = dataUrl; else mainImage = dataUrl;
+      document.getElementById(pre + "Preview").src = dataUrl;
+      document.getElementById(pre + "Name").textContent = "Attached image";
+      document.getElementById(pre + "Filled").classList.add("show");
+      document.getElementById(pre).classList.add("filled");
+      updateEnhanceButtonLabel();
+      if (typeof updateDropzoneLabels === 'function') updateDropzoneLabels();
+    }
+
+    function routeAttachmentsToTool() {
+      if (flowState === "busy" || flowState === "choose_method") return;
+      const mode = activeForceMode;
+      const takesPicture =
+        (mode === "image" && flowState === "awaiting_input") ||
+        (mode === "model3d" && (flowState === "awaiting_description" || flowState === "awaiting_reference_image")) ||
+        (mode === "ui2lua" && uiMethod === "shot");
+      if (!takesPicture) return;
+
+      const imgs = pendingAttachments.filter(a => a.kind === "image");
+      if (!imgs.length) return;
+      pendingAttachments = pendingAttachments.filter(a => a.kind !== "image");
+      renderPendingAttachments();
+
+      const promptEl = document.getElementById("prompt");
+      if (mode === "image") {
+        // A picture turns "from scratch" into an edit of it; a second one
+        // becomes the style to borrow.
+        for (const a of imgs) {
+          if (currentMethod === "text") currentMethod = "image";
+          if (!mainImage) setDropImage("main", a.dataUrl);
+          else { currentMethod = "style"; setDropImage("ref", a.dataUrl); }
+        }
+        if (promptEl) promptEl.placeholder = currentMethod === "style"
+          ? "Optional: extra hints for the style…" : "What to change in this image?";
+      } else if (mode === "model3d") {
+        flowState = "awaiting_reference_image";
+        setDropImage("main", imgs[0].dataUrl);
+      } else {
+        setDropImage("main", imgs[0].dataUrl);
+      }
+      applyFlowComposerState();
     }
 
     function chooseImageMethod(mode, method, btnEl) {
@@ -14754,6 +14837,7 @@
         pendingAttachments.push({ id, kind: "file", dataUrl: null, name: file.name, mimeType: file.type });
       }
       renderPendingAttachments();
+      if (isImage) routeAttachmentsToTool();
     }
 
     function removePendingAttachment(id) {
@@ -14853,6 +14937,10 @@
     }
 
     function onSendClick() {
+      if (TOOL_ACTIONS[activeForceMode] && flowState === "choose_method") {
+        sendChatMessage({ fromTool: activeForceMode });
+        return;
+      }
       if (activeForceMode === "chat") sendChatMessage();
       else if (activeForceMode === "image") handleImageFlowSend();
       else if (activeForceMode === "model3d") handleModel3DSend();
@@ -15193,7 +15281,8 @@
       });
     }
 
-    async function sendChatMessage() {
+    async function sendChatMessage(opts) {
+      opts = opts || {};
       if (!currentUser) { document.getElementById("signInBtn").click(); return; }
 
       const promptEl = document.getElementById("prompt");
@@ -15232,7 +15321,7 @@
           image: imageAttachments[0] || null,
           images: imageAttachments,
           agent: 2,
-          context: agentContext(imageAttachments.length)
+          context: Object.assign(agentContext(imageAttachments.length), opts.fromTool ? { fromTool: opts.fromTool } : {})
         }, {
           onStage: (stage) => {
             if (streamed) return; // prose already started; do not clobber it
@@ -15257,7 +15346,15 @@
           await persistMessage(chatId, { type: "text", prompt: raw, reply: data.reply || "" });
           clearPendingAttachments();
           resetComposerAfterSend();
-          await runAgentAction(action, { chatId, raw, images: imageAttachments, el: pendingEl });
+          const runCtx = { chatId, raw, images: imageAttachments, el: pendingEl };
+          if (opts.fromTool && TOOL_ACTIONS[opts.fromTool].includes(action.type)) {
+            // Asked for from inside the tool: it is the user's call, so it
+            // runs now, and the tool stays open for the next one.
+            runCtx.confirmed = true;
+            runCtx.fromTool = opts.fromTool;
+            retireStandingChooser();
+          }
+          await runAgentAction(action, runCtx);
 
         } else if (!action) {
           await persistMessage(chatId, { type: "text", prompt: raw, reply: data.reply || "" });
@@ -15670,7 +15767,11 @@
 
     async function agentImage(a, ctx) {
       const base = a.base ? await agentSource(a.base, ctx.images) : null;
-      const style = a.style ? await agentSource(a.style, ctx.images) : null;
+      const style = a.style
+        ? (a.style === "attached" && a.base === "attached" && ctx.images && ctx.images[1]
+          ? ctx.images[1]
+          : await agentSource(a.style, ctx.images))
+        : null;
       if (a.op !== "create" && !base) throw new Error("There is no image to work on yet.");
 
       setForceMode("image", { skipAutoChooser: true });
@@ -15689,7 +15790,8 @@
       } finally {
         agentQuietBubble = false;
         promptEl.value = "";
-        setForceMode("chat", { skipAutoChooser: true });
+        if (ctx.fromTool) setForceMode(ctx.fromTool);
+        else setForceMode("chat", { skipAutoChooser: true });
       }
     }
 
@@ -15745,7 +15847,8 @@
       } finally {
         agentQuietBubble = false;
         promptEl.value = "";
-        setForceMode("chat", { skipAutoChooser: true });
+        if (ctx.fromTool) setForceMode(ctx.fromTool);
+        else setForceMode("chat", { skipAutoChooser: true });
       }
     }
 
