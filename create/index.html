@@ -9569,6 +9569,13 @@
       color: var(--ink-muted);
     }
 
+    .agent-note.chat-meter {
+      font-size: 12px;
+      color: var(--ink-faint);
+    }
+
+    .msg-bubble > .bot-body > .agent-note.chat-meter:first-child { margin-top: 0; color: var(--ink-muted); font-size: 13px; }
+
     .agent-confirm {
       margin-top: 12px;
       padding: 12px 14px 12px;
@@ -12989,12 +12996,10 @@
       }
 
       const isEventStream = (res.headers.get("content-type") || "").includes("text/event-stream");
+      if (!res.ok && res.status !== 404 && res.status !== 405) throw await chatError(res);
       if (!res.ok || !res.body || !isEventStream) {
-        if (res.status === 404 || res.status === 405 || !isEventStream) {
-          chatStreamingAvailable = false;
-          return chatWithoutStreaming(payload);
-        }
-        throw new Error(await extractError(res));
+        chatStreamingAvailable = false;
+        return chatWithoutStreaming(payload);
       }
 
       const reader = res.body.getReader();
@@ -13008,7 +13013,7 @@
         if (event === "stage") handlers.onStage && handlers.onStage(data.stage);
         else if (event === "delta") { sawDelta = true; handlers.onDelta && handlers.onDelta(data.text || ""); }
         else if (event === "replace") handlers.onReplace && handlers.onReplace(data.reply || "");
-        else if (event === "done") result = { reply: data.reply || "", action: data.action || null };
+        else if (event === "done") result = { reply: data.reply || "", action: data.action || null, billing: data.billing || null };
         else if (event === "error") streamError = data.error || "Stream error";
       };
 
@@ -13049,8 +13054,34 @@
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
       });
-      if (!res.ok) throw new Error(await extractError(res));
+      if (!res.ok) throw await chatError(res);
       return res.json();
+    }
+
+    // The worker names why it would not answer (no tokens, too fast, too
+    // long); the code rides along on the error so the chat can act on it.
+    async function chatError(res) {
+      let data = null;
+      try { data = await res.json(); } catch (e) { /* not JSON */ }
+      const err = new Error((data && data.error) || ("The assistant did not answer (" + res.status + ")."));
+      err.status = res.status;
+      err.code = data && data.code;
+      return err;
+    }
+
+    // Under the reply: what is left of today's free messages, or what this
+    // one cost once they are gone. Quiet unless there is something to know.
+    function chatBillingNote(el, billing) {
+      if (!el || !billing) return;
+      let text = "";
+      if (billing.free) {
+        if (billing.freeLeft === 1) text = "1 free assistant message left today.";
+        else if (billing.freeLeft === 0) text = "That was your last free assistant message today. After this, each reply costs a small fraction of a token.";
+      } else if (billing.chargedMilli) {
+        text = "This reply cost " + (billing.chargedMilli / 1000).toFixed(3).replace(/0+$/, "").replace(/\.$/, "") + " tokens.";
+      }
+      if (text) appendBotBody(el, `<div class="agent-note chat-meter">${escapeHtml(text)}</div>`);
+      if (!billing.free && typeof refreshBalance === "function") refreshBalance();
     }
 
     async function authedFetch(path, options = {}) {
@@ -15339,6 +15370,7 @@
 
         stopStreamingReply(streamState);
         setBotBody(pendingEl, renderMarkdown(data.reply || "..."));
+        chatBillingNote(pendingEl, data.billing);
 
         const action = data.action;
 
@@ -15438,7 +15470,12 @@
       } catch (e) {
         console.error(e);
         stopStreamingReply(streamState);
-        setBotBody(pendingEl, errorHtml("Error: " + e.message));
+        if (e.code && /^CHAT_/.test(e.code)) {
+          setBotBody(pendingEl, `<div class="agent-note chat-meter">${escapeHtml(e.message)}</div>`);
+          if (e.code === "CHAT_NO_TOKENS" && typeof openBuyModal === "function") openBuyModal();
+        } else {
+          setBotBody(pendingEl, errorHtml("Error: " + e.message));
+        }
       } finally {
         stopStreamingReply(streamState);
         sendBtn.disabled = false;
